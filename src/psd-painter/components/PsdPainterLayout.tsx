@@ -1,0 +1,205 @@
+import React, { useEffect, useRef, useState } from 'react';
+import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, TOOLS } from '../constants';
+import type { PsdView } from '../psd-painter-view';
+import { SelectionManager } from '../viewmodel/SelectionManager';
+import { ActionMenu } from './ActionMenu';
+
+interface PsdPainterLayoutProps {
+  /**
+   * Obsidian の FileView を継承した PsdView。
+   * Obsidian API 依存の箇所は PsdView に残し、
+   * 本コンポーネントは純粋な UI 操作のみを担当する。
+   */
+  view: PsdView;
+}
+
+/**
+ * PsdPainterLayout
+ *
+ * これまで FileView#onOpen 内で手続き的に組み立てていた
+ * DOM/UI 操作を React コンポーネントとして再実装したもの。
+ *
+ * Obsidian API と直接やり取りする必要のない処理は全てここに集約し、
+ * ビュー側からは <PsdPainterLayout view={this} /> をレンダリングするだけにする。
+ */
+const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
+  /* ──────────────── Refs & States ──────────────── */
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  // 現在のツール, ブラシ幅, カラーなどは view の state を参照する
+  const [, forceUpdate] = useState(0); // view プロパティ変更時の再描画用（簡易）
+  const [selectionVisible, setSelectionVisible] = useState(false);
+  const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
+
+  /* ──────────────── Helpers ──────────────── */
+  const reRender = () => forceUpdate(v => v + 1);
+
+  const updateTool = (toolId: string) => {
+    view.currentTool = toolId as any; // 型安全は view 側で管理
+    setSelectionVisible(toolId === 'selection');
+    // カーソルスタイル
+    if (canvasRef.current) {
+      if (['brush', 'eraser', 'selection'].includes(toolId)) {
+        canvasRef.current.style.cursor = 'crosshair';
+      } else {
+        canvasRef.current.style.cursor = 'default';
+      }
+    }
+    reRender();
+  };
+
+  /* ──────────────── Effects ──────────────── */
+  // マウント時 – Canvas, SelectionManager, ActionMenu 等の初期化
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    // キャンバス基本設定
+    canvas.width = DEFAULT_CANVAS_WIDTH;
+    canvas.height = DEFAULT_CANVAS_HEIGHT;
+    canvas.className = 'bg-transparent shadow-lg touch-none';
+
+    // PsdView へキャンバス DOM を紐付け
+    (view as any)._canvas = canvas;
+
+    // ポインタ関連イベント（PsdView 内部実装を使う）
+    const onPointerDown = (e: PointerEvent) => (view as any).handlePointerDown(e);
+    const onPointerMove = (e: PointerEvent) => (view as any).handlePointerMove(e);
+    const onPointerUp = (e: PointerEvent) => (view as any).handlePointerUp(e);
+
+    canvas.addEventListener('pointerdown', onPointerDown);
+    canvas.addEventListener('pointermove', onPointerMove);
+    canvas.addEventListener('pointerup', onPointerUp);
+
+    // SelectionManager を未生成なら生成
+    if (!(view as any)._selectionManager) {
+      (view as any)._selectionManager = new SelectionManager(view);
+    }
+
+    // ActionMenu
+    const actionMenu = new ActionMenu(view);
+    view.actionMenu = actionMenu; // view 側にも保持
+    // SelectionManager と紐付け
+    view.selectionManager?.setActionMenu(actionMenu);
+    const resizeHandler = () => actionMenu.showGlobal();
+    window.addEventListener('resize', resizeHandler);
+    actionMenu.showGlobal();
+
+    // ファイル読み込み or 背景レイヤー作成
+    (async () => {
+      if (view.file) {
+        await (view as any)._loadAndRenderFile(view.file);
+      } else {
+        const bgCanvas = document.createElement('canvas');
+        bgCanvas.width = DEFAULT_CANVAS_WIDTH;
+        bgCanvas.height = DEFAULT_CANVAS_HEIGHT;
+        const bgCtx = bgCanvas.getContext('2d');
+        if (bgCtx) {
+          bgCtx.fillStyle = 'white';
+          bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+        }
+
+        view.psdDataHistory[0].layers = [
+          {
+            name: '背景',
+            visible: true,
+            opacity: 1,
+            blendMode: 'normal',
+            canvas: bgCanvas,
+          },
+        ];
+        view.renderCanvas();
+      }
+    })();
+
+    return () => {
+      // クリーンアップ
+      canvas.removeEventListener('pointerdown', onPointerDown);
+      canvas.removeEventListener('pointermove', onPointerMove);
+      canvas.removeEventListener('pointerup', onPointerUp);
+      actionMenu.dispose();
+      window.removeEventListener('resize', resizeHandler);
+    };
+  }, [view]);
+
+  /* ──────────────── JSX ──────────────── */
+  return (
+    <div className="flex flex-1 overflow-hidden">
+      {/* ── Tool Palette ── */}
+      <div className="w-[60px] bg-[var(--background-secondary)] border-r border-[var(--background-modifier-border)] flex flex-col gap-1 p-1">
+        {TOOLS.map(tool => {
+          const isActive = view.currentTool === tool.id;
+          return (
+            <button
+              key={tool.id}
+              className={`w-10 h-10 border-none bg-[var(--background-primary)] text-[var(--text-normal)] rounded cursor-pointer flex items-center justify-center hover:bg-[var(--background-modifier-hover)] ${
+                isActive ? 'bg-[var(--interactive-accent)] text-[var(--text-on-accent)]' : ''
+              }`}
+              title={tool.title}
+              onClick={() => updateTool(tool.id)}
+              dangerouslySetInnerHTML={{ __html: tool.icon }}
+            />
+          );
+        })}
+      </div>
+
+      {/* ── Brush & Selection Settings ── */}
+      <div className="p-1 bg-[var(--background-secondary)] border-r border-[var(--background-modifier-border)] w-[200px] flex flex-col gap-2">
+        {/* Brush Size */}
+        <div className="flex flex-col gap-1">
+          <div className="text-[var(--text-muted)] text-xs">ブラシサイズ:</div>
+          <input
+            type="range"
+            min={1}
+            max={50}
+            value={view.currentLineWidth}
+            onChange={e => {
+              view.currentLineWidth = parseInt(e.currentTarget.value, 10);
+              reRender();
+            }}
+          />
+        </div>
+
+        {/* Color Picker */}
+        <div className="flex flex-col items-center mt-2">
+          <input
+            type="color"
+            className="w-8 h-8 p-0 border-2 border-white rounded cursor-pointer"
+            value={view.currentColor}
+            onChange={e => {
+              view.currentColor = e.currentTarget.value;
+              reRender();
+            }}
+          />
+        </div>
+
+        {/* Selection Type */}
+        {selectionVisible && (
+          <div className="flex flex-col gap-1 mt-4">
+            <div className="text-[var(--text-muted)] text-xs">選択種別:</div>
+            <select
+              className="w-full text-xs"
+              value={selectionType}
+              onChange={e => {
+                const val = e.currentTarget.value as 'rect' | 'lasso' | 'magic';
+                setSelectionType(val);
+                view.selectionManager?.setMode(val);
+                updateTool('selection'); // selection モードに固定
+              }}
+            >
+              <option value="rect">矩形</option>
+              <option value="lasso">投げ縄</option>
+              <option value="magic">マジックワンド</option>
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* ── Canvas Container ── */}
+      <div className="flex-1 flex items-center justify-center overflow-auto bg-[var(--background-primary)]">
+        <canvas ref={canvasRef} />
+      </div>
+    </div>
+  );
+};
+
+export default PsdPainterLayout; 
