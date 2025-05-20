@@ -1,14 +1,14 @@
 
 import { DEFAULT_COLOR } from '../constants';
 import type { SelectionRect } from '../painter-types';
-import type { PsdView } from '../view/painter-obsidian-view';
+import type { PainterView } from '../view/painter-obsidian-view';
 import { ActionMenu } from '../view/components/ActionMenu';
 import { SelectionState } from './SelectionState';
 
 export class ActionMenuManager {
   private menu: ActionMenu;
 
-  constructor(private view: PsdView, private state: SelectionState) {
+  constructor(private view: PainterView, private state: SelectionState) {
     this.menu = new ActionMenu(view);
   }
 
@@ -44,8 +44,8 @@ export class ActionMenuManager {
       ].canvas.getContext('2d');
     if (!layerCtx) return;
     cb(layerCtx);
-    if (typeof (this.view as PsdView).saveLayerStateToHistory === 'function') {
-      (this.view as PsdView).saveLayerStateToHistory();
+    if (typeof (this.view as PainterView).saveLayerStateToHistory === 'function') {
+      (this.view as PainterView).saveLayerStateToHistory();
     }
   }
 

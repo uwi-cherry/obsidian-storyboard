@@ -1,10 +1,10 @@
 import React from 'react';
-import { ImageEditSiderbarView } from '../right-sidebar-obsidian-view';
+import { RightSidebarView } from '../right-sidebar-obsidian-view';
 import { Notice, App } from 'obsidian';
 import { createPsd } from '../../painter/controller/painter-obsidian-controller';
 
 interface NavigationControlsProps {
-    view: ImageEditSiderbarView;
+    view: RightSidebarView;
     isPsdPainterOpen: boolean;
     currentImageUrl: string | null;
     onBackToStoryboard: () => void;

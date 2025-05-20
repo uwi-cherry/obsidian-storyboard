@@ -3,7 +3,7 @@ import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 
 import { StoryboardData } from '../storyboard-types';
-import StoryboardLayout from '../view/StoryboardReactView';
+import StoryboardReactView from '../view/StoryboardReactView';
 import { loadStoryboardData, saveStoryboardData } from '../storyboard-files';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
@@ -38,7 +38,7 @@ export async function switchToStoryboardViewMode(leaf: WorkspaceLeaf, app: App):
     };
 
     root.render(
-        React.createElement(StoryboardLayout, {
+        React.createElement(StoryboardReactView, {
             initialData: initialData,
             onDataChange: handleDataChange,
             app: app
