@@ -13,14 +13,7 @@ const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onC
   if (mode === 'hidden') return null;
   return (
     <div
-      style={{
-        display: 'flex',
-        gap: '4px',
-        background: 'var(--background-secondary)',
-        border: '1px solid var(--background-modifier-border)',
-        padding: '4px',
-        borderRadius: '4px',
-      }}
+      className="flex gap-1 bg-secondary border border-modifier-border p-1 rounded"
     >
       <button className="px-2 py-1 text-xs" onClick={onFill}>
         Fill
