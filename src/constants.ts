@@ -30,13 +30,6 @@ export const BLEND_MODE_TO_COMPOSITE_OPERATION = {
     'pass through': 'source-over'
 } as const;
 
-// ツールの定義
-export const TOOLS = [
-    { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
-    { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
-    { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
-] as const;
-
 // 履歴の最大サイズ
 export const MAX_HISTORY_SIZE = 20;
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, TOOLS } from '../../constants';
+import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { SelectionState } from '../controller/SelectionState';
+import { TOOL_ICONS } from 'src/icons';
 
 interface PainterReactViewProps {
   /**
@@ -122,7 +123,12 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       window.removeEventListener('resize', resizeHandler);
     };
   }, [view]);
-
+  // ツールの定義
+  let TOOLS = [
+      { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
+      { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
+      { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
+  ] as const;
   /* ──────────────── JSX ──────────────── */
   return (
     <div className="flex flex-1 overflow-hidden">
