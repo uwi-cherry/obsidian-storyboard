@@ -61,7 +61,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
 
     // LayerSidebarView へ操作コールバックを渡す
     const layerOps: LayerOps = {
-        addLayer: (name?: string) => view.createNewLayer(name ?? '新規レイヤー'),
+        addLayer: (name?: string) => view.createNewLayer(name ?? t('NEW_LAYER')),
         deleteLayer: (index: number) => view.deleteLayer(index),
         toggleLayerVisibility: (index: number) => {
             const layer = view.psdDataHistory[view.currentIndex].layers[index];
@@ -279,19 +279,19 @@ export function saveActive(app: App) {
 }
 
 // ============= レイヤー処理実装 =========================
-async function addLayer(view: PainterView, name = '新規レイヤー', imageFile?: TFile) {
+async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFile?: TFile) {
     // ベースサイズ
     const baseWidth = view._canvas ? view._canvas.width : DEFAULT_CANVAS_WIDTH;
     const baseHeight = view._canvas ? view._canvas.height : DEFAULT_CANVAS_HEIGHT;
 
     // レイヤー名の重複を避けて連番を付加
     let layerName = name;
-    if (name === '新規レイヤー') {
+    if (name === t('NEW_LAYER')) {
         let counter = 1;
-        while (view.psdDataHistory[view.currentIndex].layers.some(l => l.name === `新規レイヤー ${counter}`)) {
+        while (view.psdDataHistory[view.currentIndex].layers.some(l => l.name === `${t('NEW_LAYER')} ${counter}`)) {
             counter++;
         }
-        layerName = `新規レイヤー ${counter}`;
+        layerName = `${t('NEW_LAYER')} ${counter}`;
     }
 
     try {

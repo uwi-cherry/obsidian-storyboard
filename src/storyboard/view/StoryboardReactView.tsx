@@ -6,6 +6,7 @@ import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
+import { t } from 'src/i18n';
 
 interface StoryboardReactViewProps {
   initialData: StoryboardData;

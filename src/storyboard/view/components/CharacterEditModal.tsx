@@ -50,7 +50,7 @@ const CharacterEditModal: React.FC<{
         <div className="flex gap-2 items-center mb-4">
           <select value={selectedIdx} onChange={handleSelectChange} className="border rounded px-2 py-1 flex-1">
             {editChars.map((char, idx) => (
-              <option key={idx} value={idx}>{char.name || '(未設定)'}</option>
+              <option key={idx} value={idx}>{char.name || `(${t('UNSPECIFIED')})`}</option>
             ))}
           </select>
           <button className="text-blue-600 px-2 py-1 border rounded" onClick={handleAddChar}>＋</button>

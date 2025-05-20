@@ -232,7 +232,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           value={imagePrompt || ''}
           onChange={handleImagePromptChange}
           onKeyDown={handlePromptKeyDown}
-          placeholder="Image Prompt (optional)"
+          placeholder={t('IMAGE_PROMPT_PLACEHOLDER')}
           className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-[var(--text-normal)] placeholder-[var(--text-faint)] leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
         />
       )}
