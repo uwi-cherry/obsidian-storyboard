@@ -34,7 +34,7 @@ export class PainterView extends FileView {
         private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
         private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
 
-	private _selectionManager?: SelectionManager;
+        private _selectionController?: SelectionManager;
 
 	// フローティングメニュー（クリア・塗りつぶし）用
         public actionMenu!: ActionMenuManager;
@@ -45,9 +45,9 @@ export class PainterView extends FileView {
 	// React ルート（レイアウトをマウント）
 	private reactRoot?: Root;
 
-        /**
-         * SelectionController への public アクセス
-         */
+  /**
+   * SelectionController への public アクセス
+   */
 	public get selectionManager(): SelectionManager | undefined {
 		return this._selectionManager;
 	}
@@ -256,7 +256,7 @@ export class PainterView extends FileView {
 			this.saveLayerStateToHistory();
                 } else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
                         this.actionMenu.hide();
-                        this._selectionManager?.onPointerDown(x, y);
+                        this._selectionController?.onPointerDown(x, y);
                         return;
                 }
 	}
@@ -268,7 +268,7 @@ export class PainterView extends FileView {
 
 		// 選択ツールの場合はドラッグ状態に関係なく move を伝播
 		if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-			this._selectionManager?.onPointerMove(x, y);
+			this._selectionController?.onPointerMove(x, y);
 			return;
 		}
 
@@ -295,9 +295,9 @@ export class PainterView extends FileView {
                 }
 
                 if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        const valid = this._selectionManager?.onPointerUp() ?? false;
+                        const valid = this._selectionController?.onPointerUp() ?? false;
                         if (valid) {
-                                const cancel = () => this._selectionManager?.cancelSelection();
+                                const cancel = () => this._selectionController?.cancelSelection();
                                 this.actionMenu.showSelection(cancel);
                         } else {
                                 this.actionMenu.showGlobal();
@@ -398,7 +398,7 @@ export class PainterView extends FileView {
 		}
 
 		// 選択範囲を描画
-		this._selectionManager?.drawSelection(ctx);
+		this._selectionController?.drawSelection(ctx);
 
 		this._emitLayerChanged();
 	}
