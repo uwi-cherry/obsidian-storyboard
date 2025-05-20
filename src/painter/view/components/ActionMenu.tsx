@@ -1,8 +1,7 @@
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { PsdView } from '../psd-painter-view';
-import type { SelectionRect } from '../viewmodel/SelectionState';
-
+import { SelectionRect } from 'src/painter/painter-types';
+import { PsdView } from 'src/painter/view/painter-obsidian-view';
 interface ActionMenuContentProps {
   mode: 'global' | 'selection' | 'hidden';
   onFill: () => void;

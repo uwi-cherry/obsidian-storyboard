@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { normalizePath } from 'obsidian';
-import { ImageEditSiderbarView, Layer } from '../right-sidebar-view';
-import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/psd-painter/constants';
+import { ImageEditSiderbarView, Layer } from '../right-sidebar-obsidian-view';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/painter/constants';
 
 interface LayerControlsProps {
     view: ImageEditSiderbarView;

@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { App } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types'; 
-import EditableTable, { ColumnDef } from './EditableTable';
-import SpeakerDialogueCell from './SpeakerDialogueCell';
-import ImageInputCell from './ImageInputCell';
-import CharacterEditModal from './CharacterEditModal';
+import CharacterEditModal from './components/CharacterEditModal';
+import EditableTable, { ColumnDef } from './components/EditableTable';
+import ImageInputCell from './components/ImageInputCell';
+import SpeakerDialogueCell from './components/SpeakerDialogueCell';
 
 interface StoryboardLayoutProps {
   initialData: StoryboardData;

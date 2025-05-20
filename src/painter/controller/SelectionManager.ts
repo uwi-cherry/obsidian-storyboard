@@ -1,5 +1,5 @@
-import { SelectionRect } from '../psd-painter-types';
-import { PsdView } from '../psd-painter-view';
+import { SelectionRect } from '../painter-types';
+import { PsdView } from '../view/painter-obsidian-view';
 import { SelectionState } from './SelectionState';
 
 export type { SelectionRect };

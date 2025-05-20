@@ -1,9 +1,9 @@
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
-import { Layer } from '../psd-painter/psd-painter-types';
-import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../psd-painter/constants';
-import RightSiderbarLayout from './components/RightSiderbarLayout';
+import { Layer } from '../painter/painter-types';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../painter/constants';
+import RightSiderbarLayout from './RightSidebarReactView';
 export type { Layer };
 
 export const LAYER_SIDEBAR_VIEW_TYPE = 'psd-layer-sidebar';

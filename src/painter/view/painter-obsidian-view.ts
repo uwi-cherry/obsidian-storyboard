@@ -5,14 +5,13 @@ import {
 	MAX_HISTORY_SIZE,
 	DEFAULT_COLOR,
 	BLEND_MODE_TO_COMPOSITE_OPERATION
-} from './constants';
-import { Layer, PsdData } from './psd-painter-types';
-import { SelectionManager } from './viewmodel/SelectionManager';
+} from '../constants';
+import { Layer, PsdData } from '../painter-types';
 import React from 'react';
-import { createRoot, type Root } from 'react-dom/client';
-import PsdPainterLayout from './components/PsdPainterLayout';
-import { ActionMenuManager } from './viewmodel/ActionMenuManager';
-
+import { Root, createRoot } from 'react-dom/client';
+import { ActionMenuManager } from '../controller/ActionMenuManager';
+import { SelectionManager } from '../controller/SelectionManager';
+import PsdPainterLayout from './PainterReactView';
 export class PsdView extends FileView {
 	isDrawing = false;
 	lastX = 0;

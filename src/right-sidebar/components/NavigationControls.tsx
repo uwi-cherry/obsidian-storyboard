@@ -1,7 +1,7 @@
 import React from 'react';
-import { ImageEditSiderbarView } from '../right-sidebar-view';
+import { ImageEditSiderbarView } from '../right-sidebar-obsidian-view';
 import { Notice, App } from 'obsidian';
-import { createPsd } from '../../psd-painter/psd-painter-controller';
+import { createPsd } from '../../painter/controller/painter-obsidian-controller';
 
 interface NavigationControlsProps {
     view: ImageEditSiderbarView;

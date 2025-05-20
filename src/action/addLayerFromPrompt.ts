@@ -1,7 +1,7 @@
 import type MyPlugin from '../../main';
 import { App, TFile } from 'obsidian';
 import { loadAiSettings } from '../settings/settings';
-import { PsdView } from '../psd-painter/psd-painter-view';
+import { PsdView } from '../painter/view/painter-obsidian-view';
 
 /**
  * プロンプトから画像を生成し、アクティブな PSD に新規レイヤーとして追加するアクション。

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TABLE_ICONS } from '../../icons';
+import { TABLE_ICONS } from 'src/icons';
 
 export interface ColumnDef<T> {
   key: keyof T;

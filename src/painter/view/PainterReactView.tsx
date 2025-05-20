@@ -1,9 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, TOOLS } from '../constants';
-import type { PsdView } from '../psd-painter-view';
-import { SelectionManager } from '../viewmodel/SelectionManager';
-import { SelectionState } from '../viewmodel/SelectionState';
-import { ActionMenuManager } from '../viewmodel/ActionMenuManager';
+import type { PsdView } from './painter-obsidian-view';
+import { ActionMenuManager } from '../controller/ActionMenuManager';
+import { SelectionManager } from '../controller/SelectionManager';
+import { SelectionState } from '../controller/SelectionState';
 
 interface PsdPainterLayoutProps {
   /**

@@ -1,4 +1,4 @@
-import type { SelectionRect } from '../psd-painter-types';
+import type { SelectionRect } from '../painter-types';
 
 export type SelectionMode = 'rect' | 'lasso' | 'magic';
 

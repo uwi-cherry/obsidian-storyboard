@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { TFile } from 'obsidian';
-import type { ImageEditSiderbarView } from '../right-sidebar-view';
-import { Layer } from '../../psd-painter/psd-painter-types';
-import { PsdView } from '../../psd-painter/psd-painter-view';
-import { NavigationControls } from './NavigationControls';
-import { LayerControls } from './LayerControls';
-import ChatBox from './ChatBox';
+import type { ImageEditSiderbarView } from './right-sidebar-obsidian-view';
+import { Layer } from '../painter/painter-types';
+import { PsdView } from '../painter/view/painter-obsidian-view';
+import { NavigationControls } from './components/NavigationControls';
+import { LayerControls } from './components/LayerControls';
+import ChatBox from './components/ChatBox';
 
 interface RightSiderbarLayoutProps {
     view: ImageEditSiderbarView;

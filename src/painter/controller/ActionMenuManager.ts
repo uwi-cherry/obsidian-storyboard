@@ -1,7 +1,8 @@
-import { ActionMenu } from '../components/ActionMenu';
+
 import { DEFAULT_COLOR } from '../constants';
-import type { SelectionRect } from '../psd-painter-types';
-import type { PsdView } from '../psd-painter-view';
+import type { SelectionRect } from '../painter-types';
+import type { PsdView } from '../view/painter-obsidian-view';
+import { ActionMenu } from '../view/components/ActionMenu';
 import { SelectionState } from './SelectionState';
 
 export class ActionMenuManager {

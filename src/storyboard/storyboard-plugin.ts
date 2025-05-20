@@ -1,12 +1,7 @@
-import { App, MarkdownView, WorkspaceLeaf, TFile, addIcon, Notice } from 'obsidian';
-import type { MyPluginInstance } from '../../main';
-import {
-    switchToStoryboardViewMode,
-    switchToMarkdownViewMode,
-    getCurrentViewMode,
-    cleanupStoryboardViewRoots
-} from './storyboard-controller';
-import { STORYBOARD_ICON_SVG, STORYBOARD_TOGGLE_ICON_SVG } from '../icons';
+import { MyPluginInstance } from "main";
+import { App, TFile, Notice, WorkspaceLeaf, MarkdownView, addIcon } from "obsidian";
+import { STORYBOARD_ICON_SVG, STORYBOARD_TOGGLE_ICON_SVG } from "src/icons";
+import { getCurrentViewMode, switchToStoryboardViewMode, switchToMarkdownViewMode, cleanupStoryboardViewRoots } from "./controller/storyboard-obsidian-controller";
 
 /**
  * サポート関数: ファイルの拡張子を変更します。既存ファイルと競合する場合は連番を付与します。
