@@ -3,6 +3,7 @@ import { t } from 'src/i18n';
 import { normalizePath, TFile } from 'obsidian';
 import { RightSidebarView, Layer } from '../right-sidebar-obsidian-view';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/constants';
+import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from 'src/icons';
 
 interface LayerControlsProps {
     view: RightSidebarView;
@@ -50,28 +51,25 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                 onChange={handleImageLayerSelect}
             />
 
-            <div className="flex gap-1 mb-2">
+            <div className="flex items-center gap-2 mb-2">
                 <button
-                    className="flex-1 p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer text-xs hover:bg-modifier-hover"
+                    className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
                     onClick={() => view.addLayer(t('NEW_LAYER'))}
-                >
-                    {t('NEW_LAYER')}
-                </button>
+                    title={t('NEW_LAYER')}
+                    dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
+                />
                 <button
-                    className="flex-1 p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer text-xs hover:bg-modifier-hover"
+                    className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
                     onClick={() => fileInputRef.current?.click()}
-                >
-                    {t('IMAGE_LAYER')}
-                </button>
+                    title={t('IMAGE_LAYER')}
+                    dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
+                />
                 <button
-                    className="flex-1 p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer text-xs hover:bg-modifier-hover"
+                    className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
                     onClick={() => view.deleteLayer(currentLayerIndex)}
-                >
-                    {t('DELETE_LAYER')}
-                </button>
-            </div>
-
-            <div className="flex items-center gap-2 mb-2 p-1 bg-primary rounded">
+                    title={t('DELETE_LAYER')}
+                    dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
+                />
                 <input
                     type="range"
                     min="0"
@@ -83,16 +81,13 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                     }}
                     className="flex-1 h-1 bg-modifier-border rounded outline-none"
                 />
-            </div>
-
-            <div className="flex items-center p-1 mb-2">
                 <select
                     value={layers[currentLayerIndex]?.blendMode || 'normal'}
                     onChange={(e) => {
                         const mode = e.target.value as keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION;
                         view.layerOps?.setBlendMode(currentLayerIndex, mode);
                     }}
-                    className="flex-1 p-1 border border-modifier-border rounded bg-primary text-xs"
+                    className="p-1 border border-modifier-border rounded bg-primary text-xs"
                 >
                     {[
                         'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten',
