@@ -1,29 +1,29 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, TOOLS } from '../constants';
-import type { PsdView } from '../psd-painter-view';
-import { SelectionManager } from '../viewmodel/SelectionManager';
-import { SelectionState } from '../viewmodel/SelectionState';
-import { ActionMenuManager } from '../viewmodel/ActionMenuManager';
+import type { PainterView } from './painter-obsidian-view';
+import { ActionMenuController } from '../controller/action-menu-controller';
+import { SelectionController } from '../controller/selection-controller';
+import { SelectionState } from '../controller/SelectionState';
 
-interface PsdPainterLayoutProps {
+interface PainterReactViewProps {
   /**
-   * Obsidian の FileView を継承した PsdView。
-   * Obsidian API 依存の箇所は PsdView に残し、
+   * Obsidian の FileView を継承した PainterView。
+   * Obsidian API 依存の箇所は PainterView に残し、
    * 本コンポーネントは純粋な UI 操作のみを担当する。
    */
-  view: PsdView;
+  view: PainterView;
 }
 
 /**
- * PsdPainterLayout
+ * PainterReactView
  *
  * これまで FileView#onOpen 内で手続き的に組み立てていた
  * DOM/UI 操作を React コンポーネントとして再実装したもの。
  *
  * Obsidian API と直接やり取りする必要のない処理は全てここに集約し、
- * ビュー側からは <PsdPainterLayout view={this} /> をレンダリングするだけにする。
+ * ビュー側からは <PainterReactView view={this} /> をレンダリングするだけにする。
  */
-const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
+const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   /* ──────────────── Refs & States ──────────────── */
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // 現在のツール, ブラシ幅, カラーなどは view の state を参照する
@@ -49,7 +49,7 @@ const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
   };
 
   /* ──────────────── Effects ──────────────── */
-  // マウント時 – Canvas, SelectionManager, ActionMenu 等の初期化
+  // マウント時 – Canvas, SelectionController, ActionMenu 等の初期化
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -59,10 +59,10 @@ const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
     canvas.height = DEFAULT_CANVAS_HEIGHT;
     canvas.className = 'bg-transparent shadow-lg touch-none';
 
-    // PsdView へキャンバス DOM を紐付け
+    // PainterView へキャンバス DOM を紐付け
     (view as any)._canvas = canvas;
 
-    // ポインタ関連イベント（PsdView 内部実装を使う）
+    // ポインタ関連イベント（PainterView 内部実装を使う）
     const onPointerDown = (e: PointerEvent) => (view as any).handlePointerDown(e);
     const onPointerMove = (e: PointerEvent) => (view as any).handlePointerMove(e);
     const onPointerUp = (e: PointerEvent) => (view as any).handlePointerUp(e);
@@ -71,15 +71,15 @@ const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
 
-    // SelectionManager を未生成なら生成
+    // SelectionController を未生成なら生成
     if (!(view as any)._selectionState) {
       (view as any)._selectionState = new SelectionState();
     }
-    if (!(view as any)._selectionManager) {
-      (view as any)._selectionManager = new SelectionManager(view, (view as any)._selectionState);
+    if (!(view as any)._selectionController) {
+      (view as any)._selectionController = new SelectionController(view, (view as any)._selectionState);
     }
 
-    const actionMenu = new ActionMenuManager(view, (view as any)._selectionState);
+    const actionMenu = new ActionMenuController(view, (view as any)._selectionState);
     view.actionMenu = actionMenu;
     const resizeHandler = () => actionMenu.showGlobal();
     window.addEventListener('resize', resizeHandler);
@@ -183,7 +183,7 @@ const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
               onChange={e => {
                 const val = e.currentTarget.value as 'rect' | 'lasso' | 'magic';
                 setSelectionType(val);
-                view.selectionManager?.setMode(val);
+                view.selectionController?.setMode(val);
                 updateTool('selection'); // selection モードに固定
               }}
             >
@@ -203,4 +203,4 @@ const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
   );
 };
 
-export default PsdPainterLayout; 
+export default PainterReactView;

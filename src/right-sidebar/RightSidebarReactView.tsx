@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { TFile } from 'obsidian';
-import type { ImageEditSiderbarView } from '../right-sidebar-view';
-import { Layer } from '../../psd-painter/psd-painter-types';
-import { PsdView } from '../../psd-painter/psd-painter-view';
-import { NavigationControls } from './NavigationControls';
-import { LayerControls } from './LayerControls';
-import ChatBox from './ChatBox';
+import type { RightSidebarView } from './right-sidebar-obsidian-view';
+import { Layer } from '../painter/painter-types';
+import { PainterView } from '../painter/view/painter-obsidian-view';
+import { NavigationControls } from './components/NavigationControls';
+import { LayerControls } from './components/LayerControls';
+import ChatBox from './components/ChatBox';
 
-interface RightSiderbarLayoutProps {
-    view: ImageEditSiderbarView;
+interface RightSidebarReactViewProps {
+    view: RightSidebarView;
     layers: Layer[];
     currentLayerIndex: number;
     currentRowIndex: number | null;
@@ -18,7 +18,7 @@ interface RightSiderbarLayoutProps {
     onImageChange: (url: string | null, prompt: string | null) => void;
 }
 
-const RightSiderbarLayout: React.FC<RightSiderbarLayoutProps> = ({
+const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     view,
     layers,
     currentLayerIndex,
@@ -56,7 +56,7 @@ const RightSiderbarLayout: React.FC<RightSiderbarLayoutProps> = ({
         const storyboardLeaf = view.app.workspace
             .getLeavesOfType('markdown')
             .find((l) => {
-                const v = l.view as PsdView | null;
+                const v = l.view as PainterView | null;
                 return (
                     v &&
                     v.contentEl &&
@@ -93,4 +93,4 @@ const RightSiderbarLayout: React.FC<RightSiderbarLayoutProps> = ({
     );
 };
 
-export default RightSiderbarLayout; 
+export default RightSidebarReactView;

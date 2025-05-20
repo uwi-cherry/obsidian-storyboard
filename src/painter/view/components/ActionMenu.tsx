@@ -1,8 +1,7 @@
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { PsdView } from '../psd-painter-view';
-import type { SelectionRect } from '../viewmodel/SelectionState';
-
+import { SelectionRect } from 'src/painter/painter-types';
+import { PainterView } from 'src/painter/view/painter-obsidian-view';
 interface ActionMenuContentProps {
   mode: 'global' | 'selection' | 'hidden';
   onFill: () => void;
@@ -39,13 +38,13 @@ const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onC
 };
 
 export class ActionMenu {
-  private view: PsdView;
+  private view: PainterView;
   private container: HTMLDivElement;
   private root: Root;
   private mode: 'global' | 'selection' | 'hidden' = 'hidden';
   private handlers?: { fill: () => void; clear: () => void; cancel?: () => void };
 
-  constructor(view: PsdView) {
+  constructor(view: PainterView) {
     this.view = view;
     this.container = document.createElement('div');
     this.container.style.position = 'absolute';

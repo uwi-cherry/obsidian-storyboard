@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { App } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types'; 
-import EditableTable, { ColumnDef } from './EditableTable';
-import SpeakerDialogueCell from './SpeakerDialogueCell';
-import ImageInputCell from './ImageInputCell';
-import CharacterEditModal from './CharacterEditModal';
+import CharacterEditModal from './components/CharacterEditModal';
+import EditableTable, { ColumnDef } from './components/EditableTable';
+import ImageInputCell from './components/ImageInputCell';
+import SpeakerDialogueCell from './components/SpeakerDialogueCell';
 
-interface StoryboardLayoutProps {
+interface StoryboardReactViewProps {
   initialData: StoryboardData;
   onDataChange: (data: StoryboardData) => void;
   app: App;
 }
 
-const StoryboardLayout: React.FC<StoryboardLayoutProps> = ({ initialData, onDataChange, app }) => {
+const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, onDataChange, app }) => {
   const [storyboard, setStoryboard] = useState<StoryboardData>(initialData);
   const [charModalOpen, setCharModalOpen] = useState(false);
 
@@ -273,4 +273,4 @@ const StoryboardLayout: React.FC<StoryboardLayoutProps> = ({ initialData, onData
   );
 };
 
-export default StoryboardLayout;
+export default StoryboardReactView;

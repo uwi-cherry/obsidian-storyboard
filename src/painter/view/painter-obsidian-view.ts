@@ -5,15 +5,14 @@ import {
 	MAX_HISTORY_SIZE,
 	DEFAULT_COLOR,
 	BLEND_MODE_TO_COMPOSITE_OPERATION
-} from './constants';
-import { Layer, PsdData } from './psd-painter-types';
-import { SelectionManager } from './viewmodel/SelectionManager';
+} from '../constants';
+import { Layer, PsdData } from '../painter-types';
 import React from 'react';
-import { createRoot, type Root } from 'react-dom/client';
-import PsdPainterLayout from './components/PsdPainterLayout';
-import { ActionMenuManager } from './viewmodel/ActionMenuManager';
-
-export class PsdView extends FileView {
+import { Root, createRoot } from 'react-dom/client';
+import { ActionMenuController } from '../controller/action-menu-controller';
+import { SelectionController } from '../controller/selection-controller';
+import PainterReactView from './PainterReactView';
+export class PainterView extends FileView {
 	isDrawing = false;
 	lastX = 0;
 	lastY = 0;
@@ -32,13 +31,13 @@ export class PsdView extends FileView {
 	private _layerChangeCallbacks: (() => void)[] = [];
 
 	// コントローラーから注入されるレイヤー操作デリゲート
-	private _addLayerDelegate?: (view: PsdView, name?: string, imageFile?: TFile) => void;
-	private _deleteLayerDelegate?: (view: PsdView, index: number) => void;
+        private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
+        private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
 
-	private _selectionManager?: SelectionManager;
+        private _selectionController?: SelectionController;
 
 	// フローティングメニュー（クリア・塗りつぶし）用
-        public actionMenu!: ActionMenuManager;
+        public actionMenu!: ActionMenuController;
 
 	// ファイル入出力デリゲート
 	private _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
@@ -46,11 +45,11 @@ export class PsdView extends FileView {
 	// React ルート（レイアウトをマウント）
 	private reactRoot?: Root;
 
-	/**
-	 * SelectionManager への public アクセス
-	 */
-	public get selectionManager(): SelectionManager | undefined {
-		return this._selectionManager;
+  /**
+   * SelectionController への public アクセス
+   */
+	public get selectionController(): SelectionController | undefined {
+		return this._selectionController;
 	}
 
 	/**
@@ -82,9 +81,9 @@ export class PsdView extends FileView {
 	/**
 	 * コントローラーからレイヤー操作を注入する
 	 */
-	public setLayerOperations(ops: {
-		add: (view: PsdView, name?: string, imageFile?: TFile) => void;
-		delete: (view: PsdView, index: number) => void;
+        public setLayerOperations(ops: {
+                add: (view: PainterView, name?: string, imageFile?: TFile) => void;
+                delete: (view: PainterView, index: number) => void;
 	}) {
 		this._addLayerDelegate = ops.add;
 		this._deleteLayerDelegate = ops.delete;
@@ -232,11 +231,11 @@ export class PsdView extends FileView {
 		if (!this.reactRoot) {
 			this.reactRoot = createRoot(this.contentEl);
 		}
-		this.reactRoot.render(React.createElement(PsdPainterLayout, { view: this }));
+                this.reactRoot.render(React.createElement(PainterReactView, { view: this }));
 
 		// Canvas がまだ React サイドで生成されていないため
 		// ファイル読み込みや初期背景キャンバス作成は
-		// PsdPainterLayout 側の useEffect に移譲する。
+                // PainterReactView 側の useEffect に移譲する。
 
 		// Obsidian のファイルリストからのドラッグ＆ドロップをサポート
 		this.setupDragAndDrop();
@@ -257,7 +256,7 @@ export class PsdView extends FileView {
 			this.saveLayerStateToHistory();
                 } else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
                         this.actionMenu.hide();
-                        this._selectionManager?.onPointerDown(x, y);
+                        this._selectionController?.onPointerDown(x, y);
                         return;
                 }
 	}
@@ -269,7 +268,7 @@ export class PsdView extends FileView {
 
 		// 選択ツールの場合はドラッグ状態に関係なく move を伝播
 		if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-			this._selectionManager?.onPointerMove(x, y);
+			this._selectionController?.onPointerMove(x, y);
 			return;
 		}
 
@@ -296,9 +295,9 @@ export class PsdView extends FileView {
                 }
 
                 if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        const valid = this._selectionManager?.onPointerUp() ?? false;
+                        const valid = this._selectionController?.onPointerUp() ?? false;
                         if (valid) {
-                                const cancel = () => this._selectionManager?.cancelSelection();
+                                const cancel = () => this._selectionController?.cancelSelection();
                                 this.actionMenu.showSelection(cancel);
                         } else {
                                 this.actionMenu.showGlobal();
@@ -357,7 +356,7 @@ export class PsdView extends FileView {
 	createNewLayer(name = '新規レイヤー', imageFile?: TFile) {
 		if (this._addLayerDelegate) {
 			// 第3引数はオプショナル
-			(this._addLayerDelegate as (view: PsdView, name?: string, imageFile?: TFile) => void)(this, name, imageFile);
+                        (this._addLayerDelegate as (view: PainterView, name?: string, imageFile?: TFile) => void)(this, name, imageFile);
 		}
 	}
 
@@ -399,7 +398,7 @@ export class PsdView extends FileView {
 		}
 
 		// 選択範囲を描画
-		this._selectionManager?.drawSelection(ctx);
+		this._selectionController?.drawSelection(ctx);
 
 		this._emitLayerChanged();
 	}

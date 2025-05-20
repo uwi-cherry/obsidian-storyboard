@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { App, TFile, normalizePath, Notice } from 'obsidian';
-import { generateThumbnail, createPsd } from '../../psd-painter/psd-painter-controller';
-import type MyPlugin from '../../../main';
-import { generatePsdFromPrompt } from '../../action/generatePsdFromPrompt';
-import { BUTTON_ICONS } from '../../icons';
-
+import MyPlugin from 'main';
+import { generatePsdFromPrompt } from 'src/action/generatePsdFromPrompt';
+import { BUTTON_ICONS } from 'src/icons';
+import { generateThumbnail, createPsd } from 'src/painter/controller/painter-obsidian-controller';
 interface ImageInputCellProps {
   imageUrl?: string;
   imagePrompt?: string;

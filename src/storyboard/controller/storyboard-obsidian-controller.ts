@@ -2,9 +2,9 @@ import { App, WorkspaceLeaf, MarkdownView } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 
-import { StoryboardData } from './storyboard-types';
-import StoryboardLayout from './components/StoryboardLayout';
-import { loadStoryboardData, saveStoryboardData } from './storyboard-files';
+import { StoryboardData } from '../storyboard-types';
+import StoryboardReactView from '../view/StoryboardReactView';
+import { loadStoryboardData, saveStoryboardData } from '../storyboard-files';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
 const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();
@@ -38,7 +38,7 @@ export async function switchToStoryboardViewMode(leaf: WorkspaceLeaf, app: App):
     };
 
     root.render(
-        React.createElement(StoryboardLayout, {
+        React.createElement(StoryboardReactView, {
             initialData: initialData,
             onDataChange: handleDataChange,
             app: app

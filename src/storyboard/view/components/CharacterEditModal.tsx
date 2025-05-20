@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CharacterInfo, StoryboardFrame } from '../storyboard-types';
+import { CharacterInfo, StoryboardFrame } from 'src/storyboard/storyboard-types';
 
 const CharacterEditModal: React.FC<{
   open: boolean;

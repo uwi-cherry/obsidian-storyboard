@@ -1,13 +1,13 @@
 import { App, WorkspaceLeaf, TFile } from 'obsidian';
-import { PsdView } from './psd-painter-view';
-import { loadPsdFile, savePsdFile, createPsdFile } from './psd-painter-files';
-import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, BLEND_MODE_TO_COMPOSITE_OPERATION } from './constants';
+import { PainterView } from '../view/painter-obsidian-view';
+import { loadPsdFile, savePsdFile, createPsdFile } from '../painter-files';
+import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import * as agPsd from 'ag-psd';
-import { LAYER_SIDEBAR_VIEW_TYPE, ImageEditSiderbarView, LayerOps } from '../right-sidebar/right-sidebar-view';
-import { Layer } from './psd-painter-types';
+import { LAYER_SIDEBAR_VIEW_TYPE, RightSidebarView, LayerOps } from '../../right-sidebar/right-sidebar-obsidian-view';
+import { Layer } from '../painter-types';
 
-export function createPsdView(leaf: WorkspaceLeaf): PsdView {
-    const view = new PsdView(leaf);
+export function createPainterView(leaf: WorkspaceLeaf): PainterView {
+    const view = new PainterView(leaf);
     // ファイル入出力をビューに委譲
     view.setFileOperations({
         save: savePsdFile,
@@ -42,7 +42,7 @@ export function createPsdView(leaf: WorkspaceLeaf): PsdView {
         }
     }
 
-    const sidebarView = sidebarLeaf?.view as ImageEditSiderbarView | undefined;
+    const sidebarView = sidebarLeaf?.view as RightSidebarView | undefined;
 
     // === データアクセス用コールバックを Sidebar へ注入 =================
     if (sidebarView && typeof (sidebarView as any).setFileOps === 'function') {
@@ -66,8 +66,8 @@ export function createPsdView(leaf: WorkspaceLeaf): PsdView {
             const layer = view.psdDataHistory[view.currentIndex].layers[index];
             if (layer) {
                 layer.visible = !layer.visible;
-                if (typeof (view as PsdView).saveLayerStateToHistory === 'function') {
-                    (view as PsdView).saveLayerStateToHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
                 }
                 view.renderCanvas();
             }
@@ -76,8 +76,8 @@ export function createPsdView(leaf: WorkspaceLeaf): PsdView {
             const layer = view.psdDataHistory[view.currentIndex].layers[index];
             if (layer) {
                 layer.name = newName;
-                if (typeof (view as PsdView).saveLayerStateToHistory === 'function') {
-                    (view as PsdView).saveLayerStateToHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
                 }
                 view.renderCanvas();
             }
@@ -90,8 +90,8 @@ export function createPsdView(leaf: WorkspaceLeaf): PsdView {
             const layer = view.psdDataHistory[view.currentIndex].layers[index];
             if (layer) {
                 layer.opacity = opacity;
-                if (typeof (view as PsdView).saveLayerStateToHistory === 'function') {
-                    (view as PsdView).saveLayerStateToHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
                 }
                 view.renderCanvas();
             }
@@ -100,8 +100,8 @@ export function createPsdView(leaf: WorkspaceLeaf): PsdView {
             const layer = view.psdDataHistory[view.currentIndex].layers[index];
             if (layer) {
                 layer.blendMode = mode;
-                if (typeof (view as PsdView).saveLayerStateToHistory === 'function') {
-                    (view as PsdView).saveLayerStateToHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
                 }
                 view.renderCanvas();
             }
@@ -117,7 +117,7 @@ export function createPsdView(leaf: WorkspaceLeaf): PsdView {
             // === 毎回最新＆確定した SidebarView を取得 ===
             const leaves = app.workspace.getLeavesOfType(LAYER_SIDEBAR_VIEW_TYPE);
             if (leaves.length === 0) return;
-            const currentSidebarView = leaves[0].view as ImageEditSiderbarView | undefined;
+            const currentSidebarView = leaves[0].view as RightSidebarView | undefined;
             if (!currentSidebarView || typeof (currentSidebarView as any).syncLayers !== 'function') return;
 
             currentSidebarView.syncLayers(currentState.layers, view.currentLayerIndex, layerOps);
@@ -251,34 +251,34 @@ export async function createPsd(app: App, imageFile?: TFile, layerName?: string,
 }
 
 export function undoActive(app: App) {
-    const view = app.workspace.getActiveViewOfType(PsdView);
+    const view = app.workspace.getActiveViewOfType(PainterView);
     if (view) {
         view.undo();
     }
 }
 
 export function redoActive(app: App) {
-    const view = app.workspace.getActiveViewOfType(PsdView);
+    const view = app.workspace.getActiveViewOfType(PainterView);
     if (view) {
         view.redo();
     }
 }
 
 // ==== レイヤー操作のユーティリティ ===========================
-function getActivePsdView(app: App): PsdView | null {
-    return app.workspace.getActiveViewOfType(PsdView) ?? null;
+function getActivePainterView(app: App): PainterView | null {
+    return app.workspace.getActiveViewOfType(PainterView) ?? null;
 }
 
 // 保存
 export function saveActive(app: App) {
-    const view = getActivePsdView(app);
+    const view = getActivePainterView(app);
     if (view && view.file) {
         savePsdFile(app, view.file, view.psdDataHistory[view.currentIndex].layers);
     }
 }
 
 // ============= レイヤー処理実装 =========================
-async function addLayer(view: PsdView, name = '新規レイヤー', imageFile?: TFile) {
+async function addLayer(view: PainterView, name = '新規レイヤー', imageFile?: TFile) {
     // ベースサイズ
     const baseWidth = view._canvas ? view._canvas.width : DEFAULT_CANVAS_WIDTH;
     const baseHeight = view._canvas ? view._canvas.height : DEFAULT_CANVAS_HEIGHT;
@@ -309,15 +309,15 @@ async function addLayer(view: PsdView, name = '新規レイヤー', imageFile?: 
         view.currentLayerIndex = 0;
         view.renderCanvas();
 
-        if (typeof (view as PsdView).saveLayerStateToHistory === 'function') {
-            (view as PsdView).saveLayerStateToHistory();
+        if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+            (view as PainterView).saveLayerStateToHistory();
         }
     } catch (error) {
         console.error('レイヤーの作成に失敗しました:', error);
     }
 }
 
-function deleteLayer(view: PsdView, index: number) {
+function deleteLayer(view: PainterView, index: number) {
     if (view.psdDataHistory[view.currentIndex].layers.length <= 1) return;
     view.psdDataHistory[view.currentIndex].layers.splice(index, 1);
     if (view.currentLayerIndex >= view.psdDataHistory[view.currentIndex].layers.length) {
@@ -326,8 +326,8 @@ function deleteLayer(view: PsdView, index: number) {
 
     view.renderCanvas();
 
-    if (typeof (view as PsdView).saveLayerStateToHistory === 'function') {
-        (view as PsdView).saveLayerStateToHistory();
+    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+        (view as PainterView).saveLayerStateToHistory();
     }
 }
 
@@ -384,10 +384,10 @@ export async function generateThumbnail(app: App, file: TFile): Promise<string |
  * Layer サイドバー用の View を生成するファクトリ関数。
  * plugin.registerView から呼び出されることを想定。
  * ここでは必要最低限の生成のみ行い、詳細なコールバック注入は
- * PsdView 生成時（createPsdView 内）で実施する。
+ * PainterView 生成時（createPainterView 内）で実施する。
  */
-export function createLayerSidebar(leaf: WorkspaceLeaf): ImageEditSiderbarView {
-    const view = new ImageEditSiderbarView(leaf);
+export function createLayerSidebar(leaf: WorkspaceLeaf): RightSidebarView {
+    const view = new RightSidebarView(leaf);
     // データアクセス用コールバックを Sidebar へ注入
     if (typeof (view as any).setFileOps === 'function') {
         view.setFileOps({

@@ -1,6 +1,6 @@
 import { Plugin } from 'obsidian';
 import { initializeStoryboardIntegration } from './src/storyboard/storyboard-plugin';
-import { loadPlugin as initializePsdPainterIntegration } from './src/psd-painter/psd-painter-plugin';
+import { loadPlugin as initializePsdPainterIntegration } from './src/painter/painter-plugin';
 import { initializeChatIntegration } from './src/ai/chatIntegration';
 
 export type MyPluginInstance = MyPlugin;

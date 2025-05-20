@@ -1,12 +1,12 @@
-import { SelectionRect } from '../psd-painter-types';
-import { PsdView } from '../psd-painter-view';
+import { SelectionRect } from '../painter-types';
+import { PainterView } from '../view/painter-obsidian-view';
 import { SelectionState } from './SelectionState';
 
 export type { SelectionRect };
 
 
-export class SelectionManager {
-  private view: PsdView;
+export class SelectionController {
+  private view: PainterView;
   private state: SelectionState;
   private tolerance = 32; // マジックワンド許容誤差
   private isSelecting = false;
@@ -16,7 +16,7 @@ export class SelectionManager {
   private animId?: number;
   private readonly DASH_ANIMATION_SPEED = 0.5; // アニメーション速度を遅くする
 
-  constructor(view: PsdView, state: SelectionState) {
+  constructor(view: PainterView, state: SelectionState) {
     this.view = view;
     this.state = state;
   }

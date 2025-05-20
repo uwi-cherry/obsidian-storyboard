@@ -2,19 +2,19 @@ import { Plugin, TFile } from 'obsidian';
 import { addIcon } from 'obsidian';
 import { PSD_VIEW_TYPE, PSD_EXTENSION, PSD_ICON } from './constants';
 import { PSD_ICON_SVG } from '../icons';
-import { LAYER_SIDEBAR_VIEW_TYPE } from '../right-sidebar/right-sidebar-view';
+import { LAYER_SIDEBAR_VIEW_TYPE } from '../right-sidebar/right-sidebar-obsidian-view';
 import {
-    createPsdView,
+    createPainterView,
     createPsd,
     undoActive,
     redoActive,
     createLayerSidebar
-} from './psd-painter-controller';
+} from './controller/painter-obsidian-controller';
 
 export function loadPlugin(plugin: Plugin) {
     addIcon(PSD_ICON, PSD_ICON_SVG);
 
-    plugin.registerView(PSD_VIEW_TYPE, (leaf) => createPsdView(leaf));
+    plugin.registerView(PSD_VIEW_TYPE, (leaf) => createPainterView(leaf));
     plugin.registerView(LAYER_SIDEBAR_VIEW_TYPE, (leaf) => createLayerSidebar(leaf));
     plugin.registerExtensions([PSD_EXTENSION], PSD_VIEW_TYPE);
 

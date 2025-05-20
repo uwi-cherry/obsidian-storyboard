@@ -1,7 +1,7 @@
 import type MyPlugin from '../../main';
 import { App, TFile } from 'obsidian';
 import { loadAiSettings } from '../settings/settings';
-import { PsdView } from '../psd-painter/psd-painter-view';
+import { PainterView } from '../painter/view/painter-obsidian-view';
 
 /**
  * プロンプトから画像を生成し、アクティブな PSD に新規レイヤーとして追加するアクション。
@@ -56,7 +56,7 @@ export async function addLayerFromPrompt(
   const imageFile: TFile = await app.vault.createBinary(fullPath, bin);
 
   // 既存 PSD ビュー取得
-  const view = app.workspace.getActiveViewOfType(PsdView);
+  const view = app.workspace.getActiveViewOfType(PainterView);
 
   if (view) {
     // レイヤー名が無ければファイル basename
