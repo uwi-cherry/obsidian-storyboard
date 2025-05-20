@@ -1,6 +1,6 @@
 import { Plugin, TFile } from 'obsidian';
 import { addIcon } from 'obsidian';
-import { PSD_VIEW_TYPE, PSD_EXTENSION, PSD_ICON } from './constants';
+import { PSD_VIEW_TYPE, PSD_EXTENSION, PSD_ICON } from '../constants';
 import { PSD_ICON_SVG } from '../icons';
 import { LAYER_SIDEBAR_VIEW_TYPE } from '../right-sidebar/right-sidebar-obsidian-view';
 import {

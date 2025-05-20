@@ -5,7 +5,7 @@ import {
 	MAX_HISTORY_SIZE,
 	DEFAULT_COLOR,
 	BLEND_MODE_TO_COMPOSITE_OPERATION
-} from '../constants';
+} from '../../constants';
 import { Layer, PsdData } from '../painter-types';
 import React from 'react';
 import { Root, createRoot } from 'react-dom/client';

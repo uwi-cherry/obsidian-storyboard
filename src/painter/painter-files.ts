@@ -1,6 +1,6 @@
 import { App, normalizePath, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
-import { PSD_EXTENSION, BLEND_MODE_TO_COMPOSITE_OPERATION } from './constants';
+import { PSD_EXTENSION, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import { Layer } from './painter-types';
 
 interface PsdLayer {

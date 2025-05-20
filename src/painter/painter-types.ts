@@ -1,4 +1,4 @@
-import { BLEND_MODE_TO_COMPOSITE_OPERATION } from './constants';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 
 export interface Layer {
 	name: string;

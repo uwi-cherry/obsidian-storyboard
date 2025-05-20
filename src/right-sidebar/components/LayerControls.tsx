@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import { normalizePath } from 'obsidian';
 import { RightSidebarView, Layer } from '../right-sidebar-obsidian-view';
-import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/painter/constants';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/constants';
 
 interface LayerControlsProps {
     view: RightSidebarView;

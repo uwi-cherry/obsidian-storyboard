@@ -1,5 +1,5 @@
 
-import { DEFAULT_COLOR } from '../constants';
+import { DEFAULT_COLOR } from '../../constants';
 import type { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
 import { ActionMenu } from '../view/components/ActionMenu';

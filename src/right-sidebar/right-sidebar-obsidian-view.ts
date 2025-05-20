@@ -2,7 +2,7 @@ import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Layer } from '../painter/painter-types';
-import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../painter/constants';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
 export type { Layer };
 

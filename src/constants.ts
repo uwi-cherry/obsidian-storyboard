@@ -1,4 +1,4 @@
-import { TOOL_ICONS } from '../icons';
+import { TOOL_ICONS } from './icons';
 
 export const PSD_VIEW_TYPE = 'psd-view';
 export const PSD_EXTENSION = 'psd';
