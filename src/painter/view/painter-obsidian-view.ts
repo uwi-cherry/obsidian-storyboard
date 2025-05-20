@@ -11,8 +11,8 @@ import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuManager } from '../controller/ActionMenuManager';
 import { SelectionManager } from '../controller/SelectionManager';
-import PsdPainterLayout from './PainterReactView';
-export class PsdView extends FileView {
+import PainterReactView from './PainterReactView';
+export class PainterView extends FileView {
 	isDrawing = false;
 	lastX = 0;
 	lastY = 0;
@@ -31,8 +31,8 @@ export class PsdView extends FileView {
 	private _layerChangeCallbacks: (() => void)[] = [];
 
 	// コントローラーから注入されるレイヤー操作デリゲート
-	private _addLayerDelegate?: (view: PsdView, name?: string, imageFile?: TFile) => void;
-	private _deleteLayerDelegate?: (view: PsdView, index: number) => void;
+        private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
+        private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
 
 	private _selectionManager?: SelectionManager;
 
@@ -81,9 +81,9 @@ export class PsdView extends FileView {
 	/**
 	 * コントローラーからレイヤー操作を注入する
 	 */
-	public setLayerOperations(ops: {
-		add: (view: PsdView, name?: string, imageFile?: TFile) => void;
-		delete: (view: PsdView, index: number) => void;
+        public setLayerOperations(ops: {
+                add: (view: PainterView, name?: string, imageFile?: TFile) => void;
+                delete: (view: PainterView, index: number) => void;
 	}) {
 		this._addLayerDelegate = ops.add;
 		this._deleteLayerDelegate = ops.delete;
@@ -231,11 +231,11 @@ export class PsdView extends FileView {
 		if (!this.reactRoot) {
 			this.reactRoot = createRoot(this.contentEl);
 		}
-		this.reactRoot.render(React.createElement(PsdPainterLayout, { view: this }));
+                this.reactRoot.render(React.createElement(PainterReactView, { view: this }));
 
 		// Canvas がまだ React サイドで生成されていないため
 		// ファイル読み込みや初期背景キャンバス作成は
-		// PsdPainterLayout 側の useEffect に移譲する。
+                // PainterReactView 側の useEffect に移譲する。
 
 		// Obsidian のファイルリストからのドラッグ＆ドロップをサポート
 		this.setupDragAndDrop();
@@ -356,7 +356,7 @@ export class PsdView extends FileView {
 	createNewLayer(name = '新規レイヤー', imageFile?: TFile) {
 		if (this._addLayerDelegate) {
 			// 第3引数はオプショナル
-			(this._addLayerDelegate as (view: PsdView, name?: string, imageFile?: TFile) => void)(this, name, imageFile);
+                        (this._addLayerDelegate as (view: PainterView, name?: string, imageFile?: TFile) => void)(this, name, imageFile);
 		}
 	}
 

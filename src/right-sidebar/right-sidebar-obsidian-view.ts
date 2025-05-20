@@ -3,7 +3,7 @@ import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Layer } from '../painter/painter-types';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../painter/constants';
-import RightSiderbarLayout from './RightSidebarReactView';
+import RightSidebarReactView from './RightSidebarReactView';
 export type { Layer };
 
 export const LAYER_SIDEBAR_VIEW_TYPE = 'psd-layer-sidebar';
@@ -24,7 +24,7 @@ export interface FileOpsCallbacks {
     loadPsdLayers: (path: string) => Promise<Layer[]>;
 }
 
-export class ImageEditSiderbarView extends ItemView {
+export class RightSidebarView extends ItemView {
     private layers: Layer[] = [];
     private currentLayerIndex = 0;
 
@@ -90,7 +90,7 @@ export class ImageEditSiderbarView extends ItemView {
         this.contentEl.empty();
         this.contentEl.addClass('psd-layer-sidebar');
 
-        const root = React.createElement(RightSiderbarLayout, {
+        const root = React.createElement(RightSidebarReactView, {
             view: this,
             layers: this.layers,
             currentLayerIndex: this.currentLayerIndex,
@@ -119,7 +119,7 @@ export class ImageEditSiderbarView extends ItemView {
     }
 
     private updateLayerList() {
-        const root = React.createElement(RightSiderbarLayout, {
+        const root = React.createElement(RightSidebarReactView, {
             view: this,
             layers: this.layers,
             currentLayerIndex: this.currentLayerIndex,
