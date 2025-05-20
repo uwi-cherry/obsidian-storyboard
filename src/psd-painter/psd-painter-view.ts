@@ -12,6 +12,8 @@ import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import PsdPainterLayout from './components/PsdPainterLayout';
 import { ActionMenu } from './components/ActionMenu';
+import { SelectionActions } from './viewmodel/SelectionActions';
+import { SelectionState } from './viewmodel/SelectionState';
 
 export class PsdView extends FileView {
 	isDrawing = false;
@@ -35,10 +37,12 @@ export class PsdView extends FileView {
 	private _addLayerDelegate?: (view: PsdView, name?: string, imageFile?: TFile) => void;
 	private _deleteLayerDelegate?: (view: PsdView, index: number) => void;
 
-	private _selectionManager?: SelectionManager;
+        private _selectionManager?: SelectionManager;
+        public selectionState!: SelectionState;
+        public selectionActions!: SelectionActions;
 
-	// フローティングメニュー（クリア・塗りつぶし）用
-	public actionMenu!: ActionMenu;
+        // フローティングメニュー（クリア・塗りつぶし）用
+        public actionMenu!: ActionMenu;
 
 	// ファイル入出力デリゲート
 	private _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
@@ -255,10 +259,11 @@ export class PsdView extends FileView {
 			if (!ctx) return; // nullチェック
 			ctx.lineWidth = e.pressure !== 0 ? this.currentLineWidth * e.pressure : this.currentLineWidth;
 			this.saveLayerStateToHistory();
-		} else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-			this._selectionManager?.onPointerDown(x, y);
-			return;
-		}
+                } else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
+                        this.actionMenu.hide();
+                        this._selectionManager?.onPointerDown(x, y);
+                        return;
+                }
 	}
 
 	private handlePointerMove(e: PointerEvent) {
@@ -289,16 +294,32 @@ export class PsdView extends FileView {
 		this.renderCanvas();
 	}
 
-	private handlePointerUp() {
-		if (this.isDrawing) {
-			this.isDrawing = false;
-		}
+        private handlePointerUp() {
+                if (this.isDrawing) {
+                        this.isDrawing = false;
+                }
 
-		if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-			this._selectionManager?.onPointerUp();
-			return;
-		}
-	}
+                if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
+                        const valid = this._selectionManager?.onPointerUp() ?? false;
+                        if (valid) {
+                                const cancel = () => this._selectionManager?.cancelSelection();
+                                const rect = this.selectionState.getBoundingRect();
+                                if (rect) {
+                                        this.actionMenu.showSelection(rect, {
+                                                fill: () => this.selectionActions.fillSelection(),
+                                                clear: () => this.selectionActions.clearSelection(),
+                                                cancel,
+                                        });
+                                }
+                        } else {
+                                this.actionMenu.showGlobal({
+                                        fill: () => this.selectionActions.fillSelection(),
+                                        clear: () => this.selectionActions.clearSelection(),
+                                });
+                        }
+                        return;
+                }
+        }
 
 	private setupDragAndDrop() {
 		this.contentEl.addEventListener('dragenter', (e) => {

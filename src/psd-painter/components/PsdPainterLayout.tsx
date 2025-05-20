@@ -2,7 +2,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, TOOLS } from '../constants';
 import type { PsdView } from '../psd-painter-view';
 import { SelectionManager } from '../viewmodel/SelectionManager';
+import { SelectionState } from '../viewmodel/SelectionState';
 import { ActionMenu } from './ActionMenu';
+import { SelectionActions } from '../viewmodel/SelectionActions';
 
 interface PsdPainterLayoutProps {
   /**
@@ -71,18 +73,26 @@ const PsdPainterLayout: React.FC<PsdPainterLayoutProps> = ({ view }) => {
     canvas.addEventListener('pointerup', onPointerUp);
 
     // SelectionManager を未生成なら生成
+    if (!view.selectionState) {
+      view.selectionState = new SelectionState();
+    }
     if (!(view as any)._selectionManager) {
-      (view as any)._selectionManager = new SelectionManager(view);
+      (view as any)._selectionManager = new SelectionManager(view, view.selectionState);
+    }
+    if (!view.selectionActions) {
+      view.selectionActions = new SelectionActions(view, view.selectionState);
     }
 
-    // ActionMenu
     const actionMenu = new ActionMenu(view);
-    view.actionMenu = actionMenu; // view 側にも保持
-    // SelectionManager と紐付け
-    view.selectionManager?.setActionMenu(actionMenu);
-    const resizeHandler = () => actionMenu.showGlobal();
+    view.actionMenu = actionMenu;
+    const showGlobal = () =>
+      actionMenu.showGlobal({
+        fill: () => view.selectionActions.fillSelection(),
+        clear: () => view.selectionActions.clearSelection(),
+      });
+    const resizeHandler = () => showGlobal();
     window.addEventListener('resize', resizeHandler);
-    actionMenu.showGlobal();
+    showGlobal();
 
     // ファイル読み込み or 背景レイヤー作成
     (async () => {
