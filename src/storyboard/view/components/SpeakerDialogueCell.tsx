@@ -86,7 +86,7 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
             outline: 'none',
             border: 'none',
             background: 'transparent',
-            color: !speaker ? '#bbb' : undefined,
+            color: !speaker ? 'var(--text-faint)' : undefined,
             width: 'auto',
             minWidth: 0,
             maxWidth: '100%',
@@ -95,11 +95,11 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
             appearance: 'none',
           }}
         >
-          <option value="" className="text-[#999]">{t('NO_SPEAKER')}</option>
+          <option value="" className="text-text-faint">{t('NO_SPEAKER')}</option>
           {allSpeakers.map((name, idx) => (
-            <option key={idx} value={name} style={{ color: '#222' }}>{name}</option>
+            <option key={idx} value={name} style={{ color: 'var(--text-normal)' }}>{name}</option>
           ))}
-          <option value="__edit__" className="text-[#999]">{t('EDIT_CHARACTERS')}</option>
+          <option value="__edit__" className="text-text-faint">{t('EDIT_CHARACTERS')}</option>
         </select>
       </div>
       <textarea
@@ -108,7 +108,7 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
         onChange={handleDialogueTextareaChange}
         onKeyDown={handleDialogueKeyDown}
         placeholder={t('DIALOGUE_PLACEHOLDER')}
-        className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-[var(--text-normal)] placeholder-[var(--text-faint)] leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto mt-2"
+        className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto mt-2"
       />
     </div>
   );

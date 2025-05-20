@@ -127,14 +127,14 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   return (
     <div className="flex flex-1 overflow-hidden">
       {/* ── Tool Palette ── */}
-      <div className="w-[60px] bg-[var(--background-secondary)] border-r border-[var(--background-modifier-border)] flex flex-col gap-1 p-1">
+      <div className="w-[60px] bg-secondary border-r border-modifier-border flex flex-col gap-1 p-1">
         {TOOLS.map(tool => {
           const isActive = view.currentTool === tool.id;
           return (
             <button
               key={tool.id}
-              className={`w-10 h-10 border-none bg-[var(--background-primary)] text-[var(--text-normal)] rounded cursor-pointer flex items-center justify-center hover:bg-[var(--background-modifier-hover)] ${
-                isActive ? 'bg-[var(--interactive-accent)] text-[var(--text-on-accent)]' : ''
+              className={`w-10 h-10 border-none bg-primary text-text-normal rounded cursor-pointer flex items-center justify-center hover:bg-modifier-hover ${
+                isActive ? 'bg-accent text-on-accent' : ''
               }`}
               title={tool.title}
               onClick={() => updateTool(tool.id)}
@@ -145,10 +145,10 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       </div>
 
       {/* ── Brush & Selection Settings ── */}
-      <div className="p-1 bg-[var(--background-secondary)] border-r border-[var(--background-modifier-border)] w-[200px] flex flex-col gap-2">
+      <div className="p-1 bg-secondary border-r border-modifier-border w-[200px] flex flex-col gap-2">
         {/* Brush Size */}
         <div className="flex flex-col gap-1">
-          <div className="text-[var(--text-muted)] text-xs">{t('BRUSH_SIZE')}:</div>
+          <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}:</div>
           <input
             type="range"
             min={1}
@@ -165,7 +165,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
         <div className="flex flex-col items-center mt-2">
           <input
             type="color"
-            className="w-8 h-8 p-0 border-2 border-white rounded cursor-pointer"
+            className="w-8 h-8 p-0 border-2 border-modifier-border rounded cursor-pointer"
             value={view.currentColor}
             onChange={e => {
               view.currentColor = e.currentTarget.value;
@@ -177,7 +177,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
         {/* Selection Type */}
         {selectionVisible && (
           <div className="flex flex-col gap-1 mt-4">
-            <div className="text-[var(--text-muted)] text-xs">{t('SELECTION_TYPE')}:</div>
+            <div className="text-text-muted text-xs">{t('SELECTION_TYPE')}:</div>
             <select
               className="w-full text-xs"
               value={selectionType}
@@ -197,7 +197,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       </div>
 
       {/* ── Canvas Container ── */}
-      <div className="flex-1 flex items-center justify-center overflow-auto bg-[var(--background-primary)]">
+      <div className="flex-1 flex items-center justify-center overflow-auto bg-primary">
         <canvas ref={canvasRef} />
       </div>
     </div>

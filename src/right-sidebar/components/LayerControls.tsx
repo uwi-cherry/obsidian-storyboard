@@ -40,7 +40,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
 
     return (
         <div>
-            <div className="text-[var(--text-normal)] text-sm mb-2 pb-1 border-b border-[var(--background-modifier-border)]">
+            <div className="text-text-normal text-sm mb-2 pb-1 border-b border-modifier-border">
                 {t('LAYERS')}
             </div>
 
@@ -54,26 +54,26 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
 
             <div className="flex gap-1 mb-2">
                 <button
-                    className="flex-1 p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer text-xs hover:bg-[var(--background-modifier-hover)]"
+                    className="flex-1 p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer text-xs hover:bg-modifier-hover"
                     onClick={() => view.addLayer(t('NEW_LAYER'))}
                 >
                     {t('NEW_LAYER')}
                 </button>
                 <button
-                    className="flex-1 p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer text-xs hover:bg-[var(--background-modifier-hover)]"
+                    className="flex-1 p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer text-xs hover:bg-modifier-hover"
                     onClick={() => fileInputRef.current?.click()}
                 >
                     {t('IMAGE_LAYER')}
                 </button>
                 <button
-                    className="flex-1 p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer text-xs hover:bg-[var(--background-modifier-hover)]"
+                    className="flex-1 p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer text-xs hover:bg-modifier-hover"
                     onClick={() => view.deleteLayer(currentLayerIndex)}
                 >
                     {t('DELETE_LAYER')}
                 </button>
             </div>
 
-            <div className="flex items-center gap-2 mb-2 p-1 bg-[var(--background-primary)] rounded">
+            <div className="flex items-center gap-2 mb-2 p-1 bg-primary rounded">
                 <input
                     type="range"
                     min="0"
@@ -83,7 +83,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                         const opacity = parseInt(e.target.value, 10) / 100;
                         view.layerOps?.setOpacity(currentLayerIndex, opacity);
                     }}
-                    className="flex-1 h-1 bg-[var(--background-modifier-border)] rounded outline-none"
+                    className="flex-1 h-1 bg-modifier-border rounded outline-none"
                 />
             </div>
 
@@ -94,7 +94,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                         const mode = e.target.value as keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION;
                         view.layerOps?.setBlendMode(currentLayerIndex, mode);
                     }}
-                    className="flex-1 p-1 border border-[var(--background-modifier-border)] rounded bg-[var(--background-primary)] text-xs"
+                    className="flex-1 p-1 border border-modifier-border rounded bg-primary text-xs"
                 >
                     {[
                         'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten',
@@ -110,18 +110,18 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                 {layers.map((layer, idx) => (
                     <div
                         key={idx}
-                        className={`p-2 bg-[var(--background-primary)] rounded cursor-pointer flex items-center gap-2 relative select-none touch-none hover:bg-[var(--background-modifier-hover)] ${idx === currentLayerIndex ? 'ring-2 ring-[var(--interactive-accent)]' : ''}`}
+                        className={`p-2 bg-primary rounded cursor-pointer flex items-center gap-2 relative select-none touch-none hover:bg-modifier-hover ${idx === currentLayerIndex ? 'ring-2 ring-accent' : ''}`}
                         onClick={() => view.setCurrentLayer(idx)}
                     >
                         <div
-                            className={`w-4 h-4 border border-white rounded relative cursor-pointer ${layer.visible ? 'bg-[var(--interactive-accent)]' : 'bg-transparent'}`}
+                            className={`w-4 h-4 border border-modifier-border rounded relative cursor-pointer ${layer.visible ? 'bg-accent' : 'bg-transparent'}`}
                             onClick={(e) => {
                                 e.stopPropagation();
                                 view.toggleLayerVisibility(idx);
                             }}
                         />
                         <div
-                            className="text-[var(--text-normal)] text-sm flex-1"
+                            className="text-text-normal text-sm flex-1"
                             onDoubleClick={() => {
                                 const newName = prompt(t('ENTER_LAYER_NAME'), layer.name);
                                 if (newName && newName !== layer.name) {

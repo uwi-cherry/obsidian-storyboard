@@ -78,7 +78,7 @@ if (colIndex !== null) {
   };
 
   return (
-      <table className="w-full border-collapse border border-gray-300 mb-32 table-fixed">
+      <table className="w-full border-collapse border border-modifier-border mb-32 table-fixed">
         <colgroup>
           {columns.map((col, i) => (
             <col key={String(col.key)} className={colWidths[i] ? `w-[${colWidths[i]}px] min-w-[80px]` : ''} style={colWidths[i] ? { width: colWidths[i] + 'px', minWidth: '80px' } : {}} />
@@ -86,11 +86,11 @@ if (colIndex !== null) {
           <col style={{ width: '1%', minWidth: '40px' }} />
         </colgroup>
         <thead>
-          <tr className="bg-gray-100">
+          <tr className="bg-secondary">
             {columns.map((col, i) => (
               <th
                 key={String(col.key)}
-                className={`border border-gray-300 px-4 py-2 text-left relative group select-none ${colWidths[i] ? `w-[${colWidths[i]}px] min-w-[80px]` : ''}`}
+                className={`border border-modifier-border px-4 py-2 text-left relative group select-none ${colWidths[i] ? `w-[${colWidths[i]}px] min-w-[80px]` : ''}`}
                 style={colWidths[i] ? { width: colWidths[i] + 'px', minWidth: '80px' } : {}}
               >
                 <div className="flex items-center justify-between">
@@ -105,18 +105,18 @@ if (colIndex !== null) {
                 </div>
               </th>
             ))}
-            <th className="border border-gray-300 px-2 py-2"></th>
+            <th className="border border-modifier-border px-2 py-2"></th>
           </tr>
         </thead>
         <tbody>
           {data.map((row, index) => {
             return (
-              <tr key={index} className="hover:bg-gray-50" onClick={() => onRowClick?.(row, index)}>
+              <tr key={index} className="hover:bg-modifier-hover" onClick={() => onRowClick?.(row, index)}>
                 {columns.map((col) => {
                   return (
                     <td
                       key={`${index}-${String(col.key)}`}
-                      className={`border border-gray-300 px-4 py-2 align-top`}
+                      className={`border border-modifier-border px-4 py-2 align-top`}
                     >
                       {col.renderCell
                         ? col.renderCell(
@@ -129,12 +129,12 @@ if (colIndex !== null) {
                     </td>
                   );
                 })}
-                <td className="border border-gray-300 px-1 py-2 text-center align-middle whitespace-nowrap">
+                <td className="border border-modifier-border px-1 py-2 text-center align-middle whitespace-nowrap">
                   <div className="flex flex-col items-start gap-y-1">
                     {onMoveRowUp && index > 0 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowUp(index); }}
-                        className="text-gray-400 hover:text-accent text-base px-1 py-0.5 leading-none"
+                        className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_UP')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveUp }}
                       />
@@ -142,7 +142,7 @@ if (colIndex !== null) {
                     {onMoveRowDown && index < data.length - 1 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowDown(index); }}
-                        className="text-gray-400 hover:text-accent text-base px-1 py-0.5 leading-none"
+                        className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_DOWN')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveDown }}
                       />
@@ -150,14 +150,14 @@ if (colIndex !== null) {
                     {onInsertRowBelow && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onInsertRowBelow(index); }}
-                        className="text-gray-400 hover:text-accent text-base px-1 py-0.5 leading-none"
+                        className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('INSERT_ROW_BELOW')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
                       />
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); onDeleteRow(index); }}
-                      className="text-gray-400 hover:text-error text-base px-1 py-0.5 leading-none"
+                      className="text-text-faint hover:text-error text-base px-1 py-0.5 leading-none"
                       title={t('DELETE')}
                       dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
                     />
@@ -166,10 +166,10 @@ if (colIndex !== null) {
               </tr>
             );
           })}
-          <tr className="bg-gray-100 hover:bg-gray-200"> 
+          <tr className="bg-secondary hover:bg-modifier-hover">
             <td
               colSpan={columns.length + 1 } 
-              className="border border-gray-300 px-4 py-2 text-center cursor-pointer text-gray-500 hover:text-gray-700" 
+              className="border border-modifier-border px-4 py-2 text-center cursor-pointer text-text-muted hover:text-text-normal"
               onClick={() => onAddRow()}
               title={t('INSERT_ROW_BELOW')}
             >

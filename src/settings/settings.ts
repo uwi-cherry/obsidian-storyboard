@@ -29,7 +29,7 @@ export class SettingTab extends PluginSettingTab {
 
     // OpenAI公式リンク追加
     const docLink = containerEl.createEl('div');
-    docLink.innerHTML = `<a href="https://platform.openai.com/docs/overview" target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;">OpenAI API公式ドキュメントはこちら</a>`;
+    docLink.innerHTML = `<a href="https://platform.openai.com/docs/overview" target="_blank" rel="noopener noreferrer" style="color:var(--interactive-accent);text-decoration:underline;">OpenAI API公式ドキュメントはこちら</a>`;
     docLink.style.marginBottom = '1em';
 
     // 設定値取得
