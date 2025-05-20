@@ -1,7 +1,7 @@
 import MyPlugin from "main";
 import { App, TFile } from "obsidian";
 import { createPsd } from "src/painter/controller/painter-obsidian-controller";
-import { loadAiSettings } from "src/settings/settings";
+import { loadSettings } from "src/settings/settings";
 
 /**
  * プロンプトから画像を生成し、その画像を用いて PSD を作成するアクション。
@@ -16,7 +16,7 @@ export async function generatePsdFromPrompt(
 ): Promise<string> {
   const app: App = plugin.app;
   // OpenAI API キー
-  const { apiKey } = await loadAiSettings(plugin);
+  const { apiKey } = await loadSettings(plugin);
   if (!apiKey) throw new Error('OpenAI APIキーが設定されていません');
 
   // 画像生成

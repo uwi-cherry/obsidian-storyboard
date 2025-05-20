@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, TOOLS } from '../../constants';
+import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
@@ -101,7 +102,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
 
         view.psdDataHistory[0].layers = [
           {
-            name: '背景',
+            name: t('BACKGROUND_LAYER'),
             visible: true,
             opacity: 1,
             blendMode: 'normal',
@@ -147,7 +148,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       <div className="p-1 bg-[var(--background-secondary)] border-r border-[var(--background-modifier-border)] w-[200px] flex flex-col gap-2">
         {/* Brush Size */}
         <div className="flex flex-col gap-1">
-          <div className="text-[var(--text-muted)] text-xs">ブラシサイズ:</div>
+          <div className="text-[var(--text-muted)] text-xs">{t('BRUSH_SIZE')}:</div>
           <input
             type="range"
             min={1}
@@ -176,7 +177,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
         {/* Selection Type */}
         {selectionVisible && (
           <div className="flex flex-col gap-1 mt-4">
-            <div className="text-[var(--text-muted)] text-xs">選択種別:</div>
+            <div className="text-[var(--text-muted)] text-xs">{t('SELECTION_TYPE')}:</div>
             <select
               className="w-full text-xs"
               value={selectionType}
@@ -187,9 +188,9 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
                 updateTool('selection'); // selection モードに固定
               }}
             >
-              <option value="rect">矩形</option>
-              <option value="lasso">投げ縄</option>
-              <option value="magic">マジックワンド</option>
+              <option value="rect">{t('SELECTION_RECT')}</option>
+              <option value="lasso">{t('SELECTION_LASSO')}</option>
+              <option value="magic">{t('SELECTION_MAGIC')}</option>
             </select>
           </div>
         )}

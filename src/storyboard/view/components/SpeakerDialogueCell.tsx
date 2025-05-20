@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import { t } from 'src/i18n';
 
 interface SpeakerDialogueCellProps {
   speaker: string;
@@ -94,11 +95,11 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
             appearance: 'none',
           }}
         >
-          <option value="" className="text-[#999]">話者なし</option>
+          <option value="" className="text-[#999]">{t('SPEAKER_NONE')}</option>
           {allSpeakers.map((name, idx) => (
             <option key={idx} value={name} style={{ color: '#222' }}>{name}</option>
           ))}
-          <option value="__edit__" className="text-[#999]">キャラクター情報を追加・編集</option>
+          <option value="__edit__" className="text-[#999]">{t('EDIT_CHARACTER_INFO')}</option>
         </select>
       </div>
       <textarea
@@ -106,7 +107,7 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
         value={dialogue}
         onChange={handleDialogueTextareaChange}
         onKeyDown={handleDialogueKeyDown}
-        placeholder="台詞"
+        placeholder={t('DIALOGUE_PLACEHOLDER')}
         className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-[var(--text-normal)] placeholder-[var(--text-faint)] leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto mt-2"
       />
     </div>

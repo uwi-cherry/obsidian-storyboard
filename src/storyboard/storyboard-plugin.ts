@@ -1,5 +1,6 @@
 import { MyPluginInstance } from "main";
 import { App, TFile, Notice, WorkspaceLeaf, MarkdownView, addIcon } from "obsidian";
+import { t } from "src/i18n";
 import { STORYBOARD_ICON_SVG, STORYBOARD_TOGGLE_ICON_SVG } from "src/icons";
 import { getCurrentViewMode, switchToStoryboardViewMode, switchToMarkdownViewMode, cleanupStoryboardViewRoots } from "./controller/storyboard-obsidian-controller";
 
@@ -22,7 +23,7 @@ async function _renameFileExtension(app: App, file: TFile, newExt: string): Prom
         await app.vault.rename(file, newPath);
     } catch (error) {
         console.error('ファイル拡張子の変更に失敗しました:', error);
-        new Notice('ファイル拡張子の変更に失敗しました。コンソールログを確認してください。');
+        new Notice(t('EXT_CHANGE_FAILED'));
     }
 }
 
@@ -68,7 +69,7 @@ function _ensureStoryboardToggleButtonForLeaf(leaf: WorkspaceLeaf, app: App): vo
     const existingButton = view.containerEl.querySelector(`.clickable-icon.${buttonClass}`);
 
     if (!existingButton) {
-        const newButton = view.addAction('storyboard-toggle', '絵コンテ切替', () => {
+        const newButton = view.addAction('storyboard-toggle', t('STORYBOARD_TOGGLE'), () => {
             _toggleStoryboardForLeaf(leaf, app);
         }) as HTMLElement;
         newButton.classList.add(buttonClass);
@@ -123,7 +124,7 @@ async function createSampleStoryboardFile(app: App): Promise<TFile | null> {
  */
 async function addSampleFileToRibbon(app: App, plugin: MyPluginInstance): Promise<void> {
     // リボンアイコンを追加
-    plugin.addRibbonIcon('storyboard', '新規ストーリーボードを追加', async () => {
+    plugin.addRibbonIcon('storyboard', t('ADD_STORYBOARD'), async () => {
         // ファイルが存在しない場合は作成
         const file = await createSampleStoryboardFile(app);
         if (file) {

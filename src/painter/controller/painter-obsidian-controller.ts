@@ -2,6 +2,7 @@ import { App, WorkspaceLeaf, TFile } from 'obsidian';
 import { PainterView } from '../view/painter-obsidian-view';
 import { loadPsdFile, savePsdFile, createPsdFile } from '../painter-files';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../../constants';
+import { t } from '../../i18n';
 import * as agPsd from 'ag-psd';
 import { LAYER_SIDEBAR_VIEW_TYPE, RightSidebarView, LayerOps } from '../../right-sidebar/right-sidebar-obsidian-view';
 import { Layer } from '../painter-types';
@@ -232,7 +233,7 @@ export async function createPsd(app: App, imageFile?: TFile, layerName?: string,
             imageFile,
             width: imageFile ? 0 : DEFAULT_CANVAS_WIDTH,
             height: imageFile ? 0 : DEFAULT_CANVAS_HEIGHT,
-            name: layerName || (imageFile ? imageFile.basename : '背景')
+            name: layerName || (imageFile ? imageFile.basename : t('BACKGROUND_LAYER'))
         }
     );
 
