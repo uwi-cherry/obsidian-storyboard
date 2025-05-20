@@ -326,10 +326,10 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         onSave={handleSaveCharacters}
       />
       {storyboard.chapters.map((chapter, cIdx) => (
-        <details key={cIdx} open className="mb-4">
+        <details key={cIdx} open className="mb-4 last:mb-0">
           <summary className="font-bold mb-2 flex items-center gap-2">
             <input
-              className="border border-modifier-border rounded px-2 py-1 flex-1"
+              className="border-none bg-transparent focus:outline-none flex-1 text-2xl"
               value={chapter.title}
               onChange={e => {
                 const title = e.target.value;
@@ -343,14 +343,17 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
                 });
               }}
             />
-            <button
-              className="text-error border border-modifier-border rounded px-2 py-1"
-              onClick={e => {
-                e.preventDefault();
-                handleDeleteChapter(cIdx);
-              }}
-              dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
-            />
+            <div className="flex flex-col items-start gap-y-1">
+              <button
+                className="text-text-faint hover:text-error text-base px-1 py-0.5 leading-none"
+                onClick={e => {
+                  e.preventDefault();
+                  handleDeleteChapter(cIdx);
+                }}
+                title={t('DELETE')}
+                dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
+              />
+            </div>
           </summary>
           <EditableTable<StoryboardFrame>
             data={chapter.frames}
@@ -370,9 +373,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             onDeleteRow={rowIndex => handleDeleteRow(cIdx, rowIndex)}
             onMoveRowUp={rowIndex => handleMoveRowUp(cIdx, rowIndex)}
             onMoveRowDown={rowIndex => handleMoveRowDown(cIdx, rowIndex)}
-            onInsertRowBelow={rowIndex => handleInsertRowBelow(cIdx, rowIndex)}
             onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
-            showAddRow={false}
           />
         </details>
       ))}
