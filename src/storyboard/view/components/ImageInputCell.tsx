@@ -200,19 +200,19 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           className="p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer hover:bg-[var(--interactive-accent-hover)] disabled:opacity-50 flex items-center justify-center"
           onClick={handleAiGenerate}
           disabled={isGenerating}
-          title={isGenerating ? '生成中...' : 'AI生成'}
+          title={isGenerating ? t('GENERATING') : t('AI_GENERATE')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.aiGenerate }}
         />
         <button
           className="p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer hover:bg-[var(--background-modifier-hover)] flex items-center justify-center"
           onClick={() => fileInputRef.current?.click()}
-          title="ファイル選択"
+          title={t('FILE_SELECT')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
         />
         <button
           className="p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer hover:bg-[var(--background-modifier-hover)] flex items-center justify-center"
           onClick={handleClearPath}
-          title="パスをクリア"
+          title={t('CLEAR_PATH')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.clearPath }}
         />
       </div>

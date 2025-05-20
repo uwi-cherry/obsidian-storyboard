@@ -7,6 +7,7 @@ import {
 	BLEND_MODE_TO_COMPOSITE_OPERATION
 } from '../../constants';
 import { Layer, PsdData } from '../painter-types';
+import { t } from '../../i18n';
 import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';

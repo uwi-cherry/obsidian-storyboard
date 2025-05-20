@@ -3,6 +3,7 @@ import { t } from 'src/i18n';
 import { normalizePath } from 'obsidian';
 import { RightSidebarView, Layer } from '../right-sidebar-obsidian-view';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/constants';
+import { t } from 'src/i18n';
 
 interface LayerControlsProps {
     view: RightSidebarView;

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { t } from 'src/i18n';
 import { App } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types';
 import CharacterEditModal from './components/CharacterEditModal';
