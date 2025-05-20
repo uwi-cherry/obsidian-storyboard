@@ -6,6 +6,7 @@ import { Layer } from '../painter/painter-types';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
 import { PainterView } from '../painter/view/painter-obsidian-view';
+export type { Layer };
 
 export const LAYER_SIDEBAR_VIEW_TYPE = 'psd-layer-sidebar';
 
@@ -39,9 +40,6 @@ export class RightSidebarView extends ItemView {
         targetDir?: string
     ) => Promise<TFile>;
 
-    // PSD とストーリーボードのペアを保持
-    private psdToStoryboard: Map<string, string> = new Map();
-
     // === 画像操作 UI 関連 =====================
     private currentRowIndex: number | null = null;
     private currentImageUrl: string | null = null;
@@ -52,7 +50,6 @@ export class RightSidebarView extends ItemView {
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
         // fileOps は Controller 側から注入されるためここでは設定しない
-        window.addEventListener('psd-opened-from-storyboard', this.handlePsdOpenedFromStoryboard as EventListener);
     }
 
     getViewType(): string {
@@ -167,7 +164,6 @@ export class RightSidebarView extends ItemView {
             this.reactRoot = undefined;
         }
         window.removeEventListener('storyboard-row-selected', this.handleStoryboardRowSelected as EventListener);
-        window.removeEventListener('psd-opened-from-storyboard', this.handlePsdOpenedFromStoryboard as EventListener);
     }
 
     private handleStoryboardRowSelected = async (e: Event) => {
@@ -236,43 +232,5 @@ export class RightSidebarView extends ItemView {
         targetDir?: string
     ) => Promise<TFile>) {
         this.createPsd = callback;
-    }
-
-    // === ストーリーボード復帰関連 =====================
-    private handlePsdOpenedFromStoryboard = (e: Event) => {
-        const custom = e as CustomEvent<{ psdPath: string; storyboardPath: string }>;
-        const { psdPath, storyboardPath } = custom.detail || {};
-        if (psdPath && storyboardPath) {
-            this.psdToStoryboard.set(psdPath, storyboardPath);
-        }
-    };
-
-    public hasStoryboardForActivePsd(): boolean {
-        const view = this.app.workspace.getActiveViewOfType(PainterView);
-        const path = view?.file?.path;
-        return path ? this.psdToStoryboard.has(path) : false;
-    }
-
-    public backToStoryboard() {
-        const view = this.app.workspace.getActiveViewOfType(PainterView);
-        const psdPath = view?.file?.path;
-        if (!psdPath) return;
-        const storyboardPath = this.psdToStoryboard.get(psdPath);
-        if (!storyboardPath) return;
-
-        this.app.workspace.getLeavesOfType('psd-view').forEach((l) => l.detach());
-
-        const file = this.app.vault.getAbstractFileByPath(storyboardPath);
-        if (!(file instanceof TFile)) return;
-
-        const existing = this.app.workspace
-            .getLeavesOfType('markdown')
-            .find((l) => (l.view as any).file?.path === storyboardPath);
-        if (existing) {
-            this.app.workspace.setActiveLeaf(existing);
-        } else {
-            const leaf = this.app.workspace.getLeaf(true);
-            leaf.openFile(file, { active: true });
-        }
     }
 }

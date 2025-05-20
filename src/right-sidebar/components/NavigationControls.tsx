@@ -7,7 +7,6 @@ interface NavigationControlsProps {
     view: RightSidebarView;
     isPsdPainterOpen: boolean;
     currentImageUrl: string | null;
-    canReturnToStoryboard: boolean;
     onBackToStoryboard: () => void;
     onOpenPsdPainter: () => void;
     onExportImage: () => void;
@@ -25,7 +24,6 @@ interface NavigationControlsProps {
 export const NavigationControls: React.FC<NavigationControlsProps> = ({
     isPsdPainterOpen,
     currentImageUrl,
-    canReturnToStoryboard,
     onBackToStoryboard,
     onOpenPsdPainter,
     onExportImage,
@@ -78,7 +76,7 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
 
             <div className="flex gap-2">
                 <button
-                    className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${isPsdPainterOpen && canReturnToStoryboard ? '' : 'hidden'}`}
+                    className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${isPsdPainterOpen ? '' : 'hidden'}`}
                     onClick={onBackToStoryboard}
                 >
                     {t('BACK_TO_STORYBOARD')}
