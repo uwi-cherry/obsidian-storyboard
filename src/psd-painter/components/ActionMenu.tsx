@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import type { PsdView } from '../psd-painter-view';
-import type { SelectionManager, SelectionRect } from '../viewmodel/SelectionManager';
+import type { SelectionRect } from '../viewmodel/SelectionState';
 
 interface ActionMenuContentProps {
   mode: 'global' | 'selection' | 'hidden';
@@ -43,7 +43,7 @@ export class ActionMenu {
   private container: HTMLDivElement;
   private root: Root;
   private mode: 'global' | 'selection' | 'hidden' = 'hidden';
-  private selMgr?: SelectionManager;
+  private handlers?: { fill: () => void; clear: () => void; cancel?: () => void };
 
   constructor(view: PsdView) {
     this.view = view;
@@ -59,18 +59,18 @@ export class ActionMenu {
     this.root.render(
       React.createElement(ActionMenuContent, {
         mode: this.mode,
-        onFill: () => this.selMgr?.fillSelection(),
-        onClear: () => this.selMgr?.clearSelection(),
-        onCancel: this.mode === 'selection' ? () => this.selMgr?.cancelSelection() : undefined,
+        onFill: () => this.handlers?.fill(),
+        onClear: () => this.handlers?.clear(),
+        onCancel: this.mode === 'selection' ? this.handlers?.cancel : undefined,
       })
     );
     this.container.style.display = this.mode === 'hidden' ? 'none' : 'flex';
   }
 
   /** グローバルメニュー（非選択時） */
-  showGlobal() {
+  showGlobal(handlers: { fill: () => void; clear: () => void }) {
     this.mode = 'global';
-    this.selMgr = this.view.selectionManager; // 最新を取得
+    this.handlers = handlers;
     const rect = this.view._canvas.getBoundingClientRect();
     this.container.style.left = `${rect.left + 8}px`;
     this.container.style.top = `${rect.top + 8}px`;
@@ -78,9 +78,9 @@ export class ActionMenu {
   }
 
   /** 選択範囲用メニュー */
-  showSelection(bounding: SelectionRect, selMgr: SelectionManager) {
+  showSelection(bounding: SelectionRect, handlers: { fill: () => void; clear: () => void; cancel: () => void }) {
     this.mode = 'selection';
-    this.selMgr = selMgr;
+    this.handlers = handlers;
     const canvasRect = this.view._canvas.getBoundingClientRect();
     this.container.style.left = `${canvasRect.left + bounding.x}px`;
     this.container.style.top = `${canvasRect.top + bounding.y - 28}px`;
