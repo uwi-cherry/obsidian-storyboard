@@ -45,7 +45,9 @@ export async function addLayerFromPrompt(
   let fullPath = `${folder}/${baseName}`;
   try {
     if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
-  } catch {}
+  } catch (error) {
+    console.error('Failed to create folder:', error);
+  }
   let i = 1;
   while (app.vault.getAbstractFileByPath(fullPath)) {
     fullPath = `${folder}/${Date.now()}_${i}.${ext}`;
@@ -54,7 +56,7 @@ export async function addLayerFromPrompt(
   const imageFile: TFile = await app.vault.createBinary(fullPath, bin);
 
   // 既存 PSD ビュー取得
-  let view = app.workspace.getActiveViewOfType(PsdView);
+  const view = app.workspace.getActiveViewOfType(PsdView);
 
   if (view) {
     // レイヤー名が無ければファイル basename

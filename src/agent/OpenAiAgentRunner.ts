@@ -190,15 +190,15 @@ export class OpenAiAgentRunner {
     onToken: (token: string) => void,
     history: ChatMessage[] = []
   ): Promise<{ finalOutput: string, history: ChatMessage[], toolCalls: { name: string; args: unknown; result: string }[] }> {
-    let messages: ChatMessage[] = [
+    const messages: ChatMessage[] = [
       { role: 'system', content: agent.instructions },
       ...history,
       { role: 'user', content: userMessage },
     ];
     let finalOutput = '';
-    let toolCalls: { name: string; args: unknown; result: string }[] = [];
+    const toolCalls: { name: string; args: unknown; result: string }[] = [];
 
-    while (true) {
+    for (;;) {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
