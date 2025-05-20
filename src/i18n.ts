@@ -57,6 +57,8 @@ export interface Strings {
   AI_GENERATE: string;
   FILE_SELECT: string;
   CLEAR_PATH: string;
+  SCALE: string;
+  ROTATE: string;
   ADD_CHAPTER: string;
   UNTITLED_CHAPTER: string;
 }
@@ -119,6 +121,8 @@ const STRINGS: Record<Language, Strings> = {
     AI_GENERATE: 'AI生成',
     FILE_SELECT: 'ファイル選択',
     CLEAR_PATH: 'クリア',
+    SCALE: '拡縮',
+    ROTATE: '回転',
     ADD_CHAPTER: '章を追加',
     UNTITLED_CHAPTER: '無題の章',
   },
@@ -179,6 +183,8 @@ const STRINGS: Record<Language, Strings> = {
     AI_GENERATE: 'Generate',
     FILE_SELECT: 'Select file',
     CLEAR_PATH: 'Clear',
+    SCALE: 'Scale',
+    ROTATE: 'Rotate',
     ADD_CHAPTER: 'Add chapter',
     UNTITLED_CHAPTER: 'Untitled Chapter',
   }

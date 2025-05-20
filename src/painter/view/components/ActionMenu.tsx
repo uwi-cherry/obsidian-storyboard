@@ -6,10 +6,12 @@ interface ActionMenuContentProps {
   mode: 'global' | 'selection' | 'hidden';
   onFill: () => void;
   onClear: () => void;
+  onScale?: () => void;
+  onRotate?: () => void;
   onCancel?: () => void;
 }
 
-const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onClear, onCancel }) => {
+const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onClear, onScale, onRotate, onCancel }) => {
   if (mode === 'hidden') return null;
   return (
     <div
@@ -21,6 +23,16 @@ const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onC
       <button className="px-2 py-1 text-xs" onClick={onClear}>
         Clear
       </button>
+      {onScale && (
+        <button className="px-2 py-1 text-xs" onClick={onScale}>
+          Scale
+        </button>
+      )}
+      {onRotate && (
+        <button className="px-2 py-1 text-xs" onClick={onRotate}>
+          Rotate
+        </button>
+      )}
       {mode === 'selection' && onCancel && (
         <button className="px-2 py-1 text-xs" onClick={onCancel}>
           Cancel
@@ -35,7 +47,13 @@ export class ActionMenu {
   private container: HTMLDivElement;
   private root: Root;
   private mode: 'global' | 'selection' | 'hidden' = 'hidden';
-  private handlers?: { fill: () => void; clear: () => void; cancel?: () => void };
+  private handlers?: {
+    fill: () => void;
+    clear: () => void;
+    scale?: () => void;
+    rotate?: () => void;
+    cancel?: () => void;
+  };
 
   constructor(view: PainterView) {
     this.view = view;
@@ -53,6 +71,8 @@ export class ActionMenu {
         mode: this.mode,
         onFill: () => this.handlers?.fill(),
         onClear: () => this.handlers?.clear(),
+        onScale: this.handlers?.scale,
+        onRotate: this.handlers?.rotate,
         onCancel: this.mode === 'selection' ? this.handlers?.cancel : undefined,
       })
     );
@@ -60,7 +80,7 @@ export class ActionMenu {
   }
 
   /** グローバルメニュー（非選択時） */
-  showGlobal(handlers: { fill: () => void; clear: () => void }) {
+  showGlobal(handlers: { fill: () => void; clear: () => void; scale?: () => void; rotate?: () => void }) {
     this.mode = 'global';
     this.handlers = handlers;
     const rect = this.view._canvas.getBoundingClientRect();
@@ -70,7 +90,16 @@ export class ActionMenu {
   }
 
   /** 選択範囲用メニュー */
-  showSelection(bounding: SelectionRect, handlers: { fill: () => void; clear: () => void; cancel: () => void }) {
+  showSelection(
+    bounding: SelectionRect,
+    handlers: {
+      fill: () => void;
+      clear: () => void;
+      scale?: () => void;
+      rotate?: () => void;
+      cancel: () => void;
+    }
+  ) {
     this.mode = 'selection';
     this.handlers = handlers;
     const canvasRect = this.view._canvas.getBoundingClientRect();

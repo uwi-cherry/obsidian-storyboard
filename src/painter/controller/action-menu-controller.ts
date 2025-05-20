@@ -20,6 +20,8 @@ export class ActionMenuController {
     this.menu.showGlobal({
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
+      scale: () => this.scaleSelection(),
+      rotate: () => this.rotateSelection(),
     });
   }
 
@@ -29,6 +31,8 @@ export class ActionMenuController {
     this.menu.showSelection(rect, {
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
+      scale: () => this.scaleSelection(),
+      rotate: () => this.rotateSelection(),
       cancel: onCancel,
     });
   }
@@ -190,6 +194,164 @@ export class ActionMenuController {
       } else {
         ctx.fillRect(bounding.x, bounding.y, bounding.width, bounding.height);
       }
+    });
+  }
+
+  scaleSelection() {
+    const factor = 1.2;
+    let bounding: SelectionRect;
+    const hasSelection = this.state.hasSelection();
+
+    if (hasSelection) {
+      const rect = this.state.getBoundingRect();
+      if (!rect) return;
+      bounding = rect;
+    } else {
+      const canvas = this.view.canvasElement;
+      if (!canvas) return;
+      bounding = { x: 0, y: 0, width: canvas.width, height: canvas.height };
+    }
+
+    this.modifyCurrentLayer((ctx) => {
+      const tmp = document.createElement('canvas');
+      tmp.width = bounding.width;
+      tmp.height = bounding.height;
+      const tmpCtx = tmp.getContext('2d');
+      if (!tmpCtx) return;
+      tmpCtx.drawImage(
+        ctx.canvas,
+        bounding.x,
+        bounding.y,
+        bounding.width,
+        bounding.height,
+        0,
+        0,
+        bounding.width,
+        bounding.height
+      );
+
+      if (hasSelection && this.state.mode === 'lasso') {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(this.state.lassoPoints[0].x, this.state.lassoPoints[0].y);
+        for (let i = 1; i < this.state.lassoPoints.length; i++) {
+          ctx.lineTo(this.state.lassoPoints[i].x, this.state.lassoPoints[i].y);
+        }
+        ctx.closePath();
+        ctx.clip();
+        ctx.clearRect(bounding.x, bounding.y, bounding.width, bounding.height);
+        ctx.restore();
+      } else if (hasSelection && this.state.mode === 'magic') {
+        ctx.save();
+        if (this.state.magicClipPath) {
+          ctx.clip(this.state.magicClipPath);
+        }
+        ctx.clearRect(bounding.x, bounding.y, bounding.width, bounding.height);
+        ctx.restore();
+      } else {
+        ctx.clearRect(bounding.x, bounding.y, bounding.width, bounding.height);
+      }
+
+      ctx.save();
+      if (hasSelection && this.state.mode === 'lasso') {
+        ctx.beginPath();
+        ctx.moveTo(this.state.lassoPoints[0].x, this.state.lassoPoints[0].y);
+        for (let i = 1; i < this.state.lassoPoints.length; i++) {
+          ctx.lineTo(this.state.lassoPoints[i].x, this.state.lassoPoints[i].y);
+        }
+        ctx.closePath();
+        ctx.clip();
+      } else if (hasSelection && this.state.mode === 'magic') {
+        if (this.state.magicClipPath) {
+          ctx.clip(this.state.magicClipPath);
+        }
+      }
+      ctx.translate(
+        bounding.x + bounding.width / 2,
+        bounding.y + bounding.height / 2
+      );
+      ctx.scale(factor, factor);
+      ctx.drawImage(tmp, -bounding.width / 2, -bounding.height / 2);
+      ctx.restore();
+    });
+  }
+
+  rotateSelection() {
+    const angle = Math.PI / 2;
+    let bounding: SelectionRect;
+    const hasSelection = this.state.hasSelection();
+
+    if (hasSelection) {
+      const rect = this.state.getBoundingRect();
+      if (!rect) return;
+      bounding = rect;
+    } else {
+      const canvas = this.view.canvasElement;
+      if (!canvas) return;
+      bounding = { x: 0, y: 0, width: canvas.width, height: canvas.height };
+    }
+
+    this.modifyCurrentLayer((ctx) => {
+      const tmp = document.createElement('canvas');
+      tmp.width = bounding.width;
+      tmp.height = bounding.height;
+      const tmpCtx = tmp.getContext('2d');
+      if (!tmpCtx) return;
+      tmpCtx.drawImage(
+        ctx.canvas,
+        bounding.x,
+        bounding.y,
+        bounding.width,
+        bounding.height,
+        0,
+        0,
+        bounding.width,
+        bounding.height
+      );
+
+      if (hasSelection && this.state.mode === 'lasso') {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(this.state.lassoPoints[0].x, this.state.lassoPoints[0].y);
+        for (let i = 1; i < this.state.lassoPoints.length; i++) {
+          ctx.lineTo(this.state.lassoPoints[i].x, this.state.lassoPoints[i].y);
+        }
+        ctx.closePath();
+        ctx.clip();
+        ctx.clearRect(bounding.x, bounding.y, bounding.width, bounding.height);
+        ctx.restore();
+      } else if (hasSelection && this.state.mode === 'magic') {
+        ctx.save();
+        if (this.state.magicClipPath) {
+          ctx.clip(this.state.magicClipPath);
+        }
+        ctx.clearRect(bounding.x, bounding.y, bounding.width, bounding.height);
+        ctx.restore();
+      } else {
+        ctx.clearRect(bounding.x, bounding.y, bounding.width, bounding.height);
+      }
+
+      ctx.save();
+      if (hasSelection && this.state.mode === 'lasso') {
+        ctx.beginPath();
+        ctx.moveTo(this.state.lassoPoints[0].x, this.state.lassoPoints[0].y);
+        for (let i = 1; i < this.state.lassoPoints.length; i++) {
+          ctx.lineTo(this.state.lassoPoints[i].x, this.state.lassoPoints[i].y);
+        }
+        ctx.closePath();
+        ctx.clip();
+      } else if (hasSelection && this.state.mode === 'magic') {
+        if (this.state.magicClipPath) {
+          ctx.clip(this.state.magicClipPath);
+        }
+      }
+      ctx.translate(
+        bounding.x + bounding.width / 2,
+        bounding.y + bounding.height / 2
+      );
+      ctx.rotate(angle);
+      ctx.drawImage(tmp, -bounding.width / 2, -bounding.height / 2);
+      ctx.restore();
     });
   }
 }
