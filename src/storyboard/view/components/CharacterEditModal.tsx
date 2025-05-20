@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CharacterInfo, StoryboardFrame } from 'src/storyboard/storyboard-types';
+import { t } from 'src/i18n';
 
 const CharacterEditModal: React.FC<{
   open: boolean;
@@ -45,34 +46,33 @@ const CharacterEditModal: React.FC<{
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
       <div className="bg-white rounded shadow-lg p-6 w-[400px] max-h-[80vh] overflow-auto">
-        <h2 className="text-lg font-bold mb-2">キャラクター編集</h2>
+        <h2 className="text-lg font-bold mb-2">{t('CHARACTER_EDIT')}</h2>
         <div className="flex gap-2 items-center mb-4">
           <select value={selectedIdx} onChange={handleSelectChange} className="border rounded px-2 py-1 flex-1">
             {editChars.map((char, idx) => (
-              <option key={idx} value={idx}>{char.name || '(未設定)'}</option>
+              <option key={idx} value={idx}>{char.name || `(${t('UNSPECIFIED')})`}</option>
             ))}
           </select>
           <button className="text-blue-600 px-2 py-1 border rounded" onClick={handleAddChar}>＋</button>
           <button 
-            className="text-red-500 px-2 py-1 border rounded" 
-            onClick={handleDeleteChar} 
+            className="text-red-500 px-2 py-1 border rounded"
+            onClick={handleDeleteChar}
             disabled={editChars.length === 0 || usedCharacterNames.includes(selectedChar.name)}
-            title={usedCharacterNames.includes(selectedChar.name) ? "シナリオで使用中のキャラクターは削除できません" : ""}
-          >
-            削除
-          </button>
+        >
+            {t('DELETE')}
+        </button>
         </div>
         <div className="mb-2">
-          <label className="block text-sm mb-1">キャラ名</label>
-          <input className="border rounded px-2 py-1 w-full" value={selectedChar.name} onChange={e => handleNameChange(e.target.value)} placeholder="キャラ名" />
+          <label className="block text-sm mb-1">{t('CHARACTER_NAME')}</label>
+          <input className="border rounded px-2 py-1 w-full" value={selectedChar.name} onChange={e => handleNameChange(e.target.value)} placeholder={t('CHARACTER_NAME')} />
         </div>
         <div className="mb-4">
-          <label className="block text-sm mb-1">説明</label>
-          <input className="border rounded px-2 py-1 w-full" value={selectedChar.attributes['説明'] || ''} onChange={e => handleDescriptionChange(e.target.value)} placeholder="説明" />
+          <label className="block text-sm mb-1">{t('DESCRIPTION')}</label>
+          <input className="border rounded px-2 py-1 w-full" value={selectedChar.attributes['説明'] || ''} onChange={e => handleDescriptionChange(e.target.value)} placeholder={t('DESCRIPTION')} />
         </div>
         <div className="flex gap-2 justify-end">
-          <button className="text-gray-600 px-2 py-1 border rounded" onClick={onClose}>キャンセル</button>
-          <button className="text-white bg-blue-600 px-2 py-1 rounded" onClick={() => { onSave(editChars); onClose(); }}>保存</button>
+          <button className="text-gray-600 px-2 py-1 border rounded" onClick={onClose}>{t('CANCEL')}</button>
+          <button className="text-white bg-blue-600 px-2 py-1 rounded" onClick={() => { onSave(editChars); onClose(); }}>{t('SAVE')}</button>
         </div>
       </div>
     </div>
