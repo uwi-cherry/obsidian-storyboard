@@ -1,4 +1,5 @@
 import { TOOL_ICONS } from './icons';
+import { t } from './i18n';
 
 export const PSD_VIEW_TYPE = 'psd-view';
 export const PSD_EXTENSION = 'psd';
@@ -31,9 +32,9 @@ export const BLEND_MODE_TO_COMPOSITE_OPERATION = {
 
 // ツールの定義
 export const TOOLS = [
-    { id: 'brush', title: 'ブラシ', icon: TOOL_ICONS.brush },
-    { id: 'eraser', title: '消しゴム', icon: TOOL_ICONS.eraser },
-    { id: 'selection', title: '選択', icon: TOOL_ICONS.selection },
+    { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
+    { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
+    { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
 ] as const;
 
 // 履歴の最大サイズ

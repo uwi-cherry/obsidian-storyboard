@@ -1,7 +1,7 @@
 import MyPlugin from "main";
 import { App, TFile } from "obsidian";
 import { PainterView } from "src/painter/view/painter-obsidian-view";
-import { loadAiSettings } from "src/settings/settings";
+import { loadSettings } from "src/settings/settings";
 
 
 /**
@@ -20,7 +20,7 @@ export async function addLayerFromPrompt(
 ): Promise<string> {
   const app: App = plugin.app;
   // API キー
-  const { apiKey } = await loadAiSettings(plugin);
+  const { apiKey } = await loadSettings(plugin);
   if (!apiKey) throw new Error('OpenAI APIキーが設定されていません');
 
   // 画像生成
