@@ -116,8 +116,14 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     if (!imageUrl?.endsWith('.psd')) return;
     const file = app.vault.getAbstractFileByPath(imageUrl);
     if (file instanceof TFile) {
+      const storyboardPath = app.workspace.getActiveFile()?.path || '';
       const leaf = app.workspace.getLeaf(true);
       await leaf.openFile(file, { active: true });
+      window.dispatchEvent(
+        new CustomEvent('psd-opened-from-storyboard', {
+          detail: { psdPath: file.path, storyboardPath },
+        })
+      );
     }
   };
 
