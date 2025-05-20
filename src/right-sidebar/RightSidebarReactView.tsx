@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TFile } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import type { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
@@ -16,6 +16,13 @@ interface RightSidebarReactViewProps {
     currentImagePrompt: string | null;
     onLayerChange: (layers: Layer[], currentIndex: number) => void;
     onImageChange: (url: string | null, prompt: string | null) => void;
+    createPsd: (
+        app: App,
+        imageFile?: TFile,
+        layerName?: string,
+        isOpen?: boolean,
+        targetDir?: string
+    ) => Promise<TFile>;
 }
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
@@ -26,6 +33,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     currentImagePrompt,
     onLayerChange,
     onImageChange,
+    createPsd,
 }) => {
     const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
 
@@ -79,6 +87,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 onExportImage={() => {}}
                 app={view.app}
                 onImageUrlChange={(url) => onImageChange(url, currentImagePrompt)}
+                createPsd={createPsd}
             />
 
             {(currentImageUrl?.endsWith('.psd') || layers.length > 0) && (

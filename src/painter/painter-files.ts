@@ -1,6 +1,11 @@
 import { App, normalizePath, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
-import { PSD_EXTENSION, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
+import {
+    PSD_EXTENSION,
+    BLEND_MODE_TO_COMPOSITE_OPERATION,
+    DEFAULT_CANVAS_WIDTH,
+    DEFAULT_CANVAS_HEIGHT
+} from '../constants';
 import { Layer } from './painter-types';
 import { t } from '../i18n';
 
@@ -115,6 +120,109 @@ export async function createPsdFile(
 	}
 
 	const newFile = await app.vault.createBinary(fullPath, new Uint8Array(0));
-	await savePsdFile(app, newFile, layers);
-	return newFile;
+        await savePsdFile(app, newFile, layers);
+        return newFile;
+}
+
+export async function generateThumbnail(app: App, file: TFile): Promise<string | null> {
+        try {
+                const buffer = await app.vault.readBinary(file);
+                const psdData = agPsd.readPsd(buffer);
+
+                if (!psdData.imageResources?.thumbnail) {
+                        const compositeCanvas = document.createElement('canvas');
+                        compositeCanvas.width = psdData.width;
+                        compositeCanvas.height = psdData.height;
+                        const ctx = compositeCanvas.getContext('2d');
+                        if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+                        ctx.clearRect(0, 0, psdData.width, psdData.height);
+
+                        const layers = [...(psdData.children || [])].reverse();
+                        for (const layer of layers) {
+                                if (!layer.hidden) {
+                                        ctx.globalAlpha = layer.opacity ?? 1;
+                                        const blend = layer.blendMode === 'normal' ? 'source-over' : layer.blendMode;
+                                        ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
+                                        if (layer.canvas) {
+                                                ctx.drawImage(layer.canvas, 0, 0);
+                                        }
+                                }
+                        }
+
+                        const thumbnailCanvas = document.createElement('canvas');
+                        const thumbnailSize = 512;
+                        const scale = Math.min(thumbnailSize / psdData.width, thumbnailSize / psdData.height);
+                        thumbnailCanvas.width = psdData.width * scale;
+                        thumbnailCanvas.height = psdData.height * scale;
+                        const thumbnailCtx = thumbnailCanvas.getContext('2d');
+                        if (!thumbnailCtx) throw new Error('2Dコンテキストの取得に失敗しました');
+                        thumbnailCtx.drawImage(compositeCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+
+                        return thumbnailCanvas.toDataURL('image/jpeg', 0.8);
+                } else if (psdData.imageResources.thumbnail instanceof HTMLCanvasElement) {
+                        return psdData.imageResources.thumbnail.toDataURL('image/jpeg');
+                }
+                return null;
+        } catch (error) {
+                console.error('サムネイルの生成に失敗しました:', error);
+                return null;
+        }
+}
+
+export async function createPsd(
+    app: App,
+    imageFile?: TFile,
+    layerName?: string,
+    isOpen = true,
+    targetDir?: string
+): Promise<TFile> {
+    const canvas = document.createElement('canvas');
+    let ctx: CanvasRenderingContext2D | null = null;
+
+    if (imageFile) {
+        const imageData = await app.vault.readBinary(imageFile);
+        const blob = new Blob([imageData]);
+        const imageUrl = URL.createObjectURL(blob);
+        const img = new Image();
+        await new Promise((resolve, reject) => {
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = imageUrl;
+        });
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+        const x = (canvas.width - img.width) / 2;
+        const y = (canvas.height - img.height) / 2;
+        ctx.drawImage(img, x, y);
+        URL.revokeObjectURL(imageUrl);
+    } else {
+        canvas.width = DEFAULT_CANVAS_WIDTH;
+        canvas.height = DEFAULT_CANVAS_HEIGHT;
+        ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    const layer: Layer = {
+        name: layerName || (imageFile ? imageFile.basename : t('BACKGROUND')),
+        visible: true,
+        opacity: 1,
+        blendMode: 'normal',
+        canvas
+    };
+
+    let psdDir: string | undefined;
+    if (targetDir) {
+        psdDir = `${targetDir}/psd`;
+    }
+
+    const newFile = await createPsdFile(app, [layer], t('UNTITLED_ILLUSTRATION'), psdDir);
+    if (isOpen) {
+        const leaf = app.workspace.getLeaf(true);
+        await leaf.openFile(newFile, { active: true });
+    }
+    return newFile;
 }
