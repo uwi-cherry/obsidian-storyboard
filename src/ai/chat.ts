@@ -1,5 +1,5 @@
 import type MyPlugin from '../../main';
-import { loadAiSettings } from '../settings/settings';
+import { loadSettings } from '../settings/settings';
 import { OpenAiAgent } from '../agent-module/OpenAiAgent';
 import { OpenAiAgentRunner } from '../agent-module/OpenAiAgentRunner';
 import { RunResult, ChatMessage } from '../agent-module/types';
@@ -33,7 +33,7 @@ export async function sendChatMessage(
   if (!plugin) {
     throw new Error('プラグインインスタンスが取得できませんでした');
   }
-  const settings = await loadAiSettings(plugin);
+  const settings = await loadSettings(plugin);
   const apiKey = settings.apiKey;
   if (!apiKey) {
     throw new Error('APIキーが設定されていません。設定画面で入力してください。');

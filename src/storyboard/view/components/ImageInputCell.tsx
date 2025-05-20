@@ -4,6 +4,7 @@ import MyPlugin from 'main';
 import { BUTTON_ICONS } from 'src/icons';
 import { generateThumbnail, createPsd } from 'src/painter/controller/painter-obsidian-controller';
 import { generatePsdFromPrompt } from 'src/ai/action/generatePsdFromPrompt';
+import { t } from 'src/i18n';
 interface ImageInputCellProps {
   imageUrl?: string;
   imagePrompt?: string;
@@ -158,13 +159,13 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     if (isGenerating) return; // 連打防止
 
     if (!imagePrompt || imagePrompt.trim() === '') {
-      new Notice('プロンプトを入力してください');
+      new Notice(t('PROMPT_REQUIRED'));
       return;
     }
 
     const plugin = (window as unknown as { __psdPainterPlugin?: MyPlugin }).__psdPainterPlugin;
     if (!plugin) {
-      new Notice('プラグインインスタンスが見つかりませんでした');
+      new Notice(t('PLUGIN_NOT_FOUND'));
       return;
     }
 
@@ -179,7 +180,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       }
     } catch (err) {
       console.error('AI画像生成に失敗しました:', err);
-      new Notice('AI画像生成に失敗しました。コンソールを確認してください');
+      new Notice(t('GENERATE_FAILED'));
     } finally {
       setIsGenerating(false);
     }
@@ -199,19 +200,19 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           className="p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer hover:bg-[var(--interactive-accent-hover)] disabled:opacity-50 flex items-center justify-center"
           onClick={handleAiGenerate}
           disabled={isGenerating}
-          title={isGenerating ? '生成中...' : 'AI生成'}
+          title={isGenerating ? t('GENERATING') : t('AI_GENERATE')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.aiGenerate }}
         />
         <button
           className="p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer hover:bg-[var(--background-modifier-hover)] flex items-center justify-center"
           onClick={() => fileInputRef.current?.click()}
-          title="ファイル選択"
+          title={t('FILE_SELECT')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
         />
         <button
           className="p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer hover:bg-[var(--background-modifier-hover)] flex items-center justify-center"
           onClick={handleClearPath}
-          title="パスをクリア"
+          title={t('CLEAR_PATH')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.clearPath }}
         />
       </div>
@@ -231,7 +232,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           value={imagePrompt || ''}
           onChange={handleImagePromptChange}
           onKeyDown={handlePromptKeyDown}
-          placeholder="Image Prompt (optional)"
+          placeholder={t('IMAGE_PROMPT_PLACEHOLDER')}
           className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-[var(--text-normal)] placeholder-[var(--text-faint)] leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
         />
       )}

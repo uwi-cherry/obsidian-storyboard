@@ -4,6 +4,7 @@ import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Layer } from '../painter/painter-types';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
+import { t } from '../i18n';
 export type { Layer };
 
 export const LAYER_SIDEBAR_VIEW_TYPE = 'psd-layer-sidebar';
@@ -48,7 +49,7 @@ export class RightSidebarView extends ItemView {
     }
 
     getDisplayText(): string {
-        return 'レイヤー';
+        return t('LAYERS');
     }
 
     /**
@@ -63,7 +64,7 @@ export class RightSidebarView extends ItemView {
     }
 
     // レイヤー操作
-    public addLayer(name = '新規レイヤー') {
+    public addLayer(name = t('NEW_LAYER')) {
         this.layerOps?.addLayer(name);
     }
 

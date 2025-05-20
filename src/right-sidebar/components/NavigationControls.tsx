@@ -2,6 +2,7 @@ import React from 'react';
 import { RightSidebarView } from '../right-sidebar-obsidian-view';
 import { Notice, App } from 'obsidian';
 import { createPsd } from '../../painter/controller/painter-obsidian-controller';
+import { t } from '../../i18n';
 
 interface NavigationControlsProps {
     view: RightSidebarView;
@@ -51,21 +52,21 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
                     style={{ display: !currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'none' }}
                     onClick={handleCreateNewPsd}
                 >
-                    PSDペインターを新規作成
+                    {t('CREATE_PSD')}
                 </button>
                 <button
                     className="flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)]"
                     style={{ display: currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'none' }}
                     onClick={onOpenPsdPainter}
                 >
-                    PSDペインターを開く
+                    {t('OPEN_PSD')}
                 </button>
                 <button
                     className="flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)]"
                     style={{ display: !isPsdPainterOpen ? '' : 'none' }}
                     onClick={handleExportVideo}
                 >
-                    動画出力
+                    {t('EXPORT_VIDEO')}
                 </button>
             </div>
 
@@ -75,14 +76,14 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
                     style={{ display: isPsdPainterOpen ? '' : 'none' }}
                     onClick={onBackToStoryboard}
                 >
-                    ストーリーボードに戻る
+                    {t('BACK_TO_STORYBOARD')}
                 </button>
                 <button
                     className="flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)]"
                     style={{ display: isPsdPainterOpen ? '' : 'none' }}
                     onClick={onExportImage}
                 >
-                    画像出力
+                    {t('EXPORT_IMAGE')}
                 </button>
             </div>
         </div>

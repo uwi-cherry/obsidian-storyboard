@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { TABLE_ICONS } from 'src/icons';
+import { t } from 'src/i18n';
 
 export interface ColumnDef<T> {
   key: keyof T;
@@ -134,7 +135,7 @@ if (colIndex !== null) {
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowUp(index); }}
                         className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
-                        title="行を上に移動"
+                        title={t('MOVE_ROW_UP')}
                         style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveUp }}
                       />
@@ -143,7 +144,7 @@ if (colIndex !== null) {
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowDown(index); }}
                         className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
-                        title="行を下に移動"
+                        title={t('MOVE_ROW_DOWN')}
                         style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveDown }}
                       />
@@ -152,7 +153,7 @@ if (colIndex !== null) {
                       <button
                         onClick={(e) => { e.stopPropagation(); onInsertRowBelow(index); }}
                         className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
-                        title="一つ下に新規追加"
+                        title={t('INSERT_ROW_BELOW')}
                         style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
                       />
@@ -160,7 +161,7 @@ if (colIndex !== null) {
                     <button
                       onClick={(e) => { e.stopPropagation(); onDeleteRow(index); }}
                       className="text-gray-400 hover:text-red-500 text-base px-1 py-0.5"
-                      title="削除"
+                      title={t('DELETE_ROW')}
                       style={{ lineHeight: 1 }}
                       dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
                     />
@@ -174,7 +175,7 @@ if (colIndex !== null) {
               colSpan={columns.length + 1 } 
               className="border border-gray-300 px-4 py-2 text-center cursor-pointer text-gray-500 hover:text-gray-700" 
               onClick={() => onAddRow()}
-              title="行を追加"
+              title={t('ADD_ROW')}
             >
               +
             </td>

@@ -5,6 +5,7 @@ import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
+import { t } from 'src/i18n';
 
 interface StoryboardReactViewProps {
   initialData: StoryboardData;
@@ -152,7 +153,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, 
   const columns: ColumnDef<StoryboardFrame>[] = [
     {
       key: 'imageUrl',
-      header: '画像',
+      header: t('IMAGE'),
       renderCell: (value: StoryboardFrame['imageUrl'], row: StoryboardFrame, onCellChangeForRow: (columnKey: keyof StoryboardFrame, newValue: StoryboardFrame[keyof StoryboardFrame]) => void, rowIndex: number) => (
         <ImageInputCell
           imageUrl={row.imageUrl}
@@ -178,7 +179,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, 
     },
     {
       key: 'dialogues',
-      header: '話者とセリフ',
+      header: t('SPEAKER_DIALOGUE'),
       renderCell: (value: StoryboardFrame['dialogues'], row: StoryboardFrame, onCellChangeForRow: (columnKey: keyof StoryboardFrame, newValue: StoryboardFrame[keyof StoryboardFrame]) => void, rowIndex: number) => (
         <SpeakerDialogueCell
           dialogue={value || ''}
