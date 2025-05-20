@@ -3,7 +3,7 @@ import { t } from 'src/i18n';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, App, TFile } from 'obsidian';
 import { Layer } from '../painter/painter-types';
-import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 export type { Layer };
@@ -74,6 +74,18 @@ export class RightSidebarView extends ItemView {
     // レイヤー操作
     public addLayer(name = t('NEW_LAYER')) {
         this.layerOps?.addLayer(name);
+    }
+
+    /**
+     * 画像ファイルからレイヤーを追加
+     */
+    public addImageLayer(file: TFile) {
+        const leaves = this.app.workspace.getLeavesOfType(PSD_VIEW_TYPE);
+        const painterLeaf = leaves.find((l) => l.view instanceof PainterView);
+        const painter = painterLeaf?.view as PainterView | undefined;
+        if (painter) {
+            painter.createNewLayer(file.basename, file);
+        }
     }
 
     public deleteLayer(index: number) {
