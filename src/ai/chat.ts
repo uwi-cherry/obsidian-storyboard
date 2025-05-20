@@ -1,8 +1,8 @@
 import type MyPlugin from '../../main';
 import { loadAiSettings } from '../settings/settings';
-import { OpenAiAgent } from '../agent/OpenAiAgent';
-import { OpenAiAgentRunner } from '../agent/OpenAiAgentRunner';
-import { RunResult, ChatMessage } from '../agent/types';
+import { OpenAiAgent } from '../agent-module/OpenAiAgent';
+import { OpenAiAgentRunner } from '../agent-module/OpenAiAgentRunner';
+import { RunResult, ChatMessage } from '../agent-module/types';
 import { aiTools } from './tools';
 
 // ==============================================

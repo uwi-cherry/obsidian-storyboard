@@ -1,7 +1,7 @@
-import { Tool } from '../agent/types';
-import { generatePsdFromPrompt } from '../action/generatePsdFromPrompt';
-import { addLayerFromPrompt } from '../action/addLayerFromPrompt';
+import { Tool } from '../agent-module/types';
 import { App } from 'obsidian';
+import { addLayerFromPrompt } from './action/addLayerFromPrompt';
+import { generatePsdFromPrompt } from './action/generatePsdFromPrompt';
 
 /**
  * グローバルから Plugin インスタンスを取得
