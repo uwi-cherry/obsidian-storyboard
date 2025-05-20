@@ -16,6 +16,12 @@ export const STORYBOARD_TOGGLE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/sv
     <polyline points="8 21 3 21 3 16"/>
 </svg>`;
 
+// 共通追加アイコン
+export const ADD_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10 6V14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <path d="M6 10H14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>`;
+
 // テーブル操作アイコン
 export const TABLE_ICONS = {
     // 行を上に移動
@@ -27,10 +33,7 @@ export const TABLE_ICONS = {
         <path d="M10 15L15 10H5L10 15Z" fill="currentColor"/>
     </svg>`,
     // 行を追加
-    add: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 6V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M6 10H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>`,
+    add: ADD_ICON_SVG,
     // 行を削除
     delete: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M7 7L13 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>

@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TABLE_ICONS } from 'src/icons';
+import { TABLE_ICONS, ADD_ICON_SVG } from 'src/icons';
 import { t } from 'src/i18n';
 
 export interface ColumnDef<T> {
@@ -173,7 +173,7 @@ if (colIndex !== null) {
               onClick={() => onAddRow()}
               title={t('INSERT_ROW_BELOW')}
             >
-              +
+              <span dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }} />
             </td>
           </tr>
         </tbody>
