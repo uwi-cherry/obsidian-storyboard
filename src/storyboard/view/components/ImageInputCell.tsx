@@ -207,20 +207,29 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
         />
         <button
           className="p-1 bg-accent text-on-accent rounded cursor-pointer hover:bg-accent-hover disabled:opacity-50 flex items-center justify-center"
-          onClick={handleAiGenerate}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleAiGenerate();
+          }}
           disabled={isGenerating}
           title={isGenerating ? t('GENERATING') : t('AI_GENERATE')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.aiGenerate }}
         />
         <button
           className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={(e) => {
+            e.stopPropagation();
+            fileInputRef.current?.click();
+          }}
           title={t('FILE_SELECT')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
         />
         <button
           className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-          onClick={handleClearPath}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleClearPath();
+          }}
           title={t('CLEAR_PATH')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.clearPath }}
         />
