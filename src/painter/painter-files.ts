@@ -2,6 +2,7 @@ import { App, normalizePath, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
 import { PSD_EXTENSION, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import { Layer } from './painter-types';
+import { t } from '../i18n';
 
 interface PsdLayer {
 	name: string;
@@ -74,7 +75,7 @@ export async function loadPsdFile(app: App, file: TFile) {
 export async function createPsdFile(
 	app: App,
 	layers: Layer[],
-	baseFileName = '無題のイラスト',
+        baseFileName = t('UNTITLED_ILLUSTRATION'),
 	targetDir?: string
 ): Promise<TFile> {
 	let fileName = baseFileName;

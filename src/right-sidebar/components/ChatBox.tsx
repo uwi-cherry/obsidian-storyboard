@@ -1,6 +1,7 @@
 import MyPlugin from "main";
 import React, { useState, useRef, useEffect } from "react";
 import { sendChatMessage } from "src/ai/chat";
+import { t } from "src/i18n";
 
 interface ChatBoxProps {
   plugin?: MyPlugin;
@@ -57,7 +58,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
         return updated;
       });
     } catch (err: any) {
-      setError(err.message || "AI応答エラー");
+      setError(err.message || t('AI_RESPONSE_ERROR'));
     } finally {
       setLoading(false);
     }
@@ -75,7 +76,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
           </div>
         ))}
         {loading && (
-          <div className="text-xs text-gray-400 text-center">AIが応答中...</div>
+          <div className="text-xs text-gray-400 text-center">{t('LOADING')}</div>
         )}
         {error && (
           <div className="text-xs text-red-500 text-center">{error}</div>
@@ -88,13 +89,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
-          placeholder="メッセージを入力..."
+          placeholder={t('INPUT_PLACEHOLDER')}
         />
         <button
           type="submit"
           className="w-full py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
         >
-          送信
+          {t('SEND')}
         </button>
       </form>
     </div>

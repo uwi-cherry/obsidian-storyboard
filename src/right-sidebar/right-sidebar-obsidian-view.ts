@@ -1,4 +1,5 @@
 import React from 'react';
+import { t } from 'src/i18n';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Layer } from '../painter/painter-types';
@@ -48,7 +49,7 @@ export class RightSidebarView extends ItemView {
     }
 
     getDisplayText(): string {
-        return 'レイヤー';
+        return t('LAYERS');
     }
 
     /**
@@ -63,7 +64,7 @@ export class RightSidebarView extends ItemView {
     }
 
     // レイヤー操作
-    public addLayer(name = '新規レイヤー') {
+    public addLayer(name = t('NEW_LAYER')) {
         this.layerOps?.addLayer(name);
     }
 

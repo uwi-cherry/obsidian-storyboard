@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { t } from 'src/i18n';
 import { normalizePath } from 'obsidian';
 import { RightSidebarView, Layer } from '../right-sidebar-obsidian-view';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/constants';
@@ -39,7 +40,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
     return (
         <div>
             <div className="text-[var(--text-normal)] text-sm mb-2 pb-1 border-b border-[var(--background-modifier-border)]">
-                レイヤー
+                {t('LAYERS')}
             </div>
 
             <input
@@ -53,21 +54,21 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
             <div className="flex gap-1 mb-2">
                 <button
                     className="flex-1 p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer text-xs hover:bg-[var(--background-modifier-hover)]"
-                    onClick={() => view.addLayer('新規レイヤー')}
+                    onClick={() => view.addLayer(t('NEW_LAYER'))}
                 >
-                    新規レイヤー
+                    {t('NEW_LAYER')}
                 </button>
                 <button
                     className="flex-1 p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer text-xs hover:bg-[var(--background-modifier-hover)]"
                     onClick={() => fileInputRef.current?.click()}
                 >
-                    画像レイヤー
+                    {t('IMAGE_LAYER')}
                 </button>
                 <button
                     className="flex-1 p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer text-xs hover:bg-[var(--background-modifier-hover)]"
                     onClick={() => view.deleteLayer(currentLayerIndex)}
                 >
-                    レイヤーを削除
+                    {t('DELETE_LAYER')}
                 </button>
             </div>
 
@@ -121,7 +122,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                         <div
                             className="text-[var(--text-normal)] text-sm flex-1"
                             onDoubleClick={() => {
-                                const newName = prompt('レイヤー名を入力', layer.name);
+                                const newName = prompt(t('ENTER_LAYER_NAME'), layer.name);
                                 if (newName && newName !== layer.name) {
                                     view.renameLayer(idx, newName);
                                 }

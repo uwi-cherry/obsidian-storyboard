@@ -2,6 +2,7 @@ import { App, WorkspaceLeaf, TFile } from 'obsidian';
 import { PainterView } from '../view/painter-obsidian-view';
 import { loadPsdFile, savePsdFile, createPsdFile } from '../painter-files';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../../constants';
+import { t } from '../../i18n';
 import * as agPsd from 'ag-psd';
 import { LAYER_SIDEBAR_VIEW_TYPE, RightSidebarView, LayerOps } from '../../right-sidebar/right-sidebar-obsidian-view';
 import { Layer } from '../painter-types';
@@ -60,7 +61,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
 
     // LayerSidebarView へ操作コールバックを渡す
     const layerOps: LayerOps = {
-        addLayer: (name?: string) => view.createNewLayer(name ?? '新規レイヤー'),
+        addLayer: (name?: string) => view.createNewLayer(name ?? t('NEW_LAYER')),
         deleteLayer: (index: number) => view.deleteLayer(index),
         toggleLayerVisibility: (index: number) => {
             const layer = view.psdDataHistory[view.currentIndex].layers[index];
@@ -232,7 +233,7 @@ export async function createPsd(app: App, imageFile?: TFile, layerName?: string,
             imageFile,
             width: imageFile ? 0 : DEFAULT_CANVAS_WIDTH,
             height: imageFile ? 0 : DEFAULT_CANVAS_HEIGHT,
-            name: layerName || (imageFile ? imageFile.basename : '背景')
+            name: layerName || (imageFile ? imageFile.basename : t('BACKGROUND'))
         }
     );
 
@@ -242,7 +243,7 @@ export async function createPsd(app: App, imageFile?: TFile, layerName?: string,
         psdDir = `${targetDir}/psd`;
     }
 
-    const newFile = await createPsdFile(app, [layer], '無題のイラスト', psdDir);
+    const newFile = await createPsdFile(app, [layer], t('UNTITLED_ILLUSTRATION'), psdDir);
     if (isOpen) {
         const leaf = app.workspace.getLeaf(true);
         await leaf.openFile(newFile, { active: true });
@@ -278,19 +279,19 @@ export function saveActive(app: App) {
 }
 
 // ============= レイヤー処理実装 =========================
-async function addLayer(view: PainterView, name = '新規レイヤー', imageFile?: TFile) {
+async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFile?: TFile) {
     // ベースサイズ
     const baseWidth = view._canvas ? view._canvas.width : DEFAULT_CANVAS_WIDTH;
     const baseHeight = view._canvas ? view._canvas.height : DEFAULT_CANVAS_HEIGHT;
 
     // レイヤー名の重複を避けて連番を付加
     let layerName = name;
-    if (name === '新規レイヤー') {
+    if (name === t('NEW_LAYER')) {
         let counter = 1;
-        while (view.psdDataHistory[view.currentIndex].layers.some(l => l.name === `新規レイヤー ${counter}`)) {
+        while (view.psdDataHistory[view.currentIndex].layers.some(l => l.name === `${t('NEW_LAYER')} ${counter}`)) {
             counter++;
         }
-        layerName = `新規レイヤー ${counter}`;
+        layerName = `${t('NEW_LAYER')} ${counter}`;
     }
 
     try {

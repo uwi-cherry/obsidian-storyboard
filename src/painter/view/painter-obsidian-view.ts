@@ -12,6 +12,7 @@ import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import PainterReactView from './PainterReactView';
+import { t } from '../../i18n';
 export class PainterView extends FileView {
 	isDrawing = false;
 	lastX = 0;
@@ -219,13 +220,13 @@ export class PainterView extends FileView {
 		this.contentEl.addClass('psd-view');
 
 		// Undo / Redo アクション（Obsidian ヘッダー）
-		const redoBtn = this.addAction('arrow-right', 'やり直す', () => this.redo()) as HTMLElement;
-		redoBtn.querySelector('svg')?.remove();
-		redoBtn.textContent = 'やり直す';
+                const redoBtn = this.addAction('arrow-right', t('REDO'), () => this.redo()) as HTMLElement;
+                redoBtn.querySelector('svg')?.remove();
+                redoBtn.textContent = t('REDO');
 
-		const undoBtn = this.addAction('arrow-left', '元に戻す', () => this.undo()) as HTMLElement;
-		undoBtn.querySelector('svg')?.remove();
-		undoBtn.textContent = '元に戻す';
+                const undoBtn = this.addAction('arrow-left', t('UNDO'), () => this.undo()) as HTMLElement;
+                undoBtn.querySelector('svg')?.remove();
+                undoBtn.textContent = t('UNDO');
 
 		// React レイアウトをマウント
 		if (!this.reactRoot) {
@@ -353,7 +354,7 @@ export class PainterView extends FileView {
 		});
 	}
 
-	createNewLayer(name = '新規レイヤー', imageFile?: TFile) {
+        createNewLayer(name = t('NEW_LAYER'), imageFile?: TFile) {
 		if (this._addLayerDelegate) {
 			// 第3引数はオプショナル
                         (this._addLayerDelegate as (view: PainterView, name?: string, imageFile?: TFile) => void)(this, name, imageFile);
