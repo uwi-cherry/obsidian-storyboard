@@ -4,6 +4,7 @@ import { App, TFile } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types';
 import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
+import { ADD_ICON_SVG, TABLE_ICONS } from 'src/icons';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
 import { TABLE_ICONS } from 'src/icons';
@@ -143,19 +144,21 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     });
   };
 
-  const handleAddChapter = (afterIndex: number) => {
+  const handleAddChapter = () => {
     const newChapter = { title: t('UNTITLED_CHAPTER'), frames: [] };
     setStoryboard(prev => {
-      const chapters = [...prev.chapters];
-      chapters.splice(afterIndex + 1, 0, newChapter);
-      const updated = { ...prev, chapters };
+      const updated = { ...prev, chapters: [...prev.chapters, newChapter] };
       onDataChange(updated);
       return updated;
     });
-    setOpenChapters(prev => {
-      const arr = [...prev];
-      arr.splice(afterIndex + 1, 0, true);
-      return arr;
+  };
+
+  const handleDeleteChapter = (chapterIndex: number) => {
+    setStoryboard(prev => {
+      const chapters = prev.chapters.filter((_, idx) => idx !== chapterIndex);
+      const updated = { ...prev, chapters };
+      onDataChange(updated);
+      return updated;
     });
   };
 
@@ -332,100 +335,68 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         onClose={() => setCharModalOpen(false)}
         onSave={handleSaveCharacters}
       />
-      <table className="w-full border-collapse border border-modifier-border mb-32 table-fixed">
+      {storyboard.chapters.map((chapter, cIdx) => (
+        <details key={cIdx} open className="mb-4">
+          <summary className="font-bold mb-2 flex items-center gap-2">
+            <input
+              className="border border-modifier-border rounded px-2 py-1 flex-1"
+              value={chapter.title}
+              onChange={e => {
+                const title = e.target.value;
+                setStoryboard(prev => {
+                  const chapters = prev.chapters.map((ch, idx) =>
+                    idx === cIdx ? { ...ch, title } : ch
+                  );
+                  const updated = { ...prev, chapters };
+                  onDataChange(updated);
+                  return updated;
+                });
+              }}
+            />
+            <button
+              className="text-error border border-modifier-border rounded px-2 py-1"
+              onClick={e => {
+                e.preventDefault();
+                handleDeleteChapter(cIdx);
+              }}
+              dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
+            />
+          </summary>
+          <EditableTable<StoryboardFrame>
+            data={chapter.frames}
+            columns={columns.map(col =>
+              col.key === 'dialogues'
+                ? {
+                    ...col,
+                      renderCell: (value, row, onCellChangeForRow, rowIndex) =>
+                      col.renderCell?.(value, row, (k, v) => onCellChangeForRow(k, v), rowIndex),
+                  }
+                : col
+            )}
+            onCellChange={(rowIndex, columnKey, newValue) =>
+              handleCellChange(cIdx, rowIndex, columnKey, newValue)
+            }
+            onAddRow={() => handleAddRow(cIdx)}
+            onDeleteRow={rowIndex => handleDeleteRow(cIdx, rowIndex)}
+            onMoveRowUp={rowIndex => handleMoveRowUp(cIdx, rowIndex)}
+            onMoveRowDown={rowIndex => handleMoveRowDown(cIdx, rowIndex)}
+            onInsertRowBelow={rowIndex => handleInsertRowBelow(cIdx, rowIndex)}
+            onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
+            showAddRow={false}
+          />
+        </details>
+      ))}
+      <table className="w-full border-collapse border border-modifier-border mb-4 table-fixed">
         <tbody>
-          {storyboard.chapters.map((chapter, cIdx) => (
-            <React.Fragment key={cIdx}>
-              <tr className="bg-secondary">
-                <td
-                  colSpan={columns.length}
-                  className="border border-modifier-border px-4 py-2"
-                >
-                  <div
-                    className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      setOpenChapters(prev =>
-                        prev.map((v, i) => (i === cIdx ? !v : v))
-                      )
-                    }
-                  >
-                    <span className="mr-2">
-                      {openChapters[cIdx] ? '▼' : '▶'}
-                    </span>
-                    <input
-                      className="border border-modifier-border rounded px-2 py-1 flex-1"
-                      value={chapter.title}
-                      onChange={e => {
-                        const title = e.target.value;
-                        setStoryboard(prev => {
-                          const chapters = prev.chapters.map((ch, idx) =>
-                            idx === cIdx ? { ...ch, title } : ch
-                          );
-                          const updated = { ...prev, chapters };
-                          onDataChange(updated);
-                          return updated;
-                        });
-                      }}
-                    />
-                  </div>
-                </td>
-                <td className="border border-modifier-border px-1 py-2 text-center align-middle whitespace-nowrap">
-                  <div className="flex flex-col items-start gap-y-1">
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleAddChapter(cIdx);
-                      }}
-                      className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
-                      title={t('INSERT_ROW_BELOW')}
-                      dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
-                    />
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleDeleteChapter(cIdx);
-                      }}
-                      className="text-text-faint hover:text-error text-base px-1 py-0.5 leading-none"
-                      title={t('DELETE')}
-                      dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
-                    />
-                  </div>
-                </td>
-              </tr>
-              {openChapters[cIdx] && (
-                <tr>
-                  <td colSpan={columns.length + 1} className="p-0">
-                    <EditableTable<StoryboardFrame>
-                      data={chapter.frames}
-                      columns={columns.map(col =>
-                        col.key === 'dialogues'
-                          ? {
-                              ...col,
-                              renderCell: (value, row, onCellChangeForRow, rowIndex) =>
-                                col.renderCell?.(
-                                  value,
-                                  row,
-                                  (k, v) => onCellChangeForRow(k, v),
-                                  rowIndex
-                                ),
-                            }
-                          : col
-                      )}
-                      onCellChange={(rowIndex, columnKey, newValue) =>
-                        handleCellChange(cIdx, rowIndex, columnKey, newValue)
-                      }
-                      onAddRow={() => handleAddRow(cIdx)}
-                      onDeleteRow={rowIndex => handleDeleteRow(cIdx, rowIndex)}
-                      onMoveRowUp={rowIndex => handleMoveRowUp(cIdx, rowIndex)}
-                      onMoveRowDown={rowIndex => handleMoveRowDown(cIdx, rowIndex)}
-                      onInsertRowBelow={rowIndex => handleInsertRowBelow(cIdx, rowIndex)}
-                      onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
-                    />
-                  </td>
-                </tr>
-              )}
-            </React.Fragment>
-          ))}
+          <tr className="bg-secondary hover:bg-modifier-hover">
+            <td
+              colSpan={columns.length + 1}
+              className="border border-modifier-border px-4 py-2 text-center cursor-pointer text-text-muted hover:text-text-normal"
+              onClick={handleAddChapter}
+              title={t('ADD_CHAPTER')}
+              dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
+            />
+          </tr>
         </tbody>
       </table>
     </>
