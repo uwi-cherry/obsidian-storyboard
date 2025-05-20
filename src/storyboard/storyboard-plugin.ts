@@ -87,7 +87,7 @@ async function createSampleStoryboardFile(app: App): Promise<TFile | null> {
 #### 花子
 - 説明
   - ヒロイン。転校生。
-### シナリオ
+### 第1章
 #### 太郎
 あ、新しい転校生だ
 #### 花子

@@ -42,77 +42,99 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   }, [initialData]);
 
   const handleCellChange = useCallback(
-    (rowIndex: number, key: keyof StoryboardFrame, value: StoryboardFrame[keyof StoryboardFrame]) => {
-      setStoryboard(prevStoryboard => {
-        if (!prevStoryboard) return prevStoryboard;
-        const updatedFrames = prevStoryboard.frames.map((frame, index) =>
-          index === rowIndex ? { ...frame, [key]: value } : frame
-        );
-        const updatedStoryboard = { ...prevStoryboard, frames: updatedFrames };
-        onDataChange(updatedStoryboard);
-        return updatedStoryboard;
+    (
+      chapterIndex: number,
+      rowIndex: number,
+      key: keyof StoryboardFrame,
+      value: StoryboardFrame[keyof StoryboardFrame]
+    ) => {
+      setStoryboard(prev => {
+        const chapters = prev.chapters.map((ch, cIdx) => {
+          if (cIdx !== chapterIndex) return ch;
+          const frames = ch.frames.map((f, fIdx) =>
+            fIdx === rowIndex ? { ...f, [key]: value } : f
+          );
+          return { ...ch, frames };
+        });
+        const updated = { ...prev, chapters };
+        onDataChange(updated);
+        return updated;
       });
     },
     [onDataChange]
   );
 
-  const handleAddRow = () => {
+  const handleAddRow = (chapterIndex: number) => {
     const newFrame = { imageUrl: '', speaker: '', dialogues: '', imagePrompt: '' } as StoryboardFrame;
-    setStoryboard(prevStoryboard => {
-      const updatedStoryboard = {
-        ...prevStoryboard,
-        frames: [...(prevStoryboard?.frames || []), newFrame]
-      };
-      onDataChange(updatedStoryboard);
-      return updatedStoryboard;
+    setStoryboard(prev => {
+      const chapters = prev.chapters.map((ch, cIdx) => {
+        if (cIdx !== chapterIndex) return ch;
+        return { ...ch, frames: [...ch.frames, newFrame] };
+      });
+      const updated = { ...prev, chapters };
+      onDataChange(updated);
+      return updated;
     });
   };
 
-  const handleDeleteRow = (rowIndex: number) => {
-    setStoryboard(prevStoryboard => {
-      const updatedStoryboard = {
-        ...prevStoryboard,
-        frames: prevStoryboard.frames.filter((frame, index) => index !== rowIndex)
-      };
-      onDataChange(updatedStoryboard);
-      return updatedStoryboard;
+  const handleDeleteRow = (chapterIndex: number, rowIndex: number) => {
+    setStoryboard(prev => {
+      const chapters = prev.chapters.map((ch, cIdx) => {
+        if (cIdx !== chapterIndex) return ch;
+        return { ...ch, frames: ch.frames.filter((_, idx) => idx !== rowIndex) };
+      });
+      const updated = { ...prev, chapters };
+      onDataChange(updated);
+      return updated;
     });
   };
 
-  const handleMoveRowUp = (rowIndex: number) => {
+  const handleMoveRowUp = (chapterIndex: number, rowIndex: number) => {
     if (rowIndex <= 0) return;
-    setStoryboard(prevStoryboard => {
-      const frames = [...prevStoryboard.frames];
-      const temp = frames[rowIndex];
-      frames[rowIndex] = frames[rowIndex - 1];
-      frames[rowIndex - 1] = temp;
-      const updatedStoryboard = { ...prevStoryboard, frames };
-      onDataChange(updatedStoryboard);
-      return updatedStoryboard;
+    setStoryboard(prev => {
+      const chapters = prev.chapters.map((ch, cIdx) => {
+        if (cIdx !== chapterIndex) return ch;
+        const frames = [...ch.frames];
+        const temp = frames[rowIndex];
+        frames[rowIndex] = frames[rowIndex - 1];
+        frames[rowIndex - 1] = temp;
+        return { ...ch, frames };
+      });
+      const updated = { ...prev, chapters };
+      onDataChange(updated);
+      return updated;
     });
   };
 
-  const handleMoveRowDown = (rowIndex: number) => {
-    if (rowIndex >= storyboard.frames.length - 1) return;
-    setStoryboard(prevStoryboard => {
-      const frames = [...prevStoryboard.frames];
-      const temp = frames[rowIndex];
-      frames[rowIndex] = frames[rowIndex + 1];
-      frames[rowIndex + 1] = temp;
-      const updatedStoryboard = { ...prevStoryboard, frames };
-      onDataChange(updatedStoryboard);
-      return updatedStoryboard;
+  const handleMoveRowDown = (chapterIndex: number, rowIndex: number) => {
+    setStoryboard(prev => {
+      const chapters = prev.chapters.map((ch, cIdx) => {
+        if (cIdx !== chapterIndex) return ch;
+        if (rowIndex >= ch.frames.length - 1) return ch;
+        const frames = [...ch.frames];
+        const temp = frames[rowIndex];
+        frames[rowIndex] = frames[rowIndex + 1];
+        frames[rowIndex + 1] = temp;
+        return { ...ch, frames };
+      });
+      const updated = { ...prev, chapters };
+      onDataChange(updated);
+      return updated;
     });
   };
 
-  const handleInsertRowBelow = (rowIndex: number) => {
+  const handleInsertRowBelow = (chapterIndex: number, rowIndex: number) => {
     const newFrame = { imageUrl: '', speaker: '', dialogues: '', imagePrompt: '' } as StoryboardFrame;
-    setStoryboard(prevStoryboard => {
-      const frames = [...prevStoryboard.frames];
-      frames.splice(rowIndex + 1, 0, newFrame);
-      const updatedStoryboard = { ...prevStoryboard, frames };
-      onDataChange(updatedStoryboard);
-      return updatedStoryboard;
+    setStoryboard(prev => {
+      const chapters = prev.chapters.map((ch, cIdx) => {
+        if (cIdx !== chapterIndex) return ch;
+        const frames = [...ch.frames];
+        frames.splice(rowIndex + 1, 0, newFrame);
+        return { ...ch, frames };
+      });
+      const updated = { ...prev, chapters };
+      onDataChange(updated);
+      return updated;
     });
   };
 
@@ -131,15 +153,15 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
       });
 
       // frames内のspeakerを一括変換
-      const updatedFrames = prev.frames.map(frame => {
-        const newSpeaker = nameMap[frame.speaker];
-        if (newSpeaker) {
-          return { ...frame, speaker: newSpeaker };
-        }
-        return frame;
-      });
+      const chapters = prev.chapters.map(ch => ({
+        ...ch,
+        frames: ch.frames.map(frame => {
+          const newSpeaker = nameMap[frame.speaker];
+          return newSpeaker ? { ...frame, speaker: newSpeaker } : frame;
+        })
+      }));
 
-      const updated = { ...prev, characters: chars, frames: updatedFrames };
+      const updated = { ...prev, characters: chars, chapters };
       onDataChange(updated);
       return updated;
     });
@@ -150,7 +172,8 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     // キャラクターセクションのキャラ名
     const charNames = (storyboardData.characters ?? []).map(c => c.name);
     // シナリオセクションの話者名
-    const frameSpeakers = (storyboardData.frames ?? []).map(f => f.speaker);
+    const frameSpeakers = storyboardData.chapters
+      .flatMap(ch => ch.frames.map(f => f.speaker));
     // 両方を重複なくマージ
     return Array.from(new Set([...charNames, ...frameSpeakers])).filter(s => typeof s === 'string' && s.trim() !== '');
   };
@@ -238,21 +261,32 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
       const custom = e as CustomEvent;
       const { rowIndex, imageUrl, imagePrompt } = custom.detail || {};
       if (rowIndex === undefined) return;
-      setStoryboard(prev => {
-        if (!prev) return prev;
-        if (!prev.frames[rowIndex]) return prev;
-        const updatedFrames = prev.frames.map((f, idx) => {
-          if (idx !== rowIndex) return f;
-          return {
-            ...f,
-            imageUrl: imageUrl !== undefined ? imageUrl : f.imageUrl,
-            imagePrompt: imagePrompt !== undefined ? imagePrompt : f.imagePrompt,
-          };
+        setStoryboard(prev => {
+          let targetChapterIndex = 0;
+          let idxInChapter = rowIndex;
+          for (let i = 0; i < prev.chapters.length; i++) {
+            if (idxInChapter < prev.chapters[i].frames.length) {
+              targetChapterIndex = i;
+              break;
+            }
+            idxInChapter -= prev.chapters[i].frames.length;
+          }
+          const chapters = prev.chapters.map((ch, cIdx) => {
+            if (cIdx !== targetChapterIndex) return ch;
+            const frames = ch.frames.map((f, idx) => {
+              if (idx !== idxInChapter) return f;
+              return {
+                ...f,
+                imageUrl: imageUrl !== undefined ? imageUrl : f.imageUrl,
+                imagePrompt: imagePrompt !== undefined ? imagePrompt : f.imagePrompt,
+              };
+            });
+            return { ...ch, frames };
+          });
+          const updated = { ...prev, chapters };
+          onDataChange(updated);
+          return updated;
         });
-        const updated = { ...prev, frames: updatedFrames };
-        onDataChange(updated);
-        return updated;
-      });
     };
     window.addEventListener('psd-sidebar-update-image', handler);
     return () => window.removeEventListener('psd-sidebar-update-image', handler);
@@ -263,29 +297,52 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
       <CharacterEditModal
         open={charModalOpen}
         characters={allCharacters}
-        frames={storyboard.frames}
+        frames={storyboard.chapters.flatMap(ch => ch.frames)}
         onClose={() => setCharModalOpen(false)}
         onSave={handleSaveCharacters}
       />
-      <EditableTable<StoryboardFrame>
-        data={storyboard.frames}
-        columns={columns.map((col) =>
-          col.key === 'dialogues'
-            ? {
-                ...col,
-                renderCell: (value, row, onCellChangeForRow, rowIndex) =>
-                  col.renderCell?.(value, row, onCellChangeForRow, rowIndex),
-              }
-            : col
-        )}
-        onCellChange={handleCellChange}
-        onAddRow={handleAddRow}
-        onDeleteRow={handleDeleteRow}
-        onMoveRowUp={handleMoveRowUp}
-        onMoveRowDown={handleMoveRowDown}
-        onInsertRowBelow={handleInsertRowBelow}
-        onRowClick={handleRowSelect}
-      />
+      {storyboard.chapters.map((chapter, cIdx) => (
+        <details key={cIdx} open className="mb-4">
+          <summary className="font-bold mb-2">
+            <input
+              className="border border-modifier-border rounded px-2 py-1 w-full"
+              value={chapter.title}
+              onChange={e => {
+                const title = e.target.value;
+                setStoryboard(prev => {
+                  const chapters = prev.chapters.map((ch, idx) =>
+                    idx === cIdx ? { ...ch, title } : ch
+                  );
+                  const updated = { ...prev, chapters };
+                  onDataChange(updated);
+                  return updated;
+                });
+              }}
+            />
+          </summary>
+          <EditableTable<StoryboardFrame>
+            data={chapter.frames}
+            columns={columns.map(col =>
+              col.key === 'dialogues'
+                ? {
+                    ...col,
+                      renderCell: (value, row, onCellChangeForRow, rowIndex) =>
+                      col.renderCell?.(value, row, (k, v) => onCellChangeForRow(k, v), rowIndex),
+                  }
+                : col
+            )}
+            onCellChange={(rowIndex, columnKey, newValue) =>
+              handleCellChange(cIdx, rowIndex, columnKey, newValue)
+            }
+            onAddRow={() => handleAddRow(cIdx)}
+            onDeleteRow={rowIndex => handleDeleteRow(cIdx, rowIndex)}
+            onMoveRowUp={rowIndex => handleMoveRowUp(cIdx, rowIndex)}
+            onMoveRowDown={rowIndex => handleMoveRowDown(cIdx, rowIndex)}
+            onInsertRowBelow={rowIndex => handleInsertRowBelow(cIdx, rowIndex)}
+            onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
+          />
+        </details>
+      ))}
     </>
   );
 };
