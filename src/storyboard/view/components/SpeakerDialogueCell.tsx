@@ -95,11 +95,11 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
             appearance: 'none',
           }}
         >
-          <option value="" className="text-[#999]">{t('SPEAKER_NONE')}</option>
+          <option value="" className="text-[#999]">{t('NO_SPEAKER')}</option>
           {allSpeakers.map((name, idx) => (
             <option key={idx} value={name} style={{ color: '#222' }}>{name}</option>
           ))}
-          <option value="__edit__" className="text-[#999]">{t('EDIT_CHARACTER_INFO')}</option>
+          <option value="__edit__" className="text-[#999]">{t('EDIT_CHARACTERS')}</option>
         </select>
       </div>
       <textarea

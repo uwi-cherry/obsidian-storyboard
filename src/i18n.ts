@@ -30,30 +30,29 @@ export interface Strings {
   TOOL_BRUSH: string;
   TOOL_ERASER: string;
   TOOL_SELECTION: string;
+  UNDO: string;
+  REDO: string;
+  BRUSH_SIZE: string;
+  SELECTION_TYPE: string;
+  SELECT_RECT: string;
+  SELECT_LASSO: string;
+  SELECT_MAGIC: string;
+  IMAGE_PROMPT_PLACEHOLDER: string;
+  HEADER_IMAGE: string;
+  HEADER_DIALOGUE: string;
   LAYERS: string;
   NEW_LAYER: string;
   IMAGE_LAYER: string;
   DELETE_LAYER: string;
-  LAYER_NAME_PROMPT: string;
-  BRUSH_SIZE: string;
-  SELECTION_TYPE: string;
-  SELECTION_RECT: string;
-  SELECTION_LASSO: string;
-  SELECTION_MAGIC: string;
-  SPEAKER_NONE: string;
-  EDIT_CHARACTER_INFO: string;
+  ENTER_LAYER_NAME: string;
+  NO_SPEAKER: string;
+  EDIT_CHARACTERS: string;
   DIALOGUE_PLACEHOLDER: string;
-  IMAGE_HEADER: string;
-  SPEAKER_DIALOGUE_HEADER: string;
-  AI_GENERATE: string;
-  FILE_SELECT: string;
-  CLEAR_PATH: string;
-  GENERATING: string;
-  ADD_ROW: string;
+  BACKGROUND: string;
+  UNTITLED_ILLUSTRATION: string;
   MOVE_ROW_UP: string;
   MOVE_ROW_DOWN: string;
-  INSERT_BELOW: string;
-  BACKGROUND_LAYER: string;
+  INSERT_ROW_BELOW: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -87,30 +86,29 @@ const STRINGS: Record<Language, Strings> = {
     TOOL_BRUSH: 'ブラシ',
     TOOL_ERASER: '消しゴム',
     TOOL_SELECTION: '選択',
+    UNDO: '元に戻す',
+    REDO: 'やり直す',
+    BRUSH_SIZE: 'ブラシサイズ',
+    SELECTION_TYPE: '選択種別',
+    SELECT_RECT: '矩形',
+    SELECT_LASSO: '投げ縄',
+    SELECT_MAGIC: 'マジックワンド',
+    IMAGE_PROMPT_PLACEHOLDER: '画像生成プロンプト(任意)',
+    HEADER_IMAGE: '画像',
+    HEADER_DIALOGUE: '話者とセリフ',
     LAYERS: 'レイヤー',
     NEW_LAYER: '新規レイヤー',
     IMAGE_LAYER: '画像レイヤー',
     DELETE_LAYER: 'レイヤーを削除',
-    LAYER_NAME_PROMPT: 'レイヤー名を入力',
-    BRUSH_SIZE: 'ブラシサイズ',
-    SELECTION_TYPE: '選択種別',
-    SELECTION_RECT: '矩形',
-    SELECTION_LASSO: '投げ縄',
-    SELECTION_MAGIC: 'マジックワンド',
-    SPEAKER_NONE: '話者なし',
-    EDIT_CHARACTER_INFO: 'キャラクター情報を追加・編集',
+    ENTER_LAYER_NAME: 'レイヤー名を入力',
+    NO_SPEAKER: '話者なし',
+    EDIT_CHARACTERS: 'キャラクター情報を追加・編集',
     DIALOGUE_PLACEHOLDER: '台詞',
-    IMAGE_HEADER: '画像',
-    SPEAKER_DIALOGUE_HEADER: '話者とセリフ',
-    AI_GENERATE: 'AI生成',
-    FILE_SELECT: 'ファイル選択',
-    CLEAR_PATH: 'パスをクリア',
-    GENERATING: '生成中...',
-    ADD_ROW: '行を追加',
+    BACKGROUND: '背景',
+    UNTITLED_ILLUSTRATION: '無題のイラスト',
     MOVE_ROW_UP: '行を上に移動',
     MOVE_ROW_DOWN: '行を下に移動',
-    INSERT_BELOW: '一つ下に新規追加',
-    BACKGROUND_LAYER: '背景',
+    INSERT_ROW_BELOW: '一つ下に新規追加',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -142,30 +140,29 @@ const STRINGS: Record<Language, Strings> = {
     TOOL_BRUSH: 'Brush',
     TOOL_ERASER: 'Eraser',
     TOOL_SELECTION: 'Select',
+    UNDO: 'Undo',
+    REDO: 'Redo',
+    BRUSH_SIZE: 'Brush size',
+    SELECTION_TYPE: 'Selection mode',
+    SELECT_RECT: 'Rectangle',
+    SELECT_LASSO: 'Lasso',
+    SELECT_MAGIC: 'Magic wand',
+    IMAGE_PROMPT_PLACEHOLDER: 'Image prompt (optional)',
+    HEADER_IMAGE: 'Image',
+    HEADER_DIALOGUE: 'Speaker & Dialogue',
     LAYERS: 'Layers',
     NEW_LAYER: 'New Layer',
     IMAGE_LAYER: 'Image Layer',
     DELETE_LAYER: 'Delete Layer',
-    LAYER_NAME_PROMPT: 'Layer name',
-    BRUSH_SIZE: 'Brush Size',
-    SELECTION_TYPE: 'Selection Type',
-    SELECTION_RECT: 'Rectangle',
-    SELECTION_LASSO: 'Lasso',
-    SELECTION_MAGIC: 'Magic Wand',
-    SPEAKER_NONE: 'No Speaker',
-    EDIT_CHARACTER_INFO: 'Add/Edit character info',
+    ENTER_LAYER_NAME: 'Enter layer name',
+    NO_SPEAKER: 'No speaker',
+    EDIT_CHARACTERS: 'Add/Edit character info',
     DIALOGUE_PLACEHOLDER: 'Dialogue',
-    IMAGE_HEADER: 'Image',
-    SPEAKER_DIALOGUE_HEADER: 'Speaker & Dialogue',
-    AI_GENERATE: 'AI Generate',
-    FILE_SELECT: 'Choose File',
-    CLEAR_PATH: 'Clear Path',
-    GENERATING: 'Generating...',
-    ADD_ROW: 'Add Row',
-    MOVE_ROW_UP: 'Move up',
-    MOVE_ROW_DOWN: 'Move down',
-    INSERT_BELOW: 'Insert below',
-    BACKGROUND_LAYER: 'Background',
+    BACKGROUND: 'Background',
+    UNTITLED_ILLUSTRATION: 'Untitled Illustration',
+    MOVE_ROW_UP: 'Move row up',
+    MOVE_ROW_DOWN: 'Move row down',
+    INSERT_ROW_BELOW: 'Insert row below',
   }
 };
 

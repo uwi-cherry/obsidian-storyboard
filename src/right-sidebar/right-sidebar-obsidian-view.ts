@@ -1,4 +1,5 @@
 import React from 'react';
+import { t } from 'src/i18n';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
 import { Layer } from '../painter/painter-types';

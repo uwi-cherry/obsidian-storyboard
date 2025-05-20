@@ -153,7 +153,7 @@ if (colIndex !== null) {
                       <button
                         onClick={(e) => { e.stopPropagation(); onInsertRowBelow(index); }}
                         className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
-                        title={t('INSERT_BELOW')}
+                        title={t('INSERT_ROW_BELOW')}
                         style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
                       />
@@ -175,7 +175,7 @@ if (colIndex !== null) {
               colSpan={columns.length + 1 } 
               className="border border-gray-300 px-4 py-2 text-center cursor-pointer text-gray-500 hover:text-gray-700" 
               onClick={() => onAddRow()}
-              title={t('ADD_ROW')}
+              title={t('INSERT_ROW_BELOW')}
             >
               +
             </td>

@@ -102,7 +102,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
 
         view.psdDataHistory[0].layers = [
           {
-            name: t('BACKGROUND_LAYER'),
+            name: t('BACKGROUND'),
             visible: true,
             opacity: 1,
             blendMode: 'normal',
@@ -188,9 +188,9 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
                 updateTool('selection'); // selection モードに固定
               }}
             >
-              <option value="rect">{t('SELECTION_RECT')}</option>
-              <option value="lasso">{t('SELECTION_LASSO')}</option>
-              <option value="magic">{t('SELECTION_MAGIC')}</option>
+              <option value="rect">{t('SELECT_RECT')}</option>
+              <option value="lasso">{t('SELECT_LASSO')}</option>
+              <option value="magic">{t('SELECT_MAGIC')}</option>
             </select>
           </div>
         )}

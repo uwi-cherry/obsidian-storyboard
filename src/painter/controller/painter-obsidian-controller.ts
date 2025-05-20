@@ -233,7 +233,7 @@ export async function createPsd(app: App, imageFile?: TFile, layerName?: string,
             imageFile,
             width: imageFile ? 0 : DEFAULT_CANVAS_WIDTH,
             height: imageFile ? 0 : DEFAULT_CANVAS_HEIGHT,
-            name: layerName || (imageFile ? imageFile.basename : t('BACKGROUND_LAYER'))
+            name: layerName || (imageFile ? imageFile.basename : t('BACKGROUND'))
         }
     );
 
@@ -243,7 +243,7 @@ export async function createPsd(app: App, imageFile?: TFile, layerName?: string,
         psdDir = `${targetDir}/psd`;
     }
 
-    const newFile = await createPsdFile(app, [layer], '無題のイラスト', psdDir);
+    const newFile = await createPsdFile(app, [layer], t('UNTITLED_ILLUSTRATION'), psdDir);
     if (isOpen) {
         const leaf = app.workspace.getLeaf(true);
         await leaf.openFile(newFile, { active: true });

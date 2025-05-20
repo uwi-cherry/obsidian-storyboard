@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import { t } from 'src/i18n';
 import { normalizePath } from 'obsidian';
 import { RightSidebarView, Layer } from '../right-sidebar-obsidian-view';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/constants';
@@ -122,7 +123,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                         <div
                             className="text-[var(--text-normal)] text-sm flex-1"
                             onDoubleClick={() => {
-                                const newName = prompt(t('LAYER_NAME_PROMPT'), layer.name);
+                                const newName = prompt(t('ENTER_LAYER_NAME'), layer.name);
                                 if (newName && newName !== layer.name) {
                                     view.renameLayer(idx, newName);
                                 }
