@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import { App, TFile, normalizePath, Notice } from 'obsidian';
 import MyPlugin from 'main';
 import { BUTTON_ICONS } from 'src/icons';
-import { generateThumbnail, createPsd } from 'src/painter/controller/painter-obsidian-controller';
 import { generatePsdFromPrompt } from 'src/ai/action/generatePsdFromPrompt';
 import { t } from 'src/i18n';
 interface ImageInputCellProps {
@@ -13,6 +12,14 @@ interface ImageInputCellProps {
   onImagePromptChange: (newPrompt: string) => void;
   className?: string;
   app: App;
+  generateThumbnail: (app: App, file: TFile) => Promise<string | null>;
+  createPsd: (
+    app: App,
+    imageFile?: TFile,
+    layerName?: string,
+    isOpen?: boolean,
+    targetDir?: string
+  ) => Promise<TFile>;
   focusPrevCellPrompt?: () => void;
   focusNextCellPrompt?: () => void;
   refCallback?: (el: HTMLTextAreaElement | null) => void;
@@ -24,6 +31,8 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
   onImageUrlChange,
   onImagePromptChange,
   app,
+  generateThumbnail,
+  createPsd,
   focusPrevCellPrompt,
   focusNextCellPrompt,
   refCallback,

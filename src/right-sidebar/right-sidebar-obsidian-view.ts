@@ -1,7 +1,7 @@
 import React from 'react';
 import { t } from 'src/i18n';
 import { createRoot, Root } from 'react-dom/client';
-import { ItemView, WorkspaceLeaf } from 'obsidian';
+import { ItemView, WorkspaceLeaf, App, TFile } from 'obsidian';
 import { Layer } from '../painter/painter-types';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
@@ -32,6 +32,13 @@ export class RightSidebarView extends ItemView {
 
     public layerOps?: LayerOps;
     public fileOps?: FileOpsCallbacks;
+    public createPsd?: (
+        app: App,
+        imageFile?: TFile,
+        layerName?: string,
+        isOpen?: boolean,
+        targetDir?: string
+    ) => Promise<TFile>;
 
     // === 画像操作 UI 関連 =====================
     private currentRowIndex: number | null = null;
@@ -99,6 +106,7 @@ export class RightSidebarView extends ItemView {
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
+            createPsd: this.createPsd!,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -128,6 +136,7 @@ export class RightSidebarView extends ItemView {
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
+            createPsd: this.createPsd!,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -211,4 +220,17 @@ export class RightSidebarView extends ItemView {
     public setFileOps(callbacks: FileOpsCallbacks) {
         this.fileOps = callbacks;
     }
-} 
+
+    /**
+     * createPsd 関数を注入
+     */
+    public setCreatePsd(callback: (
+        app: App,
+        imageFile?: TFile,
+        layerName?: string,
+        isOpen?: boolean,
+        targetDir?: string
+    ) => Promise<TFile>) {
+        this.createPsd = callback;
+    }
+}
