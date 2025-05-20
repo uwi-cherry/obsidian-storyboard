@@ -11,7 +11,7 @@ import { SelectionManager } from './viewmodel/SelectionManager';
 import React from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import PsdPainterLayout from './components/PsdPainterLayout';
-import { ActionMenu } from './components/ActionMenu';
+import { ActionMenuManager } from './viewmodel/ActionMenuManager';
 
 export class PsdView extends FileView {
 	isDrawing = false;
@@ -38,7 +38,7 @@ export class PsdView extends FileView {
 	private _selectionManager?: SelectionManager;
 
 	// フローティングメニュー（クリア・塗りつぶし）用
-	public actionMenu!: ActionMenu;
+        public actionMenu!: ActionMenuManager;
 
 	// ファイル入出力デリゲート
 	private _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
@@ -255,10 +255,11 @@ export class PsdView extends FileView {
 			if (!ctx) return; // nullチェック
 			ctx.lineWidth = e.pressure !== 0 ? this.currentLineWidth * e.pressure : this.currentLineWidth;
 			this.saveLayerStateToHistory();
-		} else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-			this._selectionManager?.onPointerDown(x, y);
-			return;
-		}
+                } else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
+                        this.actionMenu.hide();
+                        this._selectionManager?.onPointerDown(x, y);
+                        return;
+                }
 	}
 
 	private handlePointerMove(e: PointerEvent) {
@@ -289,16 +290,22 @@ export class PsdView extends FileView {
 		this.renderCanvas();
 	}
 
-	private handlePointerUp() {
-		if (this.isDrawing) {
-			this.isDrawing = false;
-		}
+        private handlePointerUp() {
+                if (this.isDrawing) {
+                        this.isDrawing = false;
+                }
 
-		if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-			this._selectionManager?.onPointerUp();
-			return;
-		}
-	}
+                if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
+                        const valid = this._selectionManager?.onPointerUp() ?? false;
+                        if (valid) {
+                                const cancel = () => this._selectionManager?.cancelSelection();
+                                this.actionMenu.showSelection(cancel);
+                        } else {
+                                this.actionMenu.showGlobal();
+                        }
+                        return;
+                }
+        }
 
 	private setupDragAndDrop() {
 		this.contentEl.addEventListener('dragenter', (e) => {
