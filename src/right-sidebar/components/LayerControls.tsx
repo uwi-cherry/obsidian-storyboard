@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { t } from 'src/i18n';
-import { normalizePath } from 'obsidian';
+import { normalizePath, TFile } from 'obsidian';
 import { RightSidebarView, Layer } from '../right-sidebar-obsidian-view';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/constants';
 
@@ -24,17 +24,16 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
         const vaultFiles = view.app.vault.getFiles();
         const found = vaultFiles.find(f => f.name === file.name);
 
-        let path: string;
+        let tFile: TFile;
         if (found) {
-            path = found.path;
+            tFile = found;
         } else {
             const arrayBuffer = await file.arrayBuffer();
-            path = normalizePath(file.name);
-            const newFile = await view.app.vault.createBinary(path, arrayBuffer);
-            path = newFile.path;
+            const path = normalizePath(file.name);
+            tFile = await view.app.vault.createBinary(path, arrayBuffer);
         }
 
-        view.addLayer(path);
+        view.addImageLayer(tFile);
     };
 
     return (
