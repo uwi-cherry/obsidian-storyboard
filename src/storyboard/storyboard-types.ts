@@ -10,8 +10,13 @@ export interface CharacterInfo {
   attributes: { [label: string]: string };
 }
 
-export interface StoryboardData {
+export interface StoryboardChapter {
   title: string;
   frames: StoryboardFrame[];
+}
+
+export interface StoryboardData {
+  title: string;
+  chapters: StoryboardChapter[];
   characters?: CharacterInfo[];
 }
