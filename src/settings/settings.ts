@@ -1,15 +1,13 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import type MyPlugin from '../../main';
-import { setLanguage, Language, t } from '../i18n';
+import { t } from '../i18n';
 
 export interface PluginSettings {
   apiKey: string;
-  language: Language;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
   apiKey: '',
-  language: 'ja',
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -47,20 +45,6 @@ export class SettingTab extends PluginSettingTab {
         })
       );
 
-    new Setting(containerEl)
-      .setName(t('LANGUAGE'))
-      .setDesc(t('LANGUAGE_DESC'))
-      .addDropdown(drop =>
-        drop.addOption('ja', '日本語')
-            .addOption('en', 'English')
-            .setValue(settings.language)
-            .onChange(async (value) => {
-              settings.language = value as Language;
-              setLanguage(settings.language);
-              await saveSettings(this.plugin, settings);
-              await this.display();
-            })
-      );
   }
 }
 

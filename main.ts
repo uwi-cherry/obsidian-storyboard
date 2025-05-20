@@ -1,4 +1,4 @@
-import { Plugin } from 'obsidian';
+import { Plugin, getLanguage } from 'obsidian';
 import { initializeStoryboardIntegration } from './src/storyboard/storyboard-plugin';
 import { loadPlugin as initializePsdPainterIntegration } from './src/painter/painter-plugin';
 import { initializeChatIntegration } from './src/ai/chatIntegration';
@@ -12,7 +12,8 @@ export default class MyPlugin extends Plugin {
 
         async onload() {
                 this.settings = await loadSettings(this);
-                setLanguage(this.settings.language);
+                const lang = getLanguage().startsWith('ja') ? 'ja' : 'en';
+                setLanguage(lang);
 
                 initializeStoryboardIntegration(this);
                 initializePsdPainterIntegration(this);
