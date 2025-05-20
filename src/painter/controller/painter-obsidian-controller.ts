@@ -1,8 +1,8 @@
 import { App, WorkspaceLeaf, TFile } from 'obsidian';
 import { PainterView } from '../view/painter-obsidian-view';
 import { loadPsdFile, savePsdFile, createPsdFile } from '../painter-files';
-import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../../constants';
-import * as agPsd from 'ag-psd';
+import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
+import { createLayerFromImage, createPsd, generateThumbnail } from '../painter-files';
 import { LAYER_SIDEBAR_VIEW_TYPE, RightSidebarView, LayerOps } from '../../right-sidebar/right-sidebar-obsidian-view';
 import { Layer } from '../painter-types';
 
@@ -139,116 +139,6 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     return view;
 }
 
-// レイヤー生成タイプの定義
-type LayerType = 'image' | 'blank' | 'transparent';
-
-// レイヤー生成の共通処理
-async function createLayerFromImage(
-    app: App,
-    options: {
-        type: LayerType;
-        imageFile?: TFile;
-        width: number;
-        height: number;
-        name: string;
-    }
-): Promise<{ canvas: HTMLCanvasElement; layer: Layer }> {
-    const { type, imageFile, width, height, name } = options;
-
-    const canvas = document.createElement('canvas');
-
-    // ここでは一旦サイズを設定しない。各タイプの処理内で確定させる。
-    let ctx: CanvasRenderingContext2D | null = null;
-
-    switch (type) {
-        case 'image': {
-            if (!imageFile) throw new Error('画像ファイルが指定されていません');
-
-            // 画像を読み込む
-            const imageData = await app.vault.readBinary(imageFile);
-            const blob = new Blob([imageData]);
-            const imageUrl = URL.createObjectURL(blob);
-            const img = new Image();
-
-            await new Promise((resolve, reject) => {
-                img.onload = resolve;
-                img.onerror = reject;
-                img.src = imageUrl;
-            });
-
-            // キャンバスサイズが 0 の場合は画像サイズに合わせる
-            const finalWidth = width === 0 ? img.width : width;
-            const finalHeight = height === 0 ? img.height : height;
-            canvas.width = finalWidth;
-            canvas.height = finalHeight;
-
-            ctx = canvas.getContext('2d');
-            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-
-            // 画像を中央に配置
-            const x = (finalWidth - img.width) / 2;
-            const y = (finalHeight - img.height) / 2;
-            ctx.drawImage(img, x, y);
-            URL.revokeObjectURL(imageUrl);
-            break;
-        }
-        case 'blank': {
-            canvas.width = width;
-            canvas.height = height;
-            ctx = canvas.getContext('2d');
-            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, width, height);
-            break;
-        }
-        case 'transparent': {
-            canvas.width = width;
-            canvas.height = height;
-            ctx = canvas.getContext('2d');
-            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-            ctx.fillStyle = 'transparent';
-            ctx.fillRect(0, 0, width, height);
-            break;
-        }
-    }
-
-    return {
-        canvas,
-        layer: {
-            name,
-            visible: true,
-            opacity: 1,
-            blendMode: 'normal' as keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION,
-            canvas
-        }
-    };
-}
-
-export async function createPsd(app: App, imageFile?: TFile, layerName?: string, isOpen = true, targetDir?: string): Promise<TFile> {
-    const { layer } = await createLayerFromImage(
-        app,
-        {
-            type: imageFile ? 'image' : 'blank',
-            imageFile,
-            width: imageFile ? 0 : DEFAULT_CANVAS_WIDTH,
-            height: imageFile ? 0 : DEFAULT_CANVAS_HEIGHT,
-            name: layerName || (imageFile ? imageFile.basename : '背景')
-        }
-    );
-
-    // ストーリーボードから呼び出された場合は、指定されたディレクトリ直下にpsdディレクトリを作成
-    let psdDir: string | undefined;
-    if (targetDir) {
-        psdDir = `${targetDir}/psd`;
-    }
-
-    const newFile = await createPsdFile(app, [layer], '無題のイラスト', psdDir);
-    if (isOpen) {
-        const leaf = app.workspace.getLeaf(true);
-        await leaf.openFile(newFile, { active: true });
-    }
-    return newFile;
-}
 
 export function undoActive(app: App) {
     const view = app.workspace.getActiveViewOfType(PainterView);
@@ -331,54 +221,6 @@ function deleteLayer(view: PainterView, index: number) {
     }
 }
 
-export async function generateThumbnail(app: App, file: TFile): Promise<string | null> {
-    try {
-        const buffer = await app.vault.readBinary(file);
-        const psdData = agPsd.readPsd(buffer);
-        
-        // サムネイルが存在しない場合は生成
-        if (!psdData.imageResources?.thumbnail) {
-            // レイヤーを合成してサムネイルを生成
-            const compositeCanvas = document.createElement('canvas');
-            compositeCanvas.width = psdData.width;
-            compositeCanvas.height = psdData.height;
-            const ctx = compositeCanvas.getContext('2d');
-            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-            ctx.clearRect(0, 0, psdData.width, psdData.height);
-
-            // レイヤーを下から上に合成（最初のレイヤーが最背面）
-            const layers = [...(psdData.children || [])].reverse();
-            for (const layer of layers) {
-                if (!layer.hidden) {
-                    ctx.globalAlpha = layer.opacity ?? 1;
-                    const blend = layer.blendMode === 'normal' ? 'source-over' : layer.blendMode;
-                    ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
-                    if (layer.canvas) {
-                        ctx.drawImage(layer.canvas, 0, 0);
-                    }
-                }
-            }
-
-            // サムネイルサイズに縮小
-            const thumbnailCanvas = document.createElement('canvas');
-            const thumbnailSize = 512;
-            const scale = Math.min(thumbnailSize / psdData.width, thumbnailSize / psdData.height);
-            thumbnailCanvas.width = psdData.width * scale;
-            thumbnailCanvas.height = psdData.height * scale;
-            const thumbnailCtx = thumbnailCanvas.getContext('2d');
-            if (!thumbnailCtx) throw new Error('2Dコンテキストの取得に失敗しました');
-            thumbnailCtx.drawImage(compositeCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
-
-            return thumbnailCanvas.toDataURL('image/jpeg', 0.8);
-        } else if (psdData.imageResources.thumbnail instanceof HTMLCanvasElement) {
-            return psdData.imageResources.thumbnail.toDataURL('image/jpeg');
-        }
-        return null;
-    } catch (error) {
-        console.error('サムネイルの生成に失敗しました:', error);
-        return null;
-    }
-}
 
 /**
  * Layer サイドバー用の View を生成するファクトリ関数。

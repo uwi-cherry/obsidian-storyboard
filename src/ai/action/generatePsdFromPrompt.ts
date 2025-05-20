@@ -1,6 +1,6 @@
 import MyPlugin from "main";
 import { App, TFile } from "obsidian";
-import { createPsd } from "src/painter/controller/painter-obsidian-controller";
+import { createPsd } from "src/painter/painter-files";
 import { loadAiSettings } from "src/settings/settings";
 
 /**

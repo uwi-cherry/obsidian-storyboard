@@ -5,11 +5,11 @@ import { PSD_ICON_SVG } from '../icons';
 import { LAYER_SIDEBAR_VIEW_TYPE } from '../right-sidebar/right-sidebar-obsidian-view';
 import {
     createPainterView,
-    createPsd,
     undoActive,
     redoActive,
     createLayerSidebar
 } from './controller/painter-obsidian-controller';
+import { createPsd } from './painter-files';
 
 export function loadPlugin(plugin: Plugin) {
     addIcon(PSD_ICON, PSD_ICON_SVG);

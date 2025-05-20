@@ -16,6 +16,13 @@ interface RightSidebarReactViewProps {
     currentImagePrompt: string | null;
     onLayerChange: (layers: Layer[], currentIndex: number) => void;
     onImageChange: (url: string | null, prompt: string | null) => void;
+    createPsd: (
+        app: any,
+        imageFile?: TFile,
+        layerName?: string,
+        isOpen?: boolean,
+        targetDir?: string
+    ) => Promise<TFile>;
 }
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
@@ -26,6 +33,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     currentImagePrompt,
     onLayerChange,
     onImageChange,
+    createPsd,
 }) => {
     const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
 
@@ -78,6 +86,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 onOpenPsdPainter={handleOpenPsdPainter}
                 onExportImage={() => {}}
                 app={view.app}
+                createPsd={createPsd}
                 onImageUrlChange={(url) => onImageChange(url, currentImagePrompt)}
             />
 

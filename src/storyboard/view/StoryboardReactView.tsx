@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { App } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types'; 
 import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
@@ -10,9 +10,17 @@ interface StoryboardReactViewProps {
   initialData: StoryboardData;
   onDataChange: (data: StoryboardData) => void;
   app: App;
+  createPsd: (
+    app: App,
+    imageFile?: TFile,
+    layerName?: string,
+    isOpen?: boolean,
+    targetDir?: string
+  ) => Promise<TFile>;
+  generateThumbnail: (app: App, file: TFile) => Promise<string | null>;
 }
 
-const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, onDataChange, app }) => {
+const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, onDataChange, app, createPsd, generateThumbnail }) => {
   const [storyboard, setStoryboard] = useState<StoryboardData>(initialData);
   const [charModalOpen, setCharModalOpen] = useState(false);
 
@@ -160,6 +168,8 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, 
           onImageUrlChange={(newUrl: string | null) => onCellChangeForRow('imageUrl', newUrl || '')}
           onImagePromptChange={(newImagePrompt: string) => onCellChangeForRow('imagePrompt', newImagePrompt)}
           app={app}
+          createPsd={createPsd}
+          generateThumbnail={generateThumbnail}
           focusPrevCellPrompt={() => {
             if (promptRefs.current[rowIndex - 1]) {
               promptRefs.current[rowIndex - 1]?.focus();

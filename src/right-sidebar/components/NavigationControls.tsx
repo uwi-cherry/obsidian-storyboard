@@ -1,7 +1,7 @@
 import React from 'react';
 import { RightSidebarView } from '../right-sidebar-obsidian-view';
 import { Notice, App } from 'obsidian';
-import { createPsd } from '../../painter/controller/painter-obsidian-controller';
+import { TFile } from 'obsidian';
 
 interface NavigationControlsProps {
     view: RightSidebarView;
@@ -11,6 +11,13 @@ interface NavigationControlsProps {
     onOpenPsdPainter: () => void;
     onExportImage: () => void;
     app: App;
+    createPsd: (
+        app: App,
+        imageFile?: TFile,
+        layerName?: string,
+        isOpen?: boolean,
+        targetDir?: string
+    ) => Promise<TFile>;
     onImageUrlChange: (newUrl: string | null) => void;
 }
 
@@ -21,6 +28,7 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
     onOpenPsdPainter,
     onExportImage,
     app,
+    createPsd,
     onImageUrlChange
 }) => {
     const handleExportVideo = async () => {
