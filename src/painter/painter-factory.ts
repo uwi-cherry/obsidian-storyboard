@@ -1,11 +1,10 @@
-import { App, WorkspaceLeaf, TFile } from 'obsidian';
-import { PainterView } from './view/painter-obsidian-view';
-import { loadPsdFile, savePsdFile, createPsdFile, createPsd } from './painter-files';
-import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
+import { App, TFile, WorkspaceLeaf } from 'obsidian';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
-import * as agPsd from 'ag-psd';
-import { LAYER_SIDEBAR_VIEW_TYPE, RightSidebarView, LayerOps } from '../right-sidebar/right-sidebar-obsidian-view';
+import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
+import { createPsd, loadPsdFile, savePsdFile } from './painter-files';
 import { Layer } from './painter-types';
+import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const view = new PainterView(leaf);
