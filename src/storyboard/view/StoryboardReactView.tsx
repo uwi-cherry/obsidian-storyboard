@@ -7,7 +7,6 @@ import EditableTable, { ColumnDef } from './components/EditableTable';
 import { ADD_ICON_SVG, TABLE_ICONS } from 'src/icons';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
-import { TABLE_ICONS } from 'src/icons';
 
 interface StoryboardReactViewProps {
   initialData: StoryboardData;
