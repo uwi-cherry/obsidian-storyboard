@@ -152,15 +152,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     });
   };
 
-  const handleDeleteChapter = (chapterIndex: number) => {
-    setStoryboard(prev => {
-      const chapters = prev.chapters.filter((_, idx) => idx !== chapterIndex);
-      const updated = { ...prev, chapters };
-      onDataChange(updated);
-      return updated;
-    });
-  };
-
   const handleDeleteChapter = (index: number) => {
     setStoryboard(prev => {
       const chapters = prev.chapters.filter((_, i) => i !== index);
