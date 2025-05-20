@@ -98,7 +98,7 @@ if (colIndex !== null) {
                   {/* ドラッグハンドル（最後の列以外） */}
                   {i < columns.length - 1 && (
                     <div
-                      className="absolute right-0 top-0 h-full w-2 cursor-col-resize z-10 bg-transparent hover:bg-blue-200 transition"
+                      className="absolute right-0 top-0 h-full w-2 cursor-col-resize z-10 bg-transparent hover:bg-accent-hover transition"
                       onMouseDown={e => handleMouseDown(i, e)}
                     />
                   )}
@@ -134,7 +134,7 @@ if (colIndex !== null) {
                     {onMoveRowUp && index > 0 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowUp(index); }}
-                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5 leading-none"
+                        className="text-gray-400 hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_UP')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveUp }}
                       />
@@ -142,7 +142,7 @@ if (colIndex !== null) {
                     {onMoveRowDown && index < data.length - 1 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowDown(index); }}
-                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5 leading-none"
+                        className="text-gray-400 hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_DOWN')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveDown }}
                       />
@@ -150,14 +150,14 @@ if (colIndex !== null) {
                     {onInsertRowBelow && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onInsertRowBelow(index); }}
-                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5 leading-none"
+                        className="text-gray-400 hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('INSERT_ROW_BELOW')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
                       />
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); onDeleteRow(index); }}
-                      className="text-gray-400 hover:text-red-500 text-base px-1 py-0.5 leading-none"
+                      className="text-gray-400 hover:text-error text-base px-1 py-0.5 leading-none"
                       title={t('DELETE')}
                       dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
                     />

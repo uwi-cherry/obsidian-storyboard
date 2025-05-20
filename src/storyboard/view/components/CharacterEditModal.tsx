@@ -53,9 +53,9 @@ const CharacterEditModal: React.FC<{
               <option key={idx} value={idx}>{char.name || `(${t('UNSPECIFIED')})`}</option>
             ))}
           </select>
-          <button className="text-blue-600 px-2 py-1 border rounded" onClick={handleAddChar}>＋</button>
+          <button className="text-accent px-2 py-1 border rounded" onClick={handleAddChar}>＋</button>
           <button 
-            className="text-red-500 px-2 py-1 border rounded"
+            className="text-error px-2 py-1 border rounded"
             onClick={handleDeleteChar}
             disabled={editChars.length === 0 || usedCharacterNames.includes(selectedChar.name)}
         >
@@ -72,7 +72,7 @@ const CharacterEditModal: React.FC<{
         </div>
         <div className="flex gap-2 justify-end">
           <button className="text-gray-600 px-2 py-1 border rounded" onClick={onClose}>{t('CANCEL')}</button>
-          <button className="text-white bg-blue-600 px-2 py-1 rounded" onClick={() => { onSave(editChars); onClose(); }}>{t('SAVE')}</button>
+          <button className="text-white bg-accent px-2 py-1 rounded" onClick={() => { onSave(editChars); onClose(); }}>{t('SAVE')}</button>
         </div>
       </div>
     </div>

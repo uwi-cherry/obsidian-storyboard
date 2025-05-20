@@ -70,7 +70,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`text-sm rounded px-2 py-1 max-w-full break-words ${msg.role === "user" ? "bg-blue-100 text-right ml-auto" : "bg-gray-200 mr-auto"}`}
+            className={`text-sm rounded px-2 py-1 max-w-full break-words ${msg.role === "user" ? "bg-accent text-right ml-auto" : "bg-secondary mr-auto"}`}
           >
             {msg.content}
           </div>
@@ -79,13 +79,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
           <div className="text-xs text-gray-400 text-center">{t('LOADING')}</div>
         )}
         {error && (
-          <div className="text-xs text-red-500 text-center">{error}</div>
+          <div className="text-xs text-error text-center">{error}</div>
         )}
         <div ref={messagesEndRef} />
       </div>
       <form onSubmit={handleSend} className="flex flex-col p-2 border-t border-gray-200 w-full gap-2">
         <input
-          className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 dark:bg-gray-700 dark:text-white"
+          className="w-full rounded border border-gray-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent dark:bg-gray-700 dark:text-white"
           type="text"
           value={input}
           onChange={e => setInput(e.target.value)}
@@ -93,7 +93,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
         />
         <button
           type="submit"
-          className="w-full py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+          className="w-full py-1 bg-accent text-white rounded hover:bg-accent-hover text-sm"
         >
           {t('SEND')}
         </button>

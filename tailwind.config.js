@@ -2,7 +2,15 @@
 module.exports = {
   content: ["./src/**/*.{js,jsx,ts,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        accent: 'var(--interactive-accent)',
+        'accent-hover': 'var(--interactive-accent-hover)',
+        'on-accent': 'var(--text-on-accent)',
+        secondary: 'var(--background-secondary)',
+        error: 'var(--text-error)',
+      },
+    },
   },
   plugins: [
     function ({ addUtilities }) {
