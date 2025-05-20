@@ -122,7 +122,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                         <div
                             className="text-[var(--text-normal)] text-sm flex-1"
                             onDoubleClick={() => {
-                                const newName = prompt(t('ENTER_LAYER_NAME'), layer.name);
+                                const newName = prompt(t('LAYER_NAME_PROMPT'), layer.name);
                                 if (newName && newName !== layer.name) {
                                     view.renameLayer(idx, newName);
                                 }

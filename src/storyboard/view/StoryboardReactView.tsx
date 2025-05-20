@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { t } from 'src/i18n';
 import { App } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types'; 
 import CharacterEditModal from './components/CharacterEditModal';
@@ -153,7 +154,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, 
   const columns: ColumnDef<StoryboardFrame>[] = [
     {
       key: 'imageUrl',
-      header: t('IMAGE'),
+      header: t('IMAGE_HEADER'),
       renderCell: (value: StoryboardFrame['imageUrl'], row: StoryboardFrame, onCellChangeForRow: (columnKey: keyof StoryboardFrame, newValue: StoryboardFrame[keyof StoryboardFrame]) => void, rowIndex: number) => (
         <ImageInputCell
           imageUrl={row.imageUrl}
@@ -179,7 +180,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ initialData, 
     },
     {
       key: 'dialogues',
-      header: t('SPEAKER_DIALOGUE'),
+      header: t('SPEAKER_DIALOGUE_HEADER'),
       renderCell: (value: StoryboardFrame['dialogues'], row: StoryboardFrame, onCellChangeForRow: (columnKey: keyof StoryboardFrame, newValue: StoryboardFrame[keyof StoryboardFrame]) => void, rowIndex: number) => (
         <SpeakerDialogueCell
           dialogue={value || ''}

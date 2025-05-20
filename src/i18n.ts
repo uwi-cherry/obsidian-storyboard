@@ -34,26 +34,26 @@ export interface Strings {
   NEW_LAYER: string;
   IMAGE_LAYER: string;
   DELETE_LAYER: string;
-  ENTER_LAYER_NAME: string;
-  IMAGE: string;
-  SPEAKER_DIALOGUE: string;
-  BACKGROUND: string;
-  UNDO: string;
-  REDO: string;
-  NO_SPEAKER: string;
-  EDIT_CHAR_INFO: string;
-  DIALOGUE: string;
-  MOVE_ROW_UP: string;
-  MOVE_ROW_DOWN: string;
-  INSERT_ROW_BELOW: string;
-  DELETE_ROW: string;
-  ADD_ROW: string;
-  GENERATING: string;
+  LAYER_NAME_PROMPT: string;
+  BRUSH_SIZE: string;
+  SELECTION_TYPE: string;
+  SELECTION_RECT: string;
+  SELECTION_LASSO: string;
+  SELECTION_MAGIC: string;
+  SPEAKER_NONE: string;
+  EDIT_CHARACTER_INFO: string;
+  DIALOGUE_PLACEHOLDER: string;
+  IMAGE_HEADER: string;
+  SPEAKER_DIALOGUE_HEADER: string;
   AI_GENERATE: string;
   FILE_SELECT: string;
   CLEAR_PATH: string;
-  UNSPECIFIED: string;
-  IMAGE_PROMPT_PLACEHOLDER: string;
+  GENERATING: string;
+  ADD_ROW: string;
+  MOVE_ROW_UP: string;
+  MOVE_ROW_DOWN: string;
+  INSERT_BELOW: string;
+  BACKGROUND_LAYER: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -91,26 +91,26 @@ const STRINGS: Record<Language, Strings> = {
     NEW_LAYER: '新規レイヤー',
     IMAGE_LAYER: '画像レイヤー',
     DELETE_LAYER: 'レイヤーを削除',
-    ENTER_LAYER_NAME: 'レイヤー名を入力',
-    IMAGE: '画像',
-    SPEAKER_DIALOGUE: '話者とセリフ',
-    BACKGROUND: '背景',
-    UNDO: '元に戻す',
-    REDO: 'やり直す',
-    NO_SPEAKER: '話者なし',
-    EDIT_CHAR_INFO: 'キャラクター情報を追加・編集',
-    DIALOGUE: '台詞',
-    MOVE_ROW_UP: '行を上に移動',
-    MOVE_ROW_DOWN: '行を下に移動',
-    INSERT_ROW_BELOW: '一つ下に新規追加',
-    DELETE_ROW: '削除',
-    ADD_ROW: '行を追加',
-    GENERATING: '生成中...',
+    LAYER_NAME_PROMPT: 'レイヤー名を入力',
+    BRUSH_SIZE: 'ブラシサイズ',
+    SELECTION_TYPE: '選択種別',
+    SELECTION_RECT: '矩形',
+    SELECTION_LASSO: '投げ縄',
+    SELECTION_MAGIC: 'マジックワンド',
+    SPEAKER_NONE: '話者なし',
+    EDIT_CHARACTER_INFO: 'キャラクター情報を追加・編集',
+    DIALOGUE_PLACEHOLDER: '台詞',
+    IMAGE_HEADER: '画像',
+    SPEAKER_DIALOGUE_HEADER: '話者とセリフ',
     AI_GENERATE: 'AI生成',
     FILE_SELECT: 'ファイル選択',
     CLEAR_PATH: 'パスをクリア',
-    UNSPECIFIED: '未設定',
-    IMAGE_PROMPT_PLACEHOLDER: '画像プロンプト (任意)',
+    GENERATING: '生成中...',
+    ADD_ROW: '行を追加',
+    MOVE_ROW_UP: '行を上に移動',
+    MOVE_ROW_DOWN: '行を下に移動',
+    INSERT_BELOW: '一つ下に新規追加',
+    BACKGROUND_LAYER: '背景',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -146,26 +146,26 @@ const STRINGS: Record<Language, Strings> = {
     NEW_LAYER: 'New Layer',
     IMAGE_LAYER: 'Image Layer',
     DELETE_LAYER: 'Delete Layer',
-    ENTER_LAYER_NAME: 'Enter layer name',
-    IMAGE: 'Image',
-    SPEAKER_DIALOGUE: 'Speaker & Dialogue',
-    BACKGROUND: 'Background',
-    UNDO: 'Undo',
-    REDO: 'Redo',
-    NO_SPEAKER: 'No speaker',
-    EDIT_CHAR_INFO: 'Edit character info',
-    DIALOGUE: 'Dialogue',
-    MOVE_ROW_UP: 'Move row up',
-    MOVE_ROW_DOWN: 'Move row down',
-    INSERT_ROW_BELOW: 'Insert below',
-    DELETE_ROW: 'Delete',
-    ADD_ROW: 'Add row',
+    LAYER_NAME_PROMPT: 'Layer name',
+    BRUSH_SIZE: 'Brush Size',
+    SELECTION_TYPE: 'Selection Type',
+    SELECTION_RECT: 'Rectangle',
+    SELECTION_LASSO: 'Lasso',
+    SELECTION_MAGIC: 'Magic Wand',
+    SPEAKER_NONE: 'No Speaker',
+    EDIT_CHARACTER_INFO: 'Add/Edit character info',
+    DIALOGUE_PLACEHOLDER: 'Dialogue',
+    IMAGE_HEADER: 'Image',
+    SPEAKER_DIALOGUE_HEADER: 'Speaker & Dialogue',
+    AI_GENERATE: 'AI Generate',
+    FILE_SELECT: 'Choose File',
+    CLEAR_PATH: 'Clear Path',
     GENERATING: 'Generating...',
-    AI_GENERATE: 'Generate',
-    FILE_SELECT: 'Select file',
-    CLEAR_PATH: 'Clear path',
-    UNSPECIFIED: 'Unspecified',
-    IMAGE_PROMPT_PLACEHOLDER: 'Image Prompt (optional)',
+    ADD_ROW: 'Add Row',
+    MOVE_ROW_UP: 'Move up',
+    MOVE_ROW_DOWN: 'Move down',
+    INSERT_BELOW: 'Insert below',
+    BACKGROUND_LAYER: 'Background',
   }
 };
 

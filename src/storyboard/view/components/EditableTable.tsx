@@ -153,7 +153,7 @@ if (colIndex !== null) {
                       <button
                         onClick={(e) => { e.stopPropagation(); onInsertRowBelow(index); }}
                         className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
-                        title={t('INSERT_ROW_BELOW')}
+                        title={t('INSERT_BELOW')}
                         style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
                       />
@@ -161,7 +161,7 @@ if (colIndex !== null) {
                     <button
                       onClick={(e) => { e.stopPropagation(); onDeleteRow(index); }}
                       className="text-gray-400 hover:text-red-500 text-base px-1 py-0.5"
-                      title={t('DELETE_ROW')}
+                      title={t('DELETE')}
                       style={{ lineHeight: 1 }}
                       dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
                     />
