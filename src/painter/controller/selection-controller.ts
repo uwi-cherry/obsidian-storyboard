@@ -1,6 +1,6 @@
 import { SelectionRect } from '../painter-types';
 import { PainterView } from '../view/painter-obsidian-view';
-import { SelectionState } from './SelectionState';
+import type { SelectionState } from '../hooks/useSelectionState';
 
 export type { SelectionRect };
 

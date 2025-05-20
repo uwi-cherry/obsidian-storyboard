@@ -4,7 +4,7 @@ import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
-import { SelectionState } from '../controller/SelectionState';
+import { useSelectionState } from '../hooks/useSelectionState';
 import { TOOL_ICONS } from 'src/icons';
 
 interface PainterReactViewProps {
@@ -30,6 +30,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   // 現在のツール, ブラシ幅, カラーなどは view の state を参照する
   const [, forceUpdate] = useState(0); // view プロパティ変更時の再描画用（簡易）
+  const selectionState = useSelectionState();
   const [selectionVisible, setSelectionVisible] = useState(false);
   const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
 
@@ -73,15 +74,13 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
 
-    // SelectionController を未生成なら生成
-    if (!(view as any)._selectionState) {
-      (view as any)._selectionState = new SelectionState();
-    }
+    // SelectionController と状態を初期化
+    (view as any)._selectionState = selectionState;
     if (!(view as any)._selectionController) {
-      (view as any)._selectionController = new SelectionController(view, (view as any)._selectionState);
+      (view as any)._selectionController = new SelectionController(view, selectionState);
     }
 
-    const actionMenu = new ActionMenuController(view, (view as any)._selectionState);
+    const actionMenu = new ActionMenuController(view, selectionState);
     view.actionMenu = actionMenu;
     const resizeHandler = () => actionMenu.showGlobal();
     window.addEventListener('resize', resizeHandler);
