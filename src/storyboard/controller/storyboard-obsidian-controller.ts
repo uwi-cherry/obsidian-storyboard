@@ -5,6 +5,8 @@ import React from 'react';
 import { StoryboardData } from '../storyboard-types';
 import StoryboardReactView from '../view/StoryboardReactView';
 import { loadStoryboardData, saveStoryboardData } from '../storyboard-files';
+import { createPsd } from '../../painter/controller/painter-obsidian-controller';
+import { generateThumbnail } from '../../painter/painter-files';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
 const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();
@@ -41,7 +43,9 @@ export async function switchToStoryboardViewMode(leaf: WorkspaceLeaf, app: App):
         React.createElement(StoryboardReactView, {
             initialData: initialData,
             onDataChange: handleDataChange,
-            app: app
+            app: app,
+            createPsd: createPsd,
+            generateThumbnail: generateThumbnail
         })
     );
 }

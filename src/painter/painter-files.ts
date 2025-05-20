@@ -115,6 +115,51 @@ export async function createPsdFile(
 	}
 
 	const newFile = await app.vault.createBinary(fullPath, new Uint8Array(0));
-	await savePsdFile(app, newFile, layers);
-	return newFile;
+        await savePsdFile(app, newFile, layers);
+        return newFile;
+}
+
+export async function generateThumbnail(app: App, file: TFile): Promise<string | null> {
+        try {
+                const buffer = await app.vault.readBinary(file);
+                const psdData = agPsd.readPsd(buffer);
+
+                if (!psdData.imageResources?.thumbnail) {
+                        const compositeCanvas = document.createElement('canvas');
+                        compositeCanvas.width = psdData.width;
+                        compositeCanvas.height = psdData.height;
+                        const ctx = compositeCanvas.getContext('2d');
+                        if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+                        ctx.clearRect(0, 0, psdData.width, psdData.height);
+
+                        const layers = [...(psdData.children || [])].reverse();
+                        for (const layer of layers) {
+                                if (!layer.hidden) {
+                                        ctx.globalAlpha = layer.opacity ?? 1;
+                                        const blend = layer.blendMode === 'normal' ? 'source-over' : layer.blendMode;
+                                        ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
+                                        if (layer.canvas) {
+                                                ctx.drawImage(layer.canvas, 0, 0);
+                                        }
+                                }
+                        }
+
+                        const thumbnailCanvas = document.createElement('canvas');
+                        const thumbnailSize = 512;
+                        const scale = Math.min(thumbnailSize / psdData.width, thumbnailSize / psdData.height);
+                        thumbnailCanvas.width = psdData.width * scale;
+                        thumbnailCanvas.height = psdData.height * scale;
+                        const thumbnailCtx = thumbnailCanvas.getContext('2d');
+                        if (!thumbnailCtx) throw new Error('2Dコンテキストの取得に失敗しました');
+                        thumbnailCtx.drawImage(compositeCanvas, 0, 0, thumbnailCanvas.width, thumbnailCanvas.height);
+
+                        return thumbnailCanvas.toDataURL('image/jpeg', 0.8);
+                } else if (psdData.imageResources.thumbnail instanceof HTMLCanvasElement) {
+                        return psdData.imageResources.thumbnail.toDataURL('image/jpeg');
+                }
+                return null;
+        } catch (error) {
+                console.error('サムネイルの生成に失敗しました:', error);
+                return null;
+        }
 }

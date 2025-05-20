@@ -4,6 +4,7 @@ import type { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 import { NavigationControls } from './components/NavigationControls';
+import { createPsd } from '../painter/controller/painter-obsidian-controller';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
 
@@ -79,6 +80,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 onExportImage={() => {}}
                 app={view.app}
                 onImageUrlChange={(url) => onImageChange(url, currentImagePrompt)}
+                createPsd={createPsd}
             />
 
             {(currentImageUrl?.endsWith('.psd') || layers.length > 0) && (
