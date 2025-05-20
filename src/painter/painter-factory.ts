@@ -2,7 +2,7 @@ import { App, TFile, WorkspaceLeaf } from 'obsidian';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
-import { createPsd, loadPsdFile, savePsdFile } from './painter-files';
+import { createPsd, loadPsdFile, savePsdFile, addLayer, deleteLayer } from './painter-files';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
@@ -143,92 +143,6 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     return view;
 }
 
-// レイヤー生成タイプの定義
-type LayerType = 'image' | 'blank' | 'transparent';
-
-// レイヤー生成の共通処理
-async function createLayerFromImage(
-    app: App,
-    options: {
-        type: LayerType;
-        imageFile?: TFile;
-        width: number;
-        height: number;
-        name: string;
-    }
-): Promise<{ canvas: HTMLCanvasElement; layer: Layer }> {
-    const { type, imageFile, width, height, name } = options;
-
-    const canvas = document.createElement('canvas');
-
-    // ここでは一旦サイズを設定しない。各タイプの処理内で確定させる。
-    let ctx: CanvasRenderingContext2D | null = null;
-
-    switch (type) {
-        case 'image': {
-            if (!imageFile) throw new Error('画像ファイルが指定されていません');
-
-            // 画像を読み込む
-            const imageData = await app.vault.readBinary(imageFile);
-            const blob = new Blob([imageData]);
-            const imageUrl = URL.createObjectURL(blob);
-            const img = new Image();
-
-            await new Promise((resolve, reject) => {
-                img.onload = resolve;
-                img.onerror = reject;
-                img.src = imageUrl;
-            });
-
-            // キャンバスサイズが 0 の場合は画像サイズに合わせる
-            const finalWidth = width === 0 ? img.width : width;
-            const finalHeight = height === 0 ? img.height : height;
-            canvas.width = finalWidth;
-            canvas.height = finalHeight;
-
-            ctx = canvas.getContext('2d');
-            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-
-            // 画像を中央に配置
-            const x = (finalWidth - img.width) / 2;
-            const y = (finalHeight - img.height) / 2;
-            ctx.drawImage(img, x, y);
-            URL.revokeObjectURL(imageUrl);
-            break;
-        }
-        case 'blank': {
-            canvas.width = width;
-            canvas.height = height;
-            ctx = canvas.getContext('2d');
-            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-            ctx.fillStyle = 'white';
-            ctx.fillRect(0, 0, width, height);
-            break;
-        }
-        case 'transparent': {
-            canvas.width = width;
-            canvas.height = height;
-            ctx = canvas.getContext('2d');
-            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-            ctx.fillStyle = 'transparent';
-            ctx.fillRect(0, 0, width, height);
-            break;
-        }
-    }
-
-    return {
-        canvas,
-        layer: {
-            name,
-            visible: true,
-            opacity: 1,
-            blendMode: 'normal' as keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION,
-            canvas
-        }
-    };
-}
-
-
 export function undoActive(app: App) {
     const view = app.workspace.getActiveViewOfType(PainterView);
     if (view) {
@@ -255,61 +169,6 @@ export function saveActive(app: App) {
         savePsdFile(app, view.file, view.psdDataHistory[view.currentIndex].layers);
     }
 }
-
-// ============= レイヤー処理実装 =========================
-async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFile?: TFile) {
-    // ベースサイズ
-    const baseWidth = view._canvas ? view._canvas.width : DEFAULT_CANVAS_WIDTH;
-    const baseHeight = view._canvas ? view._canvas.height : DEFAULT_CANVAS_HEIGHT;
-
-    // レイヤー名の重複を避けて連番を付加
-    let layerName = name;
-    if (name === t('NEW_LAYER')) {
-        let counter = 1;
-        while (view.psdDataHistory[view.currentIndex].layers.some(l => l.name === `${t('NEW_LAYER')} ${counter}`)) {
-            counter++;
-        }
-        layerName = `${t('NEW_LAYER')} ${counter}`;
-    }
-
-    try {
-        const { layer } = await createLayerFromImage(
-            view.app,
-            {
-                type: imageFile ? 'image' : 'transparent',
-                imageFile,
-                width: baseWidth,
-                height: baseHeight,
-                name: layerName
-            }
-        );
-
-        view.psdDataHistory[view.currentIndex].layers.unshift(layer);
-        view.currentLayerIndex = 0;
-        view.renderCanvas();
-
-        if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-            (view as PainterView).saveLayerStateToHistory();
-        }
-    } catch (error) {
-        console.error('レイヤーの作成に失敗しました:', error);
-    }
-}
-
-function deleteLayer(view: PainterView, index: number) {
-    if (view.psdDataHistory[view.currentIndex].layers.length <= 1) return;
-    view.psdDataHistory[view.currentIndex].layers.splice(index, 1);
-    if (view.currentLayerIndex >= view.psdDataHistory[view.currentIndex].layers.length) {
-        view.currentLayerIndex = view.psdDataHistory[view.currentIndex].layers.length - 1;
-    }
-
-    view.renderCanvas();
-
-    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-        (view as PainterView).saveLayerStateToHistory();
-    }
-}
-
 
 /**
  * Layer サイドバー用の View を生成するファクトリ関数。

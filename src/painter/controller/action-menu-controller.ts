@@ -3,7 +3,7 @@ import { DEFAULT_COLOR } from '../../constants';
 import type { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
 import { ActionMenu } from '../view/components/ActionMenu';
-import { SelectionState } from './SelectionState';
+import type { SelectionState } from '../hooks/useSelectionState';
 
 export class ActionMenuController {
   private menu: ActionMenu;

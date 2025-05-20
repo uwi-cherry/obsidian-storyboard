@@ -7,6 +7,7 @@ import {
     DEFAULT_CANVAS_HEIGHT
 } from '../constants';
 import { Layer } from './painter-types';
+import { PainterView } from './view/painter-obsidian-view';
 import { t } from '../i18n';
 
 interface PsdLayer {
@@ -225,4 +226,130 @@ export async function createPsd(
         await leaf.openFile(newFile, { active: true });
     }
     return newFile;
+}
+
+// ===== レイヤー処理 ======================================
+
+type LayerType = 'image' | 'blank' | 'transparent';
+
+async function createLayerFromImage(
+    app: App,
+    options: {
+        type: LayerType;
+        imageFile?: TFile;
+        width: number;
+        height: number;
+        name: string;
+    }
+): Promise<{ canvas: HTMLCanvasElement; layer: Layer }> {
+    const { type, imageFile, width, height, name } = options;
+
+    const canvas = document.createElement('canvas');
+    let ctx: CanvasRenderingContext2D | null = null;
+
+    switch (type) {
+        case 'image': {
+            if (!imageFile) throw new Error('画像ファイルが指定されていません');
+            const imageData = await app.vault.readBinary(imageFile);
+            const blob = new Blob([imageData]);
+            const imageUrl = URL.createObjectURL(blob);
+            const img = new Image();
+            await new Promise((resolve, reject) => {
+                img.onload = resolve;
+                img.onerror = reject;
+                img.src = imageUrl;
+            });
+            const finalWidth = width === 0 ? img.width : width;
+            const finalHeight = height === 0 ? img.height : height;
+            canvas.width = finalWidth;
+            canvas.height = finalHeight;
+            ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+            const x = (finalWidth - img.width) / 2;
+            const y = (finalHeight - img.height) / 2;
+            ctx.drawImage(img, x, y);
+            URL.revokeObjectURL(imageUrl);
+            break;
+        }
+        case 'blank': {
+            canvas.width = width;
+            canvas.height = height;
+            ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, width, height);
+            break;
+        }
+        case 'transparent': {
+            canvas.width = width;
+            canvas.height = height;
+            ctx = canvas.getContext('2d');
+            if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+            ctx.fillStyle = 'transparent';
+            ctx.fillRect(0, 0, width, height);
+            break;
+        }
+    }
+
+    return {
+        canvas,
+        layer: {
+            name,
+            visible: true,
+            opacity: 1,
+            blendMode: 'normal' as keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION,
+            canvas
+        }
+    };
+}
+
+export async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFile?: TFile) {
+    const baseWidth = view._canvas ? view._canvas.width : DEFAULT_CANVAS_WIDTH;
+    const baseHeight = view._canvas ? view._canvas.height : DEFAULT_CANVAS_HEIGHT;
+
+    let layerName = name;
+    if (name === t('NEW_LAYER')) {
+        let counter = 1;
+        while (view.psdDataHistory[view.currentIndex].layers.some(l => l.name === `${t('NEW_LAYER')} ${counter}`)) {
+            counter++;
+        }
+        layerName = `${t('NEW_LAYER')} ${counter}`;
+    }
+
+    try {
+        const { layer } = await createLayerFromImage(
+            view.app,
+            {
+                type: imageFile ? 'image' : 'transparent',
+                imageFile,
+                width: baseWidth,
+                height: baseHeight,
+                name: layerName
+            }
+        );
+
+        view.psdDataHistory[view.currentIndex].layers.unshift(layer);
+        view.currentLayerIndex = 0;
+        view.renderCanvas();
+
+        if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+            (view as PainterView).saveLayerStateToHistory();
+        }
+    } catch (error) {
+        console.error('レイヤーの作成に失敗しました:', error);
+    }
+}
+
+export function deleteLayer(view: PainterView, index: number) {
+    if (view.psdDataHistory[view.currentIndex].layers.length <= 1) return;
+    view.psdDataHistory[view.currentIndex].layers.splice(index, 1);
+    if (view.currentLayerIndex >= view.psdDataHistory[view.currentIndex].layers.length) {
+        view.currentLayerIndex = view.psdDataHistory[view.currentIndex].layers.length - 1;
+    }
+
+    view.renderCanvas();
+
+    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+        (view as PainterView).saveLayerStateToHistory();
+    }
 }
