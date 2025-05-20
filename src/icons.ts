@@ -38,6 +38,11 @@ export const TABLE_ICONS = {
     </svg>`
 };
 
+// 折り畳み用アイコン（右向きの矢印）
+export const FOLD_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>`;
+
 // 汎用の追加アイコン
 export const ADD_ICON_SVG = TABLE_ICONS.add;
 

@@ -27,6 +27,10 @@ export interface EditableTableProps<T> {
    * 行がクリックされた際に呼び出されるオプションのコールバック
    */
   onRowClick?: (row: T, rowIndex: number) => void;
+  /**
+   * ヘッダー行のさらに上に挿入するカスタム行
+   */
+  headerTop?: React.ReactNode;
 }
 
 const EditableTable = <T,>({
@@ -40,6 +44,7 @@ const EditableTable = <T,>({
   onInsertRowBelow,
   showAddRow = true,
   onRowClick,
+  headerTop,
 }: EditableTableProps<T>) => {
   // 全カラム分の幅を管理（初期値は512px、最後の列はundefinedで自動）
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
@@ -80,7 +85,7 @@ if (colIndex !== null) {
   };
 
   return (
-      <table className="w-full border-collapse border border-modifier-border mb-32 table-fixed">
+      <table className="w-full border-collapse border border-modifier-border mb-0 table-fixed">
         <colgroup>
           {columns.map((col, i) => (
             <col key={String(col.key)} className={colWidths[i] ? `w-[${colWidths[i]}px] min-w-[80px]` : ''} style={colWidths[i] ? { width: colWidths[i] + 'px', minWidth: '80px' } : {}} />
@@ -88,6 +93,7 @@ if (colIndex !== null) {
           <col style={{ width: '1%', minWidth: '40px' }} />
         </colgroup>
         <thead>
+          {headerTop}
           <tr className="bg-secondary">
             {columns.map((col, i) => (
               <th

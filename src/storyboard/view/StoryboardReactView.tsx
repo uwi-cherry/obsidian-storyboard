@@ -4,7 +4,7 @@ import { App, TFile } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types';
 import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
-import { ADD_ICON_SVG, TABLE_ICONS } from 'src/icons';
+import { ADD_ICON_SVG, TABLE_ICONS, FOLD_ICON_SVG } from 'src/icons';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
 
@@ -144,12 +144,14 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   };
 
   const handleAddChapter = () => {
-    const newChapter = { title: t('UNTITLED_CHAPTER'), frames: [] };
+    const emptyFrame = { imageUrl: '', speaker: '', dialogues: '', imagePrompt: '' } as StoryboardFrame;
+    const newChapter = { title: t('UNTITLED_CHAPTER'), frames: [emptyFrame] };
     setStoryboard(prev => {
       const updated = { ...prev, chapters: [...prev.chapters, newChapter] };
       onDataChange(updated);
       return updated;
     });
+    setOpenChapters(prev => [...prev, true]);
   };
 
   const handleDeleteChapter = (index: number) => {
@@ -326,33 +328,75 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         onSave={handleSaveCharacters}
       />
       {storyboard.chapters.map((chapter, cIdx) => (
-        <details key={cIdx} open className="mb-4">
-          <summary className="font-bold mb-2 flex items-center gap-2">
-            <input
-              className="border border-modifier-border rounded px-2 py-1 flex-1"
-              value={chapter.title}
-              onChange={e => {
-                const title = e.target.value;
-                setStoryboard(prev => {
-                  const chapters = prev.chapters.map((ch, idx) =>
-                    idx === cIdx ? { ...ch, title } : ch
-                  );
-                  const updated = { ...prev, chapters };
-                  onDataChange(updated);
-                  return updated;
-                });
-              }}
-            />
-            <button
-              className="text-error border border-modifier-border rounded px-2 py-1"
-              onClick={e => {
-                e.preventDefault();
-                handleDeleteChapter(cIdx);
-              }}
-              dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
-            />
-          </summary>
+        <details
+          key={cIdx}
+          open={openChapters[cIdx]}
+          onToggle={e => {
+            const isOpen = (e.currentTarget as HTMLDetailsElement).open;
+            setOpenChapters(prev => {
+              const next = [...prev];
+              next[cIdx] = isOpen;
+              return next;
+            });
+          }}
+        >
+          <summary className="hidden" />
           <EditableTable<StoryboardFrame>
+            headerTop={
+              <tr>
+                <th
+                  colSpan={columns.length}
+                  className="border border-modifier-border px-4 py-2 text-left"
+                >
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="text-text-faint hover:text-accent"
+                      onClick={e => {
+                        e.preventDefault();
+                        setOpenChapters(prev => {
+                          const next = [...prev];
+                          next[cIdx] = !next[cIdx];
+                          return next;
+                        });
+                      }}
+                    >
+                      <span
+                        className={`inline-block transition-transform ${openChapters[cIdx] ? 'rotate-90' : ''}`}
+                        dangerouslySetInnerHTML={{ __html: FOLD_ICON_SVG }}
+                      />
+                    </button>
+                    <input
+                      className="w-full border-none bg-transparent focus:outline-none text-2xl font-bold"
+                      value={chapter.title}
+                      onChange={e => {
+                        const title = e.target.value;
+                        setStoryboard(prev => {
+                          const chapters = prev.chapters.map((ch, idx) =>
+                            idx === cIdx ? { ...ch, title } : ch
+                          );
+                          const updated = { ...prev, chapters };
+                          onDataChange(updated);
+                          return updated;
+                        });
+                      }}
+                    />
+                  </div>
+                </th>
+                <th className="border border-modifier-border px-1 py-2">
+                  <div className="flex flex-col items-start gap-y-1">
+                    <button
+                      className="text-text-faint hover:text-error text-base px-1 py-0.5 leading-none"
+                      onClick={e => {
+                        e.preventDefault();
+                        handleDeleteChapter(cIdx);
+                      }}
+                      title={t('DELETE')}
+                      dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
+                    />
+                  </div>
+                </th>
+              </tr>
+            }
             data={chapter.frames}
             columns={columns.map(col =>
               col.key === 'dialogues'
