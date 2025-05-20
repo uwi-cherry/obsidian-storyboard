@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT, TOOLS } from '../../constants';
+import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
@@ -101,7 +102,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
 
         view.psdDataHistory[0].layers = [
           {
-            name: '背景',
+            name: t('BACKGROUND'),
             visible: true,
             opacity: 1,
             blendMode: 'normal',

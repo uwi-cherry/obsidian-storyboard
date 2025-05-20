@@ -3,6 +3,7 @@ import { addIcon } from 'obsidian';
 import { PSD_VIEW_TYPE, PSD_EXTENSION, PSD_ICON } from '../constants';
 import { PSD_ICON_SVG } from '../icons';
 import { LAYER_SIDEBAR_VIEW_TYPE } from '../right-sidebar/right-sidebar-obsidian-view';
+import { t } from '../i18n';
 import {
     createPainterView,
     createPsd,
@@ -27,7 +28,7 @@ export function loadPlugin(plugin: Plugin) {
         if (file instanceof TFile && file.extension.toLowerCase().match(/^(png|jpe?g|gif|webp)$/)) {
             menu.addItem((item) => {
                 item
-                    .setTitle('PSD Painterで開く')
+                    .setTitle(t('OPEN_PSD'))
                     .setIcon('image')
                     .onClick(() => createPsd(plugin.app, file));
             });

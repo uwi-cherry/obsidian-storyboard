@@ -30,6 +30,30 @@ export interface Strings {
   TOOL_BRUSH: string;
   TOOL_ERASER: string;
   TOOL_SELECTION: string;
+  LAYERS: string;
+  NEW_LAYER: string;
+  IMAGE_LAYER: string;
+  DELETE_LAYER: string;
+  ENTER_LAYER_NAME: string;
+  IMAGE: string;
+  SPEAKER_DIALOGUE: string;
+  BACKGROUND: string;
+  UNDO: string;
+  REDO: string;
+  NO_SPEAKER: string;
+  EDIT_CHAR_INFO: string;
+  DIALOGUE: string;
+  MOVE_ROW_UP: string;
+  MOVE_ROW_DOWN: string;
+  INSERT_ROW_BELOW: string;
+  DELETE_ROW: string;
+  ADD_ROW: string;
+  GENERATING: string;
+  AI_GENERATE: string;
+  FILE_SELECT: string;
+  CLEAR_PATH: string;
+  UNSPECIFIED: string;
+  IMAGE_PROMPT_PLACEHOLDER: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -63,6 +87,30 @@ const STRINGS: Record<Language, Strings> = {
     TOOL_BRUSH: 'ブラシ',
     TOOL_ERASER: '消しゴム',
     TOOL_SELECTION: '選択',
+    LAYERS: 'レイヤー',
+    NEW_LAYER: '新規レイヤー',
+    IMAGE_LAYER: '画像レイヤー',
+    DELETE_LAYER: 'レイヤーを削除',
+    ENTER_LAYER_NAME: 'レイヤー名を入力',
+    IMAGE: '画像',
+    SPEAKER_DIALOGUE: '話者とセリフ',
+    BACKGROUND: '背景',
+    UNDO: '元に戻す',
+    REDO: 'やり直す',
+    NO_SPEAKER: '話者なし',
+    EDIT_CHAR_INFO: 'キャラクター情報を追加・編集',
+    DIALOGUE: '台詞',
+    MOVE_ROW_UP: '行を上に移動',
+    MOVE_ROW_DOWN: '行を下に移動',
+    INSERT_ROW_BELOW: '一つ下に新規追加',
+    DELETE_ROW: '削除',
+    ADD_ROW: '行を追加',
+    GENERATING: '生成中...',
+    AI_GENERATE: 'AI生成',
+    FILE_SELECT: 'ファイル選択',
+    CLEAR_PATH: 'パスをクリア',
+    UNSPECIFIED: '未設定',
+    IMAGE_PROMPT_PLACEHOLDER: '画像プロンプト (任意)',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -94,6 +142,30 @@ const STRINGS: Record<Language, Strings> = {
     TOOL_BRUSH: 'Brush',
     TOOL_ERASER: 'Eraser',
     TOOL_SELECTION: 'Select',
+    LAYERS: 'Layers',
+    NEW_LAYER: 'New Layer',
+    IMAGE_LAYER: 'Image Layer',
+    DELETE_LAYER: 'Delete Layer',
+    ENTER_LAYER_NAME: 'Enter layer name',
+    IMAGE: 'Image',
+    SPEAKER_DIALOGUE: 'Speaker & Dialogue',
+    BACKGROUND: 'Background',
+    UNDO: 'Undo',
+    REDO: 'Redo',
+    NO_SPEAKER: 'No speaker',
+    EDIT_CHAR_INFO: 'Edit character info',
+    DIALOGUE: 'Dialogue',
+    MOVE_ROW_UP: 'Move row up',
+    MOVE_ROW_DOWN: 'Move row down',
+    INSERT_ROW_BELOW: 'Insert below',
+    DELETE_ROW: 'Delete',
+    ADD_ROW: 'Add row',
+    GENERATING: 'Generating...',
+    AI_GENERATE: 'Generate',
+    FILE_SELECT: 'Select file',
+    CLEAR_PATH: 'Clear path',
+    UNSPECIFIED: 'Unspecified',
+    IMAGE_PROMPT_PLACEHOLDER: 'Image Prompt (optional)',
   }
 };
 
