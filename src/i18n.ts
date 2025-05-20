@@ -58,7 +58,6 @@ export interface Strings {
   FILE_SELECT: string;
   CLEAR_PATH: string;
   ADD_CHAPTER: string;
-  UNTITLED_CHAPTER: string;
 }
 
 const STRINGS: Record<Language, Strings> = {

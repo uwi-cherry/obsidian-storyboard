@@ -7,6 +7,7 @@ import EditableTable, { ColumnDef } from './components/EditableTable';
 import { ADD_ICON_SVG, TABLE_ICONS } from 'src/icons';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
+import { TABLE_ICONS } from 'src/icons';
 
 interface StoryboardReactViewProps {
   initialData: StoryboardData;
@@ -31,6 +32,9 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
 }) => {
   const [storyboard, setStoryboard] = useState<StoryboardData>(initialData);
   const [charModalOpen, setCharModalOpen] = useState(false);
+  const [openChapters, setOpenChapters] = useState<boolean[]>(
+    initialData.chapters.map(() => true)
+  );
 
   // セリフ欄（textarea）のref配列
   const dialogueRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
@@ -40,6 +44,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
 
   useEffect(() => {
     setStoryboard(initialData);
+    setOpenChapters(initialData.chapters.map(() => true));
   }, [initialData]);
 
   const handleCellChange = useCallback(
@@ -157,6 +162,16 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     });
   };
 
+  const handleDeleteChapter = (index: number) => {
+    setStoryboard(prev => {
+      const chapters = prev.chapters.filter((_, i) => i !== index);
+      const updated = { ...prev, chapters };
+      onDataChange(updated);
+      return updated;
+    });
+    setOpenChapters(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleSaveCharacters = (chars: CharacterInfo[]) => {
     setStoryboard(prev => {
       // 変更前後のキャラ名対応リストを作成
@@ -210,7 +225,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     {
       key: 'imageUrl',
       header: t('HEADER_IMAGE'),
-      renderCell: (value: StoryboardFrame['imageUrl'], row: StoryboardFrame, onCellChangeForRow: (columnKey: keyof StoryboardFrame, newValue: StoryboardFrame[keyof StoryboardFrame]) => void, rowIndex: number) => (
+      renderCell: (_value: StoryboardFrame['imageUrl'], row: StoryboardFrame, onCellChangeForRow: (columnKey: keyof StoryboardFrame, newValue: StoryboardFrame[keyof StoryboardFrame]) => void, rowIndex: number) => (
         <ImageInputCell
           imageUrl={row.imageUrl}
           imagePrompt={row.imagePrompt}
