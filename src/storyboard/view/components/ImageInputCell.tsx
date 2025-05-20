@@ -197,20 +197,20 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           onChange={handleFileSelect}
         />
         <button
-          className="p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer hover:bg-[var(--interactive-accent-hover)] disabled:opacity-50 flex items-center justify-center"
+          className="p-1 bg-accent text-on-accent rounded cursor-pointer hover:bg-accent-hover disabled:opacity-50 flex items-center justify-center"
           onClick={handleAiGenerate}
           disabled={isGenerating}
           title={isGenerating ? t('GENERATING') : t('AI_GENERATE')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.aiGenerate }}
         />
         <button
-          className="p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer hover:bg-[var(--background-modifier-hover)] flex items-center justify-center"
+          className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
           onClick={() => fileInputRef.current?.click()}
           title={t('FILE_SELECT')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
         />
         <button
-          className="p-1 bg-[var(--background-primary)] border border-[var(--background-modifier-border)] text-[var(--text-normal)] rounded cursor-pointer hover:bg-[var(--background-modifier-hover)] flex items-center justify-center"
+          className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
           onClick={handleClearPath}
           title={t('CLEAR_PATH')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.clearPath }}
@@ -222,7 +222,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           src={thumbnail}
           alt="PSD thumbnail"
           title={imageUrl || ''}
-          className="w-auto object-contain bg-[var(--background-secondary)] rounded cursor-pointer"
+          className="w-auto object-contain bg-secondary rounded cursor-pointer"
           onDoubleClick={handleThumbnailDoubleClick}
           tabIndex={0}
         />
@@ -233,7 +233,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           onChange={handleImagePromptChange}
           onKeyDown={handlePromptKeyDown}
           placeholder={t('IMAGE_PROMPT_PLACEHOLDER')}
-          className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-[var(--text-normal)] placeholder-[var(--text-faint)] leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
+          className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
         />
       )}
     </>

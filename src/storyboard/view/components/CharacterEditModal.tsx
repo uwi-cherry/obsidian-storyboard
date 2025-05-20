@@ -45,17 +45,17 @@ const CharacterEditModal: React.FC<{
   const selectedChar = editChars[selectedIdx] || { name: '', attributes: { 説明: '' } };
   return (
     <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-      <div className="bg-white rounded shadow-lg p-6 w-[400px] max-h-[80vh] overflow-auto">
+      <div className="bg-primary rounded shadow-lg p-6 w-[400px] max-h-[80vh] overflow-auto">
         <h2 className="text-lg font-bold mb-2">{t('CHARACTER_EDIT')}</h2>
         <div className="flex gap-2 items-center mb-4">
-          <select value={selectedIdx} onChange={handleSelectChange} className="border rounded px-2 py-1 flex-1">
+          <select value={selectedIdx} onChange={handleSelectChange} className="border border-modifier-border rounded px-2 py-1 flex-1">
             {editChars.map((char, idx) => (
               <option key={idx} value={idx}>{char.name || `(${t('UNSPECIFIED')})`}</option>
             ))}
           </select>
-          <button className="text-accent px-2 py-1 border rounded" onClick={handleAddChar}>＋</button>
+          <button className="text-accent px-2 py-1 border border-modifier-border rounded" onClick={handleAddChar}>＋</button>
           <button 
-            className="text-error px-2 py-1 border rounded"
+            className="text-error px-2 py-1 border border-modifier-border rounded"
             onClick={handleDeleteChar}
             disabled={editChars.length === 0 || usedCharacterNames.includes(selectedChar.name)}
         >
@@ -64,15 +64,15 @@ const CharacterEditModal: React.FC<{
         </div>
         <div className="mb-2">
           <label className="block text-sm mb-1">{t('CHARACTER_NAME')}</label>
-          <input className="border rounded px-2 py-1 w-full" value={selectedChar.name} onChange={e => handleNameChange(e.target.value)} placeholder={t('CHARACTER_NAME')} />
+          <input className="border border-modifier-border rounded px-2 py-1 w-full" value={selectedChar.name} onChange={e => handleNameChange(e.target.value)} placeholder={t('CHARACTER_NAME')} />
         </div>
         <div className="mb-4">
           <label className="block text-sm mb-1">{t('DESCRIPTION')}</label>
-          <input className="border rounded px-2 py-1 w-full" value={selectedChar.attributes['説明'] || ''} onChange={e => handleDescriptionChange(e.target.value)} placeholder={t('DESCRIPTION')} />
+          <input className="border border-modifier-border rounded px-2 py-1 w-full" value={selectedChar.attributes['説明'] || ''} onChange={e => handleDescriptionChange(e.target.value)} placeholder={t('DESCRIPTION')} />
         </div>
         <div className="flex gap-2 justify-end">
-          <button className="text-gray-600 px-2 py-1 border rounded" onClick={onClose}>{t('CANCEL')}</button>
-          <button className="text-white bg-accent px-2 py-1 rounded" onClick={() => { onSave(editChars); onClose(); }}>{t('SAVE')}</button>
+          <button className="text-muted px-2 py-1 border border-modifier-border rounded" onClick={onClose}>{t('CANCEL')}</button>
+          <button className="text-on-accent bg-accent px-2 py-1 rounded" onClick={() => { onSave(editChars); onClose(); }}>{t('SAVE')}</button>
         </div>
       </div>
     </div>

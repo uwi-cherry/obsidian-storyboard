@@ -48,19 +48,19 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
         <div className="flex gap-2 flex-col mb-4">
             <div className="flex gap-2">
                 <button
-                    className={`flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)] ${!currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
+                    className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${!currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
                     onClick={handleCreateNewPsd}
                 >
                     {t('CREATE_PSD')}
                 </button>
                 <button
-                    className={`flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)] ${currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
+                    className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
                     onClick={onOpenPsdPainter}
                 >
                     {t('OPEN_PSD')}
                 </button>
                 <button
-                    className={`flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)] ${!isPsdPainterOpen ? '' : 'hidden'}`}
+                    className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${!isPsdPainterOpen ? '' : 'hidden'}`}
                     onClick={handleExportVideo}
                 >
                     {t('EXPORT_VIDEO')}
@@ -69,13 +69,13 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
 
             <div className="flex gap-2">
                 <button
-                    className={`flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)] ${isPsdPainterOpen ? '' : 'hidden'}`}
+                    className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${isPsdPainterOpen ? '' : 'hidden'}`}
                     onClick={onBackToStoryboard}
                 >
                     {t('BACK_TO_STORYBOARD')}
                 </button>
                 <button
-                    className={`flex-1 p-1 bg-[var(--interactive-accent)] text-[var(--text-on-accent)] rounded cursor-pointer text-xs hover:bg-[var(--interactive-accent-hover)] ${isPsdPainterOpen ? '' : 'hidden'}`}
+                    className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${isPsdPainterOpen ? '' : 'hidden'}`}
                     onClick={onExportImage}
                 >
                     {t('EXPORT_IMAGE')}
