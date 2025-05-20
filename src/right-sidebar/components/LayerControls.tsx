@@ -34,7 +34,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
             path = newFile.path;
         }
 
-        view.addLayer(path);
+        view.addImageLayer(path);
     };
 
     return (

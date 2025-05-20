@@ -76,6 +76,19 @@ export class RightSidebarView extends ItemView {
         this.layerOps?.addLayer(name);
     }
 
+    /**
+     * 画像ファイルからレイヤーを追加
+     */
+    public addImageLayer(path: string) {
+        const file = this.app.vault.getAbstractFileByPath(path);
+        if (file instanceof TFile) {
+            const painter = this.app.workspace.getActiveViewOfType(PainterView);
+            if (painter) {
+                painter.createNewLayer(file.basename, file);
+            }
+        }
+    }
+
     public deleteLayer(index: number) {
         this.layerOps?.deleteLayer(index);
     }
