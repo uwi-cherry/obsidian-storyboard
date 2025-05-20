@@ -75,8 +75,8 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     if (!(view as any)._selectionState) {
       (view as any)._selectionState = new SelectionState();
     }
-    if (!(view as any)._selectionManager) {
-      (view as any)._selectionManager = new SelectionManager(view, (view as any)._selectionState);
+    if (!(view as any)._selectionController) {
+      (view as any)._selectionController = new SelectionManager(view, (view as any)._selectionState);
     }
 
     const actionMenu = new ActionMenuManager(view, (view as any)._selectionState);
@@ -183,7 +183,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
               onChange={e => {
                 const val = e.currentTarget.value as 'rect' | 'lasso' | 'magic';
                 setSelectionType(val);
-                view.selectionManager?.setMode(val);
+                view.selectionController?.setMode(val);
                 updateTool('selection'); // selection モードに固定
               }}
             >
