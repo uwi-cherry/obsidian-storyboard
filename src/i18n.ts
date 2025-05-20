@@ -57,6 +57,7 @@ export interface Strings {
   AI_GENERATE: string;
   FILE_SELECT: string;
   CLEAR_PATH: string;
+  UNTITLED_CHAPTER: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -117,6 +118,7 @@ const STRINGS: Record<Language, Strings> = {
     AI_GENERATE: 'AI生成',
     FILE_SELECT: 'ファイル選択',
     CLEAR_PATH: 'クリア',
+    UNTITLED_CHAPTER: '新規章',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -175,6 +177,7 @@ const STRINGS: Record<Language, Strings> = {
     AI_GENERATE: 'Generate',
     FILE_SELECT: 'Select file',
     CLEAR_PATH: 'Clear',
+    UNTITLED_CHAPTER: 'New Chapter',
   }
 };
 
