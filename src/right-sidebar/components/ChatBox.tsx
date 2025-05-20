@@ -27,9 +27,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
     setError(null);
     if (!input.trim()) return;
     const userMessage = input;
-    setMessages(prev => [...prev, { role: "user", content: userMessage }]);
-    // プレースホルダの assistant メッセージを用意
-    setMessages(prev => [...prev, { role: "assistant", content: "" }]);
+    setMessages(prev => [
+      ...prev,
+      { role: 'user', content: userMessage },
+      { role: 'assistant', content: '' }
+    ]);
     setInput("");
     setLoading(true);
     try {
