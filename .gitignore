@@ -23,4 +23,5 @@ data.json
 
 # Build output
 dist/
+
 styles.css
