@@ -33,7 +33,9 @@ export interface ModelSettings {
   frequencyPenalty?: number;
   /** presence_penalty */
   presencePenalty?: number;
-  // TODO: stop_sequences 等 他パラメータ
+  /** モデルが応答を停止するトークン列 */
+  stopSequences?: string[];
+  // TODO: 他パラメータ
 }
 
 /**

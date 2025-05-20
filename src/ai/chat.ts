@@ -47,7 +47,7 @@ export async function sendChatMessage(
   });
 
   // --- function_call判定のための1トークンお試しリクエスト ---
-  if (!!onToken) {
+  if (onToken) {
     // 1. まず max_tokens=1 で非ストリーミングAPIを叩く
     const agentForCheck = new OpenAiAgent({
       ...agent,

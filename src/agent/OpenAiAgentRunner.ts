@@ -21,6 +21,9 @@ export class OpenAiAgentRunner {
         messages: messages.map(({ role, content, name }) => ({ role, content, name })),
         max_tokens: agent.maxTokens,
         temperature: agent.temperature,
+        ...(agent.modelSettings.stopSequences?.length
+          ? { stop: agent.modelSettings.stopSequences }
+          : {}),
       };
       // ===== DEBUG LOG =====
       console.info('[OpenAiAgentRunner] turn', turn, 'payload', payload);
@@ -112,6 +115,9 @@ export class OpenAiAgentRunner {
       messages: messages.map(({ role, content, name }) => ({ role, content, name })),
       max_tokens: agent.maxTokens,
       temperature: agent.temperature,
+      ...(agent.modelSettings.stopSequences?.length
+        ? { stop: agent.modelSettings.stopSequences }
+        : {}),
     };
     if (agent.tools.length) {
       Object.assign(payload, {
@@ -184,15 +190,15 @@ export class OpenAiAgentRunner {
     onToken: (token: string) => void,
     history: ChatMessage[] = []
   ): Promise<{ finalOutput: string, history: ChatMessage[], toolCalls: { name: string; args: unknown; result: string }[] }> {
-    let messages: ChatMessage[] = [
+    const messages: ChatMessage[] = [
       { role: 'system', content: agent.instructions },
       ...history,
       { role: 'user', content: userMessage },
     ];
     let finalOutput = '';
-    let toolCalls: { name: string; args: unknown; result: string }[] = [];
+    const toolCalls: { name: string; args: unknown; result: string }[] = [];
 
-    while (true) {
+    for (;;) {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
@@ -205,6 +211,9 @@ export class OpenAiAgentRunner {
           messages: messages.map(({ role, content, name }) => ({ role, content, name })),
           max_tokens: agent.maxTokens,
           temperature: agent.temperature,
+          ...(agent.modelSettings.stopSequences?.length
+            ? { stop: agent.modelSettings.stopSequences }
+            : {}),
           ...(agent.tools.length ? {
             functions: agent.buildFunctions(),
             function_call: 'auto',
