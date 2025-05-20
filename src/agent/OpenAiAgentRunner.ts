@@ -21,6 +21,9 @@ export class OpenAiAgentRunner {
         messages: messages.map(({ role, content, name }) => ({ role, content, name })),
         max_tokens: agent.maxTokens,
         temperature: agent.temperature,
+        ...(agent.modelSettings.stopSequences?.length
+          ? { stop: agent.modelSettings.stopSequences }
+          : {}),
       };
       // ===== DEBUG LOG =====
       console.info('[OpenAiAgentRunner] turn', turn, 'payload', payload);
@@ -112,6 +115,9 @@ export class OpenAiAgentRunner {
       messages: messages.map(({ role, content, name }) => ({ role, content, name })),
       max_tokens: agent.maxTokens,
       temperature: agent.temperature,
+      ...(agent.modelSettings.stopSequences?.length
+        ? { stop: agent.modelSettings.stopSequences }
+        : {}),
     };
     if (agent.tools.length) {
       Object.assign(payload, {
@@ -205,6 +211,9 @@ export class OpenAiAgentRunner {
           messages: messages.map(({ role, content, name }) => ({ role, content, name })),
           max_tokens: agent.maxTokens,
           temperature: agent.temperature,
+          ...(agent.modelSettings.stopSequences?.length
+            ? { stop: agent.modelSettings.stopSequences }
+            : {}),
           ...(agent.tools.length ? {
             functions: agent.buildFunctions(),
             function_call: 'auto',
