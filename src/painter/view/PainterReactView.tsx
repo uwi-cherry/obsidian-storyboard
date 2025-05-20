@@ -49,7 +49,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   };
 
   /* ──────────────── Effects ──────────────── */
-  // マウント時 – Canvas, SelectionManager, ActionMenu 等の初期化
+  // マウント時 – Canvas, SelectionController, ActionMenu 等の初期化
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -71,7 +71,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
 
-    // SelectionManager を未生成なら生成
+    // SelectionController を未生成なら生成
     if (!(view as any)._selectionState) {
       (view as any)._selectionState = new SelectionState();
     }

@@ -45,12 +45,12 @@ export class PainterView extends FileView {
 	// React ルート（レイアウトをマウント）
 	private reactRoot?: Root;
 
-	/**
-	 * SelectionManager への public アクセス
-	 */
-	public get selectionManager(): SelectionManager | undefined {
-		return this._selectionManager;
-	}
+        /**
+         * SelectionController への public アクセス
+         */
+        public get selectionManager(): SelectionManager | undefined {
+                return this._selectionManager;
+        }
 
 	/**
 	 * ViewModel からキャンバス要素へアクセスするための公開ゲッター。
