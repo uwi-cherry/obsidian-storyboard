@@ -95,4 +95,4 @@ export class ActionMenu {
     this.root.unmount();
     this.container.remove();
   }
-} 
+}
