@@ -9,7 +9,7 @@ import {
     undoActive,
     redoActive,
     createLayerSidebar
-} from './controller/painter-obsidian-controller';
+} from './painter-factory';
 import { createPsd } from './painter-files';
 
 export function loadPlugin(plugin: Plugin) {
