@@ -193,7 +193,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           ref={fileInputRef}
           type="file"
           accept=".psd,.png,.jpg,.jpeg,.gif,.webp"
-          style={{ display: 'none' }}
+          className="hidden"
           onChange={handleFileSelect}
         />
         <button

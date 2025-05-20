@@ -134,35 +134,31 @@ if (colIndex !== null) {
                     {onMoveRowUp && index > 0 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowUp(index); }}
-                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
+                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_UP')}
-                        style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveUp }}
                       />
                     )}
                     {onMoveRowDown && index < data.length - 1 && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onMoveRowDown(index); }}
-                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
+                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_DOWN')}
-                        style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveDown }}
                       />
                     )}
                     {onInsertRowBelow && (
                       <button
                         onClick={(e) => { e.stopPropagation(); onInsertRowBelow(index); }}
-                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5"
+                        className="text-gray-400 hover:text-blue-500 text-base px-1 py-0.5 leading-none"
                         title={t('INSERT_ROW_BELOW')}
-                        style={{ lineHeight: 1 }}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
                       />
                     )}
                     <button
                       onClick={(e) => { e.stopPropagation(); onDeleteRow(index); }}
-                      className="text-gray-400 hover:text-red-500 text-base px-1 py-0.5"
+                      className="text-gray-400 hover:text-red-500 text-base px-1 py-0.5 leading-none"
                       title={t('DELETE')}
-                      style={{ lineHeight: 1 }}
                       dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
                     />
                   </div>

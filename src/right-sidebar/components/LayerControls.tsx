@@ -48,7 +48,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                 ref={fileInputRef}
                 type="file"
                 accept=".psd,.png,.jpg,.jpeg,.gif,.webp"
-                style={{ display: 'none' }}
+                className="hidden"
                 onChange={handleImageLayerSelect}
             />
 

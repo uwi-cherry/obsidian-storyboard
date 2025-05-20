@@ -53,6 +53,10 @@ export interface Strings {
   MOVE_ROW_UP: string;
   MOVE_ROW_DOWN: string;
   INSERT_ROW_BELOW: string;
+  GENERATING: string;
+  AI_GENERATE: string;
+  FILE_SELECT: string;
+  CLEAR_PATH: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -109,6 +113,10 @@ const STRINGS: Record<Language, Strings> = {
     MOVE_ROW_UP: '行を上に移動',
     MOVE_ROW_DOWN: '行を下に移動',
     INSERT_ROW_BELOW: '一つ下に新規追加',
+    GENERATING: '生成中',
+    AI_GENERATE: 'AI生成',
+    FILE_SELECT: 'ファイル選択',
+    CLEAR_PATH: 'クリア',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -163,6 +171,10 @@ const STRINGS: Record<Language, Strings> = {
     MOVE_ROW_UP: 'Move row up',
     MOVE_ROW_DOWN: 'Move row down',
     INSERT_ROW_BELOW: 'Insert row below',
+    GENERATING: 'Generating...',
+    AI_GENERATE: 'Generate',
+    FILE_SELECT: 'Select file',
+    CLEAR_PATH: 'Clear',
   }
 };
 
