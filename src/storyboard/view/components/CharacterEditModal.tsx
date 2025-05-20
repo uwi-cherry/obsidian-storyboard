@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { CharacterInfo, StoryboardFrame } from 'src/storyboard/storyboard-types';
 import { t } from 'src/i18n';
+import { ADD_ICON_SVG } from 'src/icons';
 
 const CharacterEditModal: React.FC<{
   open: boolean;
@@ -50,10 +51,14 @@ const CharacterEditModal: React.FC<{
         <div className="flex gap-2 items-center mb-4">
           <select value={selectedIdx} onChange={handleSelectChange} className="border border-modifier-border rounded px-2 py-1 flex-1">
             {editChars.map((char, idx) => (
-              <option key={idx} value={idx}>{char.name || `(${t('UNSPECIFIED')})`}</option>
+              <option key={idx} value={idx}>{char.name || `(${t('NO_SPEAKER')})`}</option>
             ))}
           </select>
-          <button className="text-accent px-2 py-1 border border-modifier-border rounded" onClick={handleAddChar}>＋</button>
+          <button
+            className="text-accent px-2 py-1 border border-modifier-border rounded"
+            onClick={handleAddChar}
+            dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
+          />
           <button 
             className="text-error px-2 py-1 border border-modifier-border rounded"
             onClick={handleDeleteChar}

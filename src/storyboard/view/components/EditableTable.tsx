@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TABLE_ICONS } from 'src/icons';
+import { TABLE_ICONS, ADD_ICON_SVG } from 'src/icons';
 import { t } from 'src/i18n';
 
 export interface ColumnDef<T> {
@@ -22,6 +22,7 @@ export interface EditableTableProps<T> {
   onMoveRowUp?: (rowIndex: number) => void;
   onMoveRowDown?: (rowIndex: number) => void;
   onInsertRowBelow?: (rowIndex: number) => void;
+  showAddRow?: boolean;
   /**
    * 行がクリックされた際に呼び出されるオプションのコールバック
    */
@@ -37,6 +38,7 @@ const EditableTable = <T,>({
   onMoveRowUp,
   onMoveRowDown,
   onInsertRowBelow,
+  showAddRow = true,
   onRowClick,
 }: EditableTableProps<T>) => {
   // 全カラム分の幅を管理（初期値は512px、最後の列はundefinedで自動）
@@ -166,16 +168,17 @@ if (colIndex !== null) {
               </tr>
             );
           })}
-          <tr className="bg-secondary hover:bg-modifier-hover">
-            <td
-              colSpan={columns.length + 1 } 
-              className="border border-modifier-border px-4 py-2 text-center cursor-pointer text-text-muted hover:text-text-normal"
-              onClick={() => onAddRow()}
-              title={t('INSERT_ROW_BELOW')}
-            >
-              +
-            </td>
-          </tr>
+          {showAddRow && (
+            <tr className="bg-secondary hover:bg-modifier-hover">
+              <td
+                colSpan={columns.length + 1 }
+                className="border border-modifier-border px-4 py-2 text-center cursor-pointer text-text-muted hover:text-text-normal"
+                onClick={() => onAddRow()}
+                title={t('INSERT_ROW_BELOW')}
+                dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
+              />
+            </tr>
+          )}
         </tbody>
       </table>
   );
