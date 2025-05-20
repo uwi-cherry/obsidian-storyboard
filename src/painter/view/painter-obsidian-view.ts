@@ -13,7 +13,6 @@ import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import PainterReactView from './PainterReactView';
-import { t } from '../../i18n';
 export class PainterView extends FileView {
 	isDrawing = false;
 	lastX = 0;
