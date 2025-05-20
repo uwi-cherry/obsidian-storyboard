@@ -44,6 +44,8 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     if (canvasRef.current) {
       if (['brush', 'eraser', 'selection'].includes(toolId)) {
         canvasRef.current.style.cursor = 'crosshair';
+      } else if (toolId === 'hand') {
+        canvasRef.current.style.cursor = 'grab';
       } else {
         canvasRef.current.style.cursor = 'default';
       }
@@ -127,6 +129,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
       { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
       { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
+      { id: 'hand', title: t('TOOL_HAND'), icon: TOOL_ICONS.hand },
   ] as const;
   /* ──────────────── JSX ──────────────── */
   return (

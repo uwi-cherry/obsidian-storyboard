@@ -14,10 +14,13 @@ import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import PainterReactView from './PainterReactView';
 export class PainterView extends FileView {
-	isDrawing = false;
-	lastX = 0;
-	lastY = 0;
-	currentColor = DEFAULT_COLOR;
+        isDrawing = false;
+        lastX = 0;
+        lastY = 0;
+        isPanning = false;
+        panLastX = 0;
+        panLastY = 0;
+        currentColor = DEFAULT_COLOR;
 	currentLineWidth = 5;
 	currentTool = 'brush';
 	psdDataHistory: { layers: Layer[] }[] = [];
@@ -259,6 +262,12 @@ export class PainterView extends FileView {
                         this.actionMenu.hide();
                         this._selectionController?.onPointerDown(x, y);
                         return;
+                } else if (this.currentTool === 'hand') {
+                        this.isPanning = true;
+                        this.panLastX = e.clientX;
+                        this.panLastY = e.clientY;
+                        this._canvas.style.cursor = 'grabbing';
+                        return;
                 }
 	}
 
@@ -267,11 +276,22 @@ export class PainterView extends FileView {
 		const x = e.clientX - rect.left;
 		const y = e.clientY - rect.top;
 
-		// 選択ツールの場合はドラッグ状態に関係なく move を伝播
-		if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-			this._selectionController?.onPointerMove(x, y);
-			return;
-		}
+                // 選択ツールの場合はドラッグ状態に関係なく move を伝播
+                if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
+                        this._selectionController?.onPointerMove(x, y);
+                        return;
+                }
+
+                if (this.currentTool === 'hand' && this.isPanning) {
+                        const container = this._canvas.parentElement as HTMLElement | null;
+                        if (container) {
+                                container.scrollLeft -= e.clientX - this.panLastX;
+                                container.scrollTop -= e.clientY - this.panLastY;
+                        }
+                        this.panLastX = e.clientX;
+                        this.panLastY = e.clientY;
+                        return;
+                }
 
 		if (!this.isDrawing) return;
 
@@ -293,6 +313,11 @@ export class PainterView extends FileView {
         private handlePointerUp() {
                 if (this.isDrawing) {
                         this.isDrawing = false;
+                }
+
+                if (this.currentTool === 'hand' && this.isPanning) {
+                        this.isPanning = false;
+                        this._canvas.style.cursor = 'grab';
                 }
 
                 if (this.currentTool === 'selection' || this.currentTool === 'lasso') {

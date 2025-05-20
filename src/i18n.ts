@@ -30,6 +30,7 @@ export interface Strings {
   TOOL_BRUSH: string;
   TOOL_ERASER: string;
   TOOL_SELECTION: string;
+  TOOL_HAND: string;
   UNDO: string;
   REDO: string;
   BRUSH_SIZE: string;
@@ -92,6 +93,7 @@ const STRINGS: Record<Language, Strings> = {
     TOOL_BRUSH: 'ブラシ',
     TOOL_ERASER: '消しゴム',
     TOOL_SELECTION: '選択',
+    TOOL_HAND: '手のひら',
     UNDO: '元に戻す',
     REDO: 'やり直す',
     BRUSH_SIZE: 'ブラシサイズ',
@@ -152,6 +154,7 @@ const STRINGS: Record<Language, Strings> = {
     TOOL_BRUSH: 'Brush',
     TOOL_ERASER: 'Eraser',
     TOOL_SELECTION: 'Select',
+    TOOL_HAND: 'Hand',
     UNDO: 'Undo',
     REDO: 'Redo',
     BRUSH_SIZE: 'Brush size',
