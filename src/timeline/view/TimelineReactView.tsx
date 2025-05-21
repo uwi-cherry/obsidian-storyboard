@@ -8,6 +8,8 @@ interface TimelineReactViewProps {
     onProjectChange: (project: OtioProject) => void;
 }
 
+const PIXELS_PER_SECOND = 20;
+
 const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjectChange }) => {
     const [data, setData] = useState<OtioProject>(project);
 
@@ -36,17 +38,36 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
     };
 
     return (
-        <div className="p-2 space-y-4">
+        <div className="p-4 space-y-6 text-text-normal">
             {data.timeline.tracks.map((track, tIdx) => (
-                <div key={tIdx} className="border p-2 rounded">
-                    <div className="font-bold mb-2">{track.name}</div>
-                    <button
-                        className="mb-2 px-2 py-1 text-xs bg-accent text-on-accent rounded"
-                        onClick={() => handleAddClip(tIdx)}
-                    >
-                        {t('ADD_CLIP')}
-                    </button>
-                    <table className="w-full text-xs">
+                <div
+                    key={tIdx}
+                    className="bg-secondary border border-modifier-border rounded p-3 space-y-2"
+                >
+                    <div className="flex items-center justify-between">
+                        <div className="font-semibold text-sm">{track.name}</div>
+                        <button
+                            className="px-2 py-1 text-xs bg-accent text-on-accent rounded"
+                            onClick={() => handleAddClip(tIdx)}
+                        >
+                            {t('ADD_CLIP')}
+                        </button>
+                    </div>
+                    <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
+                        {track.children.map((clip: any, cIdx: number) => (
+                            <div
+                                key={cIdx}
+                                className="absolute top-0 h-full bg-accent text-on-accent text-center text-xs truncate"
+                                style={{
+                                    left: `${clip.source_range.start_time * PIXELS_PER_SECOND}px`,
+                                    width: `${clip.source_range.duration * PIXELS_PER_SECOND}px`
+                                }}
+                            >
+                                {clip.media_reference.target_url.split('/').pop()}
+                            </div>
+                        ))}
+                    </div>
+                    <table className="w-full text-xs mt-2">
                         <thead>
                             <tr>
                                 <th className="text-left">{t('FILE_SELECT')}</th>
