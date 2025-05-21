@@ -151,6 +151,9 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
       if (frame.timecode !== undefined) {
         content += `<time style="color: green;">${frame.timecode ?? ''}</time>\n`;
       }
+      if (frame.timecode !== undefined) {
+        content += `<time>${frame.timecode ?? ''}</time>\n`;
+      }
     });
   });
   return content.trimEnd() + (data.chapters.some(c => c.frames.length > 0) ? '\n' : '');

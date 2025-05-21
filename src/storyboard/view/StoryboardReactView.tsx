@@ -142,6 +142,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
           timecode={row.timecode || ''}
           onSePromptChange={val => onCellChangeForRow('sePrompt', val)}
           onCameraPromptChange={val => onCellChangeForRow('cameraPrompt', val)}
+          onTimecodeChange={val => onCellChangeForRow('timecode', val)}
         />
       ),
     },

@@ -8,6 +8,7 @@ interface PreviewCellProps {
   timecode?: string;
   onSePromptChange: (newVal: string) => void;
   onCameraPromptChange: (newVal: string) => void;
+  onTimecodeChange: (newVal: string) => void;
 }
 
 const PreviewCell: React.FC<PreviewCellProps> = ({
@@ -16,9 +17,11 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
   timecode,
   onSePromptChange,
   onCameraPromptChange,
+  onTimecodeChange,
 }) => {
   const [showSe, setShowSe] = useState(!!sePrompt);
   const [showCamera, setShowCamera] = useState(!!cameraPrompt);
+  const [showTime, setShowTime] = useState(!!timecode);
 
   useEffect(() => {
     setShowSe(!!sePrompt);
@@ -26,6 +29,9 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
   useEffect(() => {
     setShowCamera(!!cameraPrompt);
   }, [cameraPrompt]);
+  useEffect(() => {
+    setShowTime(!!timecode);
+  }, [timecode]);
 
   return (
     <div className="flex flex-col gap-1 items-start">
