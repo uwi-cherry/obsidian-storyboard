@@ -124,15 +124,19 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
         className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto mt-2"
       />
       {showSeInput ? (
-        <textarea
-          value={sePrompt || ''}
-          onChange={handleSePromptChange}
-          placeholder={t('SE_PROMPT_PLACEHOLDER')}
-          className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto mt-2"
-        />
+        <div className="relative mt-2 border border-accent/50 rounded p-1">
+          <textarea
+            value={sePrompt || ''}
+            onChange={handleSePromptChange}
+            placeholder={t('SE_PROMPT_PLACEHOLDER')}
+            className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
+          />
+          <span className="absolute -top-2 -right-2 text-accent" aria-hidden="true">♪</span>
+        </div>
       ) : (
         <button
-          className="text-xs text-accent hover:underline self-start mt-1"
+          type="button"
+          className="text-xs text-accent hover:underline self-start mt-2 p-0 bg-transparent border-none"
           onClick={() => setShowSeInput(true)}
         >
           ({t('ADD_SE')})
