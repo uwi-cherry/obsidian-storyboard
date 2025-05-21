@@ -7,6 +7,7 @@ function buildApiMessages(messages: ChatMessage[]) {
       const parts: Array<{ type: 'text' | 'image_url'; text?: string; image_url?: { url: string } }> = [];
       if (content) parts.push({ type: 'text', text: content });
       for (const att of attachments) {
+        parts.push({ type: 'text', text: `[${att.type}]` });
         parts.push({ type: 'image_url', image_url: { url: att.url } });
       }
       return { role, content: parts, name };

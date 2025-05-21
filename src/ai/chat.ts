@@ -10,6 +10,12 @@ import { aiTools } from './tools';
 // ==============================================
 
 const chatHistory: ChatMessage[] = [];
+// 現在のユーザー添付画像を保持
+let currentAttachments: Attachment[] = [];
+
+export function getCurrentAttachments(): Attachment[] {
+  return currentAttachments;
+}
 
 /**
  * 会話履歴をクリア
@@ -31,6 +37,7 @@ export async function sendChatMessage(
   onToken?: (token: string) => void,
   attachments: Attachment[] = [],
 ): Promise<RunResult> {
+  currentAttachments = attachments;
   if (!plugin) {
     throw new Error('プラグインインスタンスが取得できませんでした');
   }
@@ -42,7 +49,11 @@ export async function sendChatMessage(
 
   const agent = new OpenAiAgent({
     apiKey,
-    instructions: 'あなたは親切なアシスタントです。',
+    instructions:
+      'あなたは親切なアシスタントです。' +
+      '\nユーザーは画像を添付することがあります。' +
+      '\nimage は編集対象、mask はインペイント領域、reference は参考画像を表します。' +
+      '\n必要に応じて edit_image_from_attachments ツールを呼び出して画像を生成してください。',
     tools: aiTools,
     // model, maxTokens, temperature は必要に応じて設定可能
   });
