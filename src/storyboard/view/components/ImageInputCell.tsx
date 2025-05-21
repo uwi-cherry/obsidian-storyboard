@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { App, TFile, normalizePath, Notice } from 'obsidian';
 import MyPlugin from 'main';
-import { BUTTON_ICONS, TABLE_ICONS } from 'src/icons';
+import { BUTTON_ICONS } from 'src/icons';
 import { generatePsdFromPrompt } from 'src/ai/action/generatePsdFromPrompt';
 import { t } from 'src/i18n';
 interface ImageInputCellProps {
   imageUrl?: string;
   imagePrompt?: string;
-  /** 画像ファイルの変更を親へ通知する (undefined はセル結合を示す) */
-  onImageUrlChange: (newUrl: string | null | undefined) => void;
+  /** 画像ファイルの変更を親へ通知する */
+  onImageUrlChange: (newUrl: string | null) => void;
   onImagePromptChange: (newPrompt: string) => void;
   className?: string;
   app: App;
@@ -172,15 +172,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onImageUrlChange('');
   };
 
-  // セル結合/解除
-  const handleToggleMerge = () => {
-    if (imageUrl === undefined) {
-      onImageUrlChange('');
-    } else {
-      onImageUrlChange(undefined);
-    }
-  };
-
   // AI生成（OpenAI Image API で画像生成 → PSD 作成 → URL 更新）
   const handleAiGenerate = async () => {
     if (isGenerating) return; // 連打防止
@@ -241,15 +232,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           }}
           title={t('FILE_SELECT')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
-        />
-        <button
-          className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleToggleMerge();
-          }}
-          title={imageUrl === undefined ? t('UNMERGE_CELL') : t('MERGE_CELL')}
-          dangerouslySetInnerHTML={{ __html: imageUrl === undefined ? TABLE_ICONS.add : TABLE_ICONS.delete }}
         />
       </div>
       

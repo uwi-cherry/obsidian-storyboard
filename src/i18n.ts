@@ -80,8 +80,6 @@ export interface Strings {
   ADD_IMAGE_TOOLTIP: string;
   ADD_MASK_TOOLTIP: string;
   ADD_REFERENCE_TOOLTIP: string;
-  MERGE_CELL: string;
-  UNMERGE_CELL: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -165,8 +163,6 @@ const STRINGS: Record<Language, Strings> = {
     ADD_IMAGE_TOOLTIP: '画像を追加',
     ADD_MASK_TOOLTIP: 'マスクを追加',
     ADD_REFERENCE_TOOLTIP: '参考画像を追加',
-    MERGE_CELL: 'セル結合',
-    UNMERGE_CELL: 'セル解除',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -248,8 +244,6 @@ const STRINGS: Record<Language, Strings> = {
     ADD_IMAGE_TOOLTIP: 'Add image',
     ADD_MASK_TOOLTIP: 'Add mask',
     ADD_REFERENCE_TOOLTIP: 'Add reference',
-    MERGE_CELL: 'Merge cell',
-    UNMERGE_CELL: 'Unmerge cell',
   }
 };
 

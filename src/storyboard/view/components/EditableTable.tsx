@@ -11,7 +11,6 @@ export interface ColumnDef<T> {
     onCellChangeForRow: (columnKey: keyof T, newValue: T[keyof T]) => void,
     rowIndex: number
   ) => React.ReactNode;
-  getRowSpan?: (row: T, rowIndex: number, data: T[]) => number;
 }
 
 export interface EditableTableProps<T> {
@@ -122,13 +121,10 @@ if (colIndex !== null) {
             return (
               <tr key={index} className="hover:bg-modifier-hover" onClick={() => onRowClick?.(row, index)}>
                 {columns.map((col) => {
-                  const span = col.getRowSpan ? col.getRowSpan(row, index, data) : 1;
-                  if (span === 0) return null;
                   return (
                     <td
                       key={`${index}-${String(col.key)}`}
                       className={`border border-modifier-border px-4 py-2 align-top`}
-                      rowSpan={span}
                     >
                       {col.renderCell
                         ? col.renderCell(
