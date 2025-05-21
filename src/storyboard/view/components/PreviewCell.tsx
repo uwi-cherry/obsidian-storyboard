@@ -22,6 +22,8 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
   const [showSe, setShowSe] = useState(!!sePrompt);
   const [showCamera, setShowCamera] = useState(!!cameraPrompt);
   const [showTime, setShowTime] = useState(!!timecode);
+  const [localTime, setLocalTime] = useState(timecode || '');
+  const [isValid, setIsValid] = useState(true);
 
   useEffect(() => {
     setShowSe(!!sePrompt);
@@ -31,7 +33,21 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
   }, [cameraPrompt]);
   useEffect(() => {
     setShowTime(!!timecode);
+    setLocalTime(timecode || '');
+    setIsValid(true);
   }, [timecode]);
+
+  const handleTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setLocalTime(val);
+    const regex = /^\d{2}:\d{2}:\d{2}-\d{2}:\d{2}:\d{2}$/;
+    if (regex.test(val) || val === '') {
+      setIsValid(true);
+      onTimecodeChange(val);
+    } else {
+      setIsValid(false);
+    }
+  };
 
   return (
     <div className="flex flex-col gap-1 items-start">
@@ -66,10 +82,21 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
           {t('ADD_CAMERA_ANGLE')}
         </button>
       )}
-      {timecode && (
-        <span className="text-xs border-2 border-modifier-border p-1 bg-transparent">
-          {timecode}
-        </span>
+      {showTime ? (
+        <input
+          type="text"
+          value={localTime}
+          onChange={handleTimeChange}
+          placeholder={t('TIMECODE_PLACEHOLDER')}
+          className={`w-full border-2 p-1 text-xs bg-transparent ${isValid ? 'border-modifier-border' : 'border-red-500'}`}
+        />
+      ) : (
+        <button
+          className="text-xs text-accent hover:underline"
+          onClick={() => setShowTime(true)}
+        >
+          {t('ADD_TIMECODE')}
+        </button>
       )}
     </div>
   );
