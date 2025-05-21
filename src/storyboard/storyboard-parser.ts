@@ -16,9 +16,8 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         speaker: '',
         imageUrl: undefined,
         imagePrompt: undefined,
-        sePrompt: undefined,
-        cameraPrompt: undefined,
-        timecode: undefined,
+        prompt: undefined,
+        endTime: undefined,
       };
   }
 
@@ -92,57 +91,48 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         const calloutInfoMatch = line.match(/^>\s*\[!INFO\]\s*(.*)$/);
         const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
         if (calloutInfoMatch) {
-          currentFrame.timecode = calloutInfoMatch[1].trim();
-          const cameraLines: string[] = [];
-          const seLines: string[] = [];
+          const timecode = calloutInfoMatch[1].trim();
+          const parts = timecode.split('-');
+          currentFrame.endTime = parts[1] || '';
+          const promptLines: string[] = [];
           let mode: 'camera' | 'se' | null = null;
           while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
             const raw = lines[i + 1].replace(/^>\s*/, '').trim();
             if (/^CAMERA:\s*/i.test(raw)) {
               mode = 'camera';
               const rest = raw.replace(/^CAMERA:\s*/i, '').trim();
-              if (rest) cameraLines.push(rest);
+              if (rest) promptLines.push(rest);
             } else if (/^SE:\s*/i.test(raw)) {
               mode = 'se';
               const rest = raw.replace(/^SE:\s*/i, '').trim();
-              if (rest) seLines.push(rest);
+              if (rest) promptLines.push(rest);
             } else {
-              if (mode === 'se') {
-                seLines.push(raw);
-              } else {
-                // default to camera when mode is null or camera
-                cameraLines.push(raw);
-                if (mode === null) mode = 'camera';
-              }
+              promptLines.push(raw);
             }
             i++;
           }
-          if (cameraLines.length > 0) {
-            currentFrame.cameraPrompt = cameraLines.join('\n');
-          }
-          if (seLines.length > 0) {
-            currentFrame.sePrompt = seLines.join('\n');
+          if (promptLines.length > 0) {
+            currentFrame.prompt = promptLines.join('\n');
           }
         } else if (seMatch) {
-          currentFrame.sePrompt = seMatch[1];
+          currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${seMatch[1]}` : seMatch[1];
         } else if (cameraMatch) {
-          currentFrame.cameraPrompt = cameraMatch[1];
+          currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${cameraMatch[1]}` : cameraMatch[1];
         } else if (timeMatch) {
-          currentFrame.timecode = timeMatch[1];
+          const parts = timeMatch[1].split('-');
+          currentFrame.endTime = parts[1] || parts[0];
         } else if (imageMatch) {
           currentFrame.imagePrompt = imageMatch[1];
           currentFrame.imageUrl = imageMatch[2];
         } else if (line.startsWith('**') && line.endsWith('**') && line.length >= 4) {
           // legacy SE format
-          currentFrame.sePrompt = line.substring(2, line.length - 2);
+          const content = line.substring(2, line.length - 2);
+          currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${content}` : content;
         } else if (line.startsWith('*') && line.endsWith('*') && line.length > 1) {
           // new SE markdown format or legacy image prompt
           const content = line.substring(1, line.length - 1);
           if (!currentFrame.imageUrl && !currentFrame.imagePrompt) {
-            // treat as SE prompt when no image prompt is expected
-            currentFrame.sePrompt = currentFrame.sePrompt
-              ? `${currentFrame.sePrompt}\n${content}`
-              : content;
+            currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${content}` : content;
           } else {
             // legacy image prompt format
             currentFrame.imagePrompt = content;
@@ -184,30 +174,22 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
   }
   data.chapters.forEach(chapter => {
     content += `\n### ${chapter.bgmPrompt ?? ''}\n\n`;
+    let prevEnd = '00:00:00';
     chapter.frames.forEach(frame => {
       content += `#### ${frame.speaker || ''}\n`;
       content += `${frame.dialogues || ''}\n`;
       if (frame.imageUrl !== undefined || frame.imagePrompt !== undefined) {
         content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
       }
-      if (
-        frame.timecode !== undefined ||
-        frame.cameraPrompt !== undefined ||
-        frame.sePrompt !== undefined
-      ) {
-        content += `> [!INFO] ${frame.timecode ?? ''}`.trimEnd() + '\n';
-        if (frame.cameraPrompt !== undefined) {
-          content += '> CAMERA:\n';
-          frame.cameraPrompt.split('\n').forEach(l => {
+      if (frame.endTime !== undefined || frame.prompt !== undefined) {
+        const timecode = `${prevEnd}-${frame.endTime ?? ''}`;
+        content += `> [!INFO] ${timecode}`.trimEnd() + '\n';
+        if (frame.prompt !== undefined) {
+          frame.prompt.split('\n').forEach(l => {
             content += `> ${l}\n`;
           });
         }
-        if (frame.sePrompt !== undefined) {
-          content += '> SE:\n';
-          frame.sePrompt.split('\n').forEach(l => {
-            content += `> ${l}\n`;
-          });
-        }
+        prevEnd = frame.endTime ?? prevEnd;
       }
     });
   });

@@ -67,6 +67,7 @@ export interface Strings {
   AI_GENERATE: string;
   FILE_SELECT: string;
   CLEAR_PATH: string;
+  GENERATE_PREVIEW: string;
   SCALE: string;
   ROTATE: string;
   ADD_CHAPTER: string;
@@ -155,6 +156,7 @@ const STRINGS: Record<Language, Strings> = {
     AI_GENERATE: 'AI生成',
     FILE_SELECT: 'ファイル選択',
     CLEAR_PATH: 'クリア',
+    GENERATE_PREVIEW: 'プレビュー動画をAI生成',
     SCALE: '拡縮',
     ROTATE: '回転',
     ADD_CHAPTER: 'BGMプロンプトを追加',
@@ -241,6 +243,7 @@ const STRINGS: Record<Language, Strings> = {
     AI_GENERATE: 'Generate',
     FILE_SELECT: 'Select file',
     CLEAR_PATH: 'Clear',
+    GENERATE_PREVIEW: 'Generate Preview',
     SCALE: 'Scale',
     ROTATE: 'Rotate',
     ADD_CHAPTER: 'Add BGM prompt',

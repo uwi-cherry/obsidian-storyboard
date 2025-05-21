@@ -3,9 +3,8 @@ export interface StoryboardFrame {
   speaker: string;
   imageUrl?: string;
   imagePrompt?: string;
-  sePrompt?: string;
-  cameraPrompt?: string;
-  timecode?: string;
+  prompt?: string;
+  endTime?: string;
 }
 
 export interface CharacterInfo {

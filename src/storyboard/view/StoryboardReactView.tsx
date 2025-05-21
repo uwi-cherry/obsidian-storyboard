@@ -129,22 +129,27 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
       key: 'preview' as keyof StoryboardFrame,
       header: t('HEADER_PREVIEW'),
       renderCell: (
-        _value: StoryboardFrame['cameraPrompt'],
+        _value: StoryboardFrame['prompt'],
         row: StoryboardFrame,
         onCellChangeForRow: (
           columnKey: keyof StoryboardFrame,
           newValue: StoryboardFrame[keyof StoryboardFrame]
-        ) => void
-      ) => (
-        <PreviewCell
-          sePrompt={row.sePrompt || ''}
-          cameraPrompt={row.cameraPrompt || ''}
-          timecode={row.timecode || ''}
-          onSePromptChange={val => onCellChangeForRow('sePrompt', val)}
-          onCameraPromptChange={val => onCellChangeForRow('cameraPrompt', val)}
-          onTimecodeChange={val => onCellChangeForRow('timecode', val)}
-        />
-      ),
+        ) => void,
+        rowIndex: number,
+        extra?: { frames: StoryboardFrame[] }
+      ) => {
+        const { frames } = extra || { frames: [] };
+        const startTime = rowIndex === 0 ? '00:00:00' : frames[rowIndex - 1]?.endTime || '00:00:00';
+        return (
+          <PreviewCell
+            prompt={row.prompt || ''}
+            startTime={startTime}
+            endTime={row.endTime || ''}
+            onPromptChange={val => onCellChangeForRow('prompt', val)}
+            onEndTimeChange={val => onCellChangeForRow('endTime', val)}
+          />
+        );
+      },
     },
   ];
 
@@ -256,11 +261,17 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
           <EditableTable<StoryboardFrame>
             data={chapter.frames}
             columns={columns.map(col =>
-              col.key === 'dialogues'
+              col.key === 'dialogues' || String(col.key) === 'preview'
                 ? {
                     ...col,
-                      renderCell: (value, row, onCellChangeForRow, rowIndex) =>
-                      col.renderCell?.(value, row, (k, v) => onCellChangeForRow(k, v), rowIndex),
+                    renderCell: (value, row, onCellChangeForRow, rowIndex) =>
+                      col.renderCell?.(
+                        value,
+                        row,
+                        (k, v) => onCellChangeForRow(k, v),
+                        rowIndex,
+                        { frames: chapter.frames }
+                      )
                   }
                 : col
             )}

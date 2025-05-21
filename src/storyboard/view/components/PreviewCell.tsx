@@ -1,86 +1,52 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { t } from 'src/i18n';
-import { NOTE_ICON_SVG } from 'src/icons';
+import { BUTTON_ICONS } from 'src/icons';
 
 interface PreviewCellProps {
-  sePrompt?: string;
-  cameraPrompt?: string;
-  timecode?: string;
-  onSePromptChange: (newVal: string) => void;
-  onCameraPromptChange: (newVal: string) => void;
-  onTimecodeChange: (newVal: string) => void;
+  prompt?: string;
+  startTime: string;
+  endTime?: string;
+  onPromptChange: (newVal: string) => void;
+  onEndTimeChange: (newVal: string) => void;
 }
 
 const PreviewCell: React.FC<PreviewCellProps> = ({
-  sePrompt,
-  cameraPrompt,
-  timecode,
-  onSePromptChange,
-  onCameraPromptChange,
-  onTimecodeChange,
+  prompt,
+  startTime,
+  endTime,
+  onPromptChange,
+  onEndTimeChange,
 }) => {
-  const [showSe, setShowSe] = useState(!!sePrompt);
-  const [showCamera, setShowCamera] = useState(!!cameraPrompt);
-  const [showTime, setShowTime] = useState(!!timecode);
-
-  useEffect(() => {
-    setShowSe(!!sePrompt);
-  }, [sePrompt]);
-  useEffect(() => {
-    setShowCamera(!!cameraPrompt);
-  }, [cameraPrompt]);
-  useEffect(() => {
-    setShowTime(!!timecode);
-  }, [timecode]);
-
   return (
     <div className="flex flex-col gap-1 items-start">
-      {showSe ? (
-        <textarea
-          value={sePrompt || ''}
-          onChange={e => onSePromptChange(e.target.value)}
-          placeholder={t('SE_PROMPT_PLACEHOLDER')}
-          className="w-full border-2 border-modifier-border p-1 text-xs bg-transparent"
+      <textarea
+        value={prompt || ''}
+        onChange={e => onPromptChange(e.target.value)}
+        placeholder="prompt"
+        className="w-full border-2 border-modifier-border p-1 text-xs bg-transparent"
+      />
+      <div className="flex items-center gap-1 text-xs">
+        <input
+          type="text"
+          className="w-20 border border-modifier-border p-1 bg-transparent"
+          value={startTime}
+          readOnly
         />
-      ) : (
-        <button
-          className="text-xs text-accent hover:underline flex items-center gap-1"
-          onClick={() => setShowSe(true)}
-        >
-          <span dangerouslySetInnerHTML={{ __html: NOTE_ICON_SVG }} />
-          {t('ADD_SE')}
-        </button>
-      )}
-      {showCamera ? (
-        <textarea
-          value={cameraPrompt || ''}
-          onChange={e => onCameraPromptChange(e.target.value)}
-          placeholder={t('CAMERA_PROMPT_PLACEHOLDER')}
-          className="w-full border-2 border-modifier-border p-1 text-xs bg-transparent"
+        <span>→</span>
+        <input
+          type="text"
+          className="w-20 border border-modifier-border p-1 bg-transparent"
+          value={endTime || ''}
+          onChange={e => onEndTimeChange(e.target.value)}
+          placeholder="00:00:00"
         />
-      ) : (
-        <button
-          className="text-xs text-accent hover:underline"
-          onClick={() => setShowCamera(true)}
-        >
-          {t('ADD_CAMERA_ANGLE')}
-        </button>
-      )}
-      {showTime ? (
-        <span className="text-xs border-2 border-modifier-border p-1 bg-transparent">
-          {timecode}
-        </span>
-      ) : (
-        <button
-          className="text-xs text-accent hover:underline"
-          onClick={() => {
-            onTimecodeChange('00:00:00-00:00:00');
-            setShowTime(true);
-          }}
-        >
-          {t('ADD_TIMECODE')}
-        </button>
-      )}
+      </div>
+      <button
+        className="p-1 bg-accent text-on-accent rounded cursor-pointer hover:bg-accent-hover flex items-center justify-center text-xs"
+        onClick={() => {}}
+        title={t('GENERATE_PREVIEW')}
+        dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.aiGenerate }}
+      />
     </div>
   );
 };
