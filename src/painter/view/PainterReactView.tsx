@@ -31,6 +31,12 @@ interface PainterReactViewProps {
 const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   /* ──────────────── Refs & States ──────────────── */
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const isDrawingRef = useRef(false);
+  const lastXRef = useRef(0);
+  const lastYRef = useRef(0);
+  const isPanningRef = useRef(false);
+  const panLastXRef = useRef(0);
+  const panLastYRef = useRef(0);
   const { zoom, rotation, setZoom, setRotation } = useCanvasTransform(
     canvasRef.current,
     view
@@ -44,7 +50,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     setTool,
     setLineWidth,
     setColor,
-  } = usePainterPointer(view);
+  } = usePainterPointer();
   const [selectionVisible, setSelectionVisible] = useState(false);
   const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
 
@@ -78,10 +84,103 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     // PainterView へキャンバス DOM を紐付け
     (view as any)._canvas = canvas;
 
-    // ポインタ関連イベント（PainterView 内部実装を使う）
-    const onPointerDown = (e: PointerEvent) => (view as any).handlePointerDown(e);
-    const onPointerMove = (e: PointerEvent) => (view as any).handlePointerMove(e);
-    const onPointerUp = (e: PointerEvent) => (view as any).handlePointerUp(e);
+    const isDrawing = isDrawingRef;
+    const lastX = lastXRef;
+    const lastY = lastYRef;
+    const isPanning = isPanningRef;
+    const panLastX = panLastXRef;
+    const panLastY = panLastYRef;
+
+    const onPointerDown = (e: PointerEvent) => {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const scale = zoom / 100;
+      const x = (e.clientX - rect.left) / scale;
+      const y = (e.clientY - rect.top) / scale;
+
+      if (tool === 'brush' || tool === 'eraser') {
+        isDrawing.current = true;
+        lastX.current = x;
+        lastY.current = y;
+        const ctx = view.layers.history[view.layers.currentIndex].layers[
+          view.layers.currentLayerIndex
+        ].canvas.getContext('2d');
+        if (!ctx) return;
+        ctx.lineWidth = e.pressure !== 0 ? lineWidth * e.pressure : lineWidth;
+        view.layers.saveHistory();
+      } else if (tool === 'selection' || tool === 'lasso') {
+        view.actionMenu.hide();
+        view.selectionController?.onPointerDown(x, y);
+        return;
+      } else if (tool === 'hand') {
+        isPanning.current = true;
+        panLastX.current = e.clientX;
+        panLastY.current = e.clientY;
+        canvas.style.cursor = 'grabbing';
+        return;
+      }
+    };
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const scale = zoom / 100;
+      const x = (e.clientX - rect.left) / scale;
+      const y = (e.clientY - rect.top) / scale;
+
+      if (tool === 'selection' || tool === 'lasso') {
+        view.selectionController?.onPointerMove(x, y);
+        return;
+      }
+
+      if (tool === 'hand' && isPanning.current) {
+        const container = canvas.parentElement as HTMLElement | null;
+        if (container) {
+          container.scrollLeft -= e.clientX - panLastX.current;
+          container.scrollTop -= e.clientY - panLastY.current;
+        }
+        panLastX.current = e.clientX;
+        panLastY.current = e.clientY;
+        return;
+      }
+
+      if (!isDrawing.current) return;
+      const ctx = view.layers.history[view.layers.currentIndex].layers[
+        view.layers.currentLayerIndex
+      ].canvas.getContext('2d');
+      if (!ctx) return;
+      ctx.beginPath();
+      ctx.moveTo(lastX.current, lastY.current);
+      ctx.lineTo(x, y);
+      ctx.strokeStyle = tool === 'eraser' ? 'rgba(0, 0, 0, 1)' : color;
+      ctx.lineWidth = e.pressure !== 0 ? lineWidth * e.pressure : lineWidth;
+      ctx.globalCompositeOperation = tool === 'eraser' ? 'destination-out' : 'source-over';
+      ctx.stroke();
+      ctx.globalCompositeOperation = 'source-over';
+      lastX.current = x;
+      lastY.current = y;
+      view.renderCanvas();
+    };
+
+    const onPointerUp = () => {
+      if (isDrawing.current) {
+        isDrawing.current = false;
+      }
+      if (tool === 'hand' && isPanning.current) {
+        isPanning.current = false;
+        canvas.style.cursor = 'grab';
+      }
+      if (tool === 'selection' || tool === 'lasso') {
+        const valid = view.selectionController?.onPointerUp() ?? false;
+        if (valid) {
+          const cancel = () => view.selectionController?.cancelSelection();
+          view.actionMenu.showSelection(cancel);
+        } else {
+          view.actionMenu.showGlobal();
+        }
+        return;
+      }
+    };
 
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
@@ -94,7 +193,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       (view as any)._selectionController = new SelectionController(view, selectionState);
     }
 
-    const actionMenu = new ActionMenuController(view, selectionState);
+    const actionMenu = new ActionMenuController(view, selectionState, () => color);
     view.actionMenu = actionMenu;
     const resizeHandler = () => actionMenu.showGlobal();
     window.addEventListener('resize', resizeHandler);
