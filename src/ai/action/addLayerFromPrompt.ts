@@ -39,8 +39,9 @@ export async function addLayerFromPrompt(
 
   const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
 
-  const storyboardDir = app.workspace.getActiveFile()?.parent?.path || '';
-  const folder = storyboardDir ? normalizePath(`${storyboardDir}/assets`) : 'assets';
+  // 保存先フォルダ（ストーリーボードと同階層の assets フォルダ）
+  const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
+  const folder = normalizePath(`${activeDir}/assets`);
   const ext = 'png';
   let baseName = fileName ?? `generated-${Date.now()}.${ext}`;
   if (!baseName.endsWith(`.${ext}`)) baseName += `.${ext}`;
