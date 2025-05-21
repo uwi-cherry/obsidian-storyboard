@@ -35,23 +35,9 @@ export class OpenAiAgentRunner {
     const toolLogs: { name: string; args: unknown; result: string }[] = [];
 
     for (let turn = 0; turn < agent.maxTurns; turn++) {
-      const payload: Record<string, unknown> = {
-        model: agent.model,
-        messages: buildApiMessages(messages),
-        max_tokens: agent.maxTokens,
-        temperature: agent.temperature,
-        ...(agent.modelSettings.stopSequences?.length
-          ? { stop: agent.modelSettings.stopSequences }
-          : {}),
-      };
+      const payload = this.buildPayload(agent, messages, false);
       // ===== DEBUG LOG =====
       console.info('[OpenAiAgentRunner] turn', turn, 'payload', payload);
-      if (agent.tools.length) {
-        Object.assign(payload, {
-          functions: agent.buildFunctions(),
-          function_call: 'auto',
-        });
-      }
 
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
@@ -119,6 +105,31 @@ export class OpenAiAgentRunner {
     return await this.run(agent, userMessage, history, attachments);
   }
 
+  /** payload生成共通処理 */
+  private static buildPayload(
+    agent: OpenAiAgent,
+    messages: ChatMessage[],
+    stream: boolean,
+  ): Record<string, unknown> {
+    const payload: Record<string, unknown> = {
+      model: agent.model,
+      ...(stream ? { stream: true } : {}),
+      messages: buildApiMessages(messages),
+      max_tokens: agent.maxTokens,
+      temperature: agent.temperature,
+      ...(agent.modelSettings.stopSequences?.length
+        ? { stop: agent.modelSettings.stopSequences }
+        : {}),
+    };
+    if (agent.tools.length) {
+      Object.assign(payload, {
+        functions: agent.buildFunctions(),
+        function_call: 'auto',
+      });
+    }
+    return payload;
+  }
+
   /** ストリーミング実行。tokenごとに onToken が呼ばれる。*/
   static async runStreamed(
     agent: OpenAiAgent,
@@ -134,22 +145,7 @@ export class OpenAiAgentRunner {
     ];
     const toolLogs: { name: string; args: unknown; result: string }[] = [];
 
-    const payload: Record<string, unknown> = {
-      model: agent.model,
-      stream: true,
-      messages: buildApiMessages(messages),
-      max_tokens: agent.maxTokens,
-      temperature: agent.temperature,
-      ...(agent.modelSettings.stopSequences?.length
-        ? { stop: agent.modelSettings.stopSequences }
-        : {}),
-    };
-    if (agent.tools.length) {
-      Object.assign(payload, {
-        functions: agent.buildFunctions(),
-        function_call: 'auto',
-      });
-    }
+    const payload = this.buildPayload(agent, messages, true);
 
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
@@ -231,20 +227,7 @@ export class OpenAiAgentRunner {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${agent.apiKey}`,
         },
-        body: JSON.stringify({
-          model: agent.model,
-          stream: true,
-          messages: buildApiMessages(messages),
-          max_tokens: agent.maxTokens,
-          temperature: agent.temperature,
-          ...(agent.modelSettings.stopSequences?.length
-            ? { stop: agent.modelSettings.stopSequences }
-            : {}),
-          ...(agent.tools.length ? {
-            functions: agent.buildFunctions(),
-            function_call: 'auto',
-          } : {}),
-        }),
+        body: JSON.stringify(this.buildPayload(agent, messages, true)),
       });
       if (!res.ok || !res.body) {
         throw new Error(`OpenAI API Error: ${res.status}`);
