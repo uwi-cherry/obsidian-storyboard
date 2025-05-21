@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useCanvasTransform } from '../hooks/useCanvasTransform';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
@@ -29,6 +30,10 @@ interface PainterReactViewProps {
 const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   /* ──────────────── Refs & States ──────────────── */
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { zoom, rotation, setZoom, setRotation } = useCanvasTransform(
+    canvasRef.current,
+    view
+  );
   // 現在のツール, ブラシ幅, カラーなどは view の state を参照する
   const [, forceUpdate] = useState(0); // view プロパティ変更時の再描画用（簡易）
   const selectionState = useSelectionState();
@@ -68,7 +73,6 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
 
     // PainterView へキャンバス DOM を紐付け
     (view as any)._canvas = canvas;
-    view.updateTransform();
 
     // ポインタ関連イベント（PainterView 内部実装を使う）
     const onPointerDown = (e: PointerEvent) => (view as any).handlePointerDown(e);
@@ -217,26 +221,24 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
             <div>
               {view.getCanvasSize().width} x {view.getCanvasSize().height}
             </div>
-            <div className="text-text-muted mt-2">{t('ZOOM_LEVEL')}: {view.zoom}%</div>
+            <div className="text-text-muted mt-2">{t('ZOOM_LEVEL')}: {zoom}%</div>
             <input
               type="range"
               min={10}
               max={400}
-              value={view.zoom}
+              value={zoom}
               onChange={e => {
-                view.setZoom(parseInt(e.currentTarget.value, 10));
-                reRender();
+                setZoom(parseInt(e.currentTarget.value, 10));
               }}
             />
-            <div className="text-text-muted mt-2">{t('ROTATION_ANGLE')}: {view.rotation}°</div>
+            <div className="text-text-muted mt-2">{t('ROTATION_ANGLE')}: {rotation}°</div>
             <input
               type="range"
               min={-180}
               max={180}
-              value={view.rotation}
+              value={rotation}
               onChange={e => {
-                view.setRotation(parseInt(e.currentTarget.value, 10));
-                reRender();
+                setRotation(parseInt(e.currentTarget.value, 10));
               }}
             />
           </div>
