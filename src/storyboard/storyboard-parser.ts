@@ -18,6 +18,7 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         imagePrompt: undefined,
         sePrompt: undefined,
         cameraPrompt: undefined,
+        timecode: undefined,
       };
   }
 
@@ -81,11 +82,14 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
       } else if (currentFrame) {
         const seMatch = line.match(/^<se>(.*)<\/se>$/);
         const cameraMatch = line.match(/^<camera>(.*)<\/camera>$/);
+        const timeMatch = line.match(/^<time>(.*)<\/time>$/);
         const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
         if (seMatch) {
           currentFrame.sePrompt = seMatch[1];
         } else if (cameraMatch) {
           currentFrame.cameraPrompt = cameraMatch[1];
+        } else if (timeMatch) {
+          currentFrame.timecode = timeMatch[1];
         } else if (imageMatch) {
           currentFrame.imagePrompt = imageMatch[1];
           currentFrame.imageUrl = imageMatch[2];
@@ -143,6 +147,9 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
       }
       if (frame.cameraPrompt !== undefined) {
         content += `<camera>${frame.cameraPrompt ?? ''}</camera>\n`;
+      }
+      if (frame.timecode !== undefined) {
+        content += `<time>${frame.timecode ?? ''}</time>\n`;
       }
     });
   });
