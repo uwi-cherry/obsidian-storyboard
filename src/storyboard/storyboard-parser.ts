@@ -139,20 +139,22 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
     chapter.frames.forEach(frame => {
       content += `#### ${frame.speaker || ''}\n`;
       content += `${frame.dialogues || ''}\n`;
-      if (frame.imageUrl !== undefined || frame.imagePrompt !== undefined) {
-        content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
+      if (frame.imageUrl?.trim() || frame.imagePrompt?.trim()) {
+        const prompt = frame.imagePrompt?.trim() ?? '';
+        const url = frame.imageUrl?.trim() ?? '';
+        content += `[${prompt}](${url})\n`;
       }
-      if (frame.sePrompt !== undefined) {
-        content += `<se style="color: blue;">${frame.sePrompt ?? ''}</se>\n`;
+      if (frame.sePrompt?.trim()) {
+        content += `<se style="color: blue;">${frame.sePrompt}</se>\n`;
       }
-      if (frame.cameraPrompt !== undefined) {
-        content += `<camera style="color: red;">${frame.cameraPrompt ?? ''}</camera>\n`;
+      if (frame.cameraPrompt?.trim()) {
+        content += `<camera style="color: red;">${frame.cameraPrompt}</camera>\n`;
       }
-      if (frame.timecode !== undefined) {
-        content += `<time style="color: green;">${frame.timecode ?? ''}</time>\n`;
+      if (frame.timecode?.trim()) {
+        content += `<time style="color: green;">${frame.timecode}</time>\n`;
       }
-      if (frame.timecode !== undefined) {
-        content += `<time>${frame.timecode ?? ''}</time>\n`;
+      if (frame.timecode?.trim()) {
+        content += `<time>${frame.timecode}</time>\n`;
       }
     });
   });

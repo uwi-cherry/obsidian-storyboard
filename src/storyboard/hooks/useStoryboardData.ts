@@ -46,13 +46,13 @@ export default function useStoryboardData(
   const addRow = useCallback(
     (chapterIndex: number) => {
       const newFrame: StoryboardFrame = {
-        imageUrl: '',
+        imageUrl: undefined,
         speaker: '',
         dialogues: '',
-        imagePrompt: '',
-        sePrompt: '',
-        cameraPrompt: '',
-        timecode: '',
+        imagePrompt: undefined,
+        sePrompt: undefined,
+        cameraPrompt: undefined,
+        timecode: undefined,
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) =>
@@ -116,13 +116,13 @@ export default function useStoryboardData(
   const insertRowBelow = useCallback(
     (chapterIndex: number, rowIndex: number) => {
       const newFrame: StoryboardFrame = {
-        imageUrl: '',
+        imageUrl: undefined,
         speaker: '',
         dialogues: '',
-        imagePrompt: '',
-        sePrompt: '',
-        cameraPrompt: '',
-        timecode: '',
+        imagePrompt: undefined,
+        sePrompt: undefined,
+        cameraPrompt: undefined,
+        timecode: undefined,
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) => {
@@ -140,13 +140,13 @@ export default function useStoryboardData(
   const addChapter = useCallback(
     (bgmPrompt?: string) => {
       const emptyFrame: StoryboardFrame = {
-        imageUrl: '',
+        imageUrl: undefined,
         speaker: '',
         dialogues: '',
-        imagePrompt: '',
-        sePrompt: '',
-        cameraPrompt: '',
-        timecode: '',
+        imagePrompt: undefined,
+        sePrompt: undefined,
+        cameraPrompt: undefined,
+        timecode: undefined,
       };
       const newChapter = {
         bgmPrompt: bgmPrompt ?? '',
