@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import useTextareaArrowNav from '../../hooks/useTextareaArrowNav';
 import { t } from 'src/i18n';
 
 interface SpeakerDialogueCellProps {
@@ -43,22 +44,10 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
     onDialogueChange(e.target.value);
   };
 
-  const handleDialogueKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const { selectionStart, selectionEnd, value } = textarea;
-    if (e.key === 'ArrowUp') {
-      if (selectionStart === 0) {
-        e.preventDefault();
-        if (focusPrevCellDialogue) focusPrevCellDialogue();
-      }
-    } else if (e.key === 'ArrowDown') {
-      if (selectionEnd === value.length) {
-        e.preventDefault();
-        if (focusNextCellDialogue) focusNextCellDialogue();
-      }
-    }
-  };
+  const handleDialogueKeyDown = useTextareaArrowNav(textareaRef, {
+    onArrowUp: focusPrevCellDialogue,
+    onArrowDown: focusNextCellDialogue,
+  });
 
   const allSpeakers = Array.from(new Set([
     ...(speakersList || []),
