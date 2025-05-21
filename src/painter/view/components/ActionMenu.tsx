@@ -6,12 +6,11 @@ interface ActionMenuContentProps {
   mode: 'global' | 'selection' | 'hidden';
   onFill: () => void;
   onClear: () => void;
-  onScale?: () => void;
-  onRotate?: () => void;
+  onEdit?: () => void;
   onCancel?: () => void;
 }
 
-const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onClear, onScale, onRotate, onCancel }) => {
+const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onClear, onEdit, onCancel }) => {
   if (mode === 'hidden') return null;
   return (
     <div
@@ -23,14 +22,9 @@ const ActionMenuContent: React.FC<ActionMenuContentProps> = ({ mode, onFill, onC
       <button className="px-2 py-1 text-xs" onClick={onClear}>
         Clear
       </button>
-      {onScale && (
-        <button className="px-2 py-1 text-xs" onClick={onScale}>
-          Scale
-        </button>
-      )}
-      {onRotate && (
-        <button className="px-2 py-1 text-xs" onClick={onRotate}>
-          Rotate
+      {onEdit && (
+        <button className="px-2 py-1 text-xs" onClick={onEdit}>
+          Edit
         </button>
       )}
       {mode === 'selection' && onCancel && (
@@ -50,8 +44,7 @@ export class ActionMenu {
   private handlers?: {
     fill: () => void;
     clear: () => void;
-    scale?: () => void;
-    rotate?: () => void;
+    edit?: () => void;
     cancel?: () => void;
   };
 
@@ -71,8 +64,7 @@ export class ActionMenu {
         mode: this.mode,
         onFill: () => this.handlers?.fill(),
         onClear: () => this.handlers?.clear(),
-        onScale: this.handlers?.scale,
-        onRotate: this.handlers?.rotate,
+        onEdit: this.handlers?.edit,
         onCancel: this.mode === 'selection' ? this.handlers?.cancel : undefined,
       })
     );
@@ -80,7 +72,7 @@ export class ActionMenu {
   }
 
   /** グローバルメニュー（非選択時） */
-  showGlobal(handlers: { fill: () => void; clear: () => void; scale?: () => void; rotate?: () => void }) {
+  showGlobal(handlers: { fill: () => void; clear: () => void; edit?: () => void }) {
     this.mode = 'global';
     this.handlers = handlers;
     const rect = this.view._canvas.getBoundingClientRect();
@@ -95,8 +87,7 @@ export class ActionMenu {
     handlers: {
       fill: () => void;
       clear: () => void;
-      scale?: () => void;
-      rotate?: () => void;
+      edit?: () => void;
       cancel: () => void;
     }
   ) {

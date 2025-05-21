@@ -4,6 +4,7 @@ import type { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
 import { ActionMenu } from '../view/components/ActionMenu';
 import type { SelectionState } from '../hooks/useSelectionState';
+import { TransformEditController } from './transform-edit-controller';
 
 export class ActionMenuController {
   private menu: ActionMenu;
@@ -20,8 +21,7 @@ export class ActionMenuController {
     this.menu.showGlobal({
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
-      scale: () => this.scaleSelection(),
-      rotate: () => this.rotateSelection(),
+      edit: () => this.edit(),
     });
   }
 
@@ -31,8 +31,7 @@ export class ActionMenuController {
     this.menu.showSelection(rect, {
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
-      scale: () => this.scaleSelection(),
-      rotate: () => this.rotateSelection(),
+      edit: () => this.edit(),
       cancel: () => {
         onCancel();
         this.showGlobal();
@@ -356,6 +355,27 @@ export class ActionMenuController {
       ctx.drawImage(tmp, -bounding.width / 2, -bounding.height / 2);
       ctx.restore();
     });
+  }
+
+  edit() {
+    if (this.view.editController) {
+      return;
+    }
+    let rect: SelectionRect | undefined;
+    if (this.state.hasSelection()) {
+      rect = this.state.getBoundingRect();
+    } else {
+      const canvas = this.view.canvasElement;
+      if (canvas) {
+        rect = { x: 0, y: 0, width: canvas.width, height: canvas.height };
+      }
+    }
+    if (!rect) return;
+    this.view.editController = new TransformEditController(this.view, rect, () => {
+      this.view.editController = undefined;
+      this.showGlobal();
+    });
+    this.view.editController.start();
   }
 }
 

@@ -82,6 +82,8 @@ export interface Strings {
   ADD_MASK_TOOLTIP: string;
   ADD_REFERENCE_TOOLTIP: string;
   ADD_CLIP: string;
+  EDIT: string;
+  CONFIRM: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -167,6 +169,8 @@ const STRINGS: Record<Language, Strings> = {
     ADD_MASK_TOOLTIP: 'マスクを追加',
     ADD_REFERENCE_TOOLTIP: '参考画像を追加',
     ADD_CLIP: 'クリップを追加',
+    EDIT: '編集',
+    CONFIRM: '確定',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -250,6 +254,8 @@ const STRINGS: Record<Language, Strings> = {
     ADD_MASK_TOOLTIP: 'Add mask',
     ADD_REFERENCE_TOOLTIP: 'Add reference',
     ADD_CLIP: 'Add clip',
+    EDIT: 'Edit',
+    CONFIRM: 'Confirm',
   }
 };
 
