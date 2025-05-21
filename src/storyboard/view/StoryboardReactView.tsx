@@ -135,22 +135,13 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
           columnKey: keyof StoryboardFrame,
           newValue: StoryboardFrame[keyof StoryboardFrame]
         ) => void,
-        rowIndex: number,
-        extra?: { frames: StoryboardFrame[] }
-      ) => {
-        const { frames } = extra || { frames: [] };
-        const startTime = rowIndex === 0 ? '00:00:00' : frames[rowIndex - 1]?.endTime || '00:00:00';
-        return (
-          <PreviewCell
-            prompt={row.prompt || ''}
-            startTime={startTime}
-            endTime={row.endTime || ''}
-            onPromptChange={val => onCellChangeForRow('prompt', val)}
-            onEndTimeChange={val => onCellChangeForRow('endTime', val)}
-            app={app}
-          />
-        );
-      },
+        _rowIndex: number
+      ) => (
+        <PreviewCell
+          prompt={row.prompt || ''}
+          onPromptChange={val => onCellChangeForRow('prompt', val)}
+        />
+      ),
     },
   ];
 
