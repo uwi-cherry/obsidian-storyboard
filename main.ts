@@ -1,6 +1,7 @@
 import { Plugin, getLanguage } from 'obsidian';
 import { initializeStoryboardIntegration } from './src/storyboard/storyboard-plugin';
 import { loadPlugin as initializePsdPainterIntegration } from './src/painter/painter-plugin';
+import { loadTimelinePlugin } from './src/timeline/timeline-plugin';
 import { initializeChatIntegration } from './src/ai/chatIntegration';
 import { loadSettings, saveSettings, PluginSettings, DEFAULT_SETTINGS } from './src/settings/settings';
 import { setLanguage } from './src/i18n';
@@ -17,6 +18,7 @@ export default class MyPlugin extends Plugin {
 
                 initializeStoryboardIntegration(this);
                 initializePsdPainterIntegration(this);
+                loadTimelinePlugin(this);
                 // AI設定タブとグローバル plugin インスタンスの登録
                 initializeChatIntegration(this);
         }
