@@ -2,11 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { OtioProject } from '../timeline-types';
 import { createClip, createTrack } from '../timeline-files';
 import { t } from '../../i18n';
-
-interface TimelineReactViewProps {
-    project: OtioProject;
-    onProjectChange: (project: OtioProject) => void;
-}
+import type { TimelineReactViewProps } from './timeline-react-view-interface';
 
 const PIXELS_PER_SECOND = 20;
 

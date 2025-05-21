@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { t } from 'src/i18n';
-import { App, TFile } from 'obsidian';
-import { StoryboardData, StoryboardFrame } from '../storyboard-types';
+import { StoryboardFrame } from '../storyboard-types';
+import type { StoryboardViewProps } from './storyboard-view-interface';
 import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
 import { TABLE_ICONS, FOLD_ICON_SVG } from 'src/icons';
@@ -10,21 +10,7 @@ import SpeakerDialogueCell from './components/SpeakerDialogueCell';
 import PreviewCell from './components/PreviewCell';
 import useStoryboardData from '../hooks/useStoryboardData';
 
-interface StoryboardReactViewProps {
-  initialData: StoryboardData;
-  onDataChange: (data: StoryboardData) => void;
-  app: App;
-  generateThumbnail: (app: App, file: TFile) => Promise<string | null>;
-  createPsd: (
-    app: App,
-    imageFile?: TFile,
-    layerName?: string,
-    isOpen?: boolean,
-    targetDir?: string
-  ) => Promise<TFile>;
-}
-
-const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
+const StoryboardReactView: React.FC<StoryboardViewProps> = ({
   initialData,
   onDataChange,
   app,

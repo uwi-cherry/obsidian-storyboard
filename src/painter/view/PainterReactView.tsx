@@ -3,21 +3,12 @@ import { useCanvasTransform } from '../hooks/useCanvasTransform';
 import { usePainterPointer } from '../hooks/usePainterPointer';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
-import type { PainterView } from './painter-obsidian-view';
+import type { PainterReactViewProps } from './painter-react-view-interface';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { useSelectionState } from '../hooks/useSelectionState';
 import { useLayers } from '../hooks/useLayers';
 import { TOOL_ICONS } from 'src/icons';
-
-interface PainterReactViewProps {
-  /**
-   * Obsidian の FileView を継承した PainterView。
-   * Obsidian API 依存の箇所は PainterView に残し、
-   * 本コンポーネントは純粋な UI 操作のみを担当する。
-   */
-  view: PainterView;
-}
 
 /**
  * PainterReactView

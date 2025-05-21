@@ -6,24 +6,7 @@ import { PainterView } from '../painter/view/painter-obsidian-view';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
-
-interface RightSidebarReactViewProps {
-    view: RightSidebarView;
-    layers: Layer[];
-    currentLayerIndex: number;
-    currentRowIndex: number | null;
-    currentImageUrl: string | null;
-    currentImagePrompt: string | null;
-    onLayerChange: (layers: Layer[], currentIndex: number) => void;
-    onImageChange: (url: string | null, prompt: string | null) => void;
-    createPsd: (
-        app: App,
-        imageFile?: TFile,
-        layerName?: string,
-        isOpen?: boolean,
-        targetDir?: string
-    ) => Promise<TFile>;
-}
+import type { RightSidebarReactViewProps } from './right-sidebar-react-view-interface';
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     view,
