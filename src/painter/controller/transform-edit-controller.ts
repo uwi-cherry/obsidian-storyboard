@@ -1,5 +1,5 @@
 import { SelectionRect } from '../painter-types';
-import type { PainterView } from '../view/painter-obsidian-view';
+import type { PainterViewInterface } from './painter-view-interface';
 import { t } from '../../i18n';
 
 export class TransformEditController {
@@ -15,7 +15,7 @@ export class TransformEditController {
   private rotation = 0; // radians
 
   constructor(
-    private view: PainterView,
+    private view: PainterViewInterface,
     private rect: SelectionRect,
     private onFinish: () => void
   ) {}
@@ -72,7 +72,9 @@ export class TransformEditController {
     this.overlay = document.createElement('div');
     this.overlay.style.position = 'absolute';
     this.overlay.style.zIndex = '1001';
-    const canvasRect = this.view._canvas.getBoundingClientRect();
+    const canvasEl = this.view.canvasElement;
+    if (!canvasEl) return;
+    const canvasRect = canvasEl.getBoundingClientRect();
     const scale = this.view.zoom / 100;
     this.overlay.style.left = `${canvasRect.left + rect.x * scale}px`;
     this.overlay.style.top = `${canvasRect.top + rect.y * scale}px`;
