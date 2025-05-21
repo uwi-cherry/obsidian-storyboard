@@ -5,18 +5,23 @@ import { NOTE_ICON_SVG } from 'src/icons';
 interface PreviewCellProps {
   sePrompt?: string;
   cameraPrompt?: string;
+  timecode?: string;
   onSePromptChange: (newVal: string) => void;
   onCameraPromptChange: (newVal: string) => void;
+  onTimecodeChange: (newVal: string) => void;
 }
 
 const PreviewCell: React.FC<PreviewCellProps> = ({
   sePrompt,
   cameraPrompt,
+  timecode,
   onSePromptChange,
   onCameraPromptChange,
+  onTimecodeChange,
 }) => {
   const [showSe, setShowSe] = useState(!!sePrompt);
   const [showCamera, setShowCamera] = useState(!!cameraPrompt);
+  const [showTime, setShowTime] = useState(!!timecode);
 
   useEffect(() => {
     setShowSe(!!sePrompt);
@@ -24,6 +29,9 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
   useEffect(() => {
     setShowCamera(!!cameraPrompt);
   }, [cameraPrompt]);
+  useEffect(() => {
+    setShowTime(!!timecode);
+  }, [timecode]);
 
   return (
     <div className="flex flex-col gap-1 items-start">
@@ -56,6 +64,22 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
           onClick={() => setShowCamera(true)}
         >
           {t('ADD_CAMERA_ANGLE')}
+        </button>
+      )}
+      {showTime ? (
+        <input
+          type="text"
+          value={timecode || ''}
+          onChange={e => onTimecodeChange(e.target.value)}
+          placeholder={t('TIMECODE_PLACEHOLDER')}
+          className="w-full border-2 border-modifier-border p-1 text-xs bg-transparent"
+        />
+      ) : (
+        <button
+          className="text-xs text-accent hover:underline"
+          onClick={() => setShowTime(true)}
+        >
+          {t('ADD_TIMECODE')}
         </button>
       )}
     </div>
