@@ -71,21 +71,6 @@ export class PainterView extends FileView {
                 return this._canvas;
         }
 
-        public updateTransform() {
-                if (this._canvas) {
-                        this._canvas.style.transform = `scale(${this.zoom / 100}) rotate(${this.rotation}deg)`;
-                }
-        }
-
-        public setZoom(zoom: number) {
-                this.zoom = zoom;
-                this.updateTransform();
-        }
-
-        public setRotation(angle: number) {
-                this.rotation = angle;
-                this.updateTransform();
-        }
 
         public getCanvasSize(): { width: number; height: number } {
                 return { width: this._canvas?.width ?? 0, height: this._canvas?.height ?? 0 };
