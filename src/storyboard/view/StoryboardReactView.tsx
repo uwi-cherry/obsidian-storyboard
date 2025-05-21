@@ -10,6 +10,24 @@ import SpeakerDialogueCell from './components/SpeakerDialogueCell';
 import PreviewCell from './components/PreviewCell';
 import useStoryboardData from '../hooks/useStoryboardData';
 
+const calcImageRowSpan = (rows: StoryboardFrame[], rowIndex: number): number => {
+  const row = rows[rowIndex];
+  if (!row) return 1;
+  if (row.imageUrl === undefined) {
+    if (rowIndex > 0 && rows[rowIndex - 1].imageUrl === undefined) return 0;
+    let span = 0;
+    for (let i = rowIndex; i < rows.length && rows[i].imageUrl === undefined; i++) {
+      span++;
+    }
+    return span;
+  }
+  let span = 1;
+  for (let i = rowIndex + 1; i < rows.length && rows[i].imageUrl === undefined; i++) {
+    span++;
+  }
+  return span;
+};
+
 interface StoryboardReactViewProps {
   initialData: StoryboardData;
   onDataChange: (data: StoryboardData) => void;
@@ -72,11 +90,12 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     {
       key: 'imageUrl',
       header: t('HEADER_IMAGE'),
+      getRowSpan: (row, rowIndex, data) => calcImageRowSpan(data as StoryboardFrame[], rowIndex),
       renderCell: (_value: StoryboardFrame['imageUrl'], row: StoryboardFrame, onCellChangeForRow: (columnKey: keyof StoryboardFrame, newValue: StoryboardFrame[keyof StoryboardFrame]) => void, rowIndex: number) => (
         <ImageInputCell
           imageUrl={row.imageUrl}
           imagePrompt={row.imagePrompt}
-          onImageUrlChange={(newUrl: string | null) => onCellChangeForRow('imageUrl', newUrl || '')}
+          onImageUrlChange={(newUrl: string | undefined | null) => onCellChangeForRow('imageUrl', newUrl === null ? '' : newUrl)}
           onImagePromptChange={(newImagePrompt: string) => onCellChangeForRow('imagePrompt', newImagePrompt)}
           app={app}
           generateThumbnail={generateThumbnail}
