@@ -156,6 +156,9 @@ const STRINGS: Record<Language, Strings> = {
     ADD_IMAGE: '編集したい画像を追加',
     ADD_MASK: '編集画像のマスクを追加',
     ADD_CHARACTER_DESIGN: '参考にしたい画像を追加',
+    ADD_IMAGE_TOOLTIP: '画像を追加',
+    ADD_MASK_TOOLTIP: 'マスクを追加',
+    ADD_REFERENCE_TOOLTIP: '参考画像を追加',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -232,6 +235,9 @@ const STRINGS: Record<Language, Strings> = {
     ADD_IMAGE: 'Add image to edit',
     ADD_MASK: 'Add mask for the image',
     ADD_CHARACTER_DESIGN: 'Add reference image',
+    ADD_IMAGE_TOOLTIP: 'Add image',
+    ADD_MASK_TOOLTIP: 'Add mask',
+    ADD_REFERENCE_TOOLTIP: 'Add reference',
   }
 };
 
