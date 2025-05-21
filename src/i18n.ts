@@ -46,7 +46,10 @@ export interface Strings {
   HEADER_PREVIEW: string;
   ADD_SE: string;
   ADD_CAMERA_ANGLE: string;
+  ADD_TIMECODE: string;
+  SHOW_PREVIEW: string;
   CAMERA_PROMPT_PLACEHOLDER: string;
+  TIMECODE_PLACEHOLDER: string;
   LAYERS: string;
   NEW_LAYER: string;
   IMAGE_LAYER: string;
@@ -127,7 +130,10 @@ const STRINGS: Record<Language, Strings> = {
     HEADER_PREVIEW: 'プレビュー',
     ADD_SE: '効果音を追加',
     ADD_CAMERA_ANGLE: 'カメラアングルを追加',
+    ADD_TIMECODE: '再生時間を追加',
+    SHOW_PREVIEW: 'プレビューを表示',
     CAMERA_PROMPT_PLACEHOLDER: 'カメラアングル(任意)',
+    TIMECODE_PLACEHOLDER: 'hh:mm:ss-hh:mm:ss',
     LAYERS: 'レイヤー',
     NEW_LAYER: '新規レイヤー',
     IMAGE_LAYER: '画像レイヤー',
@@ -206,7 +212,10 @@ const STRINGS: Record<Language, Strings> = {
     HEADER_PREVIEW: 'Preview',
     ADD_SE: 'Add SE',
     ADD_CAMERA_ANGLE: 'Add Camera Angle',
+    ADD_TIMECODE: 'Add Timecode',
+    SHOW_PREVIEW: 'Show preview',
     CAMERA_PROMPT_PLACEHOLDER: 'Camera angle (optional)',
+    TIMECODE_PLACEHOLDER: 'hh:mm:ss-hh:mm:ss',
     LAYERS: 'Layers',
     NEW_LAYER: 'New Layer',
     IMAGE_LAYER: 'Image Layer',

@@ -18,6 +18,7 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         imagePrompt: undefined,
         sePrompt: undefined,
         cameraPrompt: undefined,
+        timecode: undefined,
       };
   }
 
@@ -80,12 +81,21 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         currentFrame.speaker = line.replace(/^####\s*/, '');
       } else if (currentFrame) {
         const seMatch = line.match(/^<se>(.*)<\/se>$/);
+        const seSpanMatch = line.match(/^<span[^>]*style=['\"]?[^'\"]*color:\s*#5cc7f5[^'\"]*['\"]?[^>]*>(.*)<\/span>$/);
         const cameraMatch = line.match(/^<camera>(.*)<\/camera>$/);
+        const cameraSpanMatch = line.match(/^<span[^>]*style=['\"]?[^'\"]*color:\s*#f58a5c[^'\"]*['\"]?[^>]*>(.*)<\/span>$/);
+        const timeMatch = line.match(/^<time>(.*)<\/time>$/);
+        const timeSpanMatch = line.match(/^<span[^>]*style=['\"]?[^'\"]*color:\s*#c7f55c[^'\"]*['\"]?[^>]*>(.*)<\/span>$/);
         const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
-        if (seMatch) {
-          currentFrame.sePrompt = seMatch[1];
-        } else if (cameraMatch) {
-          currentFrame.cameraPrompt = cameraMatch[1];
+        if (seMatch || seSpanMatch) {
+          const match = seMatch || seSpanMatch;
+          if (match) currentFrame.sePrompt = match[1];
+        } else if (cameraMatch || cameraSpanMatch) {
+          const match = cameraMatch || cameraSpanMatch;
+          if (match) currentFrame.cameraPrompt = match[1];
+        } else if (timeMatch || timeSpanMatch) {
+          const match = timeMatch || timeSpanMatch;
+          if (match) currentFrame.timecode = match[1];
         } else if (imageMatch) {
           currentFrame.imagePrompt = imageMatch[1];
           currentFrame.imageUrl = imageMatch[2];
@@ -139,10 +149,13 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
         content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
       }
       if (frame.sePrompt !== undefined) {
-        content += `<se>${frame.sePrompt ?? ''}</se>\n`;
+        content += `<span style="color:#5cc7f5">${frame.sePrompt ?? ''}</span>\n`;
       }
       if (frame.cameraPrompt !== undefined) {
-        content += `<camera>${frame.cameraPrompt ?? ''}</camera>\n`;
+        content += `<span style="color:#f58a5c">${frame.cameraPrompt ?? ''}</span>\n`;
+      }
+      if (frame.timecode !== undefined) {
+        content += `<span style="color:#c7f55c">${frame.timecode ?? ''}</span>\n`;
       }
     });
   });
