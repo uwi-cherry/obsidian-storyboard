@@ -1,4 +1,4 @@
-import { ItemView, WorkspaceLeaf, TFile } from 'obsidian';
+import { FileView, WorkspaceLeaf, TFile } from 'obsidian';
 import { createRoot, Root } from 'react-dom/client';
 import React from 'react';
 import { OTIO_VIEW_TYPE, OTIO_ICON } from '../../constants';
@@ -6,7 +6,7 @@ import { loadOtioFile, saveOtioFile } from '../timeline-files';
 import { OtioProject } from '../timeline-types';
 import TimelineReactView from './TimelineReactView';
 
-export class TimelineView extends ItemView {
+export class TimelineView extends FileView {
     private reactRoot?: Root;
     private project: OtioProject | null = null;
 
@@ -59,6 +59,15 @@ export class TimelineView extends ItemView {
         if (this.file) {
             await this.openFile(this.file);
         }
+    }
+
+    async onLoadFile(file: TFile): Promise<void> {
+        await this.openFile(file);
+    }
+
+    async onUnloadFile(file: TFile): Promise<void> {
+        this.reactRoot?.unmount();
+        this.reactRoot = undefined;
     }
 
     async onClose() {
