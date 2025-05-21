@@ -190,6 +190,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
                   type="button"
                   className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
                   onClick={() => openFileDialog('image')}
+                  title={t('ADD_IMAGE_TOOLTIP')}
                 >
                   <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2" />
                   {t('ADD_IMAGE')}
@@ -198,6 +199,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
                   type="button"
                   className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
                   onClick={() => openFileDialog('mask')}
+                  title={t('ADD_MASK_TOOLTIP')}
                 >
                   <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-2" />
                   {t('ADD_MASK')}
@@ -206,6 +208,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
                   type="button"
                   className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
                   onClick={() => openFileDialog('reference')}
+                  title={t('ADD_REFERENCE_TOOLTIP')}
                 >
                   <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2" />
                   {t('ADD_CHARACTER_DESIGN')}
