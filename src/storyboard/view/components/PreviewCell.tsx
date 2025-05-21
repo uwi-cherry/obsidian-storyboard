@@ -66,21 +66,10 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
           {t('ADD_CAMERA_ANGLE')}
         </button>
       )}
-      {showTime ? (
-        <input
-          type="text"
-          value={timecode || ''}
-          onChange={e => onTimecodeChange(e.target.value)}
-          placeholder={t('TIMECODE_PLACEHOLDER')}
-          className="w-full border-2 border-modifier-border p-1 text-xs bg-transparent"
-        />
-      ) : (
-        <button
-          className="text-xs text-accent hover:underline"
-          onClick={() => setShowTime(true)}
-        >
-          {t('ADD_TIMECODE')}
-        </button>
+      {timecode && (
+        <span className="text-xs border-2 border-modifier-border p-1 bg-transparent">
+          {timecode}
+        </span>
       )}
     </div>
   );
