@@ -94,12 +94,34 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         if (calloutInfoMatch) {
           currentFrame.timecode = calloutInfoMatch[1].trim();
           const cameraLines: string[] = [];
+          const seLines: string[] = [];
+          let mode: 'camera' | 'se' | null = null;
           while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
-            cameraLines.push(lines[i + 1].replace(/^>\s*/, '').trim());
+            const raw = lines[i + 1].replace(/^>\s*/, '').trim();
+            if (/^CAMERA:\s*/i.test(raw)) {
+              mode = 'camera';
+              const rest = raw.replace(/^CAMERA:\s*/i, '').trim();
+              if (rest) cameraLines.push(rest);
+            } else if (/^SE:\s*/i.test(raw)) {
+              mode = 'se';
+              const rest = raw.replace(/^SE:\s*/i, '').trim();
+              if (rest) seLines.push(rest);
+            } else {
+              if (mode === 'se') {
+                seLines.push(raw);
+              } else {
+                // default to camera when mode is null or camera
+                cameraLines.push(raw);
+                if (mode === null) mode = 'camera';
+              }
+            }
             i++;
           }
           if (cameraLines.length > 0) {
             currentFrame.cameraPrompt = cameraLines.join('\n');
+          }
+          if (seLines.length > 0) {
+            currentFrame.sePrompt = seLines.join('\n');
           }
         } else if (seMatch) {
           currentFrame.sePrompt = seMatch[1];
@@ -168,16 +190,21 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
       if (frame.imageUrl !== undefined || frame.imagePrompt !== undefined) {
         content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
       }
-      if (frame.sePrompt !== undefined) {
-        const seLines = frame.sePrompt.split('\n');
-        seLines.forEach(l => {
-          content += `*${l}*\n`;
-        });
-      }
-      if (frame.cameraPrompt !== undefined || frame.timecode !== undefined) {
+      if (
+        frame.timecode !== undefined ||
+        frame.cameraPrompt !== undefined ||
+        frame.sePrompt !== undefined
+      ) {
         content += `> [!INFO] ${frame.timecode ?? ''}`.trimEnd() + '\n';
-        if (frame.cameraPrompt) {
+        if (frame.cameraPrompt !== undefined) {
+          content += '> CAMERA:\n';
           frame.cameraPrompt.split('\n').forEach(l => {
+            content += `> ${l}\n`;
+          });
+        }
+        if (frame.sePrompt !== undefined) {
+          content += '> SE:\n';
+          frame.sePrompt.split('\n').forEach(l => {
             content += `> ${l}\n`;
           });
         }
