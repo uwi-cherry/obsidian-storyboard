@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useCanvasTransform } from '../hooks/useCanvasTransform';
+import { usePainterPointer } from '../hooks/usePainterPointer';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
@@ -34,18 +35,22 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     canvasRef.current,
     view
   );
-  // 現在のツール, ブラシ幅, カラーなどは view の state を参照する
-  const [, forceUpdate] = useState(0); // view プロパティ変更時の再描画用（簡易）
   const selectionState = useSelectionState();
   const layersState = useLayers();
+  const {
+    tool,
+    lineWidth,
+    color,
+    setTool,
+    setLineWidth,
+    setColor,
+  } = usePainterPointer(view);
   const [selectionVisible, setSelectionVisible] = useState(false);
   const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
 
   /* ──────────────── Helpers ──────────────── */
-  const reRender = () => forceUpdate(v => v + 1);
-
   const updateTool = (toolId: string) => {
-    view.currentTool = toolId as any; // 型安全は view 側で管理
+    setTool(toolId);
     setSelectionVisible(toolId === 'selection');
     // カーソルスタイル
     if (canvasRef.current) {
@@ -57,7 +62,6 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
         canvasRef.current.style.cursor = 'default';
       }
     }
-    reRender();
   };
 
   /* ──────────────── Effects ──────────────── */
@@ -144,17 +148,17 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     <div className="flex flex-1 overflow-hidden">
       {/* ── Tool Palette ── */}
       <div className="w-[60px] bg-secondary border-r border-modifier-border flex flex-col gap-1 p-1">
-        {TOOLS.map(tool => {
-          const isActive = view.currentTool === tool.id;
+        {TOOLS.map(toolBtn => {
+          const isActive = tool === toolBtn.id;
           return (
             <button
-              key={tool.id}
+              key={toolBtn.id}
               className={`w-10 h-10 border-none bg-primary text-text-normal rounded cursor-pointer flex items-center justify-center hover:bg-modifier-hover ${
                 isActive ? 'bg-accent text-on-accent' : ''
               }`}
-              title={tool.title}
-              onClick={() => updateTool(tool.id)}
-              dangerouslySetInnerHTML={{ __html: tool.icon }}
+              title={toolBtn.title}
+              onClick={() => updateTool(toolBtn.id)}
+              dangerouslySetInnerHTML={{ __html: toolBtn.icon }}
             />
           );
         })}
@@ -162,7 +166,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
 
       {/* ── Brush & Selection Settings ── */}
       <div className="p-1 bg-secondary border-r border-modifier-border w-[200px] flex flex-col gap-2">
-      {['brush', 'eraser'].includes(view.currentTool) && (
+      {['brush', 'eraser'].includes(tool) && (
         <>
           {/* Brush Size */}
           <div className="flex flex-col gap-1">
@@ -171,10 +175,9 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
               type="range"
               min={1}
               max={50}
-              value={view.currentLineWidth}
+              value={lineWidth}
               onChange={e => {
-                view.currentLineWidth = parseInt(e.currentTarget.value, 10);
-                reRender();
+                setLineWidth(parseInt(e.currentTarget.value, 10));
               }}
             />
           </div>
@@ -184,10 +187,9 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
             <input
               type="color"
               className="w-8 h-8 p-0 border-2 border-modifier-border rounded cursor-pointer"
-              value={view.currentColor}
+              value={color}
               onChange={e => {
-                view.currentColor = e.currentTarget.value;
-                reRender();
+                setColor(e.currentTarget.value);
               }}
             />
           </div>
@@ -215,7 +217,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
           </div>
         )}
 
-        {view.currentTool === 'hand' && (
+        {tool === 'hand' && (
           <div className="flex flex-col gap-1 mt-4 text-xs">
             <div className="text-text-muted">{t('CANVAS_SIZE')}:</div>
             <div>
