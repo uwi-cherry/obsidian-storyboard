@@ -3,6 +3,7 @@ import { App } from 'obsidian';
 import { addLayerFromPrompt } from './action/addLayerFromPrompt';
 import { generatePsdFromPrompt } from './action/generatePsdFromPrompt';
 import { editImageToAssets } from './action/imageEdit';
+import { generateVideoToAssets } from './action/videoGeneration';
 import { getCurrentAttachments } from './chat';
 import { loadSettings } from '../settings/settings';
 
@@ -98,6 +99,26 @@ export const aiTools: Tool[] = [
         reference: ref,
       });
       return `画像を生成しました: ${file.path}`;
+    },
+  },
+  {
+    name: 'generate_video_from_prompt',
+    description: 'プロンプトから動画を生成し、アセットフォルダに保存します。',
+    parameters: {
+      type: 'object',
+      properties: {
+        prompt: { type: 'string', description: '動画生成用のテキストプロンプト' },
+        file_name: { type: 'string', description: '保存する動画ファイル名（省略可）' },
+      },
+      required: ['prompt'],
+    },
+    async execute(args: { prompt: string; file_name?: string }) {
+      const plugin = getPlugin();
+      if (!plugin) throw new Error('Plugin インスタンスが見つかりませんでした');
+      const { apiKey } = await loadSettings(plugin as any);
+      if (!apiKey) throw new Error('OpenAI APIキーが設定されていません');
+      const file = await generateVideoToAssets(args.prompt, apiKey, plugin.app, args.file_name);
+      return `動画を生成しました: ${file.path}`;
     },
   },
 ];
