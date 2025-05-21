@@ -66,6 +66,9 @@ export interface Strings {
   CANVAS_SIZE: string;
   ZOOM_LEVEL: string;
   ROTATION_ANGLE: string;
+  ADD_IMAGE: string;
+  ADD_MASK: string;
+  ADD_CHARACTER_DESIGN: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -135,6 +138,9 @@ const STRINGS: Record<Language, Strings> = {
     CANVAS_SIZE: 'キャンバスサイズ',
     ZOOM_LEVEL: '拡大率',
     ROTATION_ANGLE: '回転角',
+    ADD_IMAGE: '画像追加',
+    ADD_MASK: 'マスクを追加',
+    ADD_CHARACTER_DESIGN: 'キャラデザを追加',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -202,6 +208,9 @@ const STRINGS: Record<Language, Strings> = {
     CANVAS_SIZE: 'Canvas Size',
     ZOOM_LEVEL: 'Zoom',
     ROTATION_ANGLE: 'Rotation',
+    ADD_IMAGE: 'Add Image',
+    ADD_MASK: 'Add Mask',
+    ADD_CHARACTER_DESIGN: 'Add Character Design',
   }
 };
 

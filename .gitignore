@@ -24,4 +24,5 @@ data.json
 # Build output
 dist/
 
-styles.css
+# 直下の styles.css を無視する
+/styles.css
