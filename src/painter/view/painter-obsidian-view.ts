@@ -12,6 +12,7 @@ import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
+import { TransformEditController } from '../controller/transform-edit-controller';
 import PainterReactView from './PainterReactView';
 export class PainterView extends FileView {
         isDrawing = false;
@@ -43,8 +44,11 @@ export class PainterView extends FileView {
 
         private _selectionController?: SelectionController;
 
-	// フローティングメニュー（クリア・塗りつぶし）用
+        // フローティングメニュー（クリア・塗りつぶし）用
         public actionMenu!: ActionMenuController;
+
+        // 選択範囲編集コントローラー
+        public editController?: TransformEditController;
 
 	// ファイル入出力デリゲート
 	private _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
