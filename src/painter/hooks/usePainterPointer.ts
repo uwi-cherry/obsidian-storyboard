@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { DEFAULT_COLOR } from '../../constants';
+import { useEffect, useState } from 'react';
+import type { PainterView } from '../view/painter-obsidian-view';
 
 export interface PainterPointerState {
   tool: string;
@@ -10,14 +10,22 @@ export interface PainterPointerState {
   setColor: (color: string) => void;
 }
 
-export function usePainterPointer(
-  initialTool = 'brush',
-  initialLineWidth = 5,
-  initialColor = DEFAULT_COLOR
-): PainterPointerState {
-  const [tool, setTool] = useState(initialTool);
-  const [lineWidth, setLineWidth] = useState(initialLineWidth);
-  const [color, setColor] = useState(initialColor);
+export function usePainterPointer(view: PainterView): PainterPointerState {
+  const [tool, setTool] = useState(view.currentTool);
+  const [lineWidth, setLineWidth] = useState(view.currentLineWidth);
+  const [color, setColor] = useState(view.currentColor);
+
+  useEffect(() => {
+    view.currentTool = tool;
+  }, [tool, view]);
+
+  useEffect(() => {
+    view.currentLineWidth = lineWidth;
+  }, [lineWidth, view]);
+
+  useEffect(() => {
+    view.currentColor = color;
+  }, [color, view]);
 
   return { tool, lineWidth, color, setTool, setLineWidth, setColor };
 }

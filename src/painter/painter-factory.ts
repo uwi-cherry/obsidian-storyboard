@@ -70,7 +70,9 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.visible = !layer.visible;
-                view.layers.saveHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
+                }
                 view.renderCanvas();
             }
         },
@@ -78,7 +80,9 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.name = newName;
-                view.layers.saveHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
+                }
                 view.renderCanvas();
             }
         },
@@ -90,7 +94,9 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.opacity = opacity;
-                view.layers.saveHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
+                }
                 view.renderCanvas();
             }
         },
@@ -98,7 +104,9 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.blendMode = mode;
-                view.layers.saveHistory();
+                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                    (view as PainterView).saveLayerStateToHistory();
+                }
                 view.renderCanvas();
             }
         }
@@ -138,16 +146,14 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
 export function undoActive(app: App) {
     const view = app.workspace.getActiveViewOfType(PainterView);
     if (view) {
-        view.layers.undo();
-        view.renderCanvas();
+        view.undo();
     }
 }
 
 export function redoActive(app: App) {
     const view = app.workspace.getActiveViewOfType(PainterView);
     if (view) {
-        view.layers.redo();
-        view.renderCanvas();
+        view.redo();
     }
 }
 
