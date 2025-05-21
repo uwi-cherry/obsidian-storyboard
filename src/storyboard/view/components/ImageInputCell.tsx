@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import useTextareaArrowNav from '../../hooks/useTextareaArrowNav';
 import { App, TFile, normalizePath, Notice } from 'obsidian';
 import MyPlugin from 'main';
 import { BUTTON_ICONS } from 'src/icons';
@@ -94,22 +95,10 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onImagePromptChange(e.target.value);
   };
 
-  const handlePromptKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const { selectionStart, selectionEnd, value } = textarea;
-    if (e.key === 'ArrowUp') {
-      if (selectionStart === 0) {
-        e.preventDefault();
-        if (focusPrevCellPrompt) focusPrevCellPrompt();
-      }
-    } else if (e.key === 'ArrowDown') {
-      if (selectionEnd === value.length) {
-        e.preventDefault();
-        if (focusNextCellPrompt) focusNextCellPrompt();
-      }
-    }
-  };
+  const handlePromptKeyDown = useTextareaArrowNav(textareaRef, {
+    onArrowUp: focusPrevCellPrompt,
+    onArrowDown: focusNextCellPrompt,
+  });
 
   // サムネイルダブルクリックでPSDを開く
   const handleThumbnailDoubleClick = async () => {

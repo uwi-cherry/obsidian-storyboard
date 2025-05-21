@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react';
+import useTextareaArrowNav from '../../hooks/useTextareaArrowNav';
 import { t } from 'src/i18n';
 
 interface SeInputCellProps {
@@ -29,18 +30,10 @@ const SeInputCell: React.FC<SeInputCellProps> = ({
     onSePromptChange(e.target.value);
   };
 
-  const handlePromptKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    const textarea = textareaRef.current;
-    if (!textarea) return;
-    const { selectionStart, selectionEnd, value } = textarea;
-    if (e.key === 'ArrowUp' && selectionStart === 0) {
-      e.preventDefault();
-      focusPrevCellPrompt?.();
-    } else if (e.key === 'ArrowDown' && selectionEnd === value.length) {
-      e.preventDefault();
-      focusNextCellPrompt?.();
-    }
-  };
+  const handlePromptKeyDown = useTextareaArrowNav(textareaRef, {
+    onArrowUp: focusPrevCellPrompt,
+    onArrowDown: focusNextCellPrompt,
+  });
 
   return (
     <textarea
