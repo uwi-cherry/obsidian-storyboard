@@ -197,6 +197,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
                   type="button"
                   className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
                   onClick={() => openFileDialog('mask')}
+                  title={t('ADD_MASK_TOOLTIP')}
                 >
                   <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-2" />
                   {t('ADD_MASK')}

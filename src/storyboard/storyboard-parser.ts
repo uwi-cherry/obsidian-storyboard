@@ -16,6 +16,7 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
       speaker: '',
       imageUrl: undefined,
       imagePrompt: undefined,
+      sePrompt: undefined,
     };
   }
 
@@ -39,7 +40,7 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
       continue;
     }
     if (line.startsWith('### ')) {
-      const title = line.replace(/^###\s*/, '');
+      const bgmPrompt = line.replace(/^###\s*/, '');
       if (inCharacterSection) {
         // ignore; shouldn't occur
       }
@@ -47,7 +48,7 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         saveCurrentFrameIfValid();
         data.chapters.push(currentChapter);
       }
-      currentChapter = { title, frames: [] };
+      currentChapter = { bgmPrompt, frames: [] };
       inCharacterSection = false;
       inChapterSection = true;
       continue;
@@ -77,7 +78,9 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         currentFrame = initializeNewFrame();
         currentFrame.speaker = line.replace(/^####\s*/, '');
       } else if (currentFrame) {
-        if (line.startsWith('*') && line.endsWith('*') && line.length > 1) {
+        if (line.startsWith('**') && line.endsWith('**') && line.length >= 4) {
+          currentFrame.sePrompt = line.substring(2, line.length - 2);
+        } else if (line.startsWith('*') && line.endsWith('*') && line.length > 1) {
           currentFrame.imagePrompt = line.substring(1, line.length - 1);
         } else if (line.startsWith('[[') && line.endsWith(']]')) {
           if (!currentFrame.imageUrl) {
@@ -114,15 +117,18 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
     });
   }
   data.chapters.forEach(chapter => {
-    content += `\n### ${chapter.title}\n\n`;
+    content += `\n### ${chapter.bgmPrompt ?? ''}\n\n`;
     chapter.frames.forEach(frame => {
       content += `#### ${frame.speaker || ''}\n`;
       content += `${frame.dialogues || ''}\n`;
-      if (frame.imageUrl) {
-        content += `[[${frame.imageUrl}]]\n`;
+      if (frame.imageUrl !== undefined) {
+        content += `[[${frame.imageUrl ?? ''}]]\n`;
       }
-      if (frame.imagePrompt) {
-        content += `*${frame.imagePrompt}*\n`;
+      if (frame.imagePrompt !== undefined) {
+        content += `*${frame.imagePrompt ?? ''}*\n`;
+      }
+      if (frame.sePrompt !== undefined) {
+        content += `**${frame.sePrompt ?? ''}**\n`;
       }
     });
   });
