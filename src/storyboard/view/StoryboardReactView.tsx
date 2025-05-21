@@ -142,6 +142,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         <SeInputCell
           sePrompt={value || ''}
           onSePromptChange={newVal => onCellChangeForRow('sePrompt', newVal)}
+          app={app}
           focusPrevCellPrompt={() => {
             if (sePromptRefs.current[rowIndex - 1]) {
               sePromptRefs.current[rowIndex - 1]?.focus();

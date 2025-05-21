@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { App, TFile, normalizePath } from 'obsidian';
 import { BUTTON_ICONS } from 'src/icons';
 import { t } from 'src/i18n';
 
@@ -8,6 +9,7 @@ interface SeInputCellProps {
   focusPrevCellPrompt?: () => void;
   focusNextCellPrompt?: () => void;
   refCallback?: (el: HTMLTextAreaElement | null) => void;
+  app: App;
 }
 
 const SeInputCell: React.FC<SeInputCellProps> = ({
@@ -16,15 +18,30 @@ const SeInputCell: React.FC<SeInputCellProps> = ({
   focusPrevCellPrompt,
   focusNextCellPrompt,
   refCallback,
+  app,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [audioSrc, setAudioSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (refCallback) refCallback(textareaRef.current);
     return () => { if (refCallback) refCallback(null); };
   }, [refCallback]);
+
+  useEffect(() => {
+    if (!sePrompt) {
+      setAudioSrc(null);
+      return;
+    }
+    const fileObj = app.vault.getAbstractFileByPath(sePrompt);
+    if (fileObj instanceof TFile) {
+      setAudioSrc(app.vault.getResourcePath(fileObj));
+    } else {
+      setAudioSrc(null);
+    }
+  }, [sePrompt, app]);
 
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     onSePromptChange(e.target.value);
@@ -43,14 +60,36 @@ const SeInputCell: React.FC<SeInputCellProps> = ({
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    onSePromptChange(file.name);
+
+    const vaultFiles = app.vault.getFiles();
+    const found = vaultFiles.find(f => f.name === file.name);
+    let path: string;
+    if (found) {
+      path = found.path;
+    } else {
+      const arrayBuffer = await file.arrayBuffer();
+      const storyboardDir = app.workspace.getActiveFile()?.parent?.path || '';
+      const assetsDir = storyboardDir ? normalizePath(`${storyboardDir}/assets`) : 'assets';
+      try {
+        if (!app.vault.getAbstractFileByPath(assetsDir)) {
+          await app.vault.createFolder(assetsDir);
+        }
+      } catch (err) {
+        console.error('Failed to create assets folder:', err);
+      }
+      path = normalizePath(`${assetsDir}/${file.name}`);
+      await app.vault.createBinary(path, arrayBuffer);
+    }
+
+    onSePromptChange(path);
   };
 
   const handleClearPath = () => {
     onSePromptChange('');
+    setAudioSrc(null);
   };
 
   const handleAiGenerate = async () => {
@@ -90,6 +129,9 @@ const SeInputCell: React.FC<SeInputCellProps> = ({
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.clearPath }}
         />
       </div>
+      {audioSrc && (
+        <audio controls src={audioSrc} className="mb-2 w-full" />
+      )}
       <textarea
         ref={textareaRef}
         value={sePrompt || ''}
