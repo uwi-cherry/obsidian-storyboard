@@ -80,9 +80,15 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         currentFrame = initializeNewFrame();
         currentFrame.speaker = line.replace(/^####\s*/, '');
       } else if (currentFrame) {
-        const seMatch = line.match(/^<se(?:\s+[^>]*)?>(.*)<\/se>$/);
-        const cameraMatch = line.match(/^<camera(?:\s+[^>]*)?>(.*)<\/camera>$/);
-        const timeMatch = line.match(/^<time(?:\s+[^>]*)?>(.*)<\/time>$/);
+        const seMatch =
+          line.match(/^<se(?:\s+[^>]*)?>(.*)<\/se>$/) ||
+          line.match(/^<span[^>]*style=["'][^"']*color:\s*#5cc7f5[^"']*["'][^>]*>(.*)<\/span>$/);
+        const cameraMatch =
+          line.match(/^<camera(?:\s+[^>]*)?>(.*)<\/camera>$/) ||
+          line.match(/^<span[^>]*style=["'][^"']*color:\s*#ff8eb2[^"']*["'][^>]*>(.*)<\/span>$/);
+        const timeMatch =
+          line.match(/^<time(?:\s+[^>]*)?>(.*)<\/time>$/) ||
+          line.match(/^<span[^>]*style=["'][^"']*color:\s*#df9d5b[^"']*["'][^>]*>(.*)<\/span>$/);
         const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
         if (seMatch) {
           currentFrame.sePrompt = seMatch[1];
@@ -143,16 +149,13 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
         content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
       }
       if (frame.sePrompt !== undefined) {
-        content += `<se style="color: blue;">${frame.sePrompt ?? ''}</se>\n`;
+        content += `<span style="color:#5cc7f5">${frame.sePrompt ?? ''}</span>\n`;
       }
       if (frame.cameraPrompt !== undefined) {
-        content += `<camera style="color: red;">${frame.cameraPrompt ?? ''}</camera>\n`;
+        content += `<span style="color:#ff8eb2">${frame.cameraPrompt ?? ''}</span>\n`;
       }
       if (frame.timecode !== undefined) {
-        content += `<time style="color: green;">${frame.timecode ?? ''}</time>\n`;
-      }
-      if (frame.timecode !== undefined) {
-        content += `<time>${frame.timecode ?? ''}</time>\n`;
+        content += `<span style="color:#df9d5b">${frame.timecode ?? ''}</span>\n`;
       }
     });
   });
