@@ -104,9 +104,11 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         <SpeakerDialogueCell
           dialogue={value || ''}
           speaker={row.speaker || ''}
+          sePrompt={row.sePrompt || ''}
           speakersList={uniqueSpeakers}
           onDialogueChange={(newDialogue: string) => onCellChangeForRow('dialogues', newDialogue)}
           onSpeakerChange={(newSpeaker: string) => onCellChangeForRow('speaker', newSpeaker)}
+          onSePromptChange={(newVal: string) => onCellChangeForRow('sePrompt', newVal)}
           focusPrevCellDialogue={() => {
             if (dialogueRefs.current[rowIndex - 1]) {
               dialogueRefs.current[rowIndex - 1]?.focus();
