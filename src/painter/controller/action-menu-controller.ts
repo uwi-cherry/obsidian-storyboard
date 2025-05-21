@@ -1,7 +1,7 @@
 
 import { DEFAULT_COLOR } from '../../constants';
 import type { SelectionRect } from '../painter-types';
-import type { PainterView } from '../view/painter-obsidian-view';
+import type { PainterViewInterface } from './painter-view-interface';
 import { ActionMenu } from '../view/components/ActionMenu';
 import type { SelectionState } from '../hooks/useSelectionState';
 import { TransformEditController } from './transform-edit-controller';
@@ -9,8 +9,8 @@ import { TransformEditController } from './transform-edit-controller';
 export class ActionMenuController {
   private menu: ActionMenu;
 
-  constructor(private view: PainterView, private state: SelectionState) {
-    this.menu = new ActionMenu(view);
+  constructor(private view: PainterViewInterface, private state: SelectionState) {
+    this.menu = new ActionMenu(view as any);
   }
 
   dispose() {
@@ -50,8 +50,8 @@ export class ActionMenuController {
       ].canvas.getContext('2d');
     if (!layerCtx) return;
     cb(layerCtx);
-    if (typeof (this.view as PainterView).saveLayerStateToHistory === 'function') {
-      (this.view as PainterView).saveLayerStateToHistory();
+    if (typeof this.view.saveLayerStateToHistory === 'function') {
+      this.view.saveLayerStateToHistory();
     }
   }
 
