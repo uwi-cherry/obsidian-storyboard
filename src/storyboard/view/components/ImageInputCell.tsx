@@ -233,26 +233,28 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           title={t('FILE_SELECT')}
           dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
         />
-        <button
-          className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleClearPath();
-          }}
-          title={t('CLEAR_PATH')}
-          dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.clearPath }}
-        />
       </div>
       
       {thumbnail ? (
-        <img
-          src={thumbnail}
-          alt="PSD thumbnail"
-          title={imageUrl || ''}
-          className="w-auto object-contain bg-secondary rounded cursor-pointer"
-          onDoubleClick={handleThumbnailDoubleClick}
-          tabIndex={0}
-        />
+        <div className="relative inline-block">
+          <img
+            src={thumbnail}
+            alt="PSD thumbnail"
+            title={imageUrl || ''}
+            className="w-auto object-contain bg-secondary rounded cursor-pointer"
+            onDoubleClick={handleThumbnailDoubleClick}
+            tabIndex={0}
+          />
+          <button
+            className="absolute top-1 right-1 p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClearPath();
+            }}
+            title={t('CLEAR_PATH')}
+            dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.clearPath }}
+          />
+        </div>
       ) : (
         <textarea
           ref={textareaRef}
