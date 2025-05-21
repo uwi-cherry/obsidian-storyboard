@@ -1,6 +1,7 @@
 import MyPlugin from "main";
 import React, { useState, useRef, useEffect } from "react";
 import { sendChatMessage } from "src/ai/chat";
+import { inpaintFromImages } from "src/ai/action/inpaintFromImages";
 import { t } from "src/i18n";
 import { ADD_ICON_SVG, TABLE_ICONS } from "src/icons";
 
@@ -10,6 +11,7 @@ interface ChatBoxProps {
 
 interface Attachment {
   url: string;
+  file?: File;
   type: 'image' | 'mask' | 'reference';
 }
 
@@ -34,7 +36,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
     if (!file) return;
     const url = URL.createObjectURL(file);
     const type = pendingTypeRef.current ?? 'image';
-    setAttachments(prev => [...prev, { url, type }]);
+    setAttachments(prev => [...prev, { url, file, type }]);
     pendingTypeRef.current = null;
     e.target.value = '';
   };
@@ -63,36 +65,50 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
     setError(null);
     if (!input.trim()) return;
     const userMessage = input;
+    const currentAttachments = attachments;
     setMessages(prev => [
       ...prev,
-      { role: "user", content: userMessage, attachments },
+      { role: "user", content: userMessage, attachments: currentAttachments.map(a => ({ url: a.url, type: a.type })) },
     ]);
     // プレースホルダの assistant メッセージを用意
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
     setInput("");
+    currentAttachments.forEach(att => URL.revokeObjectURL(att.url));
     setAttachments([]);
     setLoading(true);
     try {
-      const aiResult = await sendChatMessage(
-        userMessage,
-        plugin ?? getGlobalPlugin(),
-        (token) => {
-          setMessages(prev => {
-            const updated = [...prev];
-            const last = updated[updated.length - 1];
-            if (last && last.role === 'assistant') {
-              last.content += token;
-            }
-            return updated;
-          });
-        },
-      );
-      // 念のため最終出力を上書き（トークンで構築済みのはず）
+      let resultText = "";
+      const imageAtt = currentAttachments.find(a => a.type === 'image');
+      const maskAtt = currentAttachments.find(a => a.type === 'mask');
+      if (imageAtt && maskAtt) {
+        resultText = await inpaintFromImages(
+          plugin ?? getGlobalPlugin(),
+          imageAtt.file,
+          maskAtt.file,
+          userMessage,
+        );
+      } else {
+        const aiResult = await sendChatMessage(
+          userMessage,
+          plugin ?? getGlobalPlugin(),
+          (token) => {
+            setMessages(prev => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              if (last && last.role === 'assistant') {
+                last.content += token;
+              }
+              return updated;
+            });
+          },
+        );
+        resultText = aiResult.finalOutput ?? "";
+      }
       setMessages(prev => {
         const updated = [...prev];
         const last = updated[updated.length - 1];
         if (last && last.role === 'assistant') {
-          last.content = aiResult.finalOutput ?? last.content;
+          last.content = resultText;
         }
         return updated;
       });
