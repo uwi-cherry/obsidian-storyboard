@@ -5,6 +5,7 @@ import { NOTE_ICON_SVG } from 'src/icons';
 interface PreviewCellProps {
   sePrompt?: string;
   cameraPrompt?: string;
+  timecode?: string;
   onSePromptChange: (newVal: string) => void;
   onCameraPromptChange: (newVal: string) => void;
 }
@@ -12,6 +13,7 @@ interface PreviewCellProps {
 const PreviewCell: React.FC<PreviewCellProps> = ({
   sePrompt,
   cameraPrompt,
+  timecode,
   onSePromptChange,
   onCameraPromptChange,
 }) => {
@@ -57,6 +59,11 @@ const PreviewCell: React.FC<PreviewCellProps> = ({
         >
           {t('ADD_CAMERA_ANGLE')}
         </button>
+      )}
+      {timecode && (
+        <span className="text-xs border-2 border-modifier-border p-1 bg-transparent">
+          {timecode}
+        </span>
       )}
     </div>
   );

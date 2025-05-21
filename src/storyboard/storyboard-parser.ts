@@ -18,6 +18,7 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         imagePrompt: undefined,
         sePrompt: undefined,
         cameraPrompt: undefined,
+        timecode: undefined,
       };
   }
 
@@ -79,13 +80,16 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         currentFrame = initializeNewFrame();
         currentFrame.speaker = line.replace(/^####\s*/, '');
       } else if (currentFrame) {
-        const seMatch = line.match(/^<se>(.*)<\/se>$/);
-        const cameraMatch = line.match(/^<camera>(.*)<\/camera>$/);
+        const seMatch = line.match(/^<se(?:\s+[^>]*)?>(.*)<\/se>$/);
+        const cameraMatch = line.match(/^<camera(?:\s+[^>]*)?>(.*)<\/camera>$/);
+        const timeMatch = line.match(/^<time(?:\s+[^>]*)?>(.*)<\/time>$/);
         const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
         if (seMatch) {
           currentFrame.sePrompt = seMatch[1];
         } else if (cameraMatch) {
           currentFrame.cameraPrompt = cameraMatch[1];
+        } else if (timeMatch) {
+          currentFrame.timecode = timeMatch[1];
         } else if (imageMatch) {
           currentFrame.imagePrompt = imageMatch[1];
           currentFrame.imageUrl = imageMatch[2];
@@ -139,10 +143,13 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
         content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
       }
       if (frame.sePrompt !== undefined) {
-        content += `<se>${frame.sePrompt ?? ''}</se>\n`;
+        content += `<se style="color: blue;">${frame.sePrompt ?? ''}</se>\n`;
       }
       if (frame.cameraPrompt !== undefined) {
-        content += `<camera>${frame.cameraPrompt ?? ''}</camera>\n`;
+        content += `<camera style="color: red;">${frame.cameraPrompt ?? ''}</camera>\n`;
+      }
+      if (frame.timecode !== undefined) {
+        content += `<time style="color: green;">${frame.timecode ?? ''}</time>\n`;
       }
     });
   });
