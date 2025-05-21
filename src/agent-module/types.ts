@@ -46,7 +46,14 @@ export type ChatMessage = {
   content?: string;
   name?: string;
   function_call?: { name: string; arguments: string };
+  attachments?: Attachment[];
 };
+
+export interface Attachment {
+  type: 'image' | 'mask' | 'reference';
+  /** base64 または URL */
+  url: string;
+}
 
 /**
  * ガードレール関数の型。true を返した場合は通過。

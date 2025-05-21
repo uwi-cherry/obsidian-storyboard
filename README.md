@@ -95,3 +95,7 @@ If you have multiple URLs, you can also do:
 ## API Documentation
 
 See https://github.com/obsidianmd/obsidian-api
+
+## 画像の利用について
+
+チャットボックスで画像やマスク、参考画像を添付すると、画像は Base64 形式にエンコードされて OpenAI API へ送信されます。モデルは `image_url` フィールドとして渡されたこれらの画像を参照し、テキストだけでなく画像も考慮した応答を返します。
