@@ -17,7 +17,7 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
 
     const handleClipChange = (tIdx: number, cIdx: number, field: 'path' | 'start' | 'duration', value: string) => {
         const newProject = JSON.parse(JSON.stringify(data)) as OtioProject;
-        const clip = newProject.timeline.tracks[tIdx].children[cIdx];
+        const clip = newProject.timeline.tracks[tIdx].children[cIdx] as any;
         if (field === 'path') {
             clip.media_reference.target_url = value;
         } else if (field === 'start') {

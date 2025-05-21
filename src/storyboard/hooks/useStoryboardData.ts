@@ -7,9 +7,8 @@ export function createEmptyFrame(): StoryboardFrame {
     speaker: '',
     dialogues: '',
     imagePrompt: '',
-    sePrompt: '',
-    cameraPrompt: '',
-    timecode: '',
+    prompt: '',
+    endTime: '',
   };
 }
 

@@ -9,7 +9,8 @@ export interface ColumnDef<T> {
     value: T[keyof T],
     row: T,
     onCellChangeForRow: (columnKey: keyof T, newValue: T[keyof T]) => void,
-    rowIndex: number
+    rowIndex: number,
+    extra?: any
   ) => React.ReactNode;
 }
 
@@ -131,7 +132,8 @@ if (colIndex !== null) {
                             row[col.key],
                             row,
                             (columnKey: keyof T, newValue: T[keyof T]) => onCellChange(index, columnKey, newValue),
-                            index
+                            index,
+                            undefined
                           )
                         : String(row[col.key] ?? '')}
                     </td>
