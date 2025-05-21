@@ -3,6 +3,7 @@ export interface StoryboardFrame {
   speaker: string;
   imageUrl?: string;
   imagePrompt?: string;
+  sePrompt?: string;
 }
 
 export interface CharacterInfo {
@@ -11,7 +12,7 @@ export interface CharacterInfo {
 }
 
 export interface StoryboardChapter {
-  title: string;
+  bgmPrompt?: string;
   frames: StoryboardFrame[];
 }
 

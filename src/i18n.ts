@@ -41,6 +41,7 @@ export interface Strings {
   IMAGE_PROMPT_PLACEHOLDER: string;
   HEADER_IMAGE: string;
   HEADER_DIALOGUE: string;
+  HEADER_SE: string;
   LAYERS: string;
   NEW_LAYER: string;
   IMAGE_LAYER: string;
@@ -116,6 +117,7 @@ const STRINGS: Record<Language, Strings> = {
     IMAGE_PROMPT_PLACEHOLDER: '画像生成プロンプト(任意)',
     HEADER_IMAGE: '画像',
     HEADER_DIALOGUE: '話者とセリフ',
+    HEADER_SE: 'SE',
     LAYERS: 'レイヤー',
     NEW_LAYER: '新規レイヤー',
     IMAGE_LAYER: '画像レイヤー',
@@ -189,6 +191,7 @@ const STRINGS: Record<Language, Strings> = {
     IMAGE_PROMPT_PLACEHOLDER: 'Image prompt (optional)',
     HEADER_IMAGE: 'Image',
     HEADER_DIALOGUE: 'Speaker & Dialogue',
+    HEADER_SE: 'SE',
     LAYERS: 'Layers',
     NEW_LAYER: 'New Layer',
     IMAGE_LAYER: 'Image Layer',
