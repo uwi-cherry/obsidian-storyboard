@@ -4,6 +4,7 @@ import type { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
 import { ActionMenu } from '../view/components/ActionMenu';
 import type { SelectionState } from '../hooks/useSelectionState';
+import { TransformEditController } from './transform-edit-controller';
 
 export class ActionMenuController {
   private menu: ActionMenu;
@@ -20,8 +21,6 @@ export class ActionMenuController {
     this.menu.showGlobal({
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
-      scale: () => this.scaleSelection(),
-      rotate: () => this.rotateSelection(),
     });
   }
 
@@ -31,8 +30,7 @@ export class ActionMenuController {
     this.menu.showSelection(rect, {
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
-      scale: () => this.scaleSelection(),
-      rotate: () => this.rotateSelection(),
+      edit: () => this.editSelection(),
       cancel: () => {
         onCancel();
         this.showGlobal();
@@ -356,6 +354,18 @@ export class ActionMenuController {
       ctx.drawImage(tmp, -bounding.width / 2, -bounding.height / 2);
       ctx.restore();
     });
+  }
+
+  editSelection() {
+    if (!this.state.hasSelection()) return;
+    if (this.view.editController) {
+      return;
+    }
+    this.view.editController = new TransformEditController(this.view, this.state, () => {
+      this.view.editController = undefined;
+      this.showGlobal();
+    });
+    this.view.editController.start();
   }
 }
 
