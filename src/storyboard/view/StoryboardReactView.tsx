@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { t } from 'src/i18n';
 import { App, TFile } from 'obsidian';
-import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types';
+import { StoryboardData, StoryboardFrame } from '../storyboard-types';
 import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
 import { TABLE_ICONS, FOLD_ICON_SVG } from 'src/icons';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
-import SeInputCell from './components/SeInputCell';
+import PreviewCell from './components/PreviewCell';
 import useStoryboardData from '../hooks/useStoryboardData';
 
 interface StoryboardReactViewProps {
@@ -62,8 +62,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   // 話者欄（input）のref配列
   // プロンプト欄（textarea）のref配列
   const promptRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
-  // SE入力欄のref配列
-  const sePromptRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   useEffect(() => {
     setOpenChapters(initialData.chapters.map(() => true));
@@ -123,39 +121,26 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             dialogueRefs.current[rowIndex] = el;
           }}
           isFirstRow={rowIndex === 0}
-      onEditCharacters={() => setCharModalOpen(true)}
-      />
-    ),
+          onEditCharacters={() => setCharModalOpen(true)}
+        />
+      ),
     },
     {
-      key: 'sePrompt',
-      header: t('HEADER_SE'),
+      key: 'preview',
+      header: t('HEADER_PREVIEW'),
       renderCell: (
-        value: StoryboardFrame['sePrompt'],
-        _row: StoryboardFrame,
+        _value: StoryboardFrame['cameraPrompt'],
+        row: StoryboardFrame,
         onCellChangeForRow: (
           columnKey: keyof StoryboardFrame,
           newValue: StoryboardFrame[keyof StoryboardFrame]
-        ) => void,
-        rowIndex: number
+        ) => void
       ) => (
-        <SeInputCell
-          sePrompt={value || ''}
-          onSePromptChange={newVal => onCellChangeForRow('sePrompt', newVal)}
-          app={app}
-          focusPrevCellPrompt={() => {
-            if (sePromptRefs.current[rowIndex - 1]) {
-              sePromptRefs.current[rowIndex - 1]?.focus();
-            }
-          }}
-          focusNextCellPrompt={() => {
-            if (sePromptRefs.current[rowIndex + 1]) {
-              sePromptRefs.current[rowIndex + 1]?.focus();
-            }
-          }}
-          refCallback={el => {
-            sePromptRefs.current[rowIndex] = el;
-          }}
+        <PreviewCell
+          sePrompt={row.sePrompt || ''}
+          cameraPrompt={row.cameraPrompt || ''}
+          onSePromptChange={val => onCellChangeForRow('sePrompt', val)}
+          onCameraPromptChange={val => onCellChangeForRow('cameraPrompt', val)}
         />
       ),
     },

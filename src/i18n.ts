@@ -43,6 +43,10 @@ export interface Strings {
   HEADER_IMAGE: string;
   HEADER_DIALOGUE: string;
   HEADER_SE: string;
+  HEADER_PREVIEW: string;
+  ADD_SE: string;
+  ADD_CAMERA_ANGLE: string;
+  CAMERA_PROMPT_PLACEHOLDER: string;
   LAYERS: string;
   NEW_LAYER: string;
   IMAGE_LAYER: string;
@@ -120,6 +124,10 @@ const STRINGS: Record<Language, Strings> = {
     HEADER_IMAGE: '画像',
     HEADER_DIALOGUE: '話者とセリフ',
     HEADER_SE: 'SE',
+    HEADER_PREVIEW: 'プレビュー',
+    ADD_SE: '効果音を追加',
+    ADD_CAMERA_ANGLE: 'カメラアングルを追加',
+    CAMERA_PROMPT_PLACEHOLDER: 'カメラアングル(任意)',
     LAYERS: 'レイヤー',
     NEW_LAYER: '新規レイヤー',
     IMAGE_LAYER: '画像レイヤー',
@@ -192,6 +200,10 @@ const STRINGS: Record<Language, Strings> = {
     HEADER_IMAGE: 'Image',
     HEADER_DIALOGUE: 'Speaker & Dialogue',
     HEADER_SE: 'SE',
+    HEADER_PREVIEW: 'Preview',
+    ADD_SE: 'Add SE',
+    ADD_CAMERA_ANGLE: 'Add Camera Angle',
+    CAMERA_PROMPT_PLACEHOLDER: 'Camera angle (optional)',
     LAYERS: 'Layers',
     NEW_LAYER: 'New Layer',
     IMAGE_LAYER: 'Image Layer',

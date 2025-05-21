@@ -1,5 +1,4 @@
 import { useState, useCallback, useEffect } from 'react';
-import { t } from 'src/i18n';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types';
 
 export default function useStoryboardData(
@@ -52,6 +51,7 @@ export default function useStoryboardData(
         dialogues: '',
         imagePrompt: '',
         sePrompt: '',
+        cameraPrompt: '',
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) =>
@@ -120,6 +120,7 @@ export default function useStoryboardData(
         dialogues: '',
         imagePrompt: '',
         sePrompt: '',
+        cameraPrompt: '',
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) => {
@@ -142,6 +143,7 @@ export default function useStoryboardData(
         dialogues: '',
         imagePrompt: '',
         sePrompt: '',
+        cameraPrompt: '',
       };
       const newChapter = {
         bgmPrompt: bgmPrompt ?? '',
