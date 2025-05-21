@@ -39,6 +39,7 @@ export interface Strings {
   SELECT_LASSO: string;
   SELECT_MAGIC: string;
   IMAGE_PROMPT_PLACEHOLDER: string;
+  SE_PROMPT_PLACEHOLDER: string;
   HEADER_IMAGE: string;
   HEADER_DIALOGUE: string;
   HEADER_SE: string;
@@ -115,6 +116,7 @@ const STRINGS: Record<Language, Strings> = {
     SELECT_LASSO: '投げ縄',
     SELECT_MAGIC: 'マジックワンド',
     IMAGE_PROMPT_PLACEHOLDER: '画像生成プロンプト(任意)',
+    SE_PROMPT_PLACEHOLDER: 'SE生成プロンプト(任意)',
     HEADER_IMAGE: '画像',
     HEADER_DIALOGUE: '話者とセリフ',
     HEADER_SE: 'SE',
@@ -137,8 +139,8 @@ const STRINGS: Record<Language, Strings> = {
     CLEAR_PATH: 'クリア',
     SCALE: '拡縮',
     ROTATE: '回転',
-    ADD_CHAPTER: '章を追加',
-    NEW_CHAPTER_PLACEHOLDER: '新しい章を追加',
+    ADD_CHAPTER: 'BGMプロンプトを追加',
+    NEW_CHAPTER_PLACEHOLDER: '新しいBGMプロンプトを追加',
     UNTITLED_CHAPTER: '無題の章',
     CANVAS_SIZE: 'キャンバスサイズ',
     ZOOM_LEVEL: '拡大率',
@@ -186,6 +188,7 @@ const STRINGS: Record<Language, Strings> = {
     SELECT_LASSO: 'Lasso',
     SELECT_MAGIC: 'Magic wand',
     IMAGE_PROMPT_PLACEHOLDER: 'Image prompt (optional)',
+    SE_PROMPT_PLACEHOLDER: 'SE prompt (optional)',
     HEADER_IMAGE: 'Image',
     HEADER_DIALOGUE: 'Speaker & Dialogue',
     HEADER_SE: 'SE',
@@ -208,8 +211,8 @@ const STRINGS: Record<Language, Strings> = {
     CLEAR_PATH: 'Clear',
     SCALE: 'Scale',
     ROTATE: 'Rotate',
-    ADD_CHAPTER: 'Add chapter',
-    NEW_CHAPTER_PLACEHOLDER: 'Add new chapter',
+    ADD_CHAPTER: 'Add BGM prompt',
+    NEW_CHAPTER_PLACEHOLDER: 'Add new BGM prompt',
     UNTITLED_CHAPTER: 'Untitled Chapter',
     CANVAS_SIZE: 'Canvas Size',
     ZOOM_LEVEL: 'Zoom',

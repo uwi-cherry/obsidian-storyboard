@@ -7,6 +7,7 @@ import EditableTable, { ColumnDef } from './components/EditableTable';
 import { TABLE_ICONS, FOLD_ICON_SVG } from 'src/icons';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
+import SeInputCell from './components/SeInputCell';
 import useStoryboardData from '../hooks/useStoryboardData';
 
 interface StoryboardReactViewProps {
@@ -61,6 +62,8 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   // 話者欄（input）のref配列
   // プロンプト欄（textarea）のref配列
   const promptRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
+  // SE入力欄のref配列
+  const sePromptRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   useEffect(() => {
     setOpenChapters(initialData.chapters.map(() => true));
@@ -133,12 +136,25 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         onCellChangeForRow: (
           columnKey: keyof StoryboardFrame,
           newValue: StoryboardFrame[keyof StoryboardFrame]
-        ) => void
+        ) => void,
+        rowIndex: number
       ) => (
-        <textarea
-          value={value || ''}
-          onChange={e => onCellChangeForRow('sePrompt', e.target.value)}
-          className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
+        <SeInputCell
+          sePrompt={value || ''}
+          onSePromptChange={newVal => onCellChangeForRow('sePrompt', newVal)}
+          focusPrevCellPrompt={() => {
+            if (sePromptRefs.current[rowIndex - 1]) {
+              sePromptRefs.current[rowIndex - 1]?.focus();
+            }
+          }}
+          focusNextCellPrompt={() => {
+            if (sePromptRefs.current[rowIndex + 1]) {
+              sePromptRefs.current[rowIndex + 1]?.focus();
+            }
+          }}
+          refCallback={el => {
+            sePromptRefs.current[rowIndex] = el;
+          }}
         />
       ),
     },
