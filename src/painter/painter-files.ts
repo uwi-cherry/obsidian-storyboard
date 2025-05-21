@@ -330,11 +330,8 @@ export async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFi
 
         view.layers.history[view.layers.currentIndex].layers.unshift(layer);
         view.layers.currentLayerIndex = 0;
+        view.layers.saveHistory();
         view.renderCanvas();
-
-        if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-            (view as PainterView).saveLayerStateToHistory();
-        }
     } catch (error) {
         console.error('レイヤーの作成に失敗しました:', error);
     }
@@ -347,9 +344,6 @@ export function deleteLayer(view: PainterView, index: number) {
         view.layers.currentLayerIndex = view.layers.history[view.layers.currentIndex].layers.length - 1;
     }
 
+    view.layers.saveHistory();
     view.renderCanvas();
-
-    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-        (view as PainterView).saveLayerStateToHistory();
-    }
 }

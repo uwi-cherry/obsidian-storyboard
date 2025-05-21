@@ -9,7 +9,11 @@ import { TransformEditController } from './transform-edit-controller';
 export class ActionMenuController {
   private menu: ActionMenu;
 
-  constructor(private view: PainterViewInterface, private state: SelectionState) {
+  constructor(
+    private view: PainterViewInterface,
+    private state: SelectionState,
+    private getColor: () => string
+  ) {
     this.menu = new ActionMenu(view as any);
   }
 
@@ -50,9 +54,8 @@ export class ActionMenuController {
       ].canvas.getContext('2d');
     if (!layerCtx) return;
     cb(layerCtx);
-    if (typeof this.view.saveLayerStateToHistory === 'function') {
-      this.view.saveLayerStateToHistory();
-    }
+    this.view.layers.saveHistory();
+    this.view.renderCanvas();
   }
 
   copySelection() {
@@ -174,7 +177,7 @@ export class ActionMenuController {
     }
 
     this.modifyCurrentLayer((ctx) => {
-      ctx.fillStyle = this.view.currentColor ?? DEFAULT_COLOR;
+      ctx.fillStyle = this.getColor() ?? DEFAULT_COLOR;
       if (hasSelection && this.state.mode === 'lasso') {
         ctx.save();
         ctx.beginPath();
