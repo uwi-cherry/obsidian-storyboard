@@ -45,8 +45,8 @@ export class ActionMenuController {
 
   private modifyCurrentLayer(cb: (ctx: CanvasRenderingContext2D) => void) {
     const layerCtx =
-      this.view.psdDataHistory[this.view.currentIndex].layers[
-        this.view.currentLayerIndex
+      this.view.layers.history[this.view.layers.currentIndex].layers[
+        this.view.layers.currentLayerIndex
       ].canvas.getContext('2d');
     if (!layerCtx) return;
     cb(layerCtx);

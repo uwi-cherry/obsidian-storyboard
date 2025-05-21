@@ -67,7 +67,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
         addLayer: (name?: string) => view.createNewLayer(name ?? t('NEW_LAYER')),
         deleteLayer: (index: number) => view.deleteLayer(index),
         toggleLayerVisibility: (index: number) => {
-            const layer = view.psdDataHistory[view.currentIndex].layers[index];
+            const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.visible = !layer.visible;
                 if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
@@ -77,7 +77,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             }
         },
         renameLayer: (index: number, newName: string) => {
-            const layer = view.psdDataHistory[view.currentIndex].layers[index];
+            const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.name = newName;
                 if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
@@ -87,11 +87,11 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             }
         },
         setCurrentLayer: (index: number) => {
-            view.currentLayerIndex = index;
+            view.layers.currentLayerIndex = index;
             view.renderCanvas();
         },
         setOpacity: (index: number, opacity: number) => {
-            const layer = view.psdDataHistory[view.currentIndex].layers[index];
+            const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.opacity = opacity;
                 if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
@@ -101,7 +101,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             }
         },
         setBlendMode: (index: number, mode) => {
-            const layer = view.psdDataHistory[view.currentIndex].layers[index];
+            const layer = view.layers.history[view.layers.currentIndex].layers[index];
             if (layer) {
                 layer.blendMode = mode;
                 if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
@@ -115,7 +115,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     // ビューが開けた場合はレイヤー変更時に同期
     if (sidebarView) {
         const sync = () => {
-            const currentState = view.psdDataHistory[view.currentIndex];
+            const currentState = view.layers.history[view.layers.currentIndex];
             if (!currentState || !currentState.layers) return;
 
             // === 毎回最新＆確定した SidebarView を取得 ===
@@ -124,7 +124,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             const currentSidebarView = leaves[0].view as RightSidebarView | undefined;
             if (!currentSidebarView || typeof (currentSidebarView as any).syncLayers !== 'function') return;
 
-            currentSidebarView.syncLayers(currentState.layers, view.currentLayerIndex, layerOps);
+            currentSidebarView.syncLayers(currentState.layers, view.layers.currentLayerIndex, layerOps);
         };
 
         // 初期化が終わったあとにも同期されるようイベントリスナで対応
@@ -137,7 +137,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     // レイヤー変更時に PSD ファイルを自動保存
     view.onLayerChanged(() => {
         if (view.file) {
-            savePsdFile(view.app, view.file, view.psdDataHistory[view.currentIndex].layers);
+            savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);
         }
     });
     return view;
@@ -166,7 +166,7 @@ function getActivePainterView(app: App): PainterView | null {
 export function saveActive(app: App) {
     const view = getActivePainterView(app);
     if (view && view.file) {
-        savePsdFile(app, view.file, view.psdDataHistory[view.currentIndex].layers);
+        savePsdFile(app, view.file, view.layers.history[view.layers.currentIndex].layers);
     }
 }
 

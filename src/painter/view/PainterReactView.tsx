@@ -5,6 +5,7 @@ import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { useSelectionState } from '../hooks/useSelectionState';
+import { useLayers } from '../hooks/useLayers';
 import { TOOL_ICONS } from 'src/icons';
 
 interface PainterReactViewProps {
@@ -31,6 +32,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   // 現在のツール, ブラシ幅, カラーなどは view の state を参照する
   const [, forceUpdate] = useState(0); // view プロパティ変更時の再描画用（簡易）
   const selectionState = useSelectionState();
+  const layersState = useLayers();
   const [selectionVisible, setSelectionVisible] = useState(false);
   const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
 
@@ -79,6 +81,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
 
     // SelectionController と状態を初期化
     (view as any)._selectionState = selectionState;
+    (view as any).layers = layersState;
     if (!(view as any)._selectionController) {
       (view as any)._selectionController = new SelectionController(view, selectionState);
     }
@@ -103,7 +106,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
           bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
         }
 
-        view.psdDataHistory[0].layers = [
+        view.layers.history[0].layers = [
           {
             name: t('BACKGROUND'),
             visible: true,

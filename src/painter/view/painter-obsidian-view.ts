@@ -1,10 +1,10 @@
 import { FileView, TFile, WorkspaceLeaf, App } from 'obsidian';
 import {
-	PSD_ICON,
-	PSD_VIEW_TYPE,
-	MAX_HISTORY_SIZE,
-	DEFAULT_COLOR,
-	BLEND_MODE_TO_COMPOSITE_OPERATION
+        PSD_ICON,
+        PSD_VIEW_TYPE,
+        DEFAULT_COLOR,
+        BLEND_MODE_TO_COMPOSITE_OPERATION,
+        MAX_HISTORY_SIZE
 } from '../../constants';
 import { Layer, PsdData } from '../painter-types';
 import { t } from '../../i18n';
@@ -14,6 +14,7 @@ import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { TransformEditController } from '../controller/transform-edit-controller';
 import PainterReactView from './PainterReactView';
+import type { LayersState } from '../hooks/useLayers';
 export class PainterView extends FileView {
         isDrawing = false;
         lastX = 0;
@@ -23,11 +24,8 @@ export class PainterView extends FileView {
         panLastY = 0;
         currentColor = DEFAULT_COLOR;
 	currentLineWidth = 5;
-	currentTool = 'brush';
-	psdDataHistory: { layers: Layer[] }[] = [];
-	currentIndex = 0;
-	maxHistorySize = MAX_HISTORY_SIZE;
-        currentLayerIndex = 0;
+        currentTool = 'brush';
+        public layers!: LayersState;
 
         zoom = 100;
         rotation = 0;
@@ -140,9 +138,9 @@ export class PainterView extends FileView {
 			this._canvas.height = data.height;
 		}
 
-		this.psdDataHistory = [{ layers: data.layers }];
-		this.currentIndex = 0;
-		this.currentLayerIndex = 0;
+                this.layers.history = [{ layers: data.layers }];
+                this.layers.currentIndex = 0;
+                this.layers.currentLayerIndex = 0;
 
 		this.renderCanvas();
 		this._emitLayerChanged();
@@ -152,59 +150,27 @@ export class PainterView extends FileView {
 		super(leaf);
 	}
 
-	public saveLayerStateToHistory() {
-		// 現在の状態を保存
-		const currentState = {
-			layers: this.psdDataHistory[this.currentIndex].layers.map(layer => {
-				// 新しいキャンバスを作成して現在の状態をコピー
-				const newCanvas = document.createElement('canvas');
-				newCanvas.width = layer.canvas.width;
-				newCanvas.height = layer.canvas.height;
-				const ctx = newCanvas.getContext('2d');
-				if (!ctx) return layer; // nullチェック
+        public saveLayerStateToHistory() {
+                this.layers.saveHistory();
+                this.renderCanvas();
+                this._emitLayerChanged();
+        }
 
-				ctx.drawImage(layer.canvas, 0, 0);
+        undo() {
+                if (this.layers.currentIndex > 0) {
+                        this.layers.currentIndex--;
+                        this.renderCanvas();
+                        this._emitLayerChanged();
+                }
+        }
 
-				return {
-					...layer,
-					canvas: newCanvas
-				};
-			})
-		};
-
-		// 現在のインデックス以降の履歴を削除
-		this.psdDataHistory = this.psdDataHistory.slice(0, this.currentIndex + 1);
-
-		// 新しい状態を追加
-		this.psdDataHistory.push(currentState);
-		this.currentIndex = this.psdDataHistory.length - 1;
-
-		// 履歴サイズの制限
-		if (this.psdDataHistory.length > this.maxHistorySize) {
-			this.psdDataHistory.shift();
-			this.currentIndex--;
-		}
-
-		// 状態を更新して保存
-		this.renderCanvas();
-		this._emitLayerChanged();
-	}
-
-	undo() {
-		if (this.currentIndex > 0) {
-			this.currentIndex--;
-			this.renderCanvas();
-			this._emitLayerChanged();
-		}
-	}
-
-	redo() {
-		if (this.currentIndex < this.psdDataHistory.length - 1) {
-			this.currentIndex++;
-			this.renderCanvas();
-			this._emitLayerChanged();
-		}
-	}
+        redo() {
+                if (this.layers.currentIndex < this.layers.history.length - 1) {
+                        this.layers.currentIndex++;
+                        this.renderCanvas();
+                        this._emitLayerChanged();
+                }
+        }
 
 	getViewType(): string {
 		return PSD_VIEW_TYPE;
@@ -237,13 +203,23 @@ export class PainterView extends FileView {
 		this._emitLayerChanged();
 	}
 
-	async onOpen() {
-		// 履歴初期化
-		if (!this.psdDataHistory || this.psdDataHistory.length === 0) {
-			this.psdDataHistory = [{ layers: [] }];
-			this.currentIndex = 0;
-			this.currentLayerIndex = 0;
-		}
+        async onOpen() {
+                // 履歴初期化
+                if (!this.layers) {
+                        this.layers = {
+                                history: [{ layers: [] }],
+                                currentIndex: 0,
+                                currentLayerIndex: 0,
+                                maxHistorySize: MAX_HISTORY_SIZE,
+                                saveHistory() {},
+                                undo() {},
+                                redo() {}
+                        } as LayersState;
+                } else if (this.layers.history.length === 0) {
+                        this.layers.history = [{ layers: [] }];
+                        this.layers.currentIndex = 0;
+                        this.layers.currentLayerIndex = 0;
+                }
 
 		// 既存コンテンツをクリア
 		this.contentEl.empty();
@@ -282,7 +258,7 @@ export class PainterView extends FileView {
 			this.isDrawing = true;
 			this.lastX = x;
 			this.lastY = y;
-			const ctx = this.psdDataHistory[this.currentIndex].layers[this.currentLayerIndex].canvas.getContext('2d');
+                        const ctx = this.layers.history[this.layers.currentIndex].layers[this.layers.currentLayerIndex].canvas.getContext('2d');
 			if (!ctx) return; // nullチェック
 			ctx.lineWidth = e.pressure !== 0 ? this.currentLineWidth * e.pressure : this.currentLineWidth;
 			this.saveLayerStateToHistory();
@@ -324,7 +300,7 @@ export class PainterView extends FileView {
 
 		if (!this.isDrawing) return;
 
-		const ctx = this.psdDataHistory[this.currentIndex].layers[this.currentLayerIndex].canvas.getContext('2d');
+                const ctx = this.layers.history[this.layers.currentIndex].layers[this.layers.currentLayerIndex].canvas.getContext('2d');
 		if (!ctx) return; // nullチェック
 		ctx.beginPath();
 		ctx.moveTo(this.lastX, this.lastY);
@@ -440,7 +416,7 @@ export class PainterView extends FileView {
 		}
 
 		// 各レイヤーを上から下に向かって描画
-		const currentLayers = this.psdDataHistory[this.currentIndex].layers;
+                const currentLayers = this.layers.history[this.layers.currentIndex].layers;
 		for (let i = currentLayers.length - 1; i >= 0; i--) {
 			const layer = currentLayers[i];
 			if (layer.visible) {
