@@ -22,8 +22,8 @@ export class TransformEditController {
 
   start() {
     const rect = this.rect;
-    const layer = this.view.psdDataHistory[this.view.currentIndex].layers[
-      this.view.currentLayerIndex
+    const layer = this.view.layers.history[this.view.layers.currentIndex].layers[
+      this.view.layers.currentLayerIndex
     ];
     const layerCtx = layer.canvas.getContext('2d');
     if (!layerCtx) return;
@@ -192,8 +192,8 @@ export class TransformEditController {
   }
 
   confirm() {
-    const layer = this.view.psdDataHistory[this.view.currentIndex].layers[
-      this.view.currentLayerIndex
+    const layer = this.view.layers.history[this.view.layers.currentIndex].layers[
+      this.view.layers.currentLayerIndex
     ];
     const ctx = layer.canvas.getContext('2d');
     if (!ctx || !this.overlayCanvas) return;
@@ -217,8 +217,8 @@ export class TransformEditController {
   }
 
   cancel() {
-    const layer = this.view.psdDataHistory[this.view.currentIndex].layers[
-      this.view.currentLayerIndex
+    const layer = this.view.layers.history[this.view.layers.currentIndex].layers[
+      this.view.layers.currentLayerIndex
     ];
     const ctx = layer.canvas.getContext('2d');
     if (!ctx || !this.backupCanvas) return;

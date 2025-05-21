@@ -310,7 +310,7 @@ export async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFi
     let layerName = name;
     if (name === t('NEW_LAYER')) {
         let counter = 1;
-        while (view.psdDataHistory[view.currentIndex].layers.some(l => l.name === `${t('NEW_LAYER')} ${counter}`)) {
+        while (view.layers.history[view.layers.currentIndex].layers.some(l => l.name === `${t('NEW_LAYER')} ${counter}`)) {
             counter++;
         }
         layerName = `${t('NEW_LAYER')} ${counter}`;
@@ -328,8 +328,8 @@ export async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFi
             }
         );
 
-        view.psdDataHistory[view.currentIndex].layers.unshift(layer);
-        view.currentLayerIndex = 0;
+        view.layers.history[view.layers.currentIndex].layers.unshift(layer);
+        view.layers.currentLayerIndex = 0;
         view.renderCanvas();
 
         if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
@@ -341,10 +341,10 @@ export async function addLayer(view: PainterView, name = t('NEW_LAYER'), imageFi
 }
 
 export function deleteLayer(view: PainterView, index: number) {
-    if (view.psdDataHistory[view.currentIndex].layers.length <= 1) return;
-    view.psdDataHistory[view.currentIndex].layers.splice(index, 1);
-    if (view.currentLayerIndex >= view.psdDataHistory[view.currentIndex].layers.length) {
-        view.currentLayerIndex = view.psdDataHistory[view.currentIndex].layers.length - 1;
+    if (view.layers.history[view.layers.currentIndex].layers.length <= 1) return;
+    view.layers.history[view.layers.currentIndex].layers.splice(index, 1);
+    if (view.layers.currentLayerIndex >= view.layers.history[view.layers.currentIndex].layers.length) {
+        view.layers.currentLayerIndex = view.layers.history[view.layers.currentIndex].layers.length - 1;
     }
 
     view.renderCanvas();
