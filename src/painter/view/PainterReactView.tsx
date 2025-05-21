@@ -5,6 +5,7 @@ import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { useSelectionState } from '../hooks/useSelectionState';
+import usePainterPointer from '../hooks/usePainterPointer';
 import { TOOL_ICONS } from 'src/icons';
 
 interface PainterReactViewProps {
@@ -27,12 +28,13 @@ interface PainterReactViewProps {
  */
 const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
   /* ──────────────── Refs & States ──────────────── */
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  // 現在のツール, ブラシ幅, カラーなどは view の state を参照する
-  const [, forceUpdate] = useState(0); // view プロパティ変更時の再描画用（簡易）
-  const selectionState = useSelectionState();
-  const [selectionVisible, setSelectionVisible] = useState(false);
-  const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
+const canvasRef = useRef<HTMLCanvasElement | null>(null);
+// 現在のツール, ブラシ幅, カラーなどは view の state を参照する
+const [, forceUpdate] = useState(0); // view プロパティ変更時の再描画用（簡易）
+const selectionState = useSelectionState();
+const [selectionVisible, setSelectionVisible] = useState(false);
+const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
+  const pointer = usePainterPointer(view);
 
   /* ──────────────── Helpers ──────────────── */
   const reRender = () => forceUpdate(v => v + 1);
@@ -68,10 +70,10 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     (view as any)._canvas = canvas;
     view.updateTransform();
 
-    // ポインタ関連イベント（PainterView 内部実装を使う）
-    const onPointerDown = (e: PointerEvent) => (view as any).handlePointerDown(e);
-    const onPointerMove = (e: PointerEvent) => (view as any).handlePointerMove(e);
-    const onPointerUp = (e: PointerEvent) => (view as any).handlePointerUp(e);
+    // ポインタイベント
+    const onPointerDown = (e: PointerEvent) => pointer.handlePointerDown(e);
+    const onPointerMove = (e: PointerEvent) => pointer.handlePointerMove(e);
+    const onPointerUp = () => pointer.handlePointerUp();
 
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);

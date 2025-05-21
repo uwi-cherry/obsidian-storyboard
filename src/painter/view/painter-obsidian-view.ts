@@ -15,12 +15,6 @@ import { SelectionController } from '../controller/selection-controller';
 import { TransformEditController } from '../controller/transform-edit-controller';
 import PainterReactView from './PainterReactView';
 export class PainterView extends FileView {
-        isDrawing = false;
-        lastX = 0;
-        lastY = 0;
-        isPanning = false;
-        panLastX = 0;
-        panLastY = 0;
         currentColor = DEFAULT_COLOR;
 	currentLineWidth = 5;
 	currentTool = 'brush';
@@ -272,94 +266,6 @@ export class PainterView extends FileView {
 		this.setupDragAndDrop();
 	}
 
-        private handlePointerDown(e: PointerEvent) {
-                const rect = this._canvas.getBoundingClientRect();
-                const scale = this.zoom / 100;
-                const x = (e.clientX - rect.left) / scale;
-                const y = (e.clientY - rect.top) / scale;
-
-		if (this.currentTool === 'brush' || this.currentTool === 'eraser') {
-			this.isDrawing = true;
-			this.lastX = x;
-			this.lastY = y;
-			const ctx = this.psdDataHistory[this.currentIndex].layers[this.currentLayerIndex].canvas.getContext('2d');
-			if (!ctx) return; // nullチェック
-			ctx.lineWidth = e.pressure !== 0 ? this.currentLineWidth * e.pressure : this.currentLineWidth;
-			this.saveLayerStateToHistory();
-                } else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        this.actionMenu.hide();
-                        this._selectionController?.onPointerDown(x, y);
-                        return;
-                } else if (this.currentTool === 'hand') {
-                        this.isPanning = true;
-                        this.panLastX = e.clientX;
-                        this.panLastY = e.clientY;
-                        this._canvas.style.cursor = 'grabbing';
-                        return;
-                }
-	}
-
-        private handlePointerMove(e: PointerEvent) {
-                const rect = this._canvas.getBoundingClientRect();
-                const scale = this.zoom / 100;
-                const x = (e.clientX - rect.left) / scale;
-                const y = (e.clientY - rect.top) / scale;
-
-                // 選択ツールの場合はドラッグ状態に関係なく move を伝播
-                if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        this._selectionController?.onPointerMove(x, y);
-                        return;
-                }
-
-                if (this.currentTool === 'hand' && this.isPanning) {
-                        const container = this._canvas.parentElement as HTMLElement | null;
-                        if (container) {
-                                container.scrollLeft -= e.clientX - this.panLastX;
-                                container.scrollTop -= e.clientY - this.panLastY;
-                        }
-                        this.panLastX = e.clientX;
-                        this.panLastY = e.clientY;
-                        return;
-                }
-
-		if (!this.isDrawing) return;
-
-		const ctx = this.psdDataHistory[this.currentIndex].layers[this.currentLayerIndex].canvas.getContext('2d');
-		if (!ctx) return; // nullチェック
-		ctx.beginPath();
-		ctx.moveTo(this.lastX, this.lastY);
-		ctx.lineTo(x, y);
-		ctx.strokeStyle = this.currentTool === 'eraser' ? 'rgba(0, 0, 0, 1)' : this.currentColor;
-		ctx.lineWidth = e.pressure !== 0 ? this.currentLineWidth * e.pressure : this.currentLineWidth;
-		ctx.globalCompositeOperation = this.currentTool === 'eraser' ? 'destination-out' : 'source-over';
-		ctx.stroke();
-		ctx.globalCompositeOperation = 'source-over';
-		this.lastX = x;
-		this.lastY = y;
-		this.renderCanvas();
-	}
-
-        private handlePointerUp() {
-                if (this.isDrawing) {
-                        this.isDrawing = false;
-                }
-
-                if (this.currentTool === 'hand' && this.isPanning) {
-                        this.isPanning = false;
-                        this._canvas.style.cursor = 'grab';
-                }
-
-                if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        const valid = this._selectionController?.onPointerUp() ?? false;
-                        if (valid) {
-                                const cancel = () => this._selectionController?.cancelSelection();
-                                this.actionMenu.showSelection(cancel);
-                        } else {
-                                this.actionMenu.showGlobal();
-                        }
-                        return;
-                }
-        }
 
 	private setupDragAndDrop() {
 		this.contentEl.addEventListener('dragenter', (e) => {
