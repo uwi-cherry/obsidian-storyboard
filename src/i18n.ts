@@ -69,6 +69,9 @@ export interface Strings {
   ADD_IMAGE: string;
   ADD_MASK: string;
   ADD_CHARACTER_DESIGN: string;
+  ADD_IMAGE_TOOLTIP: string;
+  ADD_MASK_TOOLTIP: string;
+  ADD_REFERENCE_TOOLTIP: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -138,9 +141,12 @@ const STRINGS: Record<Language, Strings> = {
     CANVAS_SIZE: 'キャンバスサイズ',
     ZOOM_LEVEL: '拡大率',
     ROTATION_ANGLE: '回転角',
-    ADD_IMAGE: '画像追加',
+    ADD_IMAGE: '編集画像を追加',
     ADD_MASK: 'マスクを追加',
-    ADD_CHARACTER_DESIGN: 'キャラデザを追加',
+    ADD_CHARACTER_DESIGN: 'リファレンスを追加',
+    ADD_IMAGE_TOOLTIP: '画像の編集を行いたい場合に追加',
+    ADD_MASK_TOOLTIP: '編集領域をマスクしたい場合に追加',
+    ADD_REFERENCE_TOOLTIP: '参考となる画像を追加',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -208,9 +214,12 @@ const STRINGS: Record<Language, Strings> = {
     CANVAS_SIZE: 'Canvas Size',
     ZOOM_LEVEL: 'Zoom',
     ROTATION_ANGLE: 'Rotation',
-    ADD_IMAGE: 'Add Image',
+    ADD_IMAGE: 'Add Editable Image',
     ADD_MASK: 'Add Mask',
-    ADD_CHARACTER_DESIGN: 'Add Character Design',
+    ADD_CHARACTER_DESIGN: 'Add Reference',
+    ADD_IMAGE_TOOLTIP: 'Add an image you want to edit',
+    ADD_MASK_TOOLTIP: 'Add a mask for areas to edit',
+    ADD_REFERENCE_TOOLTIP: 'Add a reference image',
   }
 };
 

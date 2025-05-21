@@ -10,7 +10,7 @@ interface ChatBoxProps {
 
 interface Attachment {
   url: string;
-  type: 'mask' | 'character';
+  type: 'image' | 'mask' | 'reference';
 }
 
 function getGlobalPlugin(): MyPlugin | undefined {
@@ -26,20 +26,20 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showMenu, setShowMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const pendingTypeRef = useRef<'mask' | 'character' | null>(null);
+  const pendingTypeRef = useRef<'image' | 'mask' | 'reference' | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    const type = pendingTypeRef.current ?? 'mask';
+    const type = pendingTypeRef.current ?? 'image';
     setAttachments(prev => [...prev, { url, type }]);
     pendingTypeRef.current = null;
     e.target.value = '';
   };
 
-  const openFileDialog = (type: 'mask' | 'character') => {
+  const openFileDialog = (type: 'image' | 'mask' | 'reference') => {
     pendingTypeRef.current = type;
     fileInputRef.current?.click();
     setShowMenu(false);
@@ -113,9 +113,20 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
           >
         {msg.attachments && msg.attachments.length > 0 && (
           <div className={`flex gap-2 mb-1 ${msg.role === 'user' ? 'justify-end' : ''}`}>
-            {msg.attachments.map((att, aIdx) => (
-              <img key={aIdx} src={att.url} className="w-12 h-12 object-cover rounded" />
-            ))}
+            {msg.attachments.map((att, aIdx) => {
+              const border = att.type === 'image'
+                ? 'border-blue-500'
+                : att.type === 'mask'
+                ? 'border-red-500'
+                : 'border-green-500';
+              return (
+                <img
+                  key={aIdx}
+                  src={att.url}
+                  className={`w-12 h-12 object-cover rounded border-2 ${border}`}
+                />
+              );
+            })}
           </div>
         )}
             {msg.content}
@@ -140,17 +151,27 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
 
         {attachments.length > 0 && (
           <div className="flex gap-2">
-            {attachments.map((att, idx) => (
-              <div key={idx} className="relative">
-                <img src={att.url} className="w-12 h-12 object-cover rounded" />
-                <button
-                  type="button"
-                  className="absolute -top-1 -right-1 bg-secondary rounded-full p-1"
-                  onClick={() => removeAttachment(idx)}
-                  dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
-                />
-              </div>
-            ))}
+            {attachments.map((att, idx) => {
+              const border = att.type === 'image'
+                ? 'border-blue-500'
+                : att.type === 'mask'
+                ? 'border-red-500'
+                : 'border-green-500';
+              return (
+                <div key={idx} className="relative">
+                  <img
+                    src={att.url}
+                    className={`w-12 h-12 object-cover rounded border-2 ${border}`}
+                  />
+                  <button
+                    type="button"
+                    className="absolute -top-1 -right-1 bg-secondary rounded-full p-1"
+                    onClick={() => removeAttachment(idx)}
+                    dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -167,16 +188,29 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
               <div className="absolute bottom-full left-0 mb-1 flex flex-col bg-secondary border border-modifier-border rounded z-10">
                 <button
                   type="button"
-                  className="px-2 py-1 text-sm hover:bg-modifier-hover text-left"
-                  onClick={() => openFileDialog('mask')}
+                  className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
+                  onClick={() => openFileDialog('image')}
+                  title={t('ADD_IMAGE_TOOLTIP')}
                 >
+                  <span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-2" />
+                  {t('ADD_IMAGE')}
+                </button>
+                <button
+                  type="button"
+                  className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
+                  onClick={() => openFileDialog('mask')}
+                  title={t('ADD_MASK_TOOLTIP')}
+                >
+                  <span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-2" />
                   {t('ADD_MASK')}
                 </button>
                 <button
                   type="button"
-                  className="px-2 py-1 text-sm hover:bg-modifier-hover text-left"
-                  onClick={() => openFileDialog('character')}
+                  className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
+                  onClick={() => openFileDialog('reference')}
+                  title={t('ADD_REFERENCE_TOOLTIP')}
                 >
+                  <span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-2" />
                   {t('ADD_CHARACTER_DESIGN')}
                 </button>
               </div>
