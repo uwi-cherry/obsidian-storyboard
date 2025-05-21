@@ -5,10 +5,6 @@ export const PSD_VIEW_TYPE = 'psd-view';
 export const PSD_EXTENSION = 'psd';
 export const PSD_ICON = 'psd-icon';
 
-export const OTIO_VIEW_TYPE = 'otio-view';
-export const OTIO_EXTENSION = 'otio';
-export const OTIO_ICON = 'otio-icon';
-
 // キャンバスのデフォルトサイズ
 export const DEFAULT_CANVAS_WIDTH = 800;
 export const DEFAULT_CANVAS_HEIGHT = 600;

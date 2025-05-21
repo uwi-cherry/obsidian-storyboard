@@ -15,8 +15,6 @@ export interface Strings {
   EXT_CHANGE_FAILED: string;
   CREATE_PSD: string;
   OPEN_PSD: string;
-  CREATE_OTIO: string;
-  OPEN_OTIO: string;
   EXPORT_VIDEO: string;
   BACK_TO_STORYBOARD: string;
   EXPORT_IMAGE: string;
@@ -100,8 +98,6 @@ const STRINGS: Record<Language, Strings> = {
     EXT_CHANGE_FAILED: 'ファイル拡張子の変更に失敗しました。コンソールログを確認してください。',
     CREATE_PSD: 'PSDペインターを新規作成',
     OPEN_PSD: 'PSDペインターを開く',
-    CREATE_OTIO: 'OTIOタイムラインを新規作成',
-    OPEN_OTIO: 'OTIOタイムラインを開く',
     EXPORT_VIDEO: '動画出力',
     BACK_TO_STORYBOARD: 'ストーリーボードに戻る',
     EXPORT_IMAGE: '画像出力',
@@ -183,8 +179,6 @@ const STRINGS: Record<Language, Strings> = {
     EXT_CHANGE_FAILED: 'Failed to change file extension. Check console logs.',
     CREATE_PSD: 'Create PSD Painter',
     OPEN_PSD: 'Open PSD Painter',
-    CREATE_OTIO: 'Create OTIO Timeline',
-    OPEN_OTIO: 'Open OTIO Timeline',
     EXPORT_VIDEO: 'Export video',
     BACK_TO_STORYBOARD: 'Back to storyboard',
     EXPORT_IMAGE: 'Export image',
