@@ -51,6 +51,7 @@ export default function useStoryboardData(
         speaker: '',
         dialogues: '',
         imagePrompt: '',
+        sePrompt: '',
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) =>
@@ -118,6 +119,7 @@ export default function useStoryboardData(
         speaker: '',
         dialogues: '',
         imagePrompt: '',
+        sePrompt: '',
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) => {
@@ -133,15 +135,16 @@ export default function useStoryboardData(
   );
 
   const addChapter = useCallback(
-    (title?: string) => {
+    (bgmPrompt?: string) => {
       const emptyFrame: StoryboardFrame = {
         imageUrl: '',
         speaker: '',
         dialogues: '',
         imagePrompt: '',
+        sePrompt: '',
       };
       const newChapter = {
-        title: title ?? t('UNTITLED_CHAPTER'),
+        bgmPrompt: bgmPrompt ?? '',
         frames: [emptyFrame],
       };
       updateData(prev => ({ ...prev, chapters: [...prev.chapters, newChapter] }));

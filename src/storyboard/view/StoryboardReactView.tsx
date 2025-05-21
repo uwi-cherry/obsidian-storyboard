@@ -50,10 +50,10 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   const [openChapters, setOpenChapters] = useState<boolean[]>(
     initialData.chapters.map(() => true)
   );
-  const [newChapterTitle, setNewChapterTitle] = useState('');
+  const [newChapterBgm, setNewChapterBgm] = useState('');
 
-  // 章タイトルのref配列
-  const titleRefs = useRef<(HTMLInputElement | null)[]>([]);
+  // BGM入力欄のref配列
+  const bgmRefs = useRef<(HTMLInputElement | null)[]>([]);
   const prevChapterCount = useRef(initialData.chapters.length);
 
   // セリフ欄（textarea）のref配列
@@ -120,7 +120,25 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             dialogueRefs.current[rowIndex] = el;
           }}
           isFirstRow={rowIndex === 0}
-          onEditCharacters={() => setCharModalOpen(true)}
+      onEditCharacters={() => setCharModalOpen(true)}
+      />
+    ),
+    },
+    {
+      key: 'sePrompt',
+      header: t('HEADER_SE'),
+      renderCell: (
+        value: StoryboardFrame['sePrompt'],
+        _row: StoryboardFrame,
+        onCellChangeForRow: (
+          columnKey: keyof StoryboardFrame,
+          newValue: StoryboardFrame[keyof StoryboardFrame]
+        ) => void
+      ) => (
+        <textarea
+          value={value || ''}
+          onChange={e => onCellChangeForRow('sePrompt', e.target.value)}
+          className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
         />
       ),
     },
@@ -161,11 +179,11 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     return () => window.removeEventListener('psd-sidebar-update-image', handler);
   }, [handleCellChange, storyboard]);
 
-  // 新しく章が追加された際にタイトル入力へフォーカスする
+  // 新しく章が追加された際にBGM入力へフォーカスする
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {
       const idx = storyboard.chapters.length - 1;
-      titleRefs.current[idx]?.focus();
+      bgmRefs.current[idx]?.focus();
       prevChapterCount.current = storyboard.chapters.length;
     } else {
       prevChapterCount.current = storyboard.chapters.length;
@@ -202,16 +220,16 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             />
             <input
               className="w-full border-none bg-transparent focus:outline-none text-2xl font-bold"
-              value={chapter.title}
+              value={chapter.bgmPrompt ?? ''}
               ref={el => {
-                titleRefs.current[cIdx] = el;
+                bgmRefs.current[cIdx] = el;
               }}
               onClick={e => e.stopPropagation()}
               onChange={e => {
-                const title = e.target.value;
+                const bgmPrompt = e.target.value;
                 setStoryboard(prev => {
                   const chapters = prev.chapters.map((ch, idx) =>
-                    idx === cIdx ? { ...ch, title } : ch
+                    idx === cIdx ? { ...ch, bgmPrompt } : ch
                   );
                   const updated = { ...prev, chapters };
                   onDataChange(updated);
@@ -263,15 +281,15 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
                 type="text"
                 className="w-full border-none bg-transparent focus:outline-none text-center text-text-muted hover:text-text-normal"
                 placeholder={t('NEW_CHAPTER_PLACEHOLDER')}
-                value={newChapterTitle}
+                value={newChapterBgm}
                 onChange={e => {
                   const value = e.target.value;
                   if (value.length > 0) {
                     addChapter(value);
                     setOpenChapters(prev => [...prev, true]);
-                    setNewChapterTitle('');
+                    setNewChapterBgm('');
                   } else {
-                    setNewChapterTitle(value);
+                    setNewChapterBgm(value);
                   }
                 }}
               />
