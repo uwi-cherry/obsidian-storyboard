@@ -12,6 +12,7 @@ export interface Strings {
   AI_RESPONSE_ERROR: string;
   STORYBOARD_TOGGLE: string;
   ADD_STORYBOARD: string;
+  ADD_TIMELINE: string;
   EXT_CHANGE_FAILED: string;
   CREATE_PSD: string;
   OPEN_PSD: string;
@@ -80,6 +81,7 @@ export interface Strings {
   ADD_IMAGE_TOOLTIP: string;
   ADD_MASK_TOOLTIP: string;
   ADD_REFERENCE_TOOLTIP: string;
+  ADD_CLIP: string;
 }
 
 const STRINGS: Record<Language, Strings> = {
@@ -95,6 +97,7 @@ const STRINGS: Record<Language, Strings> = {
     AI_RESPONSE_ERROR: 'AI応答エラー',
     STORYBOARD_TOGGLE: '絵コンテ切替',
     ADD_STORYBOARD: '新規ストーリーボードを追加',
+    ADD_TIMELINE: '新規タイムラインを追加',
     EXT_CHANGE_FAILED: 'ファイル拡張子の変更に失敗しました。コンソールログを確認してください。',
     CREATE_PSD: 'PSDペインターを新規作成',
     OPEN_PSD: 'PSDペインターを開く',
@@ -163,6 +166,7 @@ const STRINGS: Record<Language, Strings> = {
     ADD_IMAGE_TOOLTIP: '画像を追加',
     ADD_MASK_TOOLTIP: 'マスクを追加',
     ADD_REFERENCE_TOOLTIP: '参考画像を追加',
+    ADD_CLIP: 'クリップを追加',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -176,6 +180,7 @@ const STRINGS: Record<Language, Strings> = {
     AI_RESPONSE_ERROR: 'AI response error',
     STORYBOARD_TOGGLE: 'Toggle storyboard',
     ADD_STORYBOARD: 'Add storyboard',
+    ADD_TIMELINE: 'Add timeline',
     EXT_CHANGE_FAILED: 'Failed to change file extension. Check console logs.',
     CREATE_PSD: 'Create PSD Painter',
     OPEN_PSD: 'Open PSD Painter',
@@ -244,6 +249,7 @@ const STRINGS: Record<Language, Strings> = {
     ADD_IMAGE_TOOLTIP: 'Add image',
     ADD_MASK_TOOLTIP: 'Add mask',
     ADD_REFERENCE_TOOLTIP: 'Add reference',
+    ADD_CLIP: 'Add clip',
   }
 };
 
