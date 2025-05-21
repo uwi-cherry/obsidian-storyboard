@@ -1,6 +1,18 @@
 import { useState, useCallback, useEffect } from 'react';
 import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types';
 
+export function createEmptyFrame(): StoryboardFrame {
+  return {
+    imageUrl: '',
+    speaker: '',
+    dialogues: '',
+    imagePrompt: '',
+    sePrompt: '',
+    cameraPrompt: '',
+    timecode: '',
+  };
+}
+
 export default function useStoryboardData(
   initialData: StoryboardData,
   onDataChange: (data: StoryboardData) => void,
@@ -45,15 +57,7 @@ export default function useStoryboardData(
 
   const addRow = useCallback(
     (chapterIndex: number) => {
-      const newFrame: StoryboardFrame = {
-        imageUrl: '',
-        speaker: '',
-        dialogues: '',
-        imagePrompt: '',
-        sePrompt: '',
-        cameraPrompt: '',
-        timecode: '',
-      };
+      const newFrame = createEmptyFrame();
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) =>
           cIdx === chapterIndex ? { ...ch, frames: [...ch.frames, newFrame] } : ch,
@@ -115,15 +119,7 @@ export default function useStoryboardData(
 
   const insertRowBelow = useCallback(
     (chapterIndex: number, rowIndex: number) => {
-      const newFrame: StoryboardFrame = {
-        imageUrl: '',
-        speaker: '',
-        dialogues: '',
-        imagePrompt: '',
-        sePrompt: '',
-        cameraPrompt: '',
-        timecode: '',
-      };
+      const newFrame = createEmptyFrame();
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) => {
           if (cIdx !== chapterIndex) return ch;
@@ -139,15 +135,7 @@ export default function useStoryboardData(
 
   const addChapter = useCallback(
     (bgmPrompt?: string) => {
-      const emptyFrame: StoryboardFrame = {
-        imageUrl: '',
-        speaker: '',
-        dialogues: '',
-        imagePrompt: '',
-        sePrompt: '',
-        cameraPrompt: '',
-        timecode: '',
-      };
+      const emptyFrame = createEmptyFrame();
       const newChapter = {
         bgmPrompt: bgmPrompt ?? '',
         frames: [emptyFrame],
