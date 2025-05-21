@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { OtioProject } from '../timeline-types';
-import { createClip } from '../timeline-files';
+import { createClip, createTrack } from '../timeline-files';
 import { t } from '../../i18n';
 
 interface TimelineReactViewProps {
@@ -37,8 +37,25 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
         onProjectChange(newProject);
     };
 
+    const handleAddTrack = () => {
+        const newProject = JSON.parse(JSON.stringify(data)) as OtioProject;
+        const trackNumber = newProject.timeline.tracks.length + 1;
+        const newTrack = createTrack(`Track ${trackNumber}`);
+        newProject.timeline.tracks.push(newTrack);
+        setData(newProject);
+        onProjectChange(newProject);
+    };
+
     return (
         <div className="p-4 space-y-6 text-text-normal">
+            <div className="flex justify-end mb-2">
+                <button
+                    className="px-2 py-1 text-xs bg-accent text-on-accent rounded"
+                    onClick={handleAddTrack}
+                >
+                    {t('ADD_TRACK')}
+                </button>
+            </div>
             {data.timeline.tracks.map((track, tIdx) => (
                 <div
                     key={tIdx}

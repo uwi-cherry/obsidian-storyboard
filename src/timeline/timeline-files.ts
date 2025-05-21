@@ -169,6 +169,21 @@ export function createClip(filePath: string, startTime: number = 0, duration: nu
         metadata: {}
     };
 }
+
+export function createTrack(name: string): OtioTrack {
+    return {
+        name,
+        kind: 'Track',
+        children: [],
+        source_range: {
+            start_time: 0,
+            duration: 0
+        },
+        effects: [],
+        markers: [],
+        metadata: {}
+    };
+}
 export function formatTimecode(seconds: number, fps: number = 30): string {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
