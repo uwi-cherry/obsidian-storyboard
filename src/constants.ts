@@ -34,4 +34,8 @@ export const BLEND_MODE_TO_COMPOSITE_OPERATION = {
 export const MAX_HISTORY_SIZE = 20;
 
 // デフォルトの色
-export const DEFAULT_COLOR = '#000000'; 
+export const DEFAULT_COLOR = '#000000';
+
+// OTIO ビュータイプとアイコン
+export const OTIO_VIEW_TYPE = 'otio-view';
+export const OTIO_ICON = 'otio-icon';
