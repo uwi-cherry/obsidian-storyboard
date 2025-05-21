@@ -147,6 +147,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             endTime={row.endTime || ''}
             onPromptChange={val => onCellChangeForRow('prompt', val)}
             onEndTimeChange={val => onCellChangeForRow('endTime', val)}
+            app={app}
           />
         );
       },
