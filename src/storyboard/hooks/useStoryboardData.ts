@@ -51,7 +51,7 @@ export default function useStoryboardData(
         dialogues: '',
         imagePrompt: '',
         sePrompt: '',
-        preview: '',
+        cameraPrompt: '',
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) =>
@@ -120,7 +120,7 @@ export default function useStoryboardData(
         dialogues: '',
         imagePrompt: '',
         sePrompt: '',
-        preview: '',
+        cameraPrompt: '',
       };
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) => {
@@ -143,7 +143,7 @@ export default function useStoryboardData(
         dialogues: '',
         imagePrompt: '',
         sePrompt: '',
-        preview: '',
+        cameraPrompt: '',
       };
       const newChapter = {
         bgmPrompt: bgmPrompt ?? '',

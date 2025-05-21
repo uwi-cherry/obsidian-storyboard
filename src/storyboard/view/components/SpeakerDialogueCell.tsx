@@ -51,10 +51,6 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
     onDialogueChange(e.target.value);
   };
 
-  const handleSePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onSePromptChange && onSePromptChange(e.target.value);
-  };
-
   const handleDialogueKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const textarea = textareaRef.current;
     if (!textarea) return;

@@ -4,7 +4,7 @@ export interface StoryboardFrame {
   imageUrl?: string;
   imagePrompt?: string;
   sePrompt?: string;
-  preview?: string;
+  cameraPrompt?: string;
 }
 
 export interface CharacterInfo {

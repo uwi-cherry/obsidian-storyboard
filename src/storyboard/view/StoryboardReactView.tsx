@@ -7,6 +7,7 @@ import EditableTable, { ColumnDef } from './components/EditableTable';
 import { TABLE_ICONS, FOLD_ICON_SVG } from 'src/icons';
 import ImageInputCell from './components/ImageInputCell';
 import SpeakerDialogueCell from './components/SpeakerDialogueCell';
+import PreviewCell from './components/PreviewCell';
 import useStoryboardData from '../hooks/useStoryboardData';
 
 interface StoryboardReactViewProps {
@@ -122,14 +123,28 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             dialogueRefs.current[rowIndex] = el;
           }}
           isFirstRow={rowIndex === 0}
-      onEditCharacters={() => setCharModalOpen(true)}
-      />
-    ),
+          onEditCharacters={() => setCharModalOpen(true)}
+        />
+      ),
     },
     {
       key: 'preview',
       header: t('HEADER_PREVIEW'),
-      renderCell: () => <div className="min-h-[1.5rem]" />,
+      renderCell: (
+        _value: StoryboardFrame['cameraPrompt'],
+        row: StoryboardFrame,
+        onCellChangeForRow: (
+          columnKey: keyof StoryboardFrame,
+          newValue: StoryboardFrame[keyof StoryboardFrame]
+        ) => void
+      ) => (
+        <PreviewCell
+          sePrompt={row.sePrompt || ''}
+          cameraPrompt={row.cameraPrompt || ''}
+          onSePromptChange={val => onCellChangeForRow('sePrompt', val)}
+          onCameraPromptChange={val => onCellChangeForRow('cameraPrompt', val)}
+        />
+      ),
     },
   ];
 
