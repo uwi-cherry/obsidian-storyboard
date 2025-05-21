@@ -30,7 +30,16 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
             tFile = found;
         } else {
             const arrayBuffer = await file.arrayBuffer();
-            const path = normalizePath(file.name);
+            const storyboardDir = view.app.workspace.getActiveFile()?.parent?.path || '';
+            const assetsDir = storyboardDir ? normalizePath(`${storyboardDir}/assets`) : 'assets';
+            try {
+                if (!view.app.vault.getAbstractFileByPath(assetsDir)) {
+                    await view.app.vault.createFolder(assetsDir);
+                }
+            } catch (err) {
+                console.error('Failed to create assets folder:', err);
+            }
+            const path = normalizePath(`${assetsDir}/${file.name}`);
             tFile = await view.app.vault.createBinary(path, arrayBuffer);
         }
 
