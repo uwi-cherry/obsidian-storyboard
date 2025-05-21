@@ -1,6 +1,5 @@
 import { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
-import type { SelectionState } from '../hooks/useSelectionState';
 import { t } from '../../i18n';
 
 export class TransformEditController {
@@ -17,13 +16,12 @@ export class TransformEditController {
 
   constructor(
     private view: PainterView,
-    private state: SelectionState,
+    private rect: SelectionRect,
     private onFinish: () => void
   ) {}
 
   start() {
-    const rect = this.state.getBoundingRect();
-    if (!rect) return;
+    const rect = this.rect;
     const layer = this.view.psdDataHistory[this.view.currentIndex].layers[
       this.view.currentLayerIndex
     ];
@@ -79,6 +77,7 @@ export class TransformEditController {
     this.overlay.style.left = `${canvasRect.left + rect.x * scale}px`;
     this.overlay.style.top = `${canvasRect.top + rect.y * scale}px`;
     this.overlayCanvas.style.pointerEvents = 'none';
+    this.overlayCanvas.style.border = '1px dashed var(--color-accent)';
     this.overlay.appendChild(this.overlayCanvas);
 
     // control buttons
@@ -88,35 +87,74 @@ export class TransformEditController {
     menu.style.top = '-28px';
     menu.className = 'flex gap-1 bg-secondary border border-modifier-border p-1 rounded';
 
-    const btnScaleUp = document.createElement('button');
-    btnScaleUp.className = 'px-2 py-1 text-xs';
-    btnScaleUp.textContent = t('SCALE');
-    btnScaleUp.onclick = () => {
-      this.scale *= 1.2;
-      this.updateTransform();
-    };
-    const btnRotate = document.createElement('button');
-    btnRotate.className = 'px-2 py-1 text-xs';
-    btnRotate.textContent = t('ROTATE');
-    btnRotate.onclick = () => {
-      this.rotation += Math.PI / 2;
-      this.updateTransform();
-    };
     const btnConfirm = document.createElement('button');
     btnConfirm.className = 'px-2 py-1 text-xs';
     btnConfirm.textContent = t('CONFIRM');
-    btnConfirm.onclick = () => this.confirm(rect);
+    btnConfirm.onclick = () => this.confirm();
     const btnCancel = document.createElement('button');
     btnCancel.className = 'px-2 py-1 text-xs';
     btnCancel.textContent = t('CANCEL');
-    btnCancel.onclick = () => this.cancel(rect);
-    menu.appendChild(btnScaleUp);
-    menu.appendChild(btnRotate);
+    btnCancel.onclick = () => this.cancel();
     menu.appendChild(btnConfirm);
     menu.appendChild(btnCancel);
 
     this.overlay.appendChild(menu);
+    const handle = document.createElement('div');
+    handle.style.position = 'absolute';
+    handle.style.right = '-8px';
+    handle.style.bottom = '-8px';
+    handle.style.width = '16px';
+    handle.style.height = '16px';
+    handle.style.background = 'var(--background-primary)';
+    handle.style.border = '2px solid var(--color-accent)';
+    handle.style.borderRadius = '50%';
+    handle.style.cursor = 'grab';
+    this.overlay.appendChild(handle);
     document.body.appendChild(this.overlay);
+
+    let handleDragging = false;
+    let startVx = 0;
+    let startVy = 0;
+    let startDist = 1;
+    let startAngle = 0;
+    let startScale = 1;
+    let startRotation = 0;
+
+    handle.onpointerdown = (e) => {
+      e.stopPropagation();
+      handleDragging = true;
+      const r = this.overlayCanvas!.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      startVx = e.clientX - cx;
+      startVy = e.clientY - cy;
+      startDist = Math.hypot(startVx, startVy);
+      startAngle = Math.atan2(startVy, startVx);
+      startScale = this.scale;
+      startRotation = this.rotation;
+      window.addEventListener('pointermove', handleMove);
+      window.addEventListener('pointerup', handleUp);
+    };
+
+    const handleMove = (e: PointerEvent) => {
+      if (!handleDragging) return;
+      const r = this.overlayCanvas!.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const vx = e.clientX - cx;
+      const vy = e.clientY - cy;
+      const dist = Math.hypot(vx, vy);
+      const angle = Math.atan2(vy, vx);
+      this.scale = startScale * (dist / startDist);
+      this.rotation = startRotation + (angle - startAngle);
+      this.updateTransform();
+    };
+
+    const handleUp = () => {
+      handleDragging = false;
+      window.removeEventListener('pointermove', handleMove);
+      window.removeEventListener('pointerup', handleUp);
+    };
 
     this.overlay.onpointerdown = (e) => {
       this.dragging = true;
@@ -153,7 +191,7 @@ export class TransformEditController {
     this.overlay = null;
   }
 
-  confirm(rect: SelectionRect) {
+  confirm() {
     const layer = this.view.psdDataHistory[this.view.currentIndex].layers[
       this.view.currentLayerIndex
     ];
@@ -162,27 +200,31 @@ export class TransformEditController {
 
     ctx.save();
     ctx.translate(
-      rect.x + rect.width / 2 + this.offsetX / (this.view.zoom / 100),
-      rect.y + rect.height / 2 + this.offsetY / (this.view.zoom / 100)
+      this.rect.x +
+        this.rect.width / 2 +
+        this.offsetX / (this.view.zoom / 100),
+      this.rect.y +
+        this.rect.height / 2 +
+        this.offsetY / (this.view.zoom / 100)
     );
     ctx.rotate(this.rotation);
     ctx.scale(this.scale, this.scale);
-    ctx.drawImage(this.overlayCanvas, -rect.width / 2, -rect.height / 2);
+    ctx.drawImage(this.overlayCanvas, -this.rect.width / 2, -this.rect.height / 2);
     ctx.restore();
     this.view.renderCanvas();
     this.cleanup();
     this.onFinish();
   }
 
-  cancel(rect: SelectionRect) {
+  cancel() {
     const layer = this.view.psdDataHistory[this.view.currentIndex].layers[
       this.view.currentLayerIndex
     ];
     const ctx = layer.canvas.getContext('2d');
     if (!ctx || !this.backupCanvas) return;
 
-    ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
-    ctx.drawImage(this.backupCanvas, rect.x, rect.y);
+    ctx.clearRect(this.rect.x, this.rect.y, this.rect.width, this.rect.height);
+    ctx.drawImage(this.backupCanvas, this.rect.x, this.rect.y);
     this.view.renderCanvas();
     this.cleanup();
     this.onFinish();

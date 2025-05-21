@@ -72,7 +72,7 @@ export class ActionMenu {
   }
 
   /** グローバルメニュー（非選択時） */
-  showGlobal(handlers: { fill: () => void; clear: () => void }) {
+  showGlobal(handlers: { fill: () => void; clear: () => void; edit?: () => void }) {
     this.mode = 'global';
     this.handlers = handlers;
     const rect = this.view._canvas.getBoundingClientRect();

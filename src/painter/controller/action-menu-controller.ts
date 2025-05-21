@@ -21,6 +21,7 @@ export class ActionMenuController {
     this.menu.showGlobal({
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
+      edit: () => this.edit(),
     });
   }
 
@@ -30,7 +31,7 @@ export class ActionMenuController {
     this.menu.showSelection(rect, {
       fill: () => this.fillSelection(),
       clear: () => this.clearSelection(),
-      edit: () => this.editSelection(),
+      edit: () => this.edit(),
       cancel: () => {
         onCancel();
         this.showGlobal();
@@ -356,12 +357,21 @@ export class ActionMenuController {
     });
   }
 
-  editSelection() {
-    if (!this.state.hasSelection()) return;
+  edit() {
     if (this.view.editController) {
       return;
     }
-    this.view.editController = new TransformEditController(this.view, this.state, () => {
+    let rect: SelectionRect | undefined;
+    if (this.state.hasSelection()) {
+      rect = this.state.getBoundingRect();
+    } else {
+      const canvas = this.view.canvasElement;
+      if (canvas) {
+        rect = { x: 0, y: 0, width: canvas.width, height: canvas.height };
+      }
+    }
+    if (!rect) return;
+    this.view.editController = new TransformEditController(this.view, rect, () => {
       this.view.editController = undefined;
       this.showGlobal();
     });
