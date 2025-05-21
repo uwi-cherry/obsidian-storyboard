@@ -138,9 +138,9 @@ const STRINGS: Record<Language, Strings> = {
     CANVAS_SIZE: 'キャンバスサイズ',
     ZOOM_LEVEL: '拡大率',
     ROTATION_ANGLE: '回転角',
-    ADD_IMAGE: '画像追加',
+    ADD_IMAGE: '画像を追加',
     ADD_MASK: 'マスクを追加',
-    ADD_CHARACTER_DESIGN: 'キャラデザを追加',
+    ADD_CHARACTER_DESIGN: 'リファレンスを追加',
   },
   en: {
     AI_SETTINGS: 'AI Settings',
@@ -210,7 +210,7 @@ const STRINGS: Record<Language, Strings> = {
     ROTATION_ANGLE: 'Rotation',
     ADD_IMAGE: 'Add Image',
     ADD_MASK: 'Add Mask',
-    ADD_CHARACTER_DESIGN: 'Add Character Design',
+    ADD_CHARACTER_DESIGN: 'Add Reference',
   }
 };
 
