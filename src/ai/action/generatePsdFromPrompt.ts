@@ -1,5 +1,5 @@
 import MyPlugin from "main";
-import { App, TFile } from "obsidian";
+import { App, TFile, normalizePath } from "obsidian";
 import { createPsd } from "src/painter/painter-files";
 import { loadSettings } from "src/settings/settings";
 
@@ -36,8 +36,9 @@ export async function generatePsdFromPrompt(
   // base64 → Uint8Array
   const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
 
-  // Vault 保存
-  const folder = 'Assets';
+  // 保存先フォルダ（ストーリーボードと同階層の assets フォルダ）
+  const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
+  const folder = normalizePath(`${activeDir}/assets`);
   const ext = 'png';
   let baseName = fileName ?? `generated-${Date.now()}.${ext}`;
   if (!baseName.endsWith(`.${ext}`)) baseName += `.${ext}`;

@@ -46,9 +46,9 @@ const EditableTable = <T,>({
   onRowClick,
   headerTop,
 }: EditableTableProps<T>) => {
-  // 全カラム分の幅を管理（初期値は512px、最後の列はundefinedで自動）
+  // 全カラム分の幅を管理（初期値はすべて300px）
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
-    Array.from({ length: columns.length }, (_, i) => (i === columns.length - 1 ? undefined : 512))
+    Array.from({ length: columns.length }, () => 300)
   );
   const resizingCol = useRef<number | null>(null);
   const startX = useRef<number>(0);
