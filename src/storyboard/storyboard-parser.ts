@@ -11,13 +11,14 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
   let currentLabel: string | null = null;
 
   function initializeNewFrame(): StoryboardFrame {
-    return {
-      dialogues: '',
-      speaker: '',
-      imageUrl: undefined,
-      imagePrompt: undefined,
-      sePrompt: undefined,
-    };
+      return {
+        dialogues: '',
+        speaker: '',
+        imageUrl: undefined,
+        imagePrompt: undefined,
+        sePrompt: undefined,
+        cameraPrompt: undefined,
+      };
   }
 
   function saveCurrentFrameIfValid() {
@@ -78,11 +79,24 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         currentFrame = initializeNewFrame();
         currentFrame.speaker = line.replace(/^####\s*/, '');
       } else if (currentFrame) {
-        if (line.startsWith('**') && line.endsWith('**') && line.length >= 4) {
+        const seMatch = line.match(/^<se>(.*)<\/se>$/);
+        const cameraMatch = line.match(/^<camera>(.*)<\/camera>$/);
+        const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
+        if (seMatch) {
+          currentFrame.sePrompt = seMatch[1];
+        } else if (cameraMatch) {
+          currentFrame.cameraPrompt = cameraMatch[1];
+        } else if (imageMatch) {
+          currentFrame.imagePrompt = imageMatch[1];
+          currentFrame.imageUrl = imageMatch[2];
+        } else if (line.startsWith('**') && line.endsWith('**') && line.length >= 4) {
+          // legacy SE format
           currentFrame.sePrompt = line.substring(2, line.length - 2);
         } else if (line.startsWith('*') && line.endsWith('*') && line.length > 1) {
+          // legacy image prompt format
           currentFrame.imagePrompt = line.substring(1, line.length - 1);
         } else if (line.startsWith('[[') && line.endsWith(']]')) {
+          // legacy image url format
           if (!currentFrame.imageUrl) {
             currentFrame.imageUrl = line.substring(2, line.length - 2);
           }
@@ -121,14 +135,14 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
     chapter.frames.forEach(frame => {
       content += `#### ${frame.speaker || ''}\n`;
       content += `${frame.dialogues || ''}\n`;
-      if (frame.imageUrl !== undefined) {
-        content += `[[${frame.imageUrl ?? ''}]]\n`;
-      }
-      if (frame.imagePrompt !== undefined) {
-        content += `*${frame.imagePrompt ?? ''}*\n`;
+      if (frame.imageUrl !== undefined || frame.imagePrompt !== undefined) {
+        content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
       }
       if (frame.sePrompt !== undefined) {
-        content += `**${frame.sePrompt ?? ''}**\n`;
+        content += `<se>${frame.sePrompt ?? ''}</se>\n`;
+      }
+      if (frame.cameraPrompt !== undefined) {
+        content += `<camera>${frame.cameraPrompt ?? ''}</camera>\n`;
       }
     });
   });

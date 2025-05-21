@@ -1,14 +1,12 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { t } from 'src/i18n';
 
 interface SpeakerDialogueCellProps {
   speaker: string;
   dialogue: string;
-  sePrompt?: string;
   speakersList: string[];
   onSpeakerChange: (newSpeaker: string) => void;
   onDialogueChange: (newDialogue: string) => void;
-  onSePromptChange?: (newSePrompt: string) => void;
   className?: string;
   focusPrevCellDialogue?: () => void;
   focusNextCellDialogue?: () => void;
@@ -20,11 +18,9 @@ interface SpeakerDialogueCellProps {
 const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
   speaker,
   dialogue,
-  sePrompt,
   speakersList,
   onSpeakerChange,
   onDialogueChange,
-  onSePromptChange,
   className = '',
   focusPrevCellDialogue,
   focusNextCellDialogue,
@@ -32,11 +28,7 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
   onEditCharacters,
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const [showSeInput, setShowSeInput] = useState(!!sePrompt);
 
-  useEffect(() => {
-    setShowSeInput(!!sePrompt);
-  }, [sePrompt]);
 
   useEffect(() => {
     if (refCallback) {
@@ -119,25 +111,6 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
         placeholder={t('DIALOGUE_PLACEHOLDER')}
         className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto mt-2"
       />
-      {showSeInput ? (
-        <div className="relative mt-2 border border-accent/50 rounded p-1">
-          <textarea
-            value={sePrompt || ''}
-            onChange={handleSePromptChange}
-            placeholder={t('SE_PROMPT_PLACEHOLDER')}
-            className="w-full border-none focus:border-none focus:outline-none focus:shadow-none shadow-none rounded-none bg-transparent p-0 text-text-normal placeholder-text-faint leading-tight resize-none field-sizing-content overflow-y-hidden [@supports_not(field-sizing:content)]:overflow-y-auto"
-          />
-          <span className="absolute -top-2 -right-2 text-accent" aria-hidden="true">♪</span>
-        </div>
-      ) : (
-        <button
-          type="button"
-          className="text-xs text-accent hover:underline self-start mt-2 p-0 bg-transparent border-none"
-          onClick={() => setShowSeInput(true)}
-        >
-          ({t('ADD_SE')})
-        </button>
-      )}
     </div>
   );
 };
