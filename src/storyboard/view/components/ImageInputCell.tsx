@@ -134,7 +134,16 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       path = found.path;
     } else {
       const arrayBuffer = await file.arrayBuffer();
-      path = normalizePath(file.name);
+      const storyboardDir = app.workspace.getActiveFile()?.parent?.path || '';
+      const assetsDir = storyboardDir ? normalizePath(`${storyboardDir}/assets`) : 'assets';
+      try {
+        if (!app.vault.getAbstractFileByPath(assetsDir)) {
+          await app.vault.createFolder(assetsDir);
+        }
+      } catch (err) {
+        console.error('Failed to create assets folder:', err);
+      }
+      path = normalizePath(`${assetsDir}/${file.name}`);
       const newFile = await app.vault.createBinary(path, arrayBuffer);
       path = newFile.path;
     }

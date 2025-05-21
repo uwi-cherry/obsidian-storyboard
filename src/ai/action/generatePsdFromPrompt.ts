@@ -1,5 +1,5 @@
 import MyPlugin from "main";
-import { App, TFile } from "obsidian";
+import { App, TFile, normalizePath } from "obsidian";
 import { createPsd } from "src/painter/painter-files";
 import { loadSettings } from "src/settings/settings";
 
@@ -37,7 +37,8 @@ export async function generatePsdFromPrompt(
   const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
 
   // Vault 保存
-  const folder = 'Assets';
+  const storyboardDir = app.workspace.getActiveFile()?.parent?.path || '';
+  const folder = storyboardDir ? normalizePath(`${storyboardDir}/assets`) : 'assets';
   const ext = 'png';
   let baseName = fileName ?? `generated-${Date.now()}.${ext}`;
   if (!baseName.endsWith(`.${ext}`)) baseName += `.${ext}`;
