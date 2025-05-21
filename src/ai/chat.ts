@@ -2,7 +2,7 @@ import type MyPlugin from '../../main';
 import { loadSettings } from '../settings/settings';
 import { OpenAiAgent } from '../agent-module/OpenAiAgent';
 import { OpenAiAgentRunner } from '../agent-module/OpenAiAgentRunner';
-import { RunResult, ChatMessage } from '../agent-module/types';
+import { RunResult, ChatMessage, Attachment } from '../agent-module/types';
 import { aiTools } from './tools';
 
 // ==============================================
@@ -29,6 +29,7 @@ export async function sendChatMessage(
   userMessage: string,
   plugin?: MyPlugin,
   onToken?: (token: string) => void,
+  attachments: Attachment[] = [],
 ): Promise<RunResult> {
   if (!plugin) {
     throw new Error('プラグインインスタンスが取得できませんでした');
@@ -53,18 +54,18 @@ export async function sendChatMessage(
       ...agent,
       maxTokens: 1,
     });
-    const checkResult = await OpenAiAgentRunner.run(agentForCheck, userMessage, chatHistory);
+    const checkResult = await OpenAiAgentRunner.run(agentForCheck, userMessage, chatHistory, attachments);
     const lastMsg = checkResult.history[checkResult.history.length - 1];
     const isFunctionCall = lastMsg && lastMsg.role === 'function';
 
     if (!isFunctionCall) {
       // function_callでなければストリーミングで返す
-      return await OpenAiAgentRunner.runStreamed(agent, userMessage, onToken, chatHistory);
+      return await OpenAiAgentRunner.runStreamed(agent, userMessage, onToken, chatHistory, attachments);
     }
     // function_callなら通常runで返す（ツール実行）
-    return await OpenAiAgentRunner.run(agent, userMessage, chatHistory);
+    return await OpenAiAgentRunner.run(agent, userMessage, chatHistory, attachments);
   } else {
     // onToken無し（ストリーミング不要）なら従来通り
-    return await OpenAiAgentRunner.run(agent, userMessage, chatHistory);
+    return await OpenAiAgentRunner.run(agent, userMessage, chatHistory, attachments);
   }
 }

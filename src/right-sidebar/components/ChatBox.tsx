@@ -10,6 +10,7 @@ interface ChatBoxProps {
 
 interface Attachment {
   url: string;
+  data: string;
   type: 'image' | 'mask' | 'reference';
 }
 
@@ -34,7 +35,12 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
     if (!file) return;
     const url = URL.createObjectURL(file);
     const type = pendingTypeRef.current ?? 'image';
-    setAttachments(prev => [...prev, { url, type }]);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const data = reader.result as string;
+      setAttachments(prev => [...prev, { url, data, type }]);
+    };
+    reader.readAsDataURL(file);
     pendingTypeRef.current = null;
     e.target.value = '';
   };
@@ -70,6 +76,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
     // プレースホルダの assistant メッセージを用意
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
     setInput("");
+    const sendAttachments = attachments;
     setAttachments([]);
     setLoading(true);
     try {
@@ -86,6 +93,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
             return updated;
           });
         },
+        sendAttachments
       );
       // 念のため最終出力を上書き（トークンで構築済みのはず）
       setMessages(prev => {

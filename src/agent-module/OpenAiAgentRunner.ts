@@ -1,5 +1,19 @@
-import { ChatMessage, RunResult, RunResultStreaming } from './types';
+import { ChatMessage, RunResult, RunResultStreaming, Attachment } from './types';
 import { OpenAiAgent } from './OpenAiAgent';
+
+function buildApiMessages(messages: ChatMessage[]) {
+  return messages.map(({ role, content, name, attachments }) => {
+    if (attachments && attachments.length > 0) {
+      const parts: Array<{ type: 'text' | 'image_url'; text?: string; image_url?: { url: string } }> = [];
+      if (content) parts.push({ type: 'text', text: content });
+      for (const att of attachments) {
+        parts.push({ type: 'image_url', image_url: { url: att.url } });
+      }
+      return { role, content: parts, name };
+    }
+    return { role, content, name };
+  });
+}
 
 /**
  * OpenAiAgent を実行するユーティリティ。
@@ -7,18 +21,23 @@ import { OpenAiAgent } from './OpenAiAgent';
  */
 export class OpenAiAgentRunner {
   /** 非同期フル実行 */
-  static async run(agent: OpenAiAgent, userMessage: string, history: ChatMessage[] = []): Promise<RunResult> {
+  static async run(
+    agent: OpenAiAgent,
+    userMessage: string,
+    history: ChatMessage[] = [],
+    attachments: Attachment[] = [],
+  ): Promise<RunResult> {
     const messages: ChatMessage[] = [
       { role: 'system', content: agent.instructions },
       ...history,
-      { role: 'user', content: userMessage },
+      { role: 'user', content: userMessage, attachments },
     ];
     const toolLogs: { name: string; args: unknown; result: string }[] = [];
 
     for (let turn = 0; turn < agent.maxTurns; turn++) {
       const payload: Record<string, unknown> = {
         model: agent.model,
-        messages: messages.map(({ role, content, name }) => ({ role, content, name })),
+        messages: buildApiMessages(messages),
         max_tokens: agent.maxTokens,
         temperature: agent.temperature,
         ...(agent.modelSettings.stopSequences?.length
@@ -91,8 +110,13 @@ export class OpenAiAgentRunner {
   }
 
   /** 同期版 (内部で run を await) */
-  static async runSync(agent: OpenAiAgent, userMessage: string, history: ChatMessage[] = []): Promise<RunResult> {
-    return await this.run(agent, userMessage, history);
+  static async runSync(
+    agent: OpenAiAgent,
+    userMessage: string,
+    history: ChatMessage[] = [],
+    attachments: Attachment[] = [],
+  ): Promise<RunResult> {
+    return await this.run(agent, userMessage, history, attachments);
   }
 
   /** ストリーミング実行。tokenごとに onToken が呼ばれる。*/
@@ -101,18 +125,19 @@ export class OpenAiAgentRunner {
     userMessage: string,
     onToken: (token: string) => void,
     history: ChatMessage[] = [],
+    attachments: Attachment[] = [],
   ): Promise<RunResultStreaming> {
     const messages: ChatMessage[] = [
       { role: 'system', content: agent.instructions },
       ...history,
-      { role: 'user', content: userMessage },
+      { role: 'user', content: userMessage, attachments },
     ];
     const toolLogs: { name: string; args: unknown; result: string }[] = [];
 
     const payload: Record<string, unknown> = {
       model: agent.model,
       stream: true,
-      messages: messages.map(({ role, content, name }) => ({ role, content, name })),
+      messages: buildApiMessages(messages),
       max_tokens: agent.maxTokens,
       temperature: agent.temperature,
       ...(agent.modelSettings.stopSequences?.length
@@ -188,12 +213,13 @@ export class OpenAiAgentRunner {
     agent: OpenAiAgent,
     userMessage: string,
     onToken: (token: string) => void,
-    history: ChatMessage[] = []
+    history: ChatMessage[] = [],
+    attachments: Attachment[] = []
   ): Promise<{ finalOutput: string, history: ChatMessage[], toolCalls: { name: string; args: unknown; result: string }[] }> {
     const messages: ChatMessage[] = [
       { role: 'system', content: agent.instructions },
       ...history,
-      { role: 'user', content: userMessage },
+      { role: 'user', content: userMessage, attachments },
     ];
     let finalOutput = '';
     const toolCalls: { name: string; args: unknown; result: string }[] = [];
@@ -208,7 +234,7 @@ export class OpenAiAgentRunner {
         body: JSON.stringify({
           model: agent.model,
           stream: true,
-          messages: messages.map(({ role, content, name }) => ({ role, content, name })),
+          messages: buildApiMessages(messages),
           max_tokens: agent.maxTokens,
           temperature: agent.temperature,
           ...(agent.modelSettings.stopSequences?.length
