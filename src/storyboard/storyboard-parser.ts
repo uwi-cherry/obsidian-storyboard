@@ -89,8 +89,41 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         const timeMatch =
           line.match(/^<time(?:\s+[^>]*)?>(.*)<\/time>$/) ||
           line.match(/^<span[^>]*style=["'][^"']*color:\s*#df9d5b[^"']*["'][^>]*>(.*)<\/span>$/);
+        const calloutInfoMatch = line.match(/^>\s*\[!INFO\]\s*(.*)$/);
         const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
-        if (seMatch) {
+        if (calloutInfoMatch) {
+          currentFrame.timecode = calloutInfoMatch[1].trim();
+          const cameraLines: string[] = [];
+          const seLines: string[] = [];
+          let mode: 'camera' | 'se' | null = null;
+          while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
+            const raw = lines[i + 1].replace(/^>\s*/, '').trim();
+            if (/^CAMERA:\s*/i.test(raw)) {
+              mode = 'camera';
+              const rest = raw.replace(/^CAMERA:\s*/i, '').trim();
+              if (rest) cameraLines.push(rest);
+            } else if (/^SE:\s*/i.test(raw)) {
+              mode = 'se';
+              const rest = raw.replace(/^SE:\s*/i, '').trim();
+              if (rest) seLines.push(rest);
+            } else {
+              if (mode === 'se') {
+                seLines.push(raw);
+              } else {
+                // default to camera when mode is null or camera
+                cameraLines.push(raw);
+                if (mode === null) mode = 'camera';
+              }
+            }
+            i++;
+          }
+          if (cameraLines.length > 0) {
+            currentFrame.cameraPrompt = cameraLines.join('\n');
+          }
+          if (seLines.length > 0) {
+            currentFrame.sePrompt = seLines.join('\n');
+          }
+        } else if (seMatch) {
           currentFrame.sePrompt = seMatch[1];
         } else if (cameraMatch) {
           currentFrame.cameraPrompt = cameraMatch[1];
@@ -103,8 +136,17 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
           // legacy SE format
           currentFrame.sePrompt = line.substring(2, line.length - 2);
         } else if (line.startsWith('*') && line.endsWith('*') && line.length > 1) {
-          // legacy image prompt format
-          currentFrame.imagePrompt = line.substring(1, line.length - 1);
+          // new SE markdown format or legacy image prompt
+          const content = line.substring(1, line.length - 1);
+          if (!currentFrame.imageUrl && !currentFrame.imagePrompt) {
+            // treat as SE prompt when no image prompt is expected
+            currentFrame.sePrompt = currentFrame.sePrompt
+              ? `${currentFrame.sePrompt}\n${content}`
+              : content;
+          } else {
+            // legacy image prompt format
+            currentFrame.imagePrompt = content;
+          }
         } else if (line.startsWith('[[') && line.endsWith(']]')) {
           // legacy image url format
           if (!currentFrame.imageUrl) {
@@ -148,14 +190,24 @@ export function formatStoryboardToMarkdown(data: StoryboardData): string {
       if (frame.imageUrl !== undefined || frame.imagePrompt !== undefined) {
         content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
       }
-      if (frame.sePrompt !== undefined) {
-        content += `<span style="color:#5cc7f5">${frame.sePrompt ?? ''}</span>\n`;
-      }
-      if (frame.cameraPrompt !== undefined) {
-        content += `<span style="color:#ff8eb2">${frame.cameraPrompt ?? ''}</span>\n`;
-      }
-      if (frame.timecode !== undefined) {
-        content += `<span style="color:#df9d5b">${frame.timecode ?? ''}</span>\n`;
+      if (
+        frame.timecode !== undefined ||
+        frame.cameraPrompt !== undefined ||
+        frame.sePrompt !== undefined
+      ) {
+        content += `> [!INFO] ${frame.timecode ?? ''}`.trimEnd() + '\n';
+        if (frame.cameraPrompt !== undefined) {
+          content += '> CAMERA:\n';
+          frame.cameraPrompt.split('\n').forEach(l => {
+            content += `> ${l}\n`;
+          });
+        }
+        if (frame.sePrompt !== undefined) {
+          content += '> SE:\n';
+          frame.sePrompt.split('\n').forEach(l => {
+            content += `> ${l}\n`;
+          });
+        }
       }
     });
   });
