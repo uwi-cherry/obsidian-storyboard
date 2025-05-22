@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { OtioProject } from '../timeline-types';
+import { OtioProject, OtioClip } from '../timeline-types';
 import { createClip, createTrack } from '../timeline-files';
 import { t } from '../../i18n';
 
@@ -17,9 +17,11 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
 
     const handleClipChange = (tIdx: number, cIdx: number, field: 'path' | 'start' | 'duration', value: string) => {
         const newProject = JSON.parse(JSON.stringify(data)) as OtioProject;
-        const clip = newProject.timeline.tracks[tIdx].children[cIdx] as any;
+        const clip = newProject.timeline.tracks[tIdx].children[cIdx] as OtioClip;
         if (field === 'path') {
-            clip.media_reference.target_url = value;
+            if ('target_url' in clip.media_reference) {
+                (clip.media_reference as { target_url: string }).target_url = value;
+            }
         } else if (field === 'start') {
             clip.source_range.start_time = parseFloat(value) || 0;
         } else {
@@ -71,7 +73,7 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
                         </button>
                     </div>
                     <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
-                        {track.children.map((clip: any, cIdx: number) => (
+                        {track.children.map((clip: OtioClip, cIdx: number) => (
                             <div
                                 key={cIdx}
                                 className="absolute top-0 h-full bg-accent text-on-accent text-center text-xs truncate"
@@ -80,7 +82,7 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
                                     width: `${clip.source_range.duration * PIXELS_PER_SECOND}px`
                                 }}
                             >
-                                {clip.media_reference.target_url.split('/').pop()}
+                                {'target_url' in clip.media_reference ? (clip.media_reference as { target_url: string }).target_url.split('/').pop() : ''}
                             </div>
                         ))}
                     </div>
@@ -93,12 +95,12 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
                             </tr>
                         </thead>
                         <tbody>
-                            {track.children.map((clip: any, cIdx: number) => (
+                            {track.children.map((clip: OtioClip, cIdx: number) => (
                                 <tr key={cIdx}>
                                     <td>
                                         <input
                                             className="border p-1 w-full"
-                                            value={clip.media_reference.target_url}
+                                            value={'target_url' in clip.media_reference ? (clip.media_reference as { target_url: string }).target_url : ''}
                                             onChange={e => handleClipChange(tIdx, cIdx, 'path', e.target.value)}
                                         />
                                     </td>

@@ -52,5 +52,5 @@ export function useLayers(initialLayers: Layer[] = []): LayersState {
     };
     ref.current = state;
   }
-  return ref.current!;
+  return ref.current as LayersState;
 }
