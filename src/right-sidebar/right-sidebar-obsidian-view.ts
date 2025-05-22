@@ -3,6 +3,7 @@ import { t } from 'src/i18n';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, App, TFile } from 'obsidian';
 import { Layer } from '../painter/painter-types';
+import { PsdService } from '../services/psd-service';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
 import { PainterView } from '../painter/view/painter-obsidian-view';
@@ -20,25 +21,13 @@ export interface LayerOps {
     setBlendMode: (index: number, mode: keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION) => void;
 }
 
-// === コールバックインターフェース =====================
-export interface FileOpsCallbacks {
-    /** PSD ファイルのレイヤー情報を読み込む */
-    loadPsdLayers: (path: string) => Promise<Layer[]>;
-}
 
 export class RightSidebarView extends ItemView {
     private layers: Layer[] = [];
     private currentLayerIndex = 0;
 
     public layerOps?: LayerOps;
-    public fileOps?: FileOpsCallbacks;
-    public createPsd?: (
-        app: App,
-        imageFile?: TFile,
-        layerName?: string,
-        isOpen?: boolean,
-        targetDir?: string
-    ) => Promise<TFile>;
+    public psdService?: PsdService;
 
     // === 画像操作 UI 関連 =====================
     private currentRowIndex: number | null = null;
@@ -49,7 +38,7 @@ export class RightSidebarView extends ItemView {
 
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
-        // fileOps は Controller 側から注入されるためここでは設定しない
+        // psdService は Controller 側から注入されるためここでは設定しない
     }
 
     getViewType(): string {
@@ -118,7 +107,7 @@ export class RightSidebarView extends ItemView {
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
-            createPsd: this.createPsd!,
+            psdService: this.psdService!,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -148,7 +137,7 @@ export class RightSidebarView extends ItemView {
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
-            createPsd: this.createPsd!,
+            psdService: this.psdService!,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -191,8 +180,12 @@ export class RightSidebarView extends ItemView {
         if (hasPsd && this.currentImageUrl) {
             try {
                 let layers: Layer[] | null = null;
-                if (this.fileOps?.loadPsdLayers) {
-                    layers = await this.fileOps.loadPsdLayers(this.currentImageUrl);
+                if (this.psdService) {
+                    const fileObj = this.app.vault.getAbstractFileByPath(this.currentImageUrl);
+                    if (fileObj instanceof TFile) {
+                        const psdData = await this.psdService.load(this.app, fileObj);
+                        layers = psdData.layers;
+                    }
                 }
                 if (layers && layers.length > 0) {
                     this.layers = layers;
@@ -227,22 +220,9 @@ export class RightSidebarView extends ItemView {
     }
 
     /**
-     * コントローラーからデータアクセス用のコールバックを注入
+     * PSD 操作用のサービスを注入
      */
-    public setFileOps(callbacks: FileOpsCallbacks) {
-        this.fileOps = callbacks;
-    }
-
-    /**
-     * createPsd 関数を注入
-     */
-    public setCreatePsd(callback: (
-        app: App,
-        imageFile?: TFile,
-        layerName?: string,
-        isOpen?: boolean,
-        targetDir?: string
-    ) => Promise<TFile>) {
-        this.createPsd = callback;
+    public setPsdService(service: PsdService) {
+        this.psdService = service;
     }
 }

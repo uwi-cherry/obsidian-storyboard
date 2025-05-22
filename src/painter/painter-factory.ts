@@ -1,24 +1,18 @@
-import { App, TFile, WorkspaceLeaf } from 'obsidian';
+import { App, WorkspaceLeaf } from 'obsidian';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
-import { createPsd, loadPsdFile, savePsdFile, addLayer, deleteLayer } from './painter-files';
+import { savePsdFile } from './painter-files';
+import { PsdService } from '../services/psd-service';
+import { LayerService } from '../services/layer-service';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const view = new PainterView(leaf);
-    // ファイル入出力をビューに委譲
-    view.setFileOperations({
-        save: savePsdFile,
-        load: loadPsdFile
-    });
-
-    // レイヤー操作デリゲートを注入（imageFile オプショナル引数にも対応）
-    view.setLayerOperations({
-        add: addLayer,
-        delete: deleteLayer
-    });
+    const psdService = new PsdService();
+    const layerService = new LayerService();
+    view.setServices({ psd: psdService, layer: layerService });
 
     // ===== レイヤーサイドバーの初期化・同期 =====================
     // 右サイドバーにレイヤービューを開く。既に開いている場合は再利用。
@@ -44,22 +38,9 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
 
     const sidebarView = sidebarLeaf?.view as RightSidebarView | undefined;
 
-    // === データアクセス用コールバックを Sidebar へ注入 =================
-    if (sidebarView && typeof (sidebarView as any).setFileOps === 'function') {
-        sidebarView.setFileOps({
-            loadPsdLayers: async (path: string) => {
-                const fileObj = view.app.vault.getAbstractFileByPath(path);
-                if (fileObj instanceof TFile) {
-                    const psdData = await loadPsdFile(view.app, fileObj);
-                    return psdData.layers ?? [];
-                }
-                throw new Error('File not found');
-            }
-        });
-    }
-
-    if (sidebarView && typeof (sidebarView as any).setCreatePsd === 'function') {
-        sidebarView.setCreatePsd(createPsd);
+    // === サービスを Sidebar へ注入 =================
+    if (sidebarView && typeof (sidebarView as any).setPsdService === 'function') {
+        sidebarView.setPsdService(psdService);
     }
 
     // LayerSidebarView へ操作コールバックを渡す
@@ -178,21 +159,10 @@ export function saveActive(app: App) {
  */
 export function createLayerSidebar(leaf: WorkspaceLeaf): RightSidebarView {
     const view = new RightSidebarView(leaf);
-    // データアクセス用コールバックを Sidebar へ注入
-    if (typeof (view as any).setFileOps === 'function') {
-        view.setFileOps({
-            loadPsdLayers: async (path: string) => {
-                const fileObj = view.app.vault.getAbstractFileByPath(path);
-                if (fileObj instanceof TFile) {
-                    const psdData = await loadPsdFile(view.app, fileObj);
-                    return psdData.layers ?? [];
-                }
-                throw new Error('File not found');
-            }
-        });
-    }
-    if (typeof (view as any).setCreatePsd === 'function') {
-        view.setCreatePsd(createPsd);
+    // サービスを注入
+    const psdService = new PsdService();
+    if (typeof (view as any).setPsdService === 'function') {
+        view.setPsdService(psdService);
     }
     return view;
 }

@@ -5,6 +5,7 @@ import MyPlugin from 'main';
 import { BUTTON_ICONS } from 'src/icons';
 import { generatePsdFromPrompt } from 'src/ai/action/generatePsdFromPrompt';
 import { t } from 'src/i18n';
+import { PsdService } from '../../../services/psd-service';
 interface ImageInputCellProps {
   imageUrl?: string;
   imagePrompt?: string;
@@ -13,14 +14,7 @@ interface ImageInputCellProps {
   onImagePromptChange: (newPrompt: string) => void;
   className?: string;
   app: App;
-  generateThumbnail: (app: App, file: TFile) => Promise<string | null>;
-  createPsd: (
-    app: App,
-    imageFile?: TFile,
-    layerName?: string,
-    isOpen?: boolean,
-    targetDir?: string
-  ) => Promise<TFile>;
+  psdService: PsdService;
   focusPrevCellPrompt?: () => void;
   focusNextCellPrompt?: () => void;
   refCallback?: (el: HTMLTextAreaElement | null) => void;
@@ -32,8 +26,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
   onImageUrlChange,
   onImagePromptChange,
   app,
-  generateThumbnail,
-  createPsd,
+  psdService,
   focusPrevCellPrompt,
   focusNextCellPrompt,
   refCallback,
@@ -68,7 +61,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
         if (file instanceof TFile) {
           const currentModified = file.stat.mtime;
           if (lastModifiedRef.current === null || currentModified > lastModifiedRef.current) {
-            const thumbnailData = await generateThumbnail(app, file);
+            const thumbnailData = await psdService.thumbnail(app, file);
             if (!cancelled) {
               setThumbnail(thumbnailData);
               lastModifiedRef.current = currentModified;
@@ -144,7 +137,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       if (imageFile instanceof TFile) {
         // ストーリーボードのディレクトリを取得
         const storyboardPath = app.workspace.getActiveFile()?.parent?.path || '';
-        const psdFile = await createPsd(app, imageFile, imageFile.basename, false, storyboardPath);
+        const psdFile = await psdService.create(app, imageFile, imageFile.basename, false, storyboardPath);
         path = psdFile.path;
       }
     }

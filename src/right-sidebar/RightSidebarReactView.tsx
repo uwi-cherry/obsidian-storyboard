@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { App, TFile } from 'obsidian';
+import { App } from 'obsidian';
 import type { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
+import { PsdService } from '../services/psd-service';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
@@ -16,13 +17,7 @@ interface RightSidebarReactViewProps {
     currentImagePrompt: string | null;
     onLayerChange: (layers: Layer[], currentIndex: number) => void;
     onImageChange: (url: string | null, prompt: string | null) => void;
-    createPsd: (
-        app: App,
-        imageFile?: TFile,
-        layerName?: string,
-        isOpen?: boolean,
-        targetDir?: string
-    ) => Promise<TFile>;
+    psdService: PsdService;
 }
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
@@ -33,7 +28,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     currentImagePrompt,
     onLayerChange,
     onImageChange,
-    createPsd,
+    psdService,
 }) => {
     const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
 
@@ -87,7 +82,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 onExportImage={() => {}}
                 app={view.app}
                 onImageUrlChange={(url) => onImageChange(url, currentImagePrompt)}
-                createPsd={createPsd}
+                psdService={psdService}
             />
 
             {(currentImageUrl?.endsWith('.psd') || layers.length > 0) && (
