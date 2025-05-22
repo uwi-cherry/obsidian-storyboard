@@ -4,8 +4,7 @@ import { usePainterPointer } from '../hooks/usePainterPointer';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
 import type { TFile } from 'obsidian';
-import { ActionMenuController } from '../controller/action-menu-controller';
-import { SelectionController } from '../controller/selection-controller';
+// コントローラー依存を削除
 import { useSelectionState } from '../hooks/useSelectionState';
 import { useLayers } from '../hooks/useLayers';
 import type { SelectionState } from '../hooks/useSelectionState';
@@ -38,14 +37,17 @@ interface PainterReactViewProps {
   setSelectionState: (s: SelectionState) => void;
   layers: LayersState;
   setLayers: (l: LayersState) => void;
-  selectionController?: SelectionController;
-  createSelectionController: (state: SelectionState) => SelectionController;
-  setSelectionController: (c: SelectionController) => void;
-  createActionMenuController: (state: SelectionState) => ActionMenuController;
-  setActionMenu: (menu: ActionMenuController) => void;
   renderCanvas: () => void;
   loadAndRenderFile?: (file: TFile) => Promise<void>;
   getCanvasSize: () => { width: number; height: number };
+  onFill: () => void;
+  onClear: () => void;
+  onEdit: () => void;
+  onCopy: () => void;
+  onCut: () => void;
+  onPaste: () => void;
+  onSelectAll: () => void;
+  onDeselect: () => void;
 }
 
 /**
@@ -76,11 +78,14 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
   setSelectionState,
   layers,
   setLayers,
-  selectionController,
-  createSelectionController,
-  setSelectionController,
-  createActionMenuController,
-  setActionMenu,
+  onFill,
+  onClear,
+  onEdit,
+  onCopy,
+  onCut,
+  onPaste,
+  onSelectAll,
+  onDeselect,
   renderCanvas,
   loadAndRenderFile,
   getCanvasSize,
@@ -153,20 +158,19 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
 
-    // SelectionController と状態を初期化
+    // 状態を初期化
     setSelectionState(selectionState);
     setLayers(layersState);
-    let controller = selectionController;
-    if (!controller) {
-      controller = createSelectionController(selectionState);
-      setSelectionController(controller);
-    }
-
-    const actionMenu = createActionMenuController(selectionState);
-    setActionMenu(actionMenu);
-    const resizeHandler = () => actionMenu.showGlobal();
+    
+    // グローバルメニューを表示
+    const showGlobalMenu = () => {
+      onDeselect && onDeselect();
+      onFill && onFill();
+    };
+    
+    const resizeHandler = showGlobalMenu;
     window.addEventListener('resize', resizeHandler);
-    actionMenu.showGlobal();
+    showGlobalMenu();
 
     // ファイル読み込み or 背景レイヤー作成
     (async () => {
@@ -197,10 +201,11 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
 
     return () => {
       // クリーンアップ
-      canvas.removeEventListener('pointerdown', onPointerDown);
-      canvas.removeEventListener('pointermove', onPointerMove);
-      canvas.removeEventListener('pointerup', onPointerUp);
-      actionMenu.dispose();
+      if (canvas) {
+        canvas.removeEventListener('pointerdown', onPointerDown);
+        canvas.removeEventListener('pointermove', onPointerMove);
+        canvas.removeEventListener('pointerup', onPointerUp);
+      }
       window.removeEventListener('resize', resizeHandler);
     };
   }, []);

@@ -273,18 +273,18 @@ export class PainterView extends FileView {
                                 setLayers: (l) => {
                                         this.layers = l;
                                 },
-                                selectionController: this._selectionController,
-                                createSelectionController: (state) => new SelectionController(this, state),
-                                setSelectionController: (sc) => {
-                                        this._selectionController = sc;
-                                },
-                                createActionMenuController: (state) => new ActionMenuController(this, state),
-                                setActionMenu: (menu) => {
-                                        this.actionMenu = menu;
-                                },
+                                // コントローラー関連のプロパティは削除
                                 renderCanvas: () => this.renderCanvas(),
                                 loadAndRenderFile: this._loadAndRenderFile?.bind(this),
                                 getCanvasSize: this.getCanvasSize.bind(this),
+                                onFill: () => this.onFill(),
+                                onClear: () => this.onClear(),
+                                onEdit: () => this.onEdit(),
+                                onCopy: () => this.onCopy(),
+                                onCut: () => this.onCut(),
+                                onPaste: () => this.onPaste(),
+                                onSelectAll: () => this.onSelectAll(),
+                                onDeselect: () => this.onDeselect(),
                         })
                 );
 
@@ -449,6 +449,39 @@ export class PainterView extends FileView {
 		if (this._deleteLayerDelegate) {
 			this._deleteLayerDelegate(this, index);
 		}
+	}
+
+	// ActionMenu 関連のメソッド
+	onFill() {
+		this.actionMenu?.fillSelection();
+	}
+
+	onClear() {
+		this.actionMenu?.clearSelection();
+	}
+
+	onEdit() {
+		this.actionMenu?.edit();
+	}
+
+	onCopy() {
+		this.actionMenu?.copySelection();
+	}
+
+	onCut() {
+		this.actionMenu?.cutSelection();
+	}
+
+	onPaste() {
+		this.actionMenu?.pasteSelection();
+	}
+
+	onSelectAll() {
+		this.actionMenu?.selectAll();
+	}
+
+	onDeselect() {
+		this.actionMenu?.deselect();
 	}
 
 	renderCanvas() {
