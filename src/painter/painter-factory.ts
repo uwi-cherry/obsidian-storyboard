@@ -1,7 +1,8 @@
 import { App, TFile, WorkspaceLeaf } from 'obsidian';
 
 import { t } from '../i18n';
-import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
+import { LAYER_SIDEBAR_VIEW_TYPE, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
+import { LayerAndFileOps } from '../right-sidebar/right-sidebar-obsidian-view-interface';
 import { createPsd, loadPsdFile, savePsdFile, addLayer, deleteLayer } from './painter-files';
 import { PainterView } from './view/painter-obsidian-view';
 
@@ -45,7 +46,65 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
 
     // === データアクセス用コールバックを Sidebar へ注入 =================
     if (sidebarView) {
-        sidebarView.setFileOps({
+        const layerOps: LayerAndFileOps = {
+            loadPsdLayers: async (path: string) => {
+                const fileObj = view.app.vault.getAbstractFileByPath(path);
+                if (fileObj instanceof TFile) {
+                    const psdData = await loadPsdFile(view.app, fileObj);
+                    return psdData.layers ?? [];
+                }
+                throw new Error('File not found');
+            },
+            addLayer: (name?: string) => view.createNewLayer(name ?? t('NEW_LAYER')),
+            deleteLayer: (index: number) => view.deleteLayer(index),
+            toggleLayerVisibility: (index: number) => {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
+                if (layer) {
+                    layer.visible = !layer.visible;
+                    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                        (view as PainterView).saveLayerStateToHistory();
+                    }
+                    view.renderCanvas();
+                }
+            },
+            renameLayer: (index: number, newName: string) => {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
+                if (layer) {
+                    layer.name = newName;
+                    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                        (view as PainterView).saveLayerStateToHistory();
+                    }
+                    view.renderCanvas();
+                }
+            },
+            setCurrentLayer: (index: number) => {
+                view.layers.currentLayerIndex = index;
+                view.renderCanvas();
+            },
+            setOpacity: (index: number, opacity: number) => {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
+                if (layer) {
+                    layer.opacity = opacity;
+                    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                        (view as PainterView).saveLayerStateToHistory();
+                    }
+                    view.renderCanvas();
+                }
+            },
+            setBlendMode: (index: number, mode) => {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
+                if (layer) {
+                    layer.blendMode = mode;
+                    if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
+                        (view as PainterView).saveLayerStateToHistory();
+                    }
+                    view.renderCanvas();
+                }
+            }
+        };
+
+        sidebarView.setLayerAndFileOps({
+            ...layerOps,
             loadPsdLayers: async (path: string) => {
                 const fileObj = view.app.vault.getAbstractFileByPath(path);
                 if (fileObj instanceof TFile) {
@@ -61,55 +120,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
         sidebarView.setCreatePsd(createPsd);
     }
 
-    // LayerSidebarView へ操作コールバックを渡す
-    const layerOps: LayerOps = {
-        addLayer: (name?: string) => view.createNewLayer(name ?? t('NEW_LAYER')),
-        deleteLayer: (index: number) => view.deleteLayer(index),
-        toggleLayerVisibility: (index: number) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
-                layer.visible = !layer.visible;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
-                }
-                view.renderCanvas();
-            }
-        },
-        renameLayer: (index: number, newName: string) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
-                layer.name = newName;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
-                }
-                view.renderCanvas();
-            }
-        },
-        setCurrentLayer: (index: number) => {
-            view.layers.currentLayerIndex = index;
-            view.renderCanvas();
-        },
-        setOpacity: (index: number, opacity: number) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
-                layer.opacity = opacity;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
-                }
-                view.renderCanvas();
-            }
-        },
-        setBlendMode: (index: number, mode) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
-                layer.blendMode = mode;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
-                }
-                view.renderCanvas();
-            }
-        }
-    };
+    // LayerSidebarView への操作コールバックは setLayerAndFileOps で設定済み
 
     // ビューが開けた場合はレイヤー変更時に同期
     if (sidebarView) {
@@ -123,7 +134,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             const currentSidebarView = leaves[0].view as RightSidebarView | undefined;
             if (!currentSidebarView || typeof currentSidebarView.syncLayers !== 'function') return;
 
-            currentSidebarView.syncLayers(currentState.layers, view.layers.currentLayerIndex, layerOps);
+            currentSidebarView.syncLayers(currentState.layers, view.layers.currentLayerIndex);
         };
 
         // 初期化が終わったあとにも同期されるようイベントリスナで対応
@@ -178,8 +189,16 @@ export function saveActive(app: App) {
 export function createLayerSidebar(leaf: WorkspaceLeaf): RightSidebarView {
     const view = new RightSidebarView(leaf);
     // データアクセス用コールバックを Sidebar へ注入
-    if (typeof view.setFileOps === 'function') {
-        view.setFileOps({
+    if (typeof view.setLayerAndFileOps === 'function') {
+        // ここではダミーの実装を提供
+        const dummyOps = {
+            addLayer: () => {},
+            deleteLayer: () => {},
+            toggleLayerVisibility: () => {},
+            renameLayer: () => {},
+            setCurrentLayer: () => {},
+            setOpacity: () => {},
+            setBlendMode: () => {},
             loadPsdLayers: async (path: string) => {
                 const fileObj = view.app.vault.getAbstractFileByPath(path);
                 if (fileObj instanceof TFile) {
@@ -188,7 +207,8 @@ export function createLayerSidebar(leaf: WorkspaceLeaf): RightSidebarView {
                 }
                 throw new Error('File not found');
             }
-        });
+        };
+        view.setLayerAndFileOps(dummyOps);
     }
     if (typeof view.setCreatePsd === 'function') {
         view.setCreatePsd(createPsd);

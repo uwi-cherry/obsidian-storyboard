@@ -3,35 +3,20 @@ import { t } from 'src/i18n';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, App, TFile } from 'obsidian';
 import { Layer } from '../painter/painter-types';
-import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
+import { PSD_VIEW_TYPE, BLEND_MODE_TO_COMPOSITE_OPERATION } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
 import { PainterView } from '../painter/view/painter-obsidian-view';
+import { LayerAndFileOps } from './right-sidebar-obsidian-view-interface';
+
 export type { Layer };
 
 export const LAYER_SIDEBAR_VIEW_TYPE = 'psd-layer-sidebar';
-
-export interface LayerOps {
-    addLayer: (name?: string) => void;
-    deleteLayer: (index: number) => void;
-    toggleLayerVisibility: (index: number) => void;
-    renameLayer: (index: number, newName: string) => void;
-    setCurrentLayer: (index: number) => void;
-    setOpacity: (index: number, opacity: number) => void;
-    setBlendMode: (index: number, mode: keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION) => void;
-}
-
-// === コールバックインターフェース =====================
-export interface FileOpsCallbacks {
-    /** PSD ファイルのレイヤー情報を読み込む */
-    loadPsdLayers: (path: string) => Promise<Layer[]>;
-}
 
 export class RightSidebarView extends ItemView {
     private layers: Layer[] = [];
     private currentLayerIndex = 0;
 
-    public layerOps?: LayerOps;
-    public fileOps?: FileOpsCallbacks;
+    public layerAndFileOps?: LayerAndFileOps;
     public createPsd: (
         app: App,
         imageFile?: TFile,
@@ -65,22 +50,46 @@ export class RightSidebarView extends ItemView {
     /**
      * 外部からレイヤー配列と選択インデックスを同期する
      */
-    public syncLayers(layers: Layer[], currentLayerIndex: number, ops: LayerOps) {
-        this.layerOps = ops;
+    public syncLayers(layers: Layer[], currentLayerIndex: number) {
         this.layers = layers;
         this.currentLayerIndex = currentLayerIndex;
         this.updateLayerList();
         this.updateControls();
     }
 
-    // レイヤー操作
-    public addLayer(name = t('NEW_LAYER')) {
-        this.layerOps?.addLayer(name);
+    public setLayerAndFileOps(ops: LayerAndFileOps) {
+        this.layerAndFileOps = ops;
     }
 
-    /**
-     * 画像ファイルからレイヤーを追加
-     */
+    // レイヤー操作
+    private handleAddLayer = (name?: string) => {
+        this.layerAndFileOps?.addLayer(name);
+    };
+
+    private handleDeleteLayer = (index: number) => {
+        this.layerAndFileOps?.deleteLayer(index);
+    };
+
+    private handleToggleLayerVisibility = (index: number) => {
+        this.layerAndFileOps?.toggleLayerVisibility(index);
+    };
+
+    private handleRenameLayer = (index: number, newName: string) => {
+        this.layerAndFileOps?.renameLayer(index, newName);
+    };
+
+    private handleSetCurrentLayer = (index: number) => {
+        this.layerAndFileOps?.setCurrentLayer(index);
+    };
+
+    private handleSetOpacity = (index: number, opacity: number) => {
+        this.layerAndFileOps?.setOpacity(index, opacity);
+    };
+
+    private handleSetBlendMode = (index: number, mode: keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION) => {
+        this.layerAndFileOps?.setBlendMode(index, mode);
+    };
+
     public addImageLayer(file: TFile) {
         const leaves = this.app.workspace.getLeavesOfType(PSD_VIEW_TYPE);
         const painterLeaf = leaves.find((l) => l.view instanceof PainterView);
@@ -88,25 +97,6 @@ export class RightSidebarView extends ItemView {
         if (painter) {
             painter.createNewLayer(file.basename, file);
         }
-    }
-
-    public deleteLayer(index: number) {
-        this.layerOps?.deleteLayer(index);
-    }
-
-    public toggleLayerVisibility(index: number) {
-        this.layerOps?.toggleLayerVisibility(index);
-    }
-
-    public renameLayer(index: number, newName: string) {
-        this.layerOps?.renameLayer(index, newName);
-    }
-
-    public setCurrentLayer(index: number) {
-        this.layerOps?.setCurrentLayer(index);
-        this.currentLayerIndex = index;
-        this.updateLayerList();
-        this.updateControls();
     }
 
     async onOpen(): Promise<void> {
@@ -195,8 +185,8 @@ export class RightSidebarView extends ItemView {
         if (hasPsd && this.currentImageUrl) {
             try {
                 let layers: Layer[] | null = null;
-                if (this.fileOps?.loadPsdLayers) {
-                    layers = await this.fileOps.loadPsdLayers(this.currentImageUrl);
+                if (this.layerAndFileOps) {
+                    layers = await this.layerAndFileOps.loadPsdLayers(this.currentImageUrl);
                 }
                 if (layers && layers.length > 0) {
                     this.layers = layers;
@@ -230,11 +220,11 @@ export class RightSidebarView extends ItemView {
         );
     }
 
-    /**
-     * コントローラーからデータアクセス用のコールバックを注入
-     */
-    public setFileOps(callbacks: FileOpsCallbacks) {
-        this.fileOps = callbacks;
+    private async loadPsdLayers(path: string): Promise<Layer[]> {
+        if (!this.layerAndFileOps) {
+            throw new Error('Layer and file operations not initialized');
+        }
+        return this.layerAndFileOps.loadPsdLayers(path);
     }
 
     /**

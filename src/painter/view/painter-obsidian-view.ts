@@ -283,7 +283,7 @@ export class PainterView extends FileView {
                                         this.actionMenu = menu;
                                 },
                                 renderCanvas: () => this.renderCanvas(),
-                                loadAndRenderFile: this._loadAndRenderFile ? (f) => this._loadAndRenderFile!(f) : undefined,
+                                loadAndRenderFile: this._loadAndRenderFile?.bind(this),
                                 getCanvasSize: this.getCanvasSize.bind(this),
                         })
                 );
