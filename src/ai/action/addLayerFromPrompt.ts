@@ -21,10 +21,11 @@ export async function addLayerFromPrompt(
 ): Promise<string> {
   const app: App = plugin.app;
   // API キー
-  const { apiKey } = await loadSettings(plugin);
-  if (!apiKey) throw new Error('OpenAI APIキーが設定されていません');
+  const { provider, falApiKey, replicateApiKey } = await loadSettings(plugin);
+  const apiKey = provider === 'fal' ? falApiKey : replicateApiKey;
+  if (!apiKey) throw new Error(`${provider} APIキーが設定されていません`);
 
-  const imageFile: TFile = await generateImageToAssets(prompt, apiKey, app, fileName);
+  const imageFile: TFile = await generateImageToAssets(prompt, apiKey, provider, app, fileName);
 
   // 既存 PSD ビュー取得
   const view = app.workspace.getActiveViewOfType(PainterView);

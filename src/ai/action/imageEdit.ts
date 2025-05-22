@@ -13,6 +13,7 @@ export async function editImageToAssets(
   params: {
     prompt: string;
     apiKey: string;
+    provider: 'fal' | 'replicate';
     app: App;
     fileName?: string;
     image?: string;
@@ -21,6 +22,7 @@ export async function editImageToAssets(
   }
 ): Promise<TFile> {
   const { prompt, apiKey, app, fileName, image, mask, reference } = params;
+  const provider = params.provider;
   const form = new FormData();
   form.append('prompt', prompt);
   form.append('n', '1');
@@ -30,17 +32,20 @@ export async function editImageToAssets(
   if (mask) form.append('mask', b64ToFile(mask, 'mask.png'));
   if (reference) form.append('reference_image', b64ToFile(reference, 'ref.png'));
 
-  const endpoint = image ? 'https://api.openai.com/v1/images/edits' : 'https://api.openai.com/v1/images/generations';
+  const endpoint =
+    provider === 'fal'
+      ? 'https://api.fal.ai/v1/predictions'
+      : 'https://api.replicate.com/v1/predictions';
   const res = await fetch(endpoint, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: provider === 'fal' ? `Bearer ${apiKey}` : `Token ${apiKey}`,
     },
     body: form,
   });
-  if (!res.ok) throw new Error(`OpenAI 画像編集APIエラー: ${res.status} ${await res.text()}`);
+  if (!res.ok) throw new Error(`${provider} API エラー: ${res.status} ${await res.text()}`);
   const data = await res.json();
-  const b64 = data?.data?.[0]?.b64_json as string | undefined;
+  const b64 = data?.output?.[0] as string | undefined;
   if (!b64) throw new Error('画像データが取得できませんでした');
 
   const bin = b64ToUint8Array(b64);

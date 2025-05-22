@@ -1,12 +1,15 @@
 import { Tool, JsonSchema, ModelSettings, Guardrail } from './types';
 
+export type Provider = 'fal' | 'replicate';
+
 /**
- * JSON Schema for function parameters. OpenAI API expects a JSON-Schema object.
+ * JSON Schema for function parameters. fal.ai API expects a JSON-Schema object.
  */
 // JsonSchema & Tool are now imported from shared types
 
 export interface AgentOptions {
   apiKey: string;
+  provider: Provider;
   name?: string;
   instructions?: string;
   model?: string;
@@ -15,7 +18,7 @@ export interface AgentOptions {
   temperature?: number; // TODO: deprecated, modelSettings.temperature を推奨
   tools?: Tool[];
   /** 言語や条件に応じて別エージェントへ委譲する際の候補 */
-  handoffs?: OpenAiAgent[];
+  handoffs?: AiAgent[];
   /** 最大ターン数（無限ループ防止） */
   maxTurns?: number;
   /** 追加のガードレール */
@@ -27,8 +30,9 @@ export interface AgentOptions {
  */
 // 既存 ChatMessage 型定義は types.ts に移動
 
-export class OpenAiAgent {
+export class AiAgent {
   public readonly apiKey: string;
+  public readonly provider: Provider;
   public readonly name: string;
   public readonly instructions: string;
   public readonly model: string;
@@ -36,13 +40,14 @@ export class OpenAiAgent {
   public readonly maxTokens: number;
   public readonly temperature: number;
   public readonly tools: Tool[];
-  public readonly handoffs: OpenAiAgent[];
+  public readonly handoffs: AiAgent[];
   /** ループ上限 */
   public readonly maxTurns: number;
   public readonly guardrails: Guardrail[];
 
   constructor(options: AgentOptions) {
     this.apiKey = options.apiKey;
+    this.provider = options.provider;
     this.name = options.name ?? 'Assistant';
     this.instructions = options.instructions ?? 'You are a helpful assistant.';
     this.model = options.model ?? 'gpt-4o';
@@ -70,4 +75,4 @@ export class OpenAiAgent {
   }
 }
 
-// --- OpenAiAgentRunner moved to separate file ---
+// --- AiAgentRunner moved to separate file ---

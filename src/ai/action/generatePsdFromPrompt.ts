@@ -16,11 +16,12 @@ export async function generatePsdFromPrompt(
   fileName?: string,
 ): Promise<string> {
   const app: App = plugin.app;
-  // OpenAI API キー
-  const { apiKey } = await loadSettings(plugin);
-  if (!apiKey) throw new Error('OpenAI APIキーが設定されていません');
+  // API キー
+  const { provider, falApiKey, replicateApiKey } = await loadSettings(plugin);
+  const apiKey = provider === 'fal' ? falApiKey : replicateApiKey;
+  if (!apiKey) throw new Error(`${provider} APIキーが設定されていません`);
 
-  const imageFile: TFile = await generateImageToAssets(prompt, apiKey, app, fileName);
+  const imageFile: TFile = await generateImageToAssets(prompt, apiKey, provider, app, fileName);
 
   // ストーリーボードのディレクトリを取得
   const storyboardPath = app.workspace.getActiveFile()?.parent?.path || '';
