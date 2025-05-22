@@ -1,9 +1,8 @@
 import { App, TFile, WorkspaceLeaf } from 'obsidian';
-import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
+
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
 import { createPsd, loadPsdFile, savePsdFile, addLayer, deleteLayer } from './painter-files';
-import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {

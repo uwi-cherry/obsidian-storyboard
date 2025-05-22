@@ -58,7 +58,9 @@ export async function editImageToAssets(
   let fullPath = `${folder}/${baseName}`;
   try {
     if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
-  } catch {}
+  } catch (error) {
+    console.error('Failed to create assets folder', error);
+  }
   let i = 1;
   while (app.vault.getAbstractFileByPath(fullPath)) {
     fullPath = `${folder}/${Date.now()}_${i}.${ext}`;

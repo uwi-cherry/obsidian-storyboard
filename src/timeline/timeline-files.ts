@@ -74,33 +74,25 @@ export async function createOtioFile(app: App, filename: string): Promise<TFile>
     }
     const emptyProject = await createEmptyProject();
     const content = JSON.stringify(emptyProject, null, 2);
-    try {
-        const newFile = await app.vault.create(fullPath, content);
-        return newFile;
-    } catch (error) {
-        throw error;
-    }
+    const newFile = await app.vault.create(fullPath, content);
+    return newFile;
 }
 export async function loadOtioFile(app: App, file: TFile): Promise<OtioProject> {
-    try {
-        const content = await app.vault.read(file);
-        if (!content.trim()) {
-            const emptyProject = await createEmptyProject();
-            await saveOtioFile(app, file, emptyProject);
-            return emptyProject;
-        }
-        const project = JSON.parse(content);
-        if (!project.metadata) {
-            const emptyProject = await createEmptyProject();
-            project.metadata = emptyProject.metadata;
-        }
-        if (project.metadata.psd_references === undefined) {
-            project.metadata.psd_references = [];
-        }
-        return project;
-    } catch (error) {
-        throw error;
+    const content = await app.vault.read(file);
+    if (!content.trim()) {
+        const emptyProject = await createEmptyProject();
+        await saveOtioFile(app, file, emptyProject);
+        return emptyProject;
     }
+    const project = JSON.parse(content);
+    if (!project.metadata) {
+        const emptyProject = await createEmptyProject();
+        project.metadata = emptyProject.metadata;
+    }
+    if (project.metadata.psd_references === undefined) {
+        project.metadata.psd_references = [];
+    }
+    return project;
 }
 export async function updateOtioPsdReference(app: App, otioFile: TFile, project: OtioProject, oldPath: string, newFile: TFile): Promise<void> {
     if (!project.metadata?.psd_references) {
@@ -127,27 +119,23 @@ export async function updateOtioPsdReference(app: App, otioFile: TFile, project:
     }
 }
 export async function saveOtioFile(app: App, file: TFile, project: OtioProject): Promise<void> {
-    try {
-        const projectToSave = JSON.parse(JSON.stringify(project));
-        if (!projectToSave.metadata) {
-            const emptyProject = await createEmptyProject();
-            projectToSave.metadata = emptyProject.metadata;
-        }
-        if (projectToSave.metadata.psd_references === undefined) {
-            projectToSave.metadata.psd_references = [];
-        }
-        const savedContent = JSON.stringify(projectToSave, null, 2);
-        await app.vault.modify(file, savedContent);
-        const verifyContent = await app.vault.read(file);
-        const verifyProject = JSON.parse(verifyContent);
-        if (JSON.stringify(verifyProject) !== JSON.stringify(projectToSave)) {
-            throw new Error('保存内容の検証に失敗しました');
-        }
-    } catch (error) {
-        throw error;
+    const projectToSave = JSON.parse(JSON.stringify(project));
+    if (!projectToSave.metadata) {
+        const emptyProject = await createEmptyProject();
+        projectToSave.metadata = emptyProject.metadata;
+    }
+    if (projectToSave.metadata.psd_references === undefined) {
+        projectToSave.metadata.psd_references = [];
+    }
+    const savedContent = JSON.stringify(projectToSave, null, 2);
+    await app.vault.modify(file, savedContent);
+    const verifyContent = await app.vault.read(file);
+    const verifyProject = JSON.parse(verifyContent);
+    if (JSON.stringify(verifyProject) !== JSON.stringify(projectToSave)) {
+        throw new Error('保存内容の検証に失敗しました');
     }
 }
-export function createClip(filePath: string, startTime: number = 0, duration: number = 5): OtioClip {
+export function createClip(filePath: string, startTime = 0, duration = 5): OtioClip {
     return {
         name: filePath.split('/').pop() || 'Untitled',
         kind: "Clip",
@@ -184,21 +172,21 @@ export function createTrack(name: string): OtioTrack {
         metadata: {}
     };
 }
-export function formatTimecode(seconds: number, fps: number = 30): string {
+export function formatTimecode(seconds: number, fps = 30): string {
     const h = Math.floor(seconds / 3600);
     const m = Math.floor((seconds % 3600) / 60);
     const s = Math.floor(seconds % 60);
     const f = Math.floor((seconds % 1) * fps);
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}:${f.toString().padStart(2, '0')}`;
 }
-export function parseTimecode(timecode: string, fps: number = 30): number {
+export function parseTimecode(timecode: string, fps = 30): number {
     const [h, m, s, f] = timecode.split(':').map(Number);
     return h * 3600 + m * 60 + s + f / fps;
 }
-export function framesToSeconds(frames: number, fps: number = 30): number {
+export function framesToSeconds(frames: number, fps = 30): number {
     return frames / fps;
 }
-export function secondsToFrames(seconds: number, fps: number = 30): number {
+export function secondsToFrames(seconds: number, fps = 30): number {
     return Math.round(seconds * fps);
 }
 

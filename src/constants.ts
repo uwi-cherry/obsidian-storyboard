@@ -1,6 +1,3 @@
-import { TOOL_ICONS } from './icons';
-import { t } from './i18n';
-
 export const PSD_VIEW_TYPE = 'psd-view';
 export const PSD_EXTENSION = 'psd';
 export const PSD_ICON = 'psd-icon';
