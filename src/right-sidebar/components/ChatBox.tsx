@@ -1,10 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { IChatService } from "src/services/chat-service";
+import { ChatController } from "../controller/chat-controller";
 import { t } from "src/i18n";
 import { ADD_ICON_SVG, TABLE_ICONS } from "src/icons";
 
 interface ChatBoxProps {
-  chatService: IChatService;
+  chatService: ChatController;
 }
 
 interface Attachment {

@@ -15,7 +15,7 @@ import { SelectionController } from '../controller/selection-controller';
 import { TransformEditController } from '../controller/transform-edit-controller';
 import { PsdService } from '../../services/psd-service';
 import { LayerController } from '../controller/layer-controller';
-import { LayerChangeService } from '../../services/layer-change-service';
+import { LayerChangeController } from '../controller/layer-change-controller';
 import PainterReactView from './PainterReactView';
 import type { LayersState } from '../hooks/useLayers';
 export class PainterView extends FileView {
@@ -38,7 +38,7 @@ export class PainterView extends FileView {
 
 
         // レイヤー変更通知サービス
-        private layerChangeService: LayerChangeService;
+        private layerChangeService: LayerChangeController;
 
         // レイヤー操作デリゲート（サービス経由）
 
@@ -114,7 +114,7 @@ export class PainterView extends FileView {
                 this.layerChangeService.emitChange();
 	}
 
-        constructor(leaf: WorkspaceLeaf, layerChangeService: LayerChangeService) {
+        constructor(leaf: WorkspaceLeaf, layerChangeService: LayerChangeController) {
                 super(leaf);
                 this.layerChangeService = layerChangeService;
         }
