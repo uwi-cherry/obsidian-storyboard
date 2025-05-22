@@ -32,6 +32,24 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     setStoryboard,
   } = useStoryboardData(initialData, onDataChange);
 
+  const tableService = {
+    handleCellChange: (
+      chapterIndex: number,
+      rowIndex: number,
+      key: keyof StoryboardFrame,
+      value: StoryboardFrame[keyof StoryboardFrame],
+    ) => storyboardService.handleCellChange(chapterIndex, rowIndex, key, value),
+    moveRowUp: (cIdx: number, rIdx: number) =>
+      storyboardService.moveRowUp(cIdx, rIdx),
+    moveRowDown: (cIdx: number, rIdx: number) =>
+      storyboardService.moveRowDown(cIdx, rIdx),
+    insertRowBelow: (cIdx: number, rIdx: number) =>
+      storyboardService.insertRowBelow(cIdx, rIdx),
+    deleteRow: (cIdx: number, rIdx: number) =>
+      storyboardService.deleteRow(cIdx, rIdx),
+    addRow: (cIdx: number) => storyboardService.addRow(cIdx),
+  } as const;
+
   const [charModalOpen, setCharModalOpen] = useState(false);
   const [openChapters, setOpenChapters] = useState<boolean[]>(
     initialData.chapters.map(() => true)
@@ -251,7 +269,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
                   }
                 : col
             )}
-            service={storyboardService}
+            service={tableService}
             chapterIndex={cIdx}
             onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
             showAddRow={false}

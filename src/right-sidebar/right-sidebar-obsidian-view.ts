@@ -113,7 +113,7 @@ export class RightSidebarView extends ItemView {
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
             chatService: this.chatService!,
-            controller: this.controller!
+            onImageUrlChange: (url: string | null) => this.controller?.updateImage(url, this.currentImagePrompt)
         });
 
         if (!this.reactRoot) {
@@ -134,7 +134,7 @@ export class RightSidebarView extends ItemView {
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
             chatService: this.chatService!,
-            controller: this.controller!
+            onImageUrlChange: (url: string | null) => this.controller?.updateImage(url, this.currentImagePrompt)
         });
         if (this.reactRoot) {
             this.reactRoot.render(root);

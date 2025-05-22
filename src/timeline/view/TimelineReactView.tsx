@@ -1,17 +1,30 @@
 import React, { useEffect, useState } from 'react';
 import { OtioProject } from '../timeline-types';
-import { TimelineController } from '../controller/timeline-controller';
 import { t } from '../../i18n';
 
 interface TimelineReactViewProps {
     project: OtioProject;
     onProjectChange: (project: OtioProject) => void;
-    controller: TimelineController;
+    updateClip: (
+        project: OtioProject,
+        tIdx: number,
+        cIdx: number,
+        field: 'path' | 'start' | 'duration',
+        value: string
+    ) => OtioProject;
+    addClip: (project: OtioProject, tIdx: number) => OtioProject;
+    addTrack: (project: OtioProject) => OtioProject;
 }
 
 const PIXELS_PER_SECOND = 20;
 
-const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjectChange, controller }) => {
+const TimelineReactView: React.FC<TimelineReactViewProps> = ({
+    project,
+    onProjectChange,
+    updateClip,
+    addClip,
+    addTrack,
+}) => {
     const [data, setData] = useState<OtioProject>(project);
 
     useEffect(() => setData(project), [project]);
@@ -22,19 +35,19 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
         field: 'path' | 'start' | 'duration',
         value: string
     ) => {
-        const newProject = controller.updateClip(data, tIdx, cIdx, field, value);
+        const newProject = updateClip(data, tIdx, cIdx, field, value);
         setData(newProject);
         onProjectChange(newProject);
     };
 
     const handleAddClip = (tIdx: number) => {
-        const newProject = controller.addClip(data, tIdx);
+        const newProject = addClip(data, tIdx);
         setData(newProject);
         onProjectChange(newProject);
     };
 
     const handleAddTrack = () => {
-        const newProject = controller.addTrack(data);
+        const newProject = addTrack(data);
         setData(newProject);
         onProjectChange(newProject);
     };

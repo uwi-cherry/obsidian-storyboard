@@ -1,7 +1,20 @@
 import React, { useState, useRef } from 'react';
 import { TABLE_ICONS, ADD_ICON_SVG } from 'src/icons';
 import { t } from 'src/i18n';
-import { StoryboardController } from 'src/storyboard/controller/storyboard-controller';
+
+export interface EditableTableService<T> {
+  handleCellChange: (
+    chapterIndex: number,
+    rowIndex: number,
+    key: keyof T,
+    value: T[keyof T]
+  ) => void;
+  moveRowUp: (chapterIndex: number, rowIndex: number) => void;
+  moveRowDown: (chapterIndex: number, rowIndex: number) => void;
+  insertRowBelow: (chapterIndex: number, rowIndex: number) => void;
+  deleteRow: (chapterIndex: number, rowIndex: number) => void;
+  addRow: (chapterIndex: number) => void;
+}
 
 export interface ColumnDef<T> {
   key: keyof T;
@@ -18,7 +31,7 @@ export interface ColumnDef<T> {
 export interface EditableTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
-  service: StoryboardController;
+  service: EditableTableService<T>;
   chapterIndex: number;
   showAddRow?: boolean;
   /**

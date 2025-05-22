@@ -4,11 +4,10 @@ import { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 import { PsdService } from '../services/psd-service';
-import { ChatController } from './controller/chat-controller';
+import type { ChatController } from './controller/chat-controller';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
-import { RightSidebarController } from './controller/right-sidebar-controller';
 import { getCurrentViewMode } from '../storyboard/storyboard-factory';
 
 interface RightSidebarReactViewProps {
@@ -18,9 +17,9 @@ interface RightSidebarReactViewProps {
     currentRowIndex: number | null;
     currentImageUrl: string | null;
     currentImagePrompt: string | null;
-    controller: RightSidebarController;
     psdService: PsdService;
     chatService: ChatController;
+    onImageUrlChange: (url: string | null) => void;
 }
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
@@ -29,9 +28,9 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     currentLayerIndex,
     currentImageUrl,
     currentImagePrompt,
-    controller,
     psdService,
     chatService,
+    onImageUrlChange,
 }) => {
     const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
     const [showLayerControls, setShowLayerControls] = useState(false);
@@ -107,7 +106,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 onOpenPsdPainter={handleOpenPsdPainter}
                 onExportImage={() => {}}
                 app={view.app}
-                onImageUrlChange={(url) => controller.updateImage(url, currentImagePrompt)}
+                onImageUrlChange={(url) => onImageUrlChange(url)}
                 psdService={psdService}
             />
 

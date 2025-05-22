@@ -52,11 +52,23 @@ export class TimelineView extends FileView {
                 this.project = proj;
             }
         };
+        const updateClip = (
+            proj: OtioProject,
+            tIdx: number,
+            cIdx: number,
+            field: 'path' | 'start' | 'duration',
+            value: string,
+        ) => this.controller.updateClip(proj, tIdx, cIdx, field, value);
+        const addClip = (proj: OtioProject, tIdx: number) =>
+            this.controller.addClip(proj, tIdx);
+        const addTrack = (proj: OtioProject) => this.controller.addTrack(proj);
         this.reactRoot.render(
             React.createElement(TimelineReactView, {
                 project: this.project,
                 onProjectChange: handleChange,
-                controller: this.controller
+                updateClip,
+                addClip,
+                addTrack,
             })
         );
     }

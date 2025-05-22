@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { ChatController } from "../controller/chat-controller";
+import type { ChatController } from "../controller/chat-controller";
 import { t } from "src/i18n";
 import { ADD_ICON_SVG, TABLE_ICONS } from "src/icons";
 
