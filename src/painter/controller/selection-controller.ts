@@ -1,5 +1,5 @@
 import { SelectionRect } from '../painter-types';
-import type { PainterViewInterface } from './painter-view-interface';
+import type { PainterViewInterface } from '../view/painter-view-interface';
 import type { SelectionState } from '../hooks/useSelectionState';
 
 export type { SelectionRect };

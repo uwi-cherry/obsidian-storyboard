@@ -1,5 +1,5 @@
 import { SelectionRect } from '../painter-types';
-import type { PainterViewInterface } from './painter-view-interface';
+import type { PainterViewInterface } from '../view/painter-view-interface';
 import { t } from '../../i18n';
 
 export class TransformEditController {

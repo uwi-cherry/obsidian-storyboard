@@ -1,7 +1,7 @@
 
 import { DEFAULT_COLOR } from '../../constants';
 import type { SelectionRect } from '../painter-types';
-import type { PainterViewInterface } from './painter-view-interface';
+import type { PainterViewInterface } from '../view/painter-view-interface';
 import { ActionMenu } from '../view/components/ActionMenu';
 import type { SelectionState } from '../hooks/useSelectionState';
 import { TransformEditController } from './transform-edit-controller';
