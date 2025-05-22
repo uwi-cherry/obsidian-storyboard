@@ -79,15 +79,6 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
         currentFrame = initializeNewFrame();
         currentFrame.speaker = line.replace(/^####\s*/, '');
       } else if (currentFrame) {
-        const seMatch =
-          line.match(/^<se(?:\s+[^>]*)?>(.*)<\/se>$/) ||
-          line.match(/^<span[^>]*style=["'][^"']*color:\s*#5cc7f5[^"']*["'][^>]*>(.*)<\/span>$/);
-        const cameraMatch =
-          line.match(/^<camera(?:\s+[^>]*)?>(.*)<\/camera>$/) ||
-          line.match(/^<span[^>]*style=["'][^"']*color:\s*#ff8eb2[^"']*["'][^>]*>(.*)<\/span>$/);
-        const timeMatch =
-          line.match(/^<time(?:\s+[^>]*)?>(.*)<\/time>$/) ||
-          line.match(/^<span[^>]*style=["'][^"']*color:\s*#df9d5b[^"']*["'][^>]*>(.*)<\/span>$/);
         const calloutInfoMatch = line.match(/^>\s*\[!INFO\]\s*(.*)$/);
         const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
         if (calloutInfoMatch) {
@@ -95,53 +86,18 @@ export function parseMarkdownToStoryboard(markdown: string): StoryboardData {
           const parts = timecode.split('-');
           currentFrame.endTime = parts[1] || '';
           const promptLines: string[] = [];
-          let mode: 'camera' | 'se' | null = null;
           while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
             const raw = lines[i + 1].replace(/^>\s*/, '').trim();
-            if (/^CAMERA:\s*/i.test(raw)) {
-              mode = 'camera';
-              const rest = raw.replace(/^CAMERA:\s*/i, '').trim();
-              if (rest) promptLines.push(rest);
-            } else if (/^SE:\s*/i.test(raw)) {
-              mode = 'se';
-              const rest = raw.replace(/^SE:\s*/i, '').trim();
-              if (rest) promptLines.push(rest);
-            } else {
-              promptLines.push(raw);
-            }
+            const cleaned = raw.replace(/^(?:CAMERA|SE):\s*/i, '').trim();
+            if (cleaned) promptLines.push(cleaned);
             i++;
           }
           if (promptLines.length > 0) {
             currentFrame.prompt = promptLines.join('\n');
           }
-        } else if (seMatch) {
-          currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${seMatch[1]}` : seMatch[1];
-        } else if (cameraMatch) {
-          currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${cameraMatch[1]}` : cameraMatch[1];
-        } else if (timeMatch) {
-          const parts = timeMatch[1].split('-');
-          currentFrame.endTime = parts[1] || parts[0];
         } else if (imageMatch) {
           currentFrame.imagePrompt = imageMatch[1];
           currentFrame.imageUrl = imageMatch[2];
-        } else if (line.startsWith('**') && line.endsWith('**') && line.length >= 4) {
-          // legacy SE format
-          const content = line.substring(2, line.length - 2);
-          currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${content}` : content;
-        } else if (line.startsWith('*') && line.endsWith('*') && line.length > 1) {
-          // new SE markdown format or legacy image prompt
-          const content = line.substring(1, line.length - 1);
-          if (!currentFrame.imageUrl && !currentFrame.imagePrompt) {
-            currentFrame.prompt = currentFrame.prompt ? `${currentFrame.prompt}\n${content}` : content;
-          } else {
-            // legacy image prompt format
-            currentFrame.imagePrompt = content;
-          }
-        } else if (line.startsWith('[[') && line.endsWith(']]')) {
-          // legacy image url format
-          if (!currentFrame.imageUrl) {
-            currentFrame.imageUrl = line.substring(2, line.length - 2);
-          }
         } else {
           if (!currentFrame.imageUrl) {
             currentFrame.dialogues += (currentFrame.dialogues ? '\n' : '') + line;
