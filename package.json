@@ -14,8 +14,9 @@
 	"dependencies": {
 		"@ffmpeg/core": "^0.12.10",
 		"ag-psd": "^28.0.1",
-		"openai": "^4.98.0",
-		"react": "^18.2.0",
+                "replicate": "^0.25.0",
+                "@fal-ai/serverless-client": "^0.9.0",
+                "react": "^18.2.0",
 		"react-dom": "^18.2.0"
 	},
 	"devDependencies": {

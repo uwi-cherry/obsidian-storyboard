@@ -7,7 +7,7 @@
 export type JsonSchema = Record<string, unknown>;
 
 /**
- * Function-calling tool definition (OpenAI "function" tool).
+ * Function-calling tool definition (fal.ai "function" tool).
  */
 export interface Tool<TInput = Record<string, unknown>> {
   /** Unique function name (<50 chars, snake_case) */

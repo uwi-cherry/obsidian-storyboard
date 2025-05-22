@@ -11,18 +11,23 @@ import { App, TFile, normalizePath } from 'obsidian';
 export async function generateVideoToAssets(
   prompt: string,
   apiKey: string,
+  provider: 'fal' | 'replicate',
   app: App,
   fileName?: string,
 ): Promise<TFile> {
-  const res = await fetch('https://api.example.com/v1/videos/generations', {
+  const endpoint =
+    provider === 'fal'
+      ? 'https://api.fal.ai/v1/videos/generations'
+      : 'https://api.example.com/v1/videos/generations';
+  const res = await fetch(endpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
+      Authorization: provider === 'fal' ? `Bearer ${apiKey}` : `Token ${apiKey}`,
     },
     body: JSON.stringify({ prompt, n: 1, response_format: 'b64_json' }),
   });
-  if (!res.ok) throw new Error(`動画生成APIエラー: ${res.status} ${await res.text()}`);
+  if (!res.ok) throw new Error(`${provider} 動画生成APIエラー: ${res.status} ${await res.text()}`);
   const data = await res.json();
   const b64 = data?.data?.[0]?.b64_json as string | undefined;
   if (!b64) throw new Error('動画データが取得できませんでした');

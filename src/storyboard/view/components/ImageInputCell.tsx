@@ -154,7 +154,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onImageUrlChange('');
   };
 
-  // AI生成（OpenAI Image API で画像生成 → PSD 作成 → URL 更新）
+  // AI生成（Replicate API で画像生成 → PSD 作成 → URL 更新）
   const handleAiGenerate = async () => {
     if (isGenerating) return; // 連打防止
 

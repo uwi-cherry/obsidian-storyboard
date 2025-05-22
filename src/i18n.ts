@@ -2,8 +2,12 @@ export type Language = 'ja' | 'en';
 
 export interface Strings {
   AI_SETTINGS: string;
-  OPENAI_API_KEY: string;
-  OPENAI_API_KEY_DESC: string;
+  FAL_API_KEY: string;
+  FAL_API_KEY_DESC: string;
+  REPLICATE_API_KEY: string;
+  REPLICATE_API_KEY_DESC: string;
+  API_PROVIDER: string;
+  API_PROVIDER_DESC: string;
   LANGUAGE: string;
   LANGUAGE_DESC: string;
   SEND: string;
@@ -91,8 +95,12 @@ export interface Strings {
 const STRINGS: Record<Language, Strings> = {
   ja: {
     AI_SETTINGS: 'AI設定',
-    OPENAI_API_KEY: 'OpenAI APIキー',
-    OPENAI_API_KEY_DESC: 'openaiで利用するAPIキーを入力してください',
+    FAL_API_KEY: 'fal.ai APIキー',
+    FAL_API_KEY_DESC: 'fal.aiで利用するAPIキーを入力してください',
+    REPLICATE_API_KEY: 'Replicate APIキー',
+    REPLICATE_API_KEY_DESC: 'Replicateで利用するAPIキーを入力してください',
+    API_PROVIDER: '使用するAPI',
+    API_PROVIDER_DESC: 'fal.ai または Replicate を選択',
     LANGUAGE: '言語',
     LANGUAGE_DESC: 'UIに使用する言語',
     SEND: '送信',
@@ -178,8 +186,12 @@ const STRINGS: Record<Language, Strings> = {
   },
   en: {
     AI_SETTINGS: 'AI Settings',
-    OPENAI_API_KEY: 'OpenAI API Key',
-    OPENAI_API_KEY_DESC: 'Enter your OpenAI API key',
+    FAL_API_KEY: 'fal.ai API Key',
+    FAL_API_KEY_DESC: 'Enter your fal.ai API key',
+    REPLICATE_API_KEY: 'Replicate API Key',
+    REPLICATE_API_KEY_DESC: 'Enter your Replicate API key',
+    API_PROVIDER: 'API Provider',
+    API_PROVIDER_DESC: 'Choose fal.ai or Replicate',
     LANGUAGE: 'Language',
     LANGUAGE_DESC: 'Language for the UI',
     SEND: 'Send',
