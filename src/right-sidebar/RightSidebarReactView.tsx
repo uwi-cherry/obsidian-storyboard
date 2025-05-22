@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { MarkdownView } from 'obsidian';
+import { MarkdownView, TFile } from 'obsidian';
 import type { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 import { PsdService } from '../services/psd-service';
+import { IChatService } from '../services/chat-service';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
@@ -19,6 +20,7 @@ interface RightSidebarReactViewProps {
     onLayerChange: (layers: Layer[], currentIndex: number) => void;
     onImageChange: (url: string | null, prompt: string | null) => void;
     psdService: PsdService;
+    chatService: IChatService;
 }
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
@@ -30,6 +32,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     onLayerChange,
     onImageChange,
     psdService,
+    chatService,
 }) => {
     const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
     const [showLayerControls, setShowLayerControls] = useState(false);
@@ -49,7 +52,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
 
     useEffect(() => {
         const updateVisibility = () => {
-            const leaf = view.app.workspace.getActiveLeaf();
+            const leaf = view.app.workspace.activeLeaf;
             if (!leaf) {
                 setShowLayerControls(false);
                 return;
@@ -115,7 +118,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                     currentLayerIndex={currentLayerIndex}
                 />
             )}
-            <ChatBox />
+            <ChatBox chatService={chatService} />
         </div>
     );
 };

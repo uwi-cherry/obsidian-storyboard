@@ -1,11 +1,10 @@
-import MyPlugin from "main";
 import React, { useState, useRef, useEffect } from "react";
-import { sendChatMessage } from "src/ai/chat";
+import { IChatService } from "src/services/chat-service";
 import { t } from "src/i18n";
 import { ADD_ICON_SVG, TABLE_ICONS } from "src/icons";
 
 interface ChatBoxProps {
-  plugin?: MyPlugin;
+  chatService: IChatService;
 }
 
 interface Attachment {
@@ -14,12 +13,7 @@ interface Attachment {
   type: 'image' | 'mask' | 'reference';
 }
 
-function getGlobalPlugin(): MyPlugin | undefined {
-  // @ts-ignore
-  return window.__psdPainterPlugin;
-}
-
-const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
+const ChatBox: React.FC<ChatBoxProps> = ({ chatService }) => {
   const [messages, setMessages] = useState<{ role: string; content: string; attachments?: Attachment[] }[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -76,13 +70,13 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
     // プレースホルダの assistant メッセージを用意
     setMessages(prev => [...prev, { role: "assistant", content: "" }]);
     setInput("");
-    const sendAttachments = attachments;
+    const sendAttachments = attachments.map(att => ({ type: att.type, url: att.data }));
     setAttachments([]);
     setLoading(true);
     try {
-      const aiResult = await sendChatMessage(
+      const aiResult = await chatService.sendMessage(
         userMessage,
-        plugin ?? getGlobalPlugin(),
+        sendAttachments,
         (token) => {
           setMessages(prev => {
             const updated = [...prev];
@@ -92,8 +86,7 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
             }
             return updated;
           });
-        },
-        sendAttachments
+        }
       );
       // 念のため最終出力を上書き（トークンで構築済みのはず）
       setMessages(prev => {

@@ -16,7 +16,7 @@ export function loadPlugin(plugin: Plugin) {
     addIcon(PSD_ICON, PSD_ICON_SVG);
 
     plugin.registerView(PSD_VIEW_TYPE, (leaf) => createPainterView(leaf));
-    plugin.registerView(LAYER_SIDEBAR_VIEW_TYPE, (leaf) => createLayerSidebar(leaf));
+    plugin.registerView(LAYER_SIDEBAR_VIEW_TYPE, (leaf) => createLayerSidebar(leaf, plugin as any));
     plugin.registerExtensions([PSD_EXTENSION], PSD_VIEW_TYPE);
 
     plugin.register(() => {
