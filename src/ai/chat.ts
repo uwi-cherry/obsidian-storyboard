@@ -1,7 +1,7 @@
 import type MyPlugin from '../../main';
 import { loadSettings } from '../settings/settings';
-import { OpenAiAgent } from '../agent-module/OpenAiAgent';
-import { OpenAiAgentRunner } from '../agent-module/OpenAiAgentRunner';
+import { AiAgent } from '../agent-module/AiAgent';
+import { AiAgentRunner } from '../agent-module/AiAgentRunner';
 import { RunResult, ChatMessage, Attachment } from '../agent-module/types';
 import { aiTools } from './tools';
 
@@ -42,13 +42,15 @@ export async function sendChatMessage(
     throw new Error('プラグインインスタンスが取得できませんでした');
   }
   const settings = await loadSettings(plugin);
-  const apiKey = settings.apiKey;
+  const provider = settings.provider;
+  const apiKey = provider === 'fal' ? settings.falApiKey : settings.replicateApiKey;
   if (!apiKey) {
-    throw new Error('APIキーが設定されていません。設定画面で入力してください。');
+    throw new Error(`${provider} APIキーが設定されていません。設定画面で入力してください。`);
   }
 
-  const agent = new OpenAiAgent({
+  const agent = new AiAgent({
     apiKey,
+    provider,
     instructions:
       'あなたは親切なアシスタントです。' +
       '\nユーザーは画像を添付することがあります。' +
@@ -61,22 +63,22 @@ export async function sendChatMessage(
   // --- function_call判定のための1トークンお試しリクエスト ---
   if (onToken) {
     // 1. まず max_tokens=1 で非ストリーミングAPIを叩く
-    const agentForCheck = new OpenAiAgent({
+    const agentForCheck = new AiAgent({
       ...agent,
       maxTokens: 1,
     });
-    const checkResult = await OpenAiAgentRunner.run(agentForCheck, userMessage, chatHistory, attachments);
+    const checkResult = await AiAgentRunner.run(agentForCheck, userMessage, chatHistory, attachments);
     const lastMsg = checkResult.history[checkResult.history.length - 1];
     const isFunctionCall = lastMsg && lastMsg.role === 'function';
 
     if (!isFunctionCall) {
       // function_callでなければストリーミングで返す
-      return await OpenAiAgentRunner.runStreamed(agent, userMessage, onToken, chatHistory, attachments);
+      return await AiAgentRunner.runStreamed(agent, userMessage, onToken, chatHistory, attachments);
     }
     // function_callなら通常runで返す（ツール実行）
-    return await OpenAiAgentRunner.run(agent, userMessage, chatHistory, attachments);
+    return await AiAgentRunner.run(agent, userMessage, chatHistory, attachments);
   } else {
     // onToken無し（ストリーミング不要）なら従来通り
-    return await OpenAiAgentRunner.run(agent, userMessage, chatHistory, attachments);
+    return await AiAgentRunner.run(agent, userMessage, chatHistory, attachments);
   }
 }

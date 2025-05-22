@@ -87,11 +87,13 @@ export const aiTools: Tool[] = [
       const img = attachments.find(a => a.type === 'image')?.data;
       const mask = attachments.find(a => a.type === 'mask')?.data;
       const ref = attachments.find(a => a.type === 'reference')?.data;
-      const { apiKey } = await loadSettings(plugin as any);
-      if (!apiKey) throw new Error('OpenAI APIキーが設定されていません');
+      const { provider, falApiKey, replicateApiKey } = await loadSettings(plugin as any);
+      const apiKey = provider === 'fal' ? falApiKey : replicateApiKey;
+      if (!apiKey) throw new Error(`${provider} APIキーが設定されていません`);
       const file = await editImageToAssets({
         prompt: args.prompt,
         apiKey,
+        provider,
         app: plugin.app,
         fileName: args.file_name,
         image: img,
@@ -115,9 +117,10 @@ export const aiTools: Tool[] = [
     async execute(args: { prompt: string; file_name?: string }) {
       const plugin = getPlugin();
       if (!plugin) throw new Error('Plugin インスタンスが見つかりませんでした');
-      const { apiKey } = await loadSettings(plugin as any);
-      if (!apiKey) throw new Error('OpenAI APIキーが設定されていません');
-      const file = await generateVideoToAssets(args.prompt, apiKey, plugin.app, args.file_name);
+      const { provider, falApiKey, replicateApiKey } = await loadSettings(plugin as any);
+      const apiKey = provider === 'fal' ? falApiKey : replicateApiKey;
+      if (!apiKey) throw new Error(`${provider} APIキーが設定されていません`);
+      const file = await generateVideoToAssets(args.prompt, apiKey, provider, plugin.app, args.file_name);
       return `動画を生成しました: ${file.path}`;
     },
   },

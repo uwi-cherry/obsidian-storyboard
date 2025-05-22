@@ -1,5 +1,5 @@
 import { ChatMessage, RunResult, RunResultStreaming, Attachment } from './types';
-import { OpenAiAgent } from './OpenAiAgent';
+import { AiAgent } from './AiAgent';
 
 function buildApiMessages(messages: ChatMessage[]) {
   return messages.map(({ role, content, name, attachments }) => {
@@ -16,14 +16,20 @@ function buildApiMessages(messages: ChatMessage[]) {
   });
 }
 
+function getEndpoint(provider: AiAgent['provider']): string {
+  return provider === 'fal'
+    ? 'https://api.fal.ai/v1/chat/completions'
+    : 'https://api.replicate.com/v1/chat/completions';
+}
+
 /**
- * OpenAiAgent を実行するユーティリティ。
+ * AiAgent を実行するユーティリティ。
  * Python Agents SDK の Runner.run / run_sync / run_streamed を模倣。
  */
-export class OpenAiAgentRunner {
+export class AiAgentRunner {
   /** 非同期フル実行 */
   static async run(
-    agent: OpenAiAgent,
+    agent: AiAgent,
     userMessage: string,
     history: ChatMessage[] = [],
     attachments: Attachment[] = [],
@@ -38,9 +44,9 @@ export class OpenAiAgentRunner {
     for (let turn = 0; turn < agent.maxTurns; turn++) {
       const payload = this.buildPayload(agent, messages, false);
       // ===== DEBUG LOG =====
-      console.info('[OpenAiAgentRunner] turn', turn, 'payload', payload);
+      console.info('[AiAgentRunner] turn', turn, 'payload', payload);
 
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const res = await fetch(getEndpoint(agent.provider), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,16 +55,16 @@ export class OpenAiAgentRunner {
         body: JSON.stringify(payload),
       });
       if (!res.ok) {
-        throw new Error(`OpenAI API Error: ${await res.text()}`);
+        throw new Error(`${agent.provider} API Error: ${await res.text()}`);
       }
       const data = await res.json();
-      console.info('[OpenAiAgentRunner] response', data);
+      console.info('[AiAgentRunner] response', data);
       const msg = data.choices[0].message as ChatMessage;
 
       if (msg.function_call) {
         const tool = agent.tools.find((t) => t.name === msg.function_call!.name);
         if (tool) {
-          console.info('[OpenAiAgentRunner] function_call detected', msg.function_call);
+          console.info('[AiAgentRunner] function_call detected', msg.function_call);
           let args: Record<string, unknown> = {};
           try {
             args = JSON.parse(msg.function_call!.arguments || '{}');
@@ -68,17 +74,17 @@ export class OpenAiAgentRunner {
           let final: string;
           try {
             final = await tool.execute(args);
-            console.info('[OpenAiAgentRunner] tool result', final);
+            console.info('[AiAgentRunner] tool result', final);
           } catch (err: any) {
             final = `Tool execution error: ${err?.message ?? err}`;
-            console.error('[OpenAiAgentRunner] tool error', err);
+            console.error('[AiAgentRunner] tool error', err);
           }
           // function ロールとして履歴に追加
           messages.push({ role: 'function', name: msg.function_call!.name, content: final });
           toolLogs.push({ name: msg.function_call!.name, args, result: final });
 
           // 直ちにユーザーへ返す
-          console.info('[OpenAiAgentRunner] returning after tool execution');
+          console.info('[AiAgentRunner] returning after tool execution');
           return {
             finalOutput: final,
             turns: turn + 1,
@@ -98,7 +104,7 @@ export class OpenAiAgentRunner {
 
   /** 同期版 (内部で run を await) */
   static async runSync(
-    agent: OpenAiAgent,
+    agent: AiAgent,
     userMessage: string,
     history: ChatMessage[] = [],
     attachments: Attachment[] = [],
@@ -108,7 +114,7 @@ export class OpenAiAgentRunner {
 
   /** payload生成共通処理 */
   private static buildPayload(
-    agent: OpenAiAgent,
+    agent: AiAgent,
     messages: ChatMessage[],
     stream: boolean,
   ): Record<string, unknown> {
@@ -133,7 +139,7 @@ export class OpenAiAgentRunner {
 
   /** ストリーミング実行。tokenごとに onToken が呼ばれる。*/
   static async runStreamed(
-    agent: OpenAiAgent,
+    agent: AiAgent,
     userMessage: string,
     onToken: (token: string) => void,
     history: ChatMessage[] = [],
@@ -148,7 +154,7 @@ export class OpenAiAgentRunner {
 
     const payload = this.buildPayload(agent, messages, true);
 
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = await fetch(getEndpoint(agent.provider), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -157,7 +163,7 @@ export class OpenAiAgentRunner {
       body: JSON.stringify(payload),
     });
     if (!res.ok || !res.body) {
-      throw new Error(`OpenAI API Error: ${res.status}`);
+      throw new Error(`${agent.provider} API Error: ${res.status}`);
     }
 
     const stream = res.body!; // res.body は null ではないと既に確認済み
@@ -207,7 +213,7 @@ export class OpenAiAgentRunner {
    * function_call対応ストリーミング: assistant deltaをonTokenで返し、途中でfunction_callが来たら即中断→ツール実行→再開
    */
   static async runStreamedWithTools(
-    agent: OpenAiAgent,
+    agent: AiAgent,
     userMessage: string,
     onToken: (token: string) => void,
     history: ChatMessage[] = [],
@@ -222,7 +228,7 @@ export class OpenAiAgentRunner {
     const toolCalls: { name: string; args: unknown; result: string }[] = [];
 
     for (;;) {
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const res = await fetch(getEndpoint(agent.provider), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -231,7 +237,7 @@ export class OpenAiAgentRunner {
         body: JSON.stringify(this.buildPayload(agent, messages, true)),
       });
       if (!res.ok || !res.body) {
-        throw new Error(`OpenAI API Error: ${res.status}`);
+        throw new Error(`${agent.provider} API Error: ${res.status}`);
       }
 
       const stream = res.body;
