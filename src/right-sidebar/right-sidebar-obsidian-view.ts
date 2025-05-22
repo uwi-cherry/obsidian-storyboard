@@ -7,6 +7,7 @@ import { PsdService } from '../services/psd-service';
 import { ChatService } from '../services/chat-service';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
+import { RightSidebarService } from '../services/right-sidebar-service';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 export type { Layer };
 
@@ -30,6 +31,7 @@ export class RightSidebarView extends ItemView {
     public layerOps?: LayerOps;
     public psdService?: PsdService;
     public chatService?: ChatService;
+    public sidebarService?: RightSidebarService;
 
     // === 画像操作 UI 関連 =====================
     private currentRowIndex: number | null = null;
@@ -111,17 +113,7 @@ export class RightSidebarView extends ItemView {
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
             chatService: this.chatService!,
-            onLayerChange: (layers: Layer[], currentIndex: number) => {
-                this.layers = layers;
-                this.currentLayerIndex = currentIndex;
-                this.updateLayerList();
-                this.updateControls();
-            },
-            onImageChange: (url: string | null, prompt: string | null) => {
-                this.currentImageUrl = url;
-                this.currentImagePrompt = prompt;
-                this.emitImageUpdate();
-            }
+            service: this.sidebarService!
         });
 
         if (!this.reactRoot) {
@@ -142,17 +134,7 @@ export class RightSidebarView extends ItemView {
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
             chatService: this.chatService!,
-            onLayerChange: (layers: Layer[], currentIndex: number) => {
-                this.layers = layers;
-                this.currentLayerIndex = currentIndex;
-                this.updateLayerList();
-                this.updateControls();
-            },
-            onImageChange: (url: string | null, prompt: string | null) => {
-                this.currentImageUrl = url;
-                this.currentImagePrompt = prompt;
-                this.emitImageUpdate();
-            }
+            service: this.sidebarService!
         });
         if (this.reactRoot) {
             this.reactRoot.render(root);
@@ -235,5 +217,31 @@ export class RightSidebarView extends ItemView {
      */
     public setChatService(service: ChatService) {
         this.chatService = service;
+    }
+
+    /**
+     * サイドバー操作サービスを注入
+     */
+    public setSidebarService(service: RightSidebarService) {
+        this.sidebarService = service;
+    }
+
+    /**
+     * サービスからレイヤー更新を受け取る
+     */
+    public updateLayers(layers: Layer[], index: number) {
+        this.layers = layers;
+        this.currentLayerIndex = index;
+        this.updateLayerList();
+        this.updateControls();
+    }
+
+    /**
+     * サービスから画像情報更新を受け取る
+     */
+    public updateImage(url: string | null, prompt: string | null) {
+        this.currentImageUrl = url;
+        this.currentImagePrompt = prompt;
+        this.emitImageUpdate();
     }
 }
