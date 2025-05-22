@@ -5,14 +5,14 @@ import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
 import { PsdService } from '../services/psd-service';
 import { LayerService } from '../services/layer-service';
-import { LayerChangeService } from '../services/layer-change-service';
-import { ChatController } from '../right-sidebar/controller/chat-controller';
+import { LayerChangeController } from './controller/layer-change-controller';
+import { ChatService } from '../services/chat-service';
 import { RightSidebarService } from '../services/right-sidebar-service';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
-    const layerChangeService = new LayerChangeService();
+    const layerChangeService = new LayerChangeController();
     const view = new PainterView(leaf, layerChangeService);
     const psdService = new PsdService();
     const layerService = new LayerService();
