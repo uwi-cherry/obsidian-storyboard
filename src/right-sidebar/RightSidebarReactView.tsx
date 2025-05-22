@@ -8,7 +8,7 @@ import { ChatController } from './controller/chat-controller';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
-import { IRightSidebarService } from '../services/right-sidebar-service';
+import { RightSidebarController } from './controller/right-sidebar-controller';
 import { getCurrentViewMode } from '../storyboard/storyboard-factory';
 
 interface RightSidebarReactViewProps {
@@ -18,7 +18,7 @@ interface RightSidebarReactViewProps {
     currentRowIndex: number | null;
     currentImageUrl: string | null;
     currentImagePrompt: string | null;
-    service: IRightSidebarService;
+    controller: RightSidebarController;
     psdService: PsdService;
     chatService: ChatController;
 }
@@ -29,7 +29,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     currentLayerIndex,
     currentImageUrl,
     currentImagePrompt,
-    service,
+    controller,
     psdService,
     chatService,
 }) => {
@@ -107,7 +107,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 onOpenPsdPainter={handleOpenPsdPainter}
                 onExportImage={() => {}}
                 app={view.app}
-                onImageUrlChange={(url) => service.updateImage(url, currentImagePrompt)}
+                onImageUrlChange={(url) => controller.updateImage(url, currentImagePrompt)}
                 psdService={psdService}
             />
 
