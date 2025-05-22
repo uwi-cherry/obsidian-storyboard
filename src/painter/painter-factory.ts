@@ -4,15 +4,45 @@ import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
 import { createPsd, loadPsdFile, savePsdFile, addLayer, deleteLayer } from './painter-files';
 import { PainterView } from './view/painter-obsidian-view';
+import { Layer } from './painter-types';
 
-export function createPainterView(leaf: WorkspaceLeaf): PainterView {
+// PainterView の拡張型を定義（動的に追加されるプロパティを含む）
+interface ExtendedPainterView {
+    app: App;
+    file?: TFile;
+    layers?: {
+        history: { layers: Layer[] }[];
+        currentIndex: number;
+        currentLayerIndex: number;
+    };
+    createNewLayer?: (name?: string, imageFile?: TFile) => void;
+    deleteLayer?: (index: number) => void;
+    renderCanvas?: () => void;
+    saveLayerStateToHistory?: () => void;
+    undo?: () => void;
+    redo?: () => void;
+}
+
+export function createPainterView(leaf: WorkspaceLeaf): ExtendedPainterView {
     const view = new PainterView(leaf, {
         load: loadPsdFile,
-        addLayer,
-        deleteLayer,
-    });
+        addLayer: (app: App, file: TFile, name?: string, imageFile?: TFile) => {
+            // 実際のファイル操作は個別に処理
+            const painterView = app.workspace.getActiveViewOfType(PainterView) as ExtendedPainterView;
+            if (painterView) {
+                addLayer(painterView as any, name, imageFile);
+            }
+        },
+        deleteLayer: (app: App, file: TFile, index: number) => {
+            // 実際のファイル操作は個別に処理
+            const painterView = app.workspace.getActiveViewOfType(PainterView) as ExtendedPainterView;
+            if (painterView) {
+                deleteLayer(painterView as any, index);
+            }
+        },
+    }) as ExtendedPainterView;
 
-    // ===== レイヤーサイドバーの初期化・同期 =====================
+    // ===== レイヤーサイドバーの初期化 =====================
     // 右サイドバーにレイヤービューを開く。既に開いている場合は再利用。
     const app = view.app;
     const leaves = app.workspace.getLeavesOfType(LAYER_SIDEBAR_VIEW_TYPE);
@@ -56,96 +86,138 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
 
     // LayerSidebarView へ操作コールバックを渡す
     const layerOps: LayerOps = {
-        addLayer: (name?: string) => view.createNewLayer(name ?? t('NEW_LAYER')),
-        deleteLayer: (index: number) => view.deleteLayer(index),
+        addLayer: (name?: string) => {
+            if (view.createNewLayer) {
+                view.createNewLayer(name ?? t('NEW_LAYER'));
+                updateSidebar();
+            }
+        },
+        deleteLayer: (index: number) => {
+            if (view.deleteLayer) {
+                view.deleteLayer(index);
+                updateSidebar();
+            }
+        },
         toggleLayerVisibility: (index: number) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
+            if (view.layers?.history?.[view.layers.currentIndex]?.layers?.[index]) {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
                 layer.visible = !layer.visible;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
+                if (view.saveLayerStateToHistory) {
+                    view.saveLayerStateToHistory();
                 }
-                view.renderCanvas();
+                if (view.renderCanvas) {
+                    view.renderCanvas();
+                }
+                updateSidebar();
+                saveCurrentState();
             }
         },
         renameLayer: (index: number, newName: string) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
+            if (view.layers?.history?.[view.layers.currentIndex]?.layers?.[index]) {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
                 layer.name = newName;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
+                if (view.saveLayerStateToHistory) {
+                    view.saveLayerStateToHistory();
                 }
-                view.renderCanvas();
+                if (view.renderCanvas) {
+                    view.renderCanvas();
+                }
+                updateSidebar();
+                saveCurrentState();
             }
         },
         setCurrentLayer: (index: number) => {
-            view.layers.currentLayerIndex = index;
-            view.renderCanvas();
+            if (view.layers) {
+                view.layers.currentLayerIndex = index;
+                if (view.renderCanvas) {
+                    view.renderCanvas();
+                }
+                updateSidebar();
+            }
         },
         setOpacity: (index: number, opacity: number) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
+            if (view.layers?.history?.[view.layers.currentIndex]?.layers?.[index]) {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
                 layer.opacity = opacity;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
+                if (view.saveLayerStateToHistory) {
+                    view.saveLayerStateToHistory();
                 }
-                view.renderCanvas();
+                if (view.renderCanvas) {
+                    view.renderCanvas();
+                }
+                updateSidebar();
+                saveCurrentState();
             }
         },
         setBlendMode: (index: number, mode) => {
-            const layer = view.layers.history[view.layers.currentIndex].layers[index];
-            if (layer) {
+            if (view.layers?.history?.[view.layers.currentIndex]?.layers?.[index]) {
+                const layer = view.layers.history[view.layers.currentIndex].layers[index];
                 layer.blendMode = mode;
-                if (typeof (view as PainterView).saveLayerStateToHistory === 'function') {
-                    (view as PainterView).saveLayerStateToHistory();
+                if (view.saveLayerStateToHistory) {
+                    view.saveLayerStateToHistory();
                 }
-                view.renderCanvas();
+                if (view.renderCanvas) {
+                    view.renderCanvas();
+                }
+                updateSidebar();
+                saveCurrentState();
             }
         }
     };
 
-    // ビューが開けた場合はレイヤー変更時に同期
-    if (sidebarView) {
-        const sync = () => {
+    // サイドバー更新関数
+    function updateSidebar() {
+        if (!view.layers?.history?.[view.layers.currentIndex]?.layers) return;
+
+        const leaves = app.workspace.getLeavesOfType(LAYER_SIDEBAR_VIEW_TYPE);
+        if (leaves.length === 0) return;
+        
+        const currentSidebarView = leaves[0].view as RightSidebarView | undefined;
+        if (currentSidebarView && typeof (currentSidebarView as any).syncLayers === 'function') {
             const currentState = view.layers.history[view.layers.currentIndex];
-            if (!currentState || !currentState.layers) return;
-
-            // === 毎回最新＆確定した SidebarView を取得 ===
-            const leaves = app.workspace.getLeavesOfType(LAYER_SIDEBAR_VIEW_TYPE);
-            if (leaves.length === 0) return;
-            const currentSidebarView = leaves[0].view as RightSidebarView | undefined;
-            if (!currentSidebarView || typeof (currentSidebarView as any).syncLayers !== 'function') return;
-
             currentSidebarView.syncLayers(currentState.layers, view.layers.currentLayerIndex, layerOps);
-        };
+        }
+    }
 
-                        // 初期化が終わったあとにも同期されるようイベントリスナで対応        if (typeof view.onLayerChanged === 'function') {            view.onLayerChanged(sync);        } else {            // Functional-view版の場合、render実行後にメソッドが設定される            setTimeout(() => {                if (typeof view.onLayerChanged === 'function') {                    view.onLayerChanged(sync);                }            }, 500);        }        // SidebarView が完全にロードされる前に同期を呼ぶとエラーになる場合があるため、        // 初期同期は onLayerChanged からのコールバックに任せる    }    // レイヤー変更時に PSD ファイルを自動保存    if (typeof view.onLayerChanged === 'function') {        view.onLayerChanged(() => {            if (view.file) {                savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);            }        });    } else {        // Functional-view版の場合、render実行後にメソッドが設定される        setTimeout(() => {            if (typeof view.onLayerChanged === 'function') {                view.onLayerChanged(() => {                    if (view.file) {                        savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);                    }                });            }        }, 500);    }
+    // 自動保存関数
+    function saveCurrentState() {
+        if (view.file && view.layers?.history?.[view.layers.currentIndex]?.layers) {
+            savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);
+        }
+    }
+
+    // ビューに直接同期関数を設定
+    if (view && typeof view === 'object') {
+        (view as any)._updateSidebar = updateSidebar;
+        (view as any)._saveCurrentState = saveCurrentState;
+    }
+
     return view;
 }
 
 export function undoActive(app: App) {
-    const view = app.workspace.getActiveViewOfType(PainterView);
-    if (view) {
+    const view = app.workspace.getActiveViewOfType(PainterView) as ExtendedPainterView;
+    if (view && view.undo) {
         view.undo();
     }
 }
 
 export function redoActive(app: App) {
-    const view = app.workspace.getActiveViewOfType(PainterView);
-    if (view) {
+    const view = app.workspace.getActiveViewOfType(PainterView) as ExtendedPainterView;
+    if (view && view.redo) {
         view.redo();
     }
 }
 
 // ==== レイヤー操作のユーティリティ ===========================
-function getActivePainterView(app: App): PainterView | null {
-    return app.workspace.getActiveViewOfType(PainterView) ?? null;
+function getActivePainterView(app: App): ExtendedPainterView | null {
+    return app.workspace.getActiveViewOfType(PainterView) as ExtendedPainterView ?? null;
 }
 
 // 保存
 export function saveActive(app: App) {
     const view = getActivePainterView(app);
-    if (view && view.file) {
+    if (view && view.file && view.layers?.history?.[view.layers.currentIndex]?.layers) {
         savePsdFile(app, view.file, view.layers.history[view.layers.currentIndex].layers);
     }
 }
