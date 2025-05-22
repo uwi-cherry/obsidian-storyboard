@@ -48,6 +48,7 @@ interface PainterReactViewProps {
   onPaste: () => void;
   onSelectAll: () => void;
   onDeselect: () => void;
+  onSelectionTypeChange?: (type: 'rect' | 'lasso' | 'magic') => void;
 }
 
 /**
@@ -86,6 +87,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
   onPaste,
   onSelectAll,
   onDeselect,
+  onSelectionTypeChange,
   renderCanvas,
   loadAndRenderFile,
   getCanvasSize,
@@ -279,7 +281,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
               onChange={e => {
                 const val = e.currentTarget.value as 'rect' | 'lasso' | 'magic';
                 setSelectionType(val);
-                selectionController?.setMode(val);
+                onSelectionTypeChange?.(val);
                 updateTool('selection'); // selection モードに固定
               }}
             >

@@ -285,6 +285,7 @@ export class PainterView extends FileView {
                                 onPaste: () => this.onPaste(),
                                 onSelectAll: () => this.onSelectAll(),
                                 onDeselect: () => this.onDeselect(),
+                                onSelectionTypeChange: (type) => this.onSelectionTypeChange(type),
                         })
                 );
 
@@ -483,6 +484,20 @@ export class PainterView extends FileView {
 	onDeselect() {
 		this.actionMenu?.deselect();
 	}
+
+  onSelectionTypeChange = (type: 'rect' | 'lasso' | 'magic') => {
+    if (this.actionMenu) {
+      // 選択タイプに応じて適切なメソッドを呼び出す
+      if (type === 'rect') {
+        this.actionMenu.deselect();
+      } else if (type === 'lasso') {
+        this.actionMenu.deselect();
+      } else if (type === 'magic') {
+        this.actionMenu.deselect();
+      }
+    }
+    this.renderCanvas();
+  };
 
 	renderCanvas() {
 		if (!this._canvas) return;
