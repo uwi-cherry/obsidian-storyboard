@@ -14,7 +14,7 @@ import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { TransformEditController } from '../controller/transform-edit-controller';
 import { PsdService } from '../../services/psd-service';
-import { LayerService } from '../../services/layer-service';
+import { LayerController } from '../controller/layer-controller';
 import { LayerChangeController } from '../controller/layer-change-controller';
 import PainterReactView from './PainterReactView';
 import type { LayersState } from '../hooks/useLayers';
@@ -52,7 +52,7 @@ export class PainterView extends FileView {
 
         // サービスオブジェクト
         private psdService?: PsdService;
-        private layerService?: LayerService;
+        private layerController?: LayerController;
 
 	// React ルート（レイアウトをマウント）
 	private reactRoot?: Root;
@@ -81,9 +81,9 @@ export class PainterView extends FileView {
         /**
          * サービスオブジェクトを注入する
          */
-        public setServices(services: { psd: PsdService; layer: LayerService }) {
+        public setServices(services: { psd: PsdService; layer: LayerController }) {
                 this.psdService = services.psd;
-                this.layerService = services.layer;
+                this.layerController = services.layer;
         }
 
 	/**
@@ -354,14 +354,14 @@ export class PainterView extends FileView {
 	}
 
         createNewLayer(name = t('NEW_LAYER'), imageFile?: TFile) {
-                if (this.layerService) {
-                        this.layerService.add(this, name, imageFile);
+                if (this.layerController) {
+                        this.layerController.add(this, name, imageFile);
                 }
         }
 
         deleteLayer(index: number) {
-                if (this.layerService) {
-                        this.layerService.delete(this, index);
+                if (this.layerController) {
+                        this.layerController.delete(this, index);
                 }
         }
 

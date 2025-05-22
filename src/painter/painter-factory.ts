@@ -3,8 +3,8 @@ import type MyPlugin from '../../main';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
-import { PsdService } from '../services/psd-service';
-import { LayerService } from '../services/layer-service';
+import { PsdService } from '../services/psd-service
+import { LayerController } from './controller/layer-controller';
 import { LayerChangeController } from './controller/layer-change-controller';
 import { ChatService } from '../services/chat-service';
 import { RightSidebarService } from '../services/right-sidebar-service';
@@ -15,8 +15,8 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const layerChangeService = new LayerChangeController();
     const view = new PainterView(leaf, layerChangeService);
     const psdService = new PsdService();
-    const layerService = new LayerService();
-    view.setServices({ psd: psdService, layer: layerService });
+    const layerController = new LayerController();
+    view.setServices({ psd: psdService, layer: layerController });
 
     // ===== レイヤーサイドバーの初期化・同期 =====================
     // 右サイドバーにレイヤービューを開く。既に開いている場合は再利用。
