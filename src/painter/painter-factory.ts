@@ -5,13 +5,15 @@ import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
 import { PsdService } from '../services/psd-service';
 import { LayerService } from '../services/layer-service';
+import { LayerChangeService } from '../services/layer-change-service';
 import { ChatService } from '../services/chat-service';
 import { RightSidebarService } from '../services/right-sidebar-service';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
-    const view = new PainterView(leaf);
+    const layerChangeService = new LayerChangeService();
+    const view = new PainterView(leaf, layerChangeService);
     const psdService = new PsdService();
     const layerService = new LayerService();
     view.setServices({ psd: psdService, layer: layerService });
@@ -111,14 +113,14 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
         };
 
         // 初期化が終わったあとにも同期されるようイベントリスナで対応
-        view.onLayerChanged(sync);
+        layerChangeService.onChange(sync);
 
         // SidebarView が完全にロードされる前に同期を呼ぶとエラーになる場合があるため、
-        // 初期同期は onLayerChanged からのコールバックに任せる
+        // 初期同期は layerChangeService のコールバックに任せる
     }
 
     // レイヤー変更時に PSD ファイルを自動保存
-    view.onLayerChanged(() => {
+    layerChangeService.onChange(() => {
         if (view.file) {
             psdService.save(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);
         }
