@@ -1,6 +1,4 @@
 
-import { DEFAULT_COLOR } from '../../constants';
-import type { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
 import { ActionMenu } from '../view/components/ActionMenu';
 import type { SelectionState } from '../hooks/useSelectionState';
@@ -23,9 +21,9 @@ export class ActionMenuController {
 
   showGlobal() {
     this.menu.showGlobal({
-      fill: () => this.fillSelection(),
-      clear: () => this.clearSelection(),
-      edit: () => this.edit(),
+      fill: () => this.service.fill(this.view, this.state),
+      clear: () => this.service.clear(this.view, this.state),
+      edit: () => this.service.edit(this.view, this.state),
     });
   }
 
@@ -33,9 +31,9 @@ export class ActionMenuController {
     const rect = this.state.getBoundingRect();
     if (!rect) return;
     this.menu.showSelection(rect, {
-      fill: () => this.fillSelection(),
-      clear: () => this.clearSelection(),
-      edit: () => this.edit(),
+      fill: () => this.service.fill(this.view, this.state),
+      clear: () => this.service.clear(this.view, this.state),
+      edit: () => this.service.edit(this.view, this.state),
       cancel: () => {
         onCancel();
         this.showGlobal();
@@ -46,7 +44,7 @@ export class ActionMenuController {
   hide() {
     this.menu.hide();
   }
-
+  
   private modifyCurrentLayer(cb: (ctx: CanvasRenderingContext2D) => void) {
     const layerCtx =
       this.view.layers.history[this.view.layers.currentIndex].layers[

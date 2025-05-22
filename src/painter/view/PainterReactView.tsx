@@ -5,6 +5,7 @@ import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
+import { ActionMenuService } from '../../services/action-menu-service';
 import { SelectionController } from '../controller/selection-controller';
 import { useSelectionState } from '../hooks/useSelectionState';
 import { useLayers } from '../hooks/useLayers';

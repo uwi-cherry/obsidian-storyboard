@@ -16,6 +16,7 @@ import { TransformEditController } from '../controller/transform-edit-controller
 import { TransformEditService } from '../../services/transform-edit-service';
 import { PsdService } from '../../services/psd-service';
 import { LayerService } from '../../services/layer-service';
+import { LayerChangeService } from '../../services/layer-change-service';
 import PainterReactView from './PainterReactView';
 import type { LayersState } from '../hooks/useLayers';
 export class PainterView extends FileView {
@@ -36,8 +37,9 @@ export class PainterView extends FileView {
 	// React リファクタリング後、DOM 参照はコンポーネント側で取得する
 	public _canvas!: HTMLCanvasElement;
 
-	// レイヤー変更イベント登録用
-	private _layerChangeCallbacks: (() => void)[] = [];
+
+        // レイヤー変更通知サービス
+        private layerChangeService: LayerChangeService;
 
         // レイヤー操作デリゲート（サービス経由）
 
@@ -79,13 +81,6 @@ export class PainterView extends FileView {
                 return { width: this._canvas?.width ?? 0, height: this._canvas?.height ?? 0 };
         }
 
-	public onLayerChanged(cb: () => void) {
-		this._layerChangeCallbacks.push(cb);
-	}
-
-	private _emitLayerChanged() {
-		this._layerChangeCallbacks.forEach(cb => cb());
-	}
 
         /**
          * サービスオブジェクトを注入する
@@ -123,25 +118,26 @@ export class PainterView extends FileView {
                 this.layers.currentIndex = 0;
                 this.layers.currentLayerIndex = 0;
 
-		this.renderCanvas();
-		this._emitLayerChanged();
+                this.renderCanvas();
+                this.layerChangeService.emitChange();
 	}
 
-	constructor(leaf: WorkspaceLeaf) {
-		super(leaf);
-	}
+        constructor(leaf: WorkspaceLeaf, layerChangeService: LayerChangeService) {
+                super(leaf);
+                this.layerChangeService = layerChangeService;
+        }
 
         public saveLayerStateToHistory() {
                 this.layers.saveHistory();
                 this.renderCanvas();
-                this._emitLayerChanged();
+                this.layerChangeService.emitChange();
         }
 
         undo() {
                 if (this.layers.currentIndex > 0) {
                         this.layers.currentIndex--;
                         this.renderCanvas();
-                        this._emitLayerChanged();
+                        this.layerChangeService.emitChange();
                 }
         }
 
@@ -149,7 +145,7 @@ export class PainterView extends FileView {
                 if (this.layers.currentIndex < this.layers.history.length - 1) {
                         this.layers.currentIndex++;
                         this.renderCanvas();
-                        this._emitLayerChanged();
+                        this.layerChangeService.emitChange();
                 }
         }
 
@@ -180,8 +176,8 @@ export class PainterView extends FileView {
 		this.file = file;
 		await this._loadAndRenderFile(file);
 
-		// 初期レイヤー情報をサイドバーなどのリスナーへ通知
-		this._emitLayerChanged();
+                // 初期レイヤー情報をサイドバーなどのリスナーへ通知
+                this.layerChangeService.emitChange();
 	}
 
         async onOpen() {
@@ -409,9 +405,9 @@ export class PainterView extends FileView {
 		}
 
 		// 選択範囲を描画
-		this._selectionController?.drawSelection(ctx);
+                this._selectionController?.drawSelection(ctx);
 
-		this._emitLayerChanged();
+                this.layerChangeService.emitChange();
 	}
 
 	async onClose() {
