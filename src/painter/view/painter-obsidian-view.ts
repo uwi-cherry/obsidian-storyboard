@@ -314,6 +314,15 @@ export class PainterView extends FileView implements PainterViewInterface {
                                 renderCanvas: () => this.renderCanvas(),
                                 loadAndRenderFile: this._loadAndRenderFile?.bind(this),
                                 getCanvasSize: this.getCanvasSize.bind(this),
+                                onFill: () => this.onFill(),
+                                onClear: () => this.onClear(),
+                                onEdit: () => this.onEdit(),
+                                onCopy: () => this.onCopy(),
+                                onCut: () => this.onCut(),
+                                onPaste: () => this.onPaste(),
+                                onSelectAll: () => this.onSelectAll(),
+                                onDeselect: () => this.onDeselect(),
+                                onSelectionTypeChange: (type) => this.onSelectionTypeChange(type),
                         })
                 );
 
@@ -479,6 +488,53 @@ export class PainterView extends FileView implements PainterViewInterface {
 			this._deleteLayerDelegate(this, index);
 		}
 	}
+
+	// ActionMenu 関連のメソッド
+	onFill() {
+		this.actionMenu?.fillSelection();
+	}
+
+	onClear() {
+		this.actionMenu?.clearSelection();
+	}
+
+	onEdit() {
+		this.actionMenu?.edit();
+	}
+
+	onCopy() {
+		this.actionMenu?.copySelection();
+	}
+
+	onCut() {
+		this.actionMenu?.cutSelection();
+	}
+
+	onPaste() {
+		this.actionMenu?.pasteSelection();
+	}
+
+	onSelectAll() {
+		this.actionMenu?.selectAll();
+	}
+
+	onDeselect() {
+		this.actionMenu?.deselect();
+	}
+
+  onSelectionTypeChange = (type: 'rect' | 'lasso' | 'magic') => {
+    if (this.actionMenu) {
+      // 選択タイプに応じて適切なメソッドを呼び出す
+      if (type === 'rect') {
+        this.actionMenu.deselect();
+      } else if (type === 'lasso') {
+        this.actionMenu.deselect();
+      } else if (type === 'magic') {
+        this.actionMenu.deselect();
+      }
+    }
+    this.renderCanvas();
+  };
 
 	renderCanvas() {
 		if (!this._canvas) return;

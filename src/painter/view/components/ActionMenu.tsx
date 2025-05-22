@@ -73,6 +73,11 @@ export class ActionMenu {
 
   /** グローバルメニュー（非選択時） */
   showGlobal(handlers: { fill: () => void; clear: () => void; edit?: () => void }) {
+    if (!this.view._canvas) {
+      console.warn('Canvas is not initialized');
+      return;
+    }
+    
     this.mode = 'global';
     this.handlers = handlers;
     const rect = this.view._canvas.getBoundingClientRect();
@@ -91,6 +96,11 @@ export class ActionMenu {
       cancel: () => void;
     }
   ) {
+    if (!this.view._canvas) {
+      console.warn('Canvas is not initialized');
+      return;
+    }
+
     this.mode = 'selection';
     this.handlers = handlers;
     const canvasRect = this.view._canvas.getBoundingClientRect();

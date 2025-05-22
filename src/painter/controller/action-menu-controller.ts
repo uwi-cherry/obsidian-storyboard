@@ -378,5 +378,39 @@ export class ActionMenuController {
     });
     this.view.editController.start();
   }
-}
 
+  async pasteSelection() {
+    try {
+      const items = await navigator.clipboard.read();
+      for (const item of items) {
+        const blob = await item.getType('image/png');
+        const img = new Image();
+        img.onload = () => {
+          this.modifyCurrentLayer(ctx => {
+            ctx.drawImage(img, 0, 0);
+          });
+        };
+        img.src = URL.createObjectURL(blob);
+      }
+    } catch (e) {
+      console.error('Failed to read from clipboard', e);
+    }
+  }
+
+  selectAll() {
+    if (!this.view.canvasElement) return;
+    this.state.setMode('rect');
+    this.state.setRect({
+      x: 0,
+      y: 0,
+      width: this.view.canvasElement.width,
+      height: this.view.canvasElement.height
+    });
+    this.view.renderCanvas();
+  }
+
+  deselect() {
+    this.state.clearSelection();
+    this.view.renderCanvas();
+  }
+}

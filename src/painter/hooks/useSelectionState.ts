@@ -13,6 +13,9 @@ export interface SelectionState {
   reset: () => void;
   hasSelection: () => boolean;
   getBoundingRect: () => SelectionRect | undefined;
+  setMode: (mode: SelectionMode) => void;
+  setRect: (rect: SelectionRect) => void;
+  clearSelection: () => void;
 }
 
 export function useSelectionState(): SelectionState {
@@ -55,6 +58,15 @@ export function useSelectionState(): SelectionState {
         const minY = Math.min(...ys);
         const maxY = Math.max(...ys);
         return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+      },
+      setMode(mode: SelectionMode) {
+        state.mode = mode;
+      },
+      setRect(rect: SelectionRect) {
+        state.selectionRect = rect;
+      },
+      clearSelection() {
+        state.reset();
       }
     };
     stateRef.current = state;
