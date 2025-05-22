@@ -5,6 +5,7 @@ import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
 import type { PainterView } from './painter-obsidian-view';
 import { ActionMenuController } from '../controller/action-menu-controller';
+import { ActionMenuService } from '../../services/action-menu-service';
 import { SelectionController } from '../controller/selection-controller';
 import { useSelectionState } from '../hooks/useSelectionState';
 import { useLayers } from '../hooks/useLayers';
@@ -94,7 +95,8 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       (view as any)._selectionController = new SelectionController(view, selectionState);
     }
 
-    const actionMenu = new ActionMenuController(view, selectionState);
+    const menuService = new ActionMenuService();
+    const actionMenu = new ActionMenuController(view, selectionState, menuService);
     view.actionMenu = actionMenu;
     const resizeHandler = () => actionMenu.showGlobal();
     window.addEventListener('resize', resizeHandler);
