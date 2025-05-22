@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { TABLE_ICONS, ADD_ICON_SVG } from 'src/icons';
 import { t } from 'src/i18n';
+import { StoryboardService } from 'src/services/storyboard-service';
 
 export interface ColumnDef<T> {
   key: keyof T;
@@ -17,12 +18,8 @@ export interface ColumnDef<T> {
 export interface EditableTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
-  onCellChange: (rowIndex: number, columnKey: keyof T, newValue: T[keyof T]) => void;
-  onAddRow: () => void;
-  onDeleteRow: (rowIndex: number) => void;
-  onMoveRowUp?: (rowIndex: number) => void;
-  onMoveRowDown?: (rowIndex: number) => void;
-  onInsertRowBelow?: (rowIndex: number) => void;
+  service: StoryboardService;
+  chapterIndex: number;
   showAddRow?: boolean;
   /**
    * 行がクリックされた際に呼び出されるオプションのコールバック
@@ -37,12 +34,8 @@ export interface EditableTableProps<T> {
 const EditableTable = <T,>({
   data,
   columns,
-  onCellChange,
-  onAddRow,
-  onDeleteRow,
-  onMoveRowUp,
-  onMoveRowDown,
-  onInsertRowBelow,
+  service,
+  chapterIndex,
   showAddRow = true,
   onRowClick,
   headerTop,
@@ -131,7 +124,13 @@ if (colIndex !== null) {
                         ? col.renderCell(
                             row[col.key],
                             row,
-                            (columnKey: keyof T, newValue: T[keyof T]) => onCellChange(index, columnKey, newValue),
+                            (columnKey: keyof T, newValue: T[keyof T]) =>
+                              service.handleCellChange(
+                                chapterIndex,
+                                index,
+                                columnKey as any,
+                                newValue as any,
+                              ),
                             index,
                             undefined
                           )
@@ -141,34 +140,41 @@ if (colIndex !== null) {
                 })}
                 <td className="border border-modifier-border px-1 py-2 text-center align-middle whitespace-nowrap">
                   <div className="flex flex-col items-start gap-y-1">
-                    {onMoveRowUp && index > 0 && (
+                    {index > 0 && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); onMoveRowUp(index); }}
+                        onClick={e => {
+                          e.stopPropagation();
+                          service.moveRowUp(chapterIndex, index);
+                        }}
                         className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_UP')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveUp }}
                       />
                     )}
-                    {onMoveRowDown && index < data.length - 1 && (
+                    {index < data.length - 1 && (
                       <button
-                        onClick={(e) => { e.stopPropagation(); onMoveRowDown(index); }}
+                        onClick={e => {
+                          e.stopPropagation();
+                          service.moveRowDown(chapterIndex, index);
+                        }}
                         className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
                         title={t('MOVE_ROW_DOWN')}
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveDown }}
                       />
                     )}
-                    {onInsertRowBelow && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onInsertRowBelow(index); }}
-                        className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
-                        title={t('INSERT_ROW_BELOW')}
-                        dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
-                      />
-                    )}
                     <button
-                      onClick={(e) => {
+                      onClick={e => {
                         e.stopPropagation();
-                        if (data.length > 1) onDeleteRow(index);
+                        service.insertRowBelow(chapterIndex, index);
+                      }}
+                      className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
+                      title={t('INSERT_ROW_BELOW')}
+                      dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
+                    />
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        if (data.length > 1) service.deleteRow(chapterIndex, index);
                       }}
                       className={`text-text-faint ${data.length > 1 ? 'hover:text-error' : 'opacity-50 cursor-not-allowed'} text-base px-1 py-0.5 leading-none`}
                       title={t('DELETE')}
@@ -185,7 +191,7 @@ if (colIndex !== null) {
               <td
                 colSpan={columns.length + 1 }
                 className="border border-modifier-border px-4 py-2 text-center cursor-pointer text-text-muted hover:text-text-normal"
-                onClick={() => onAddRow()}
+                onClick={() => service.addRow(chapterIndex)}
                 title={t('INSERT_ROW_BELOW')}
                 dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
               />
