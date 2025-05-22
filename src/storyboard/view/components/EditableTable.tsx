@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { TABLE_ICONS, ADD_ICON_SVG } from 'src/icons';
 import { t } from 'src/i18n';
-import { StoryboardService } from 'src/services/storyboard-service';
+import { StoryboardController } from 'src/storyboard/controller/storyboard-controller';
 
 export interface ColumnDef<T> {
   key: keyof T;
@@ -18,7 +18,7 @@ export interface ColumnDef<T> {
 export interface EditableTableProps<T> {
   data: T[];
   columns: ColumnDef<T>[];
-  service: StoryboardService;
+  service: StoryboardController;
   chapterIndex: number;
   showAddRow?: boolean;
   /**

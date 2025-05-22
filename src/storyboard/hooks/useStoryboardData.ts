@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import { StoryboardData, CharacterInfo } from '../storyboard-types';
-import { StoryboardService } from '../../services/storyboard-service';
+import { StoryboardController } from '../controller/storyboard-controller';
 
 export default function useStoryboardData(
   initialData: StoryboardData,
@@ -23,7 +23,7 @@ export default function useStoryboardData(
     [onDataChange]
   );
 
-  const service = useMemo(() => new StoryboardService(updateData), [updateData]);
+  const service = useMemo(() => new StoryboardController(updateData), [updateData]);
 
   const uniqueSpeakers = service.getUniqueSpeakers(storyboard);
   const allSpeakers = uniqueSpeakers;

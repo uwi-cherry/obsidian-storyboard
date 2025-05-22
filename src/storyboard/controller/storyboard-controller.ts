@@ -1,4 +1,4 @@
-import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard/storyboard-types';
+import { StoryboardData, StoryboardFrame, CharacterInfo } from '../storyboard-types';
 
 export function createEmptyFrame(): StoryboardFrame {
   return {
@@ -11,7 +11,7 @@ export function createEmptyFrame(): StoryboardFrame {
   };
 }
 
-export class StoryboardService {
+export class StoryboardController {
   constructor(private updateData: (updater: (prev: StoryboardData) => StoryboardData) => void) {}
 
   handleCellChange(
