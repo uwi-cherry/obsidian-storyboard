@@ -9,6 +9,7 @@ import { SelectionController } from '../controller/selection-controller';
 import { useSelectionState } from '../hooks/useSelectionState';
 import { useLayers } from '../hooks/useLayers';
 import { TOOL_ICONS } from 'src/icons';
+import { TransformEditService } from '../../services/transform-edit-service';
 
 interface PainterReactViewProps {
   /**
@@ -94,11 +95,16 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       (view as any)._selectionController = new SelectionController(view, selectionState);
     }
 
-    const actionMenu = new ActionMenuController(view, selectionState);
+    const editService: TransformEditService | undefined = (view as any).transformEditService;
+    const actionMenu = new ActionMenuController(view, selectionState, editService!);
     view.actionMenu = actionMenu;
     const resizeHandler = () => actionMenu.showGlobal();
     window.addEventListener('resize', resizeHandler);
     actionMenu.showGlobal();
+
+    editService?.addFinishHandler(() => {
+      selectionState.reset();
+    });
 
     // ファイル読み込み or 背景レイヤー作成
     (async () => {

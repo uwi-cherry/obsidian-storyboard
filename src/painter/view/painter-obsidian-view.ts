@@ -13,6 +13,7 @@ import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { TransformEditController } from '../controller/transform-edit-controller';
+import { TransformEditService } from '../../services/transform-edit-service';
 import { PsdService } from '../../services/psd-service';
 import { LayerService } from '../../services/layer-service';
 import PainterReactView from './PainterReactView';
@@ -47,6 +48,9 @@ export class PainterView extends FileView {
 
         // 選択範囲編集コントローラー
         public editController?: TransformEditController;
+
+        // 変形編集サービス
+        private transformEditService?: TransformEditService;
 
         // サービスオブジェクト
         private psdService?: PsdService;
@@ -86,9 +90,13 @@ export class PainterView extends FileView {
         /**
          * サービスオブジェクトを注入する
          */
-        public setServices(services: { psd: PsdService; layer: LayerService }) {
+        public setServices(services: { psd: PsdService; layer: LayerService; transformEdit: TransformEditService }) {
                 this.psdService = services.psd;
                 this.layerService = services.layer;
+                this.transformEditService = services.transformEdit;
+                this.transformEditService.addFinishHandler(() => {
+                        this.editController = undefined;
+                });
         }
 
 	/**

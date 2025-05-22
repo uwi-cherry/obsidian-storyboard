@@ -4,12 +4,16 @@ import type { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
 import { ActionMenu } from '../view/components/ActionMenu';
 import type { SelectionState } from '../hooks/useSelectionState';
-import { TransformEditController } from './transform-edit-controller';
+import { TransformEditService } from '../../services/transform-edit-service';
 
 export class ActionMenuController {
   private menu: ActionMenu;
 
-  constructor(private view: PainterView, private state: SelectionState) {
+  constructor(
+    private view: PainterView,
+    private state: SelectionState,
+    private editService: TransformEditService
+  ) {
     this.menu = new ActionMenu(view as any);
   }
 
@@ -371,11 +375,11 @@ export class ActionMenuController {
       }
     }
     if (!rect) return;
-    this.view.editController = new TransformEditController(this.view, rect, () => {
+    this.editService.addFinishHandler(() => {
       this.view.editController = undefined;
       this.showGlobal();
     });
-    this.view.editController.start();
+    this.editService.start(this.view, rect);
   }
 }
 

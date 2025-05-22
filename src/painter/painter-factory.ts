@@ -9,12 +9,14 @@ import { ChatService } from '../services/chat-service';
 import { RightSidebarService } from '../services/right-sidebar-service';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
+import { TransformEditService } from '../services/transform-edit-service';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const view = new PainterView(leaf);
     const psdService = new PsdService();
     const layerService = new LayerService();
-    view.setServices({ psd: psdService, layer: layerService });
+    const transformEditService = new TransformEditService();
+    view.setServices({ psd: psdService, layer: layerService, transformEdit: transformEditService });
 
     // ===== レイヤーサイドバーの初期化・同期 =====================
     // 右サイドバーにレイヤービューを開く。既に開いている場合は再利用。

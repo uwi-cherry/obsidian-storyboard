@@ -1,5 +1,6 @@
 import { SelectionRect } from '../painter-types';
 import type { PainterView } from '../view/painter-obsidian-view';
+import type { TransformEditService } from '../../services/transform-edit-service';
 import { t } from '../../i18n';
 
 export class TransformEditController {
@@ -17,7 +18,7 @@ export class TransformEditController {
   constructor(
     private view: PainterView,
     private rect: SelectionRect,
-    private onFinish: () => void
+    private service: TransformEditService
   ) {}
 
   start() {
@@ -215,7 +216,7 @@ export class TransformEditController {
     ctx.restore();
     this.view.renderCanvas();
     this.cleanup();
-    this.onFinish();
+    this.service.finish();
   }
 
   cancel() {
@@ -229,6 +230,6 @@ export class TransformEditController {
     ctx.drawImage(this.backupCanvas, this.rect.x, this.rect.y);
     this.view.renderCanvas();
     this.cleanup();
-    this.onFinish();
+    this.service.finish();
   }
 }
