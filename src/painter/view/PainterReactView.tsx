@@ -145,9 +145,9 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
     setCanvas(canvas);
 
     // ポインタ関連イベント（PainterView 内部実装を使う）
-    const onPointerDown = (e: PointerEvent) => onPointerDown?.(e);
-    const onPointerMove = (e: PointerEvent) => onPointerMove?.(e);
-    const onPointerUp = (e: PointerEvent) => onPointerUp?.(e);
+    const onPointerDown = (e: PointerEvent): void => onPointerDown?.(e);
+    const onPointerMove = (e: PointerEvent): void => onPointerMove?.(e);
+    const onPointerUp = (e: PointerEvent): void => onPointerUp?.(e);
 
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
