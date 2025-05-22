@@ -4,6 +4,7 @@ import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, App, TFile } from 'obsidian';
 import { Layer } from '../painter/painter-types';
 import { PsdService } from '../services/psd-service';
+import { ChatService } from '../services/chat-service';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
 import { PainterView } from '../painter/view/painter-obsidian-view';
@@ -28,6 +29,7 @@ export class RightSidebarView extends ItemView {
 
     public layerOps?: LayerOps;
     public psdService?: PsdService;
+    public chatService?: ChatService;
 
     // === 画像操作 UI 関連 =====================
     private currentRowIndex: number | null = null;
@@ -38,7 +40,7 @@ export class RightSidebarView extends ItemView {
 
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
-        // psdService は Controller 側から注入されるためここでは設定しない
+        // psdService, chatService は Controller 側から注入されるためここでは設定しない
     }
 
     getViewType(): string {
@@ -108,6 +110,7 @@ export class RightSidebarView extends ItemView {
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
+            chatService: this.chatService!,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -138,6 +141,7 @@ export class RightSidebarView extends ItemView {
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
+            chatService: this.chatService!,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -224,5 +228,12 @@ export class RightSidebarView extends ItemView {
      */
     public setPsdService(service: PsdService) {
         this.psdService = service;
+    }
+
+    /**
+     * Chat 用サービスを注入
+     */
+    public setChatService(service: ChatService) {
+        this.chatService = service;
     }
 }

@@ -1,10 +1,12 @@
 import { App, WorkspaceLeaf } from 'obsidian';
+import type MyPlugin from '../../main';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
 import { savePsdFile } from './painter-files';
 import { PsdService } from '../services/psd-service';
 import { LayerService } from '../services/layer-service';
+import { ChatService } from '../services/chat-service';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
@@ -157,12 +159,16 @@ export function saveActive(app: App) {
  * ここでは必要最低限の生成のみ行い、詳細なコールバック注入は
  * PainterView 生成時（createPainterView 内）で実施する。
  */
-export function createLayerSidebar(leaf: WorkspaceLeaf): RightSidebarView {
+export function createLayerSidebar(leaf: WorkspaceLeaf, plugin: MyPlugin): RightSidebarView {
     const view = new RightSidebarView(leaf);
     // サービスを注入
     const psdService = new PsdService();
     if (typeof (view as any).setPsdService === 'function') {
         view.setPsdService(psdService);
+    }
+    const chatService = new ChatService(plugin as any);
+    if (typeof (view as any).setChatService === 'function') {
+        view.setChatService(chatService);
     }
     return view;
 }
