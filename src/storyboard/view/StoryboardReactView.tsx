@@ -26,15 +26,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
 }) => {
   const {
     storyboard,
-    handleCellChange,
-    addRow,
-    deleteRow,
-    moveRowUp,
-    moveRowDown,
-    insertRowBelow,
-    addChapter,
-    deleteChapter,
-    saveCharacters,
+    storyboardService,
     uniqueSpeakers,
     allCharacters,
     setStoryboard,
@@ -162,15 +154,15 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         idxInChapter -= storyboard.chapters[i].frames.length;
       }
       if (imageUrl !== undefined) {
-        handleCellChange(targetChapterIndex, idxInChapter, 'imageUrl', imageUrl);
+        storyboardService.handleCellChange(targetChapterIndex, idxInChapter, 'imageUrl', imageUrl);
       }
       if (imagePrompt !== undefined) {
-        handleCellChange(targetChapterIndex, idxInChapter, 'imagePrompt', imagePrompt);
+        storyboardService.handleCellChange(targetChapterIndex, idxInChapter, 'imagePrompt', imagePrompt);
       }
     };
     window.addEventListener('psd-sidebar-update-image', handler);
     return () => window.removeEventListener('psd-sidebar-update-image', handler);
-  }, [handleCellChange, storyboard]);
+  }, [storyboardService, storyboard]);
 
   // 新しく章が追加された際にBGM入力へフォーカスする
   useEffect(() => {
@@ -190,7 +182,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
         characters={allCharacters}
         frames={storyboard.chapters.flatMap(ch => ch.frames)}
         onClose={() => setCharModalOpen(false)}
-        onSave={saveCharacters}
+        onSave={chars => storyboardService.saveCharacters(chars)}
       />
       {storyboard.chapters.map((chapter, cIdx) => (
         <details
@@ -235,7 +227,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
               onClick={e => {
                 e.preventDefault();
                 e.stopPropagation();
-                deleteChapter(cIdx);
+                storyboardService.deleteChapter(cIdx);
                 setOpenChapters(prev => prev.filter((_, i) => i !== cIdx));
               }}
               title={t('DELETE')}
@@ -259,14 +251,8 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
                   }
                 : col
             )}
-            onCellChange={(rowIndex, columnKey, newValue) =>
-              handleCellChange(cIdx, rowIndex, columnKey, newValue)
-            }
-            onAddRow={() => addRow(cIdx)}
-            onDeleteRow={rowIndex => deleteRow(cIdx, rowIndex)}
-            onMoveRowUp={rowIndex => moveRowUp(cIdx, rowIndex)}
-            onMoveRowDown={rowIndex => moveRowDown(cIdx, rowIndex)}
-            onInsertRowBelow={rowIndex => insertRowBelow(cIdx, rowIndex)}
+            service={storyboardService}
+            chapterIndex={cIdx}
             onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
             showAddRow={false}
           />
@@ -284,7 +270,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
                 onChange={e => {
                   const value = e.target.value;
                   if (value.length > 0) {
-                    addChapter(value);
+                    storyboardService.addChapter(value);
                     setOpenChapters(prev => [...prev, true]);
                     setNewChapterBgm('');
                   } else {
