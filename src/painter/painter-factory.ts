@@ -7,7 +7,7 @@ import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const view = new PainterView(leaf, {
-        loadFile: loadPsdFile,
+        load: loadPsdFile,
         addLayer,
         deleteLayer,
     });

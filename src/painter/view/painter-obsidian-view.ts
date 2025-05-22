@@ -20,11 +20,10 @@ import {
 import PainterReactView from './PainterReactView';
 import type { LayersState } from '../hooks/useLayers';
 
-// View に注入する各種操作関数を props として定義
 export interface PainterProps {
-  addLayer?: (view: PainterView, name?: string, imageFile?: TFile) => void;
-  deleteLayer?: (view: PainterView, index: number) => void;
-  loadFile?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
+  load: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
+  addLayer: (view: PainterView, name?: string, imageFile?: TFile) => void;
+  deleteLayer: (view: PainterView, index: number) => void;
 }
 
 type PainterState = { file: string | null };
@@ -32,10 +31,9 @@ type PainterState = { file: string | null };
 function renderPainter(ctx: FuncCtx<PainterProps, PainterState>): FuncReturn<PainterState> {
   const view = ctx.leaf.view as PainterView;
 
-  // props から操作デリゲートを注入
+  view._loadDelegate = ctx.props.load;
   view._addLayerDelegate = ctx.props.addLayer;
   view._deleteLayerDelegate = ctx.props.deleteLayer;
-  view._loadDelegate = ctx.props.loadFile;
 
   // 履歴初期化
   if (!view.layers) {
@@ -178,9 +176,7 @@ export class PainterView extends PainterBase {
 		this._layerChangeCallbacks.forEach(cb => cb());
 	}
 
-        /**
-         * ファイル読み込みは props 経由で受け取るため公開メソッドは不要
-         */
+        // デリゲートは props からセットされる
 
 	/**
 	 * ラッパー: PSD を読み込み
