@@ -384,7 +384,7 @@ const PainterViewBase = createFunctionalView<PainterProps, PainterState>(  PSD_V
     painterView.file = ctx.file;
     painterView.app = ctx.app;
 
-    root.render(React.createElement(PainterReactView, { view: viewObject }));
+    root.render(React.createElement(PainterReactView, {      setCanvas,      renderCanvas,      getCanvasSize: () => ({ width: canvas?.width ?? 0, height: canvas?.height ?? 0 }),      onPointerDown: handlePointerDown,      onPointerMove: handlePointerMove,      onPointerUp: handlePointerUp,      file: ctx.file ?? undefined,      loadAndRenderFile,      layers,      setLayers,      currentColor,      setCurrentColor,      currentLineWidth,      setCurrentLineWidth,      currentTool,      setCurrentTool,      zoom,      setZoom,      rotation,      setRotation,    }));
 
     setupDragAndDrop();
 
