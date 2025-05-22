@@ -32,13 +32,15 @@ export class RightSidebarView extends ItemView {
 
     public layerOps?: LayerOps;
     public fileOps?: FileOpsCallbacks;
-    public createPsd?: (
+    public createPsd: (
         app: App,
         imageFile?: TFile,
         layerName?: string,
         isOpen?: boolean,
         targetDir?: string
-    ) => Promise<TFile>;
+    ) => Promise<TFile> = async () => {
+        throw new Error('createPsd function not implemented');
+    };
 
     // === 画像操作 UI 関連 =====================
     private currentRowIndex: number | null = null;

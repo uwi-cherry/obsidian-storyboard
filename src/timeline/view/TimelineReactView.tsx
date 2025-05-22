@@ -19,7 +19,9 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
         const newProject = JSON.parse(JSON.stringify(data)) as OtioProject;
         const clip = newProject.timeline.tracks[tIdx].children[cIdx] as OtioClip;
         if (field === 'path') {
-            clip.media_reference.target_url = value;
+            if ('target_url' in clip.media_reference) {
+                (clip.media_reference as { target_url: string }).target_url = value;
+            }
         } else if (field === 'start') {
             clip.source_range.start_time = parseFloat(value) || 0;
         } else {
@@ -80,7 +82,7 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
                                     width: `${clip.source_range.duration * PIXELS_PER_SECOND}px`
                                 }}
                             >
-                                {clip.media_reference.target_url.split('/').pop()}
+                                {'target_url' in clip.media_reference ? (clip.media_reference as { target_url: string }).target_url.split('/').pop() : ''}
                             </div>
                         ))}
                     </div>
@@ -98,7 +100,7 @@ const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjec
                                     <td>
                                         <input
                                             className="border p-1 w-full"
-                                            value={clip.media_reference.target_url}
+                                            value={'target_url' in clip.media_reference ? (clip.media_reference as { target_url: string }).target_url : ''}
                                             onChange={e => handleClipChange(tIdx, cIdx, 'path', e.target.value)}
                                         />
                                     </td>
