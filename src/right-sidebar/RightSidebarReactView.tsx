@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { App } from 'obsidian';
+import { MarkdownView } from 'obsidian';
 import type { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
@@ -7,6 +7,7 @@ import { PsdService } from '../services/psd-service';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
+import { getCurrentViewMode } from '../storyboard/storyboard-factory';
 
 interface RightSidebarReactViewProps {
     view: RightSidebarView;
@@ -31,6 +32,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     psdService,
 }) => {
     const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
+    const [showLayerControls, setShowLayerControls] = useState(false);
 
     useEffect(() => {
         const updatePsdPainterState = () => {
@@ -42,6 +44,27 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
         view.app.workspace.on('active-leaf-change', updatePsdPainterState);
         return () => {
             view.app.workspace.off('active-leaf-change', updatePsdPainterState);
+        };
+    }, [view.app.workspace]);
+
+    useEffect(() => {
+        const updateVisibility = () => {
+            const leaf = view.app.workspace.getActiveLeaf();
+            if (!leaf) {
+                setShowLayerControls(false);
+                return;
+            }
+            const isPsd = leaf.view instanceof PainterView;
+            const isStoryboard =
+                leaf.view instanceof MarkdownView &&
+                getCurrentViewMode(leaf) === 'storyboard';
+            setShowLayerControls(isPsd || isStoryboard);
+        };
+
+        updateVisibility();
+        view.app.workspace.on('active-leaf-change', updateVisibility);
+        return () => {
+            view.app.workspace.off('active-leaf-change', updateVisibility);
         };
     }, [view.app.workspace]);
 
@@ -85,7 +108,7 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 psdService={psdService}
             />
 
-            {(currentImageUrl?.endsWith('.psd') || layers.length > 0) && (
+            {showLayerControls && (currentImageUrl?.endsWith('.psd') || layers.length > 0) && (
                 <LayerControls
                     view={view}
                     layers={layers}
