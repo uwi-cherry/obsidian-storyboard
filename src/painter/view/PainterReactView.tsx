@@ -76,22 +76,22 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     canvas.className = 'bg-transparent shadow-lg touch-none';
 
     // PainterView へキャンバス DOM を紐付け
-    (view as any)._canvas = canvas;
+    view._canvas = canvas;
 
     // ポインタ関連イベント（PainterView 内部実装を使う）
-    const onPointerDown = (e: PointerEvent) => (view as any).handlePointerDown(e);
-    const onPointerMove = (e: PointerEvent) => (view as any).handlePointerMove(e);
-    const onPointerUp = (e: PointerEvent) => (view as any).handlePointerUp(e);
+    const onPointerDown = (e: PointerEvent) => view.onPointerDown?.(e);
+    const onPointerMove = (e: PointerEvent) => view.onPointerMove?.(e);
+    const onPointerUp = (e: PointerEvent) => view.onPointerUp?.(e);
 
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
 
     // SelectionController と状態を初期化
-    (view as any)._selectionState = selectionState;
-    (view as any).layers = layersState;
-    if (!(view as any)._selectionController) {
-      (view as any)._selectionController = new SelectionController(view, selectionState);
+    view._selectionState = selectionState;
+    view.layers = layersState;
+    if (!view._selectionController) {
+      view._selectionController = new SelectionController(view, selectionState);
     }
 
     const actionMenu = new ActionMenuController(view, selectionState);
@@ -103,7 +103,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     // ファイル読み込み or 背景レイヤー作成
     (async () => {
       if (view.file) {
-        await (view as any)._loadAndRenderFile(view.file);
+        await view._loadAndRenderFile?.(view.file);
       } else {
         const bgCanvas = document.createElement('canvas');
         bgCanvas.width = DEFAULT_CANVAS_WIDTH;
@@ -137,7 +137,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     };
   }, [view]);
   // ツールの定義
-  let TOOLS = [
+  const TOOLS = [
       { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
       { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
       { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },

@@ -8,6 +8,7 @@ import {
 } from '../../constants';
 import { Layer, PsdData } from '../painter-types';
 import { t } from '../../i18n';
+import type { SelectionState } from '../hooks/useSelectionState';
 import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';
@@ -30,17 +31,30 @@ export class PainterView extends FileView {
         zoom = 100;
         rotation = 0;
 
+        // PainterViewInterface で必要なプロパティ
+        psdDataHistory: { layers: Layer[] }[] = [];
+        currentIndex = -1;
+        currentLayerIndex = 0;
+
 	// React リファクタリング後、DOM 参照はコンポーネント側で取得する
-	public _canvas!: HTMLCanvasElement;
+	public _canvas: HTMLCanvasElement | undefined;
+
+	// ポインタイベントハンドラ
+	public onPointerDown: ((e: PointerEvent) => void) | null = null;
+	public onPointerMove: ((e: PointerEvent) => void) | null = null;
+	public onPointerUp: ((e: PointerEvent) => void) | null = null;
 
 	// レイヤー変更イベント登録用
 	private _layerChangeCallbacks: (() => void)[] = [];
 
-	// コントローラーから注入されるレイヤー操作デリゲート
+	// 選択範囲状態
+	public _selectionState: SelectionState | null = null;
+
+        // コントローラーから注入されるレイヤー操作デリゲート
         private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
         private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
 
-        private _selectionController?: SelectionController;
+        public _selectionController?: SelectionController;
 
         // フローティングメニュー（クリア・塗りつぶし）用
         public actionMenu!: ActionMenuController;
@@ -49,7 +63,7 @@ export class PainterView extends FileView {
         public editController?: TransformEditController;
 
 	// ファイル入出力デリゲート
-	private _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
+	public _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
 
 	// React ルート（レイアウトをマウント）
 	private reactRoot?: Root;
@@ -116,7 +130,7 @@ export class PainterView extends FileView {
 	/**
 	 * ファイルからレイヤーを読み込み、ビューの状態を初期化
 	 */
-	private async _loadAndRenderFile(file: TFile) {
+	public async _loadAndRenderFile(file: TFile) {
 		const data = await this.loadPsdFile(this.app, file);
 		if (this._canvas) {
 			this._canvas.width = data.width;
@@ -234,6 +248,8 @@ export class PainterView extends FileView {
 	}
 
         private handlePointerDown(e: PointerEvent) {
+                if (!this._canvas) return;
+                
                 const rect = this._canvas.getBoundingClientRect();
                 const scale = this.zoom / 100;
                 const x = (e.clientX - rect.left) / scale;
@@ -261,6 +277,8 @@ export class PainterView extends FileView {
 	}
 
         private handlePointerMove(e: PointerEvent) {
+                if (!this._canvas) return;
+                
                 const rect = this._canvas.getBoundingClientRect();
                 const scale = this.zoom / 100;
                 const x = (e.clientX - rect.left) / scale;
@@ -307,7 +325,9 @@ export class PainterView extends FileView {
 
                 if (this.currentTool === 'hand' && this.isPanning) {
                         this.isPanning = false;
-                        this._canvas.style.cursor = 'grab';
+                        if (this._canvas) {
+                                this._canvas.style.cursor = 'grab';
+                        }
                 }
 
                 if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
