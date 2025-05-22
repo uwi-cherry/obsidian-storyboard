@@ -1,47 +1,40 @@
 import React, { useEffect, useState } from 'react';
 import { OtioProject } from '../timeline-types';
-import { createClip, createTrack } from '../timeline-files';
+import { ITimelineService } from '../../services/timeline-service';
 import { t } from '../../i18n';
 
 interface TimelineReactViewProps {
     project: OtioProject;
     onProjectChange: (project: OtioProject) => void;
+    service: ITimelineService;
 }
 
 const PIXELS_PER_SECOND = 20;
 
-const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjectChange }) => {
+const TimelineReactView: React.FC<TimelineReactViewProps> = ({ project, onProjectChange, service }) => {
     const [data, setData] = useState<OtioProject>(project);
 
     useEffect(() => setData(project), [project]);
 
-    const handleClipChange = (tIdx: number, cIdx: number, field: 'path' | 'start' | 'duration', value: string) => {
-        const newProject = JSON.parse(JSON.stringify(data)) as OtioProject;
-        const clip = newProject.timeline.tracks[tIdx].children[cIdx] as any;
-        if (field === 'path') {
-            clip.media_reference.target_url = value;
-        } else if (field === 'start') {
-            clip.source_range.start_time = parseFloat(value) || 0;
-        } else {
-            clip.source_range.duration = parseFloat(value) || 0;
-        }
+    const handleClipChange = (
+        tIdx: number,
+        cIdx: number,
+        field: 'path' | 'start' | 'duration',
+        value: string
+    ) => {
+        const newProject = service.updateClip(data, tIdx, cIdx, field, value);
         setData(newProject);
         onProjectChange(newProject);
     };
 
     const handleAddClip = (tIdx: number) => {
-        const newClip = createClip('', 0, 5);
-        const newProject = JSON.parse(JSON.stringify(data)) as OtioProject;
-        newProject.timeline.tracks[tIdx].children.push(newClip);
+        const newProject = service.addClip(data, tIdx);
         setData(newProject);
         onProjectChange(newProject);
     };
 
     const handleAddTrack = () => {
-        const newProject = JSON.parse(JSON.stringify(data)) as OtioProject;
-        const trackNumber = newProject.timeline.tracks.length + 1;
-        const newTrack = createTrack(`Track ${trackNumber}`);
-        newProject.timeline.tracks.push(newTrack);
+        const newProject = service.addTrack(data);
         setData(newProject);
         onProjectChange(newProject);
     };

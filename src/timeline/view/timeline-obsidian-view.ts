@@ -2,16 +2,18 @@ import { FileView, WorkspaceLeaf, TFile } from 'obsidian';
 import { createRoot, Root } from 'react-dom/client';
 import React from 'react';
 import { OTIO_VIEW_TYPE, OTIO_ICON } from '../../constants';
-import { loadOtioFile, saveOtioFile } from '../timeline-files';
 import { OtioProject } from '../timeline-types';
+import { TimelineService } from '../../services/timeline-service';
 import TimelineReactView from './TimelineReactView';
 
 export class TimelineView extends FileView {
     private reactRoot?: Root;
     private project: OtioProject | null = null;
+    private service: TimelineService;
 
     constructor(leaf: WorkspaceLeaf) {
         super(leaf);
+        this.service = new TimelineService();
     }
 
     getViewType(): string {
@@ -40,18 +42,22 @@ export class TimelineView extends FileView {
     }
 
     async openFile(file: TFile) {
-        this.project = await loadOtioFile(this.app, file);
+        this.project = await this.service.load(this.app, file);
         if (!this.reactRoot) {
             this.reactRoot = createRoot(this.contentEl);
         }
         const handleChange = async (proj: OtioProject) => {
             if (this.file) {
-                await saveOtioFile(this.app, this.file, proj);
+                await this.service.save(this.app, this.file, proj);
                 this.project = proj;
             }
         };
         this.reactRoot.render(
-            React.createElement(TimelineReactView, { project: this.project, onProjectChange: handleChange })
+            React.createElement(TimelineReactView, {
+                project: this.project,
+                onProjectChange: handleChange,
+                service: this.service
+            })
         );
     }
 
