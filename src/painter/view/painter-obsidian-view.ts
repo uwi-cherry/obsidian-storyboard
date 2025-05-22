@@ -12,7 +12,7 @@ import type { SelectionState } from '../hooks/useSelectionState';
 import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
 import {
-  defineFunctionalView,
+  createFunctionalView,
   type FuncCtx,
   type FuncReturn,
 } from '../../functional-view';
@@ -22,22 +22,36 @@ import type { LayersState } from '../hooks/useLayers';
 
 export interface PainterProps {
   load: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
-  addLayer: (view: PainterView, name?: string, imageFile?: TFile) => void;
-  deleteLayer: (view: PainterView, index: number) => void;
+  addLayer: (app: App, file: TFile, name?: string, imageFile?: TFile) => void;
+  deleteLayer: (app: App, file: TFile, index: number) => void;
 }
 
-type PainterState = { file: string | null };
+type PainterState = { 
+  file: string | null;
+  currentLayerIndex: number;
+  zoom: number;
+  rotation: number;
+  currentColor: string;
+  currentLineWidth: number;
+  currentTool: string;
+};
 
-function renderPainter(ctx: FuncCtx<PainterProps, PainterState>): FuncReturn<PainterState> {
-  const view = ctx.leaf.view as PainterView;
-
-  view._loadDelegate = ctx.props.load;
-  view._addLayerDelegate = ctx.props.addLayer;
-  view._deleteLayerDelegate = ctx.props.deleteLayer;
-
-  // 履歴初期化
-  if (!view.layers) {
-    view.layers = {
+const PainterViewBase = createFunctionalView<PainterProps, PainterState>(  PSD_VIEW_TYPE,  PSD_ICON,  (ctx: FuncCtx<PainterProps, PainterState>) => {    // Early setup for factory compatibility    const painterView = ctx.leaf.view as any;    if (!painterView.onLayerChanged) {      painterView.onLayerChanged = (cb: () => void) => {        if (!painterView._layerChangeCallbacks) {          painterView._layerChangeCallbacks = [];        }        painterView._layerChangeCallbacks.push(cb);      };      painterView._emitLayerChanged = () => {        if (painterView._layerChangeCallbacks) {          painterView._layerChangeCallbacks.forEach((cb: () => void) => cb());        }      };    }    // State hooks
+    const [isDrawing, setIsDrawing] = ctx.useState(false);
+    const [lastX, setLastX] = ctx.useState(0);
+    const [lastY, setLastY] = ctx.useState(0);
+    const [isPanning, setIsPanning] = ctx.useState(false);
+    const [panLastX, setPanLastX] = ctx.useState(0);
+    const [panLastY, setPanLastY] = ctx.useState(0);
+    const [currentColor, setCurrentColor] = ctx.useState(ctx.state?.currentColor ?? DEFAULT_COLOR);
+    const [currentLineWidth, setCurrentLineWidth] = ctx.useState(ctx.state?.currentLineWidth ?? 5);
+    const [currentTool, setCurrentTool] = ctx.useState(ctx.state?.currentTool ?? 'brush');
+    const [zoom, setZoom] = ctx.useState(ctx.state?.zoom ?? 100);
+    const [rotation, setRotation] = ctx.useState(ctx.state?.rotation ?? 0);
+    const [currentLayerIndex, setCurrentLayerIndex] = ctx.useState(ctx.state?.currentLayerIndex ?? 0);
+    const [canvas, setCanvas] = ctx.useState<HTMLCanvasElement | undefined>(undefined);
+    const [reactRoot, setReactRoot] = ctx.useState<Root | undefined>(undefined);
+    const [layers, setLayers] = ctx.useState<LayersState>({
       history: [{ layers: [] }],
       currentIndex: 0,
       currentLayerIndex: 0,
@@ -45,398 +59,376 @@ function renderPainter(ctx: FuncCtx<PainterProps, PainterState>): FuncReturn<Pai
       saveHistory() {},
       undo() {},
       redo() {},
-    } as LayersState;
-  } else if (view.layers.history.length === 0) {
-    view.layers.history = [{ layers: [] }];
-    view.layers.currentIndex = 0;
-    view.layers.currentLayerIndex = 0;
-  }
+    });
+    const [layerChangeCallbacks, setLayerChangeCallbacks] = ctx.useState<(() => void)[]>([]);
+    const [selectionState, setSelectionState] = ctx.useState<SelectionState | null>(null);
+    const [selectionController, setSelectionController] = ctx.useState<unknown>(undefined);
+    const [actionMenu, setActionMenu] = ctx.useState<any>(undefined);
+    const [editController, setEditController] = ctx.useState<unknown>(undefined);
 
-  ctx.root.empty();
-  ctx.root.addClass('psd-view');
+    // Helper functions
+    const emitLayerChanged = () => {
+      layerChangeCallbacks.forEach(cb => cb());
+    };
 
-  view.redoActionEl?.remove();
-  view.undoActionEl?.remove();
+    const renderCanvas = () => {
+      if (!canvas) return;
+      const canvasCtx = canvas.getContext('2d');
+      if (!canvasCtx) return;
+      canvasCtx.clearRect(0, 0, canvas.width, canvas.height);
 
-  const redoBtn = view.addAction('arrow-right', t('REDO'), () => view.redo()) as HTMLElement;
-  redoBtn.querySelector('svg')?.remove();
-  redoBtn.textContent = t('REDO');
-  view.redoActionEl = redoBtn;
+      // チェック柄の背景を描画
+      const checkSize = 10;
+      canvasCtx.fillStyle = '#ffffff';
+      canvasCtx.fillRect(0, 0, canvas.width, canvas.height);
+      canvasCtx.fillStyle = '#e0e0e0';
+      for (let y = 0; y < canvas.height; y += checkSize * 2) {
+        for (let x = 0; x < canvas.width; x += checkSize * 2) {
+          canvasCtx.fillRect(x + checkSize, y, checkSize, checkSize);
+          canvasCtx.fillRect(x, y + checkSize, checkSize, checkSize);
+        }
+      }
 
-  const undoBtn = view.addAction('arrow-left', t('UNDO'), () => view.undo()) as HTMLElement;
-  undoBtn.querySelector('svg')?.remove();
-  undoBtn.textContent = t('UNDO');
-  view.undoActionEl = undoBtn;
+      // 各レイヤーを上から下に向かって描画
+      const currentLayers = layers.history[layers.currentIndex].layers;
+      for (let i = currentLayers.length - 1; i >= 0; i--) {
+        const layer = currentLayers[i];
+        if (layer.visible) {
+          canvasCtx.globalAlpha = layer.opacity;
+          canvasCtx.globalCompositeOperation = BLEND_MODE_TO_COMPOSITE_OPERATION[layer.blendMode];
+          canvasCtx.drawImage(layer.canvas, 0, 0);
+          canvasCtx.globalCompositeOperation = 'source-over';
+          canvasCtx.globalAlpha = 1;
+        }
+      }
 
-  const reactRoot = createRoot(ctx.root);
-  view.reactRoot = reactRoot;
-  reactRoot.render(React.createElement(PainterReactView, { view }));
+      // 選択範囲を描画
+      (selectionController as any)?.drawSelection(canvasCtx);
+      emitLayerChanged();
+    };
 
-  view.setupDragAndDrop();
+    const saveLayerStateToHistory = () => {
+      layers.saveHistory();
+      renderCanvas();
+      emitLayerChanged();
+    };
 
-  return {
-    cleanup: () => {
-      reactRoot.unmount();
-      view.reactRoot = undefined;
-      (view.actionMenu as any)?.dispose();
-      const handler = (view as any)._resizeHandler as (() => void) | undefined;
-      if (handler) window.removeEventListener('resize', handler);
-    },
-    getState: () => ({ file: view.file?.path ?? null }),
-    setState: async (state) => {
-      if (!state.file) return;
-      const file = view.app.vault.getAbstractFileByPath(state.file);
-      if (!(file instanceof TFile)) return;
-      view.file = file;
-      await view._loadAndRenderFile(file);
-      view._emitLayerChanged();
-    },
-  };
-}
+    const undo = () => {
+      if (layers.currentIndex > 0) {
+        setLayers({
+          ...layers,
+          currentIndex: layers.currentIndex - 1
+        });
+        renderCanvas();
+        emitLayerChanged();
+      }
+    };
 
-const PainterBase = defineFunctionalView<PainterProps, PainterState, typeof FileView>(
-  FileView,
-  PSD_VIEW_TYPE,
-  PSD_ICON,
-  renderPainter,
+    const redo = () => {
+      if (layers.currentIndex < layers.history.length - 1) {
+        setLayers({
+          ...layers,
+          currentIndex: layers.currentIndex + 1
+        });
+        renderCanvas();
+        emitLayerChanged();
+      }
+    };
+
+    const loadAndRenderFile = async (file: TFile) => {
+      const data = await ctx.props.load(ctx.app, file);
+      if (canvas) {
+        canvas.width = data.width;
+        canvas.height = data.height;
+      }
+
+      setLayers({
+        ...layers,
+        history: [{ layers: data.layers }],
+        currentIndex: 0,
+        currentLayerIndex: 0
+      });
+
+      renderCanvas();
+      emitLayerChanged();
+    };
+
+    // Pointer event handlers
+    const handlePointerDown = (e: PointerEvent) => {
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const scale = zoom / 100;
+      const x = (e.clientX - rect.left) / scale;
+      const y = (e.clientY - rect.top) / scale;
+
+      if (currentTool === 'brush' || currentTool === 'eraser') {
+        setIsDrawing(true);
+        setLastX(x);
+        setLastY(y);
+        const layerCanvas = layers.history[layers.currentIndex].layers[layers.currentLayerIndex].canvas;
+        const layerCtx = layerCanvas.getContext('2d');
+        if (!layerCtx) return;
+        layerCtx.lineWidth = e.pressure !== 0 ? currentLineWidth * e.pressure : currentLineWidth;
+        saveLayerStateToHistory();
+      } else if (currentTool === 'selection' || currentTool === 'lasso') {
+        (actionMenu as any)?.hide();
+        (selectionController as any)?.onPointerDown(x, y);
+        return;
+      } else if (currentTool === 'hand') {
+        setIsPanning(true);
+        setPanLastX(e.clientX);
+        setPanLastY(e.clientY);
+        if (canvas) canvas.style.cursor = 'grabbing';
+        return;
+      }
+    };
+
+    const handlePointerMove = (e: PointerEvent) => {
+      if (!canvas) return;
+      
+      const rect = canvas.getBoundingClientRect();
+      const scale = zoom / 100;
+      const x = (e.clientX - rect.left) / scale;
+      const y = (e.clientY - rect.top) / scale;
+
+      if (currentTool === 'selection' || currentTool === 'lasso') {
+        (selectionController as any)?.onPointerMove(x, y);
+        return;
+      }
+
+      if (currentTool === 'hand' && isPanning) {
+        const container = canvas.parentElement as HTMLElement | null;
+        if (container) {
+          container.scrollLeft -= e.clientX - panLastX;
+          container.scrollTop -= e.clientY - panLastY;
+        }
+        setPanLastX(e.clientX);
+        setPanLastY(e.clientY);
+        return;
+      }
+
+      if (!isDrawing) return;
+
+      const layerCanvas = layers.history[layers.currentIndex].layers[layers.currentLayerIndex].canvas;
+      const layerCtx = layerCanvas.getContext('2d');
+      if (!layerCtx) return;
+      layerCtx.beginPath();
+      layerCtx.moveTo(lastX, lastY);
+      layerCtx.lineTo(x, y);
+      layerCtx.strokeStyle = currentTool === 'eraser' ? 'rgba(0, 0, 0, 1)' : currentColor;
+      layerCtx.lineWidth = e.pressure !== 0 ? currentLineWidth * e.pressure : currentLineWidth;
+      layerCtx.globalCompositeOperation = currentTool === 'eraser' ? 'destination-out' : 'source-over';
+      layerCtx.stroke();
+      layerCtx.globalCompositeOperation = 'source-over';
+      setLastX(x);
+      setLastY(y);
+      renderCanvas();
+    };
+
+    const handlePointerUp = () => {
+      if (isDrawing) {
+        setIsDrawing(false);
+      }
+
+      if (currentTool === 'hand' && isPanning) {
+        setIsPanning(false);
+        if (canvas) {
+          canvas.style.cursor = 'grab';
+        }
+      }
+
+      if (currentTool === 'selection' || currentTool === 'lasso') {
+        const valid = (selectionController as any)?.onPointerUp() ?? false;
+        if (valid) {
+          const cancel = () => (selectionController as any)?.cancelSelection();
+          (actionMenu as any)?.showSelection(cancel);
+        } else {
+          (actionMenu as any)?.showGlobal();
+        }
+        return;
+      }
+    };
+
+    const setupDragAndDrop = () => {
+      ctx.root.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ctx.root.addClass('drag-over');
+      });
+
+      ctx.root.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ctx.root.removeClass('drag-over');
+      });
+
+      ctx.root.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ctx.root.addClass('drag-over');
+      });
+
+      ctx.root.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        ctx.root.removeClass('drag-over');
+
+        const items = Array.from(e.dataTransfer?.items || []);
+        for (const item of items) {
+          if (item.kind === 'string' && item.type === 'text/uri-list') {
+            item.getAsString(async (uri: string) => {
+              const match = uri.match(/file=([^&]+)/);
+              if (match) {
+                const fileName = decodeURIComponent(match[1]);
+                const tFile = ctx.app.vault.getAbstractFileByPath(fileName);
+
+                if (tFile instanceof TFile) {
+                  const ext = tFile.extension.toLowerCase();
+                  if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
+                    if (ctx.file) {
+                      ctx.props.addLayer(ctx.app, ctx.file, tFile.basename, tFile);
+                    }
+                  }
+                }
+              }
+            });
+          }
+        }
+      });
+    };
+
+    // Initialize view
+    ctx.root.empty();
+    ctx.root.addClass('psd-view');
+
+    // Create React root and render
+    const root = createRoot(ctx.root);
+    setReactRoot(root);
+
+    // Create view object for React component
+    const viewObject = {
+      _canvas: canvas,
+      canvas,
+      setCanvas,
+      currentColor,
+      setCurrentColor,
+      currentLineWidth,
+      setCurrentLineWidth,
+      currentTool,
+      setCurrentTool,
+      zoom,
+      setZoom,
+      rotation,
+      setRotation,
+      layers,
+      setLayers,
+      currentLayerIndex,
+      setCurrentLayerIndex,
+      onPointerDown: handlePointerDown,
+      onPointerMove: handlePointerMove,
+      onPointerUp: handlePointerUp,
+      onLayerChanged: (cb: () => void) => {
+        const newCallbacks = [...layerChangeCallbacks, cb];
+        setLayerChangeCallbacks(newCallbacks);
+      },
+      renderCanvas,
+      saveLayerStateToHistory,
+      undo,
+      redo,
+      getCanvasSize: () => ({ width: canvas?.width ?? 0, height: canvas?.height ?? 0 }),
+      deleteLayer: (index: number) => {
+        if (ctx.file) {
+          ctx.props.deleteLayer(ctx.app, ctx.file, index);
+        }
+      },
+      createNewLayer: (name = t('NEW_LAYER'), imageFile?: TFile) => {
+        if (ctx.file) {
+          ctx.props.addLayer(ctx.app, ctx.file, name, imageFile);
+        }
+      },
+      file: ctx.file,
+      _loadAndRenderFile: loadAndRenderFile,
+      selectionController,
+      setSelectionController,
+      _selectionController: selectionController,
+      actionMenu,
+      setActionMenu,
+      editController,
+      setEditController,
+      selectionState,
+      setSelectionState,
+      _selectionState: selectionState,
+      app: ctx.app
+    };
+
+    // Expose necessary methods on the PainterView instance for factory compatibility
+    const painterView = ctx.leaf.view as any;
+    painterView.onLayerChanged = viewObject.onLayerChanged;
+    painterView.renderCanvas = viewObject.renderCanvas;
+    painterView.layers = layers;
+    painterView.currentLayerIndex = currentLayerIndex;
+    painterView.currentTool = currentTool;
+    painterView.currentColor = currentColor;
+    painterView.currentLineWidth = currentLineWidth;
+    painterView.zoom = zoom;
+    painterView.rotation = rotation;
+    painterView._canvas = canvas;
+    painterView.createNewLayer = viewObject.createNewLayer;
+    painterView.deleteLayer = viewObject.deleteLayer;
+    painterView.saveLayerStateToHistory = viewObject.saveLayerStateToHistory;
+    painterView.undo = viewObject.undo;
+    painterView.redo = viewObject.redo;
+    painterView.getCanvasSize = viewObject.getCanvasSize;
+    painterView._loadAndRenderFile = viewObject._loadAndRenderFile;
+    painterView.file = ctx.file;
+    painterView.app = ctx.app;
+
+    root.render(React.createElement(PainterReactView, { view: viewObject }));
+
+    setupDragAndDrop();
+
+    // Add header actions
+    const redoBtn = ctx.root.createEl('button', { text: t('REDO') });
+    redoBtn.onclick = redo;
+    
+    const undoBtn = ctx.root.createEl('button', { text: t('UNDO') });
+    undoBtn.onclick = undo;
+
+    return {
+      cleanup: () => {
+        root.unmount();
+        setReactRoot(undefined);
+        (actionMenu as any)?.dispose();
+      },
+      getState: () => ({ 
+        file: ctx.file?.path ?? null,
+        currentLayerIndex,
+        zoom,
+        rotation,
+        currentColor,
+        currentLineWidth,
+        currentTool
+      }),
+      setState: async (state) => {
+        if (!state.file) return;
+        const file = ctx.app.vault.getAbstractFileByPath(state.file);
+        if (!(file instanceof TFile)) return;
+        await loadAndRenderFile(file);
+        setCurrentLayerIndex(state.currentLayerIndex ?? 0);
+        setZoom(state.zoom ?? 100);
+        setRotation(state.rotation ?? 0);
+        setCurrentColor(state.currentColor ?? DEFAULT_COLOR);
+        setCurrentLineWidth(state.currentLineWidth ?? 5);
+        setCurrentTool(state.currentTool ?? 'brush');
+      },
+    };
+  },
+  {
+    load: async () => ({ width: 0, height: 0, layers: [] }),
+    addLayer: () => {},
+    deleteLayer: () => {}
+  } as PainterProps
 );
 
-export class PainterView extends PainterBase {
-        isDrawing = false;
-        lastX = 0;
-        lastY = 0;
-        isPanning = false;
-        panLastX = 0;
-        panLastY = 0;
-        currentColor = DEFAULT_COLOR;
-	currentLineWidth = 5;
-        currentTool = 'brush';
-        public layers!: LayersState;
-
-        zoom = 100;
-        rotation = 0;
-
-        // PainterViewInterface で必要なプロパティ
-        psdDataHistory: { layers: Layer[] }[] = [];
-        currentIndex = -1;
-        currentLayerIndex = 0;
-
-	// React リファクタリング後、DOM 参照はコンポーネント側で取得する
-	public _canvas: HTMLCanvasElement | undefined;
-
-	// ポインタイベントハンドラ
-	public onPointerDown: ((e: PointerEvent) => void) | null = null;
-	public onPointerMove: ((e: PointerEvent) => void) | null = null;
-	public onPointerUp: ((e: PointerEvent) => void) | null = null;
-
-	// レイヤー変更イベント登録用
-	private _layerChangeCallbacks: (() => void)[] = [];
-
-	// 選択範囲状態
-	public _selectionState: SelectionState | null = null;
-
-        // コントローラーから注入されるレイヤー操作デリゲート
-        public _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
-        public _deleteLayerDelegate?: (view: PainterView, index: number) => void;
-
-        public _selectionController?: unknown;
-
-        // フローティングメニュー（クリア・塗りつぶし）用
-        public actionMenu!: any;
-
-        // 選択範囲編集コントローラー
-        public editController?: unknown;
-
-        // ファイル入出力デリゲート
-        public _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
-
-        // React ルート（レイアウトをマウント）
-        public reactRoot?: Root;
-
-        // Header actions
-        public undoActionEl?: HTMLElement;
-        public redoActionEl?: HTMLElement;
-
-        getViewType() { return PSD_VIEW_TYPE; }
-
-  /**
-   * SelectionController への public アクセス
-   */
-        public get selectionController(): unknown {
-                return this._selectionController;
-        }
-
-	/**
-	 * ViewModel からキャンバス要素へアクセスするための公開ゲッター。
-	 * 内部実装（_canvas）のカプセル化を保ちつつ読み取り専用で提供する。
-	 */
-        public get canvasElement(): HTMLCanvasElement | undefined {
-                return this._canvas;
-        }
-
-
-        public getCanvasSize(): { width: number; height: number } {
-                return { width: this._canvas?.width ?? 0, height: this._canvas?.height ?? 0 };
-        }
-
-	public onLayerChanged(cb: () => void) {
-		this._layerChangeCallbacks.push(cb);
-	}
-
-        public _emitLayerChanged() {
-		this._layerChangeCallbacks.forEach(cb => cb());
-	}
-
-        // デリゲートは props からセットされる
-
-	/**
-	 * ラッパー: PSD を読み込み
-	 */
-	private async loadPsdFile(app: App, file: TFile): Promise<PsdData> {
-		if (this._loadDelegate) {
-			return await this._loadDelegate(app, file);
-		}
-		return { width: 0, height: 0, layers: [] };
-	}
-
-	/**
-	 * ファイルからレイヤーを読み込み、ビューの状態を初期化
-	 */
-	public async _loadAndRenderFile(file: TFile) {
-		const data = await this.loadPsdFile(this.app, file);
-		if (this._canvas) {
-			this._canvas.width = data.width;
-			this._canvas.height = data.height;
-		}
-
-                this.layers.history = [{ layers: data.layers }];
-                this.layers.currentIndex = 0;
-                this.layers.currentLayerIndex = 0;
-
-		this.renderCanvas();
-		this._emitLayerChanged();
-	}
-
-        constructor(leaf: WorkspaceLeaf, props: PainterProps) {
-                super(leaf, props);
-                this.onPointerDown = (e) => this.handlePointerDown(e);
-                this.onPointerMove = (e) => this.handlePointerMove(e);
-                this.onPointerUp = () => this.handlePointerUp();
-        }
-
-        public saveLayerStateToHistory() {
-                this.layers.saveHistory();
-                this.renderCanvas();
-                this._emitLayerChanged();
-        }
-
-        undo() {
-                if (this.layers.currentIndex > 0) {
-                        this.layers.currentIndex--;
-                        this.renderCanvas();
-                        this._emitLayerChanged();
-                }
-        }
-
-        redo() {
-                if (this.layers.currentIndex < this.layers.history.length - 1) {
-                        this.layers.currentIndex++;
-                        this.renderCanvas();
-                        this._emitLayerChanged();
-                }
-        }
-
-
-        private handlePointerDown(e: PointerEvent) {
-                if (!this._canvas) return;
-                
-                const rect = this._canvas.getBoundingClientRect();
-                const scale = this.zoom / 100;
-                const x = (e.clientX - rect.left) / scale;
-                const y = (e.clientY - rect.top) / scale;
-
-		if (this.currentTool === 'brush' || this.currentTool === 'eraser') {
-			this.isDrawing = true;
-			this.lastX = x;
-			this.lastY = y;
-                        const ctx = this.layers.history[this.layers.currentIndex].layers[this.layers.currentLayerIndex].canvas.getContext('2d');
-			if (!ctx) return; // nullチェック
-			ctx.lineWidth = e.pressure !== 0 ? this.currentLineWidth * e.pressure : this.currentLineWidth;
-			this.saveLayerStateToHistory();
-                } else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        this.actionMenu.hide();
-                        (this._selectionController as any)?.onPointerDown(x, y);
-                        return;
-                } else if (this.currentTool === 'hand') {
-                        this.isPanning = true;
-                        this.panLastX = e.clientX;
-                        this.panLastY = e.clientY;
-                        this._canvas.style.cursor = 'grabbing';
-                        return;
-                }
-	}
-
-        private handlePointerMove(e: PointerEvent) {
-                if (!this._canvas) return;
-                
-                const rect = this._canvas.getBoundingClientRect();
-                const scale = this.zoom / 100;
-                const x = (e.clientX - rect.left) / scale;
-                const y = (e.clientY - rect.top) / scale;
-
-                // 選択ツールの場合はドラッグ状態に関係なく move を伝播
-                if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        (this._selectionController as any)?.onPointerMove(x, y);
-                        return;
-                }
-
-                if (this.currentTool === 'hand' && this.isPanning) {
-                        const container = this._canvas.parentElement as HTMLElement | null;
-                        if (container) {
-                                container.scrollLeft -= e.clientX - this.panLastX;
-                                container.scrollTop -= e.clientY - this.panLastY;
-                        }
-                        this.panLastX = e.clientX;
-                        this.panLastY = e.clientY;
-                        return;
-                }
-
-		if (!this.isDrawing) return;
-
-                const ctx = this.layers.history[this.layers.currentIndex].layers[this.layers.currentLayerIndex].canvas.getContext('2d');
-		if (!ctx) return; // nullチェック
-		ctx.beginPath();
-		ctx.moveTo(this.lastX, this.lastY);
-		ctx.lineTo(x, y);
-		ctx.strokeStyle = this.currentTool === 'eraser' ? 'rgba(0, 0, 0, 1)' : this.currentColor;
-		ctx.lineWidth = e.pressure !== 0 ? this.currentLineWidth * e.pressure : this.currentLineWidth;
-		ctx.globalCompositeOperation = this.currentTool === 'eraser' ? 'destination-out' : 'source-over';
-		ctx.stroke();
-		ctx.globalCompositeOperation = 'source-over';
-		this.lastX = x;
-		this.lastY = y;
-		this.renderCanvas();
-	}
-
-        private handlePointerUp() {
-                if (this.isDrawing) {
-                        this.isDrawing = false;
-                }
-
-                if (this.currentTool === 'hand' && this.isPanning) {
-                        this.isPanning = false;
-                        if (this._canvas) {
-                                this._canvas.style.cursor = 'grab';
-                        }
-                }
-
-                if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        const valid = (this._selectionController as any)?.onPointerUp() ?? false;
-                        if (valid) {
-                                const cancel = () => (this._selectionController as any)?.cancelSelection();
-                                this.actionMenu.showSelection(cancel);
-                        } else {
-                                this.actionMenu.showGlobal();
-                        }
-                        return;
-                }
-        }
-
-        public setupDragAndDrop() {
-		this.contentEl.addEventListener('dragenter', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			this.contentEl.addClass('drag-over');
-		});
-
-		this.contentEl.addEventListener('dragleave', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			this.contentEl.removeClass('drag-over');
-		});
-
-		this.contentEl.addEventListener('dragover', (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			this.contentEl.addClass('drag-over');
-		});
-
-		this.contentEl.addEventListener('drop', async (e) => {
-			e.preventDefault();
-			e.stopPropagation();
-			this.contentEl.removeClass('drag-over');
-
-			const items = Array.from(e.dataTransfer?.items || []);
-			for (const item of items) {
-				if (item.kind === 'string' && item.type === 'text/uri-list') {
-					item.getAsString(async (uri) => {
-						const match = uri.match(/file=([^&]+)/);
-						if (match) {
-							const fileName = decodeURIComponent(match[1]);
-							const tFile = this.app.vault.getAbstractFileByPath(fileName);
-
-							if (tFile instanceof TFile) {
-								const ext = tFile.extension.toLowerCase();
-								if (['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
-									// 画像ファイルを新規レイヤーとして追加（PsdController 側で画像読込＆履歴管理を行う）
-									this.createNewLayer(tFile.basename, tFile);
-								}
-							}
-						}
-					});
-				}
-			}
-		});
-	}
-
-        createNewLayer(name = t('NEW_LAYER'), imageFile?: TFile) {
-		if (this._addLayerDelegate) {
-			// 第3引数はオプショナル
-                        (this._addLayerDelegate as (view: PainterView, name?: string, imageFile?: TFile) => void)(this, name, imageFile);
-		}
-	}
-
-	deleteLayer(index: number) {
-		if (this._deleteLayerDelegate) {
-			this._deleteLayerDelegate(this, index);
-		}
-	}
-
-	renderCanvas() {
-		if (!this._canvas) return;
-		const ctx = this._canvas.getContext('2d');
-		if (!ctx) return; // nullチェック
-		ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-		// チェック柄の背景を描画
-		const checkSize = 10;
-		ctx.fillStyle = '#ffffff';
-		ctx.fillRect(0, 0, this._canvas.width, this._canvas.height);
-		ctx.fillStyle = '#e0e0e0';
-		for (let y = 0; y < this._canvas.height; y += checkSize * 2) {
-			for (let x = 0; x < this._canvas.width; x += checkSize * 2) {
-				ctx.fillRect(x + checkSize, y, checkSize, checkSize);
-				ctx.fillRect(x, y + checkSize, checkSize, checkSize);
-			}
-		}
-
-		// 各レイヤーを上から下に向かって描画
-                const currentLayers = this.layers.history[this.layers.currentIndex].layers;
-		for (let i = currentLayers.length - 1; i >= 0; i--) {
-			const layer = currentLayers[i];
-			if (layer.visible) {
-				ctx.globalAlpha = layer.opacity;
-				ctx.globalCompositeOperation = BLEND_MODE_TO_COMPOSITE_OPERATION[layer.blendMode];
-				ctx.drawImage(layer.canvas, 0, 0);
-				ctx.globalCompositeOperation = 'source-over';
-				ctx.globalAlpha = 1;
-			}
-		}
-
-		// 選択範囲を描画
-                (this._selectionController as any)?.drawSelection(ctx);
-
-		this._emitLayerChanged();
-	}
-
-}
+export const PainterView = PainterViewBase;

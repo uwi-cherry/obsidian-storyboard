@@ -119,19 +119,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             currentSidebarView.syncLayers(currentState.layers, view.layers.currentLayerIndex, layerOps);
         };
 
-        // 初期化が終わったあとにも同期されるようイベントリスナで対応
-        view.onLayerChanged(sync);
-
-        // SidebarView が完全にロードされる前に同期を呼ぶとエラーになる場合があるため、
-        // 初期同期は onLayerChanged からのコールバックに任せる
-    }
-
-    // レイヤー変更時に PSD ファイルを自動保存
-    view.onLayerChanged(() => {
-        if (view.file) {
-            savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);
-        }
-    });
+                        // 初期化が終わったあとにも同期されるようイベントリスナで対応        if (typeof view.onLayerChanged === 'function') {            view.onLayerChanged(sync);        } else {            // Functional-view版の場合、render実行後にメソッドが設定される            setTimeout(() => {                if (typeof view.onLayerChanged === 'function') {                    view.onLayerChanged(sync);                }            }, 500);        }        // SidebarView が完全にロードされる前に同期を呼ぶとエラーになる場合があるため、        // 初期同期は onLayerChanged からのコールバックに任せる    }    // レイヤー変更時に PSD ファイルを自動保存    if (typeof view.onLayerChanged === 'function') {        view.onLayerChanged(() => {            if (view.file) {                savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);            }        });    } else {        // Functional-view版の場合、render実行後にメソッドが設定される        setTimeout(() => {            if (typeof view.onLayerChanged === 'function') {                view.onLayerChanged(() => {                    if (view.file) {                        savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);                    }                });            }        }, 500);    }
     return view;
 }
 
