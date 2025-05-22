@@ -1,5 +1,5 @@
 import { SelectionRect } from '../painter-types';
-import type { PainterViewInterface } from './painter-view-interface';
+import type { PainterView } from '../view/painter-obsidian-view';
 import { t } from '../../i18n';
 
 export class TransformEditController {
@@ -15,7 +15,7 @@ export class TransformEditController {
   private rotation = 0; // radians
 
   constructor(
-    private view: PainterViewInterface,
+    private view: PainterView,
     private rect: SelectionRect,
     private onFinish: () => void
   ) {}
