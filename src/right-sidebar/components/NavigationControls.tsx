@@ -1,7 +1,8 @@
 import React from 'react';
 import { RightSidebarView } from '../right-sidebar-obsidian-view';
-import { Notice, App, TFile } from 'obsidian';
+import { Notice, App } from 'obsidian';
 import { t } from '../../i18n';
+import { PsdService } from '../../services/psd-service';
 
 interface NavigationControlsProps {
     view: RightSidebarView;
@@ -12,13 +13,7 @@ interface NavigationControlsProps {
     onExportImage: () => void;
     app: App;
     onImageUrlChange: (newUrl: string | null) => void;
-    createPsd: (
-        app: App,
-        imageFile?: TFile,
-        layerName?: string,
-        isOpen?: boolean,
-        targetDir?: string
-    ) => Promise<TFile>;
+    psdService: PsdService;
 }
 
 export const NavigationControls: React.FC<NavigationControlsProps> = ({
@@ -29,7 +24,7 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
     onExportImage,
     app,
     onImageUrlChange,
-    createPsd
+    psdService
 }) => {
     const handleExportVideo = async () => {
         try {
@@ -46,7 +41,7 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
     const handleCreateNewPsd = async () => {
         // ストーリーボードのディレクトリを取得
         const storyboardPath = app.workspace.getActiveFile()?.parent?.path || '';
-        const newFile = await createPsd(app, undefined, undefined, true, storyboardPath);
+        const newFile = await psdService.create(app, undefined, undefined, true, storyboardPath);
         onImageUrlChange(newFile.path);
         onOpenPsdPainter();
     };

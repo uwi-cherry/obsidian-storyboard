@@ -13,6 +13,8 @@ import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { TransformEditController } from '../controller/transform-edit-controller';
+import { PsdService } from '../../services/psd-service';
+import { LayerService } from '../../services/layer-service';
 import PainterReactView from './PainterReactView';
 import type { LayersState } from '../hooks/useLayers';
 export class PainterView extends FileView {
@@ -36,9 +38,7 @@ export class PainterView extends FileView {
 	// レイヤー変更イベント登録用
 	private _layerChangeCallbacks: (() => void)[] = [];
 
-	// コントローラーから注入されるレイヤー操作デリゲート
-        private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
-        private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
+        // レイヤー操作デリゲート（サービス経由）
 
         private _selectionController?: SelectionController;
 
@@ -48,8 +48,9 @@ export class PainterView extends FileView {
         // 選択範囲編集コントローラー
         public editController?: TransformEditController;
 
-	// ファイル入出力デリゲート
-	private _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
+        // サービスオブジェクト
+        private psdService?: PsdService;
+        private layerService?: LayerService;
 
 	// React ルート（レイアウトをマウント）
 	private reactRoot?: Root;
@@ -82,36 +83,23 @@ export class PainterView extends FileView {
 		this._layerChangeCallbacks.forEach(cb => cb());
 	}
 
-	/**
-	 * コントローラーからファイルの読み書き処理を注入する
-	 */
-	public setFileOperations(ops: {
-		save: (app: App, file: TFile, layers: Layer[]) => Promise<void>; // 型安全に修正
-		load: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
-	}) {
-		this._loadDelegate = ops.load;
-	}
-
-	/**
-	 * コントローラーからレイヤー操作を注入する
-	 */
-        public setLayerOperations(ops: {
-                add: (view: PainterView, name?: string, imageFile?: TFile) => void;
-                delete: (view: PainterView, index: number) => void;
-	}) {
-		this._addLayerDelegate = ops.add;
-		this._deleteLayerDelegate = ops.delete;
-	}
+        /**
+         * サービスオブジェクトを注入する
+         */
+        public setServices(services: { psd: PsdService; layer: LayerService }) {
+                this.psdService = services.psd;
+                this.layerService = services.layer;
+        }
 
 	/**
 	 * ラッパー: PSD を読み込み
 	 */
-	private async loadPsdFile(app: App, file: TFile): Promise<PsdData> {
-		if (this._loadDelegate) {
-			return await this._loadDelegate(app, file);
-		}
-		return { width: 0, height: 0, layers: [] };
-	}
+        private async loadPsdFile(app: App, file: TFile): Promise<PsdData> {
+                if (this.psdService) {
+                        return await this.psdService.load(app, file);
+                }
+                return { width: 0, height: 0, layers: [] };
+        }
 
 	/**
 	 * ファイルからレイヤーを読み込み、ビューの状態を初期化
@@ -370,17 +358,16 @@ export class PainterView extends FileView {
 	}
 
         createNewLayer(name = t('NEW_LAYER'), imageFile?: TFile) {
-		if (this._addLayerDelegate) {
-			// 第3引数はオプショナル
-                        (this._addLayerDelegate as (view: PainterView, name?: string, imageFile?: TFile) => void)(this, name, imageFile);
-		}
-	}
+                if (this.layerService) {
+                        this.layerService.add(this, name, imageFile);
+                }
+        }
 
-	deleteLayer(index: number) {
-		if (this._deleteLayerDelegate) {
-			this._deleteLayerDelegate(this, index);
-		}
-	}
+        deleteLayer(index: number) {
+                if (this.layerService) {
+                        this.layerService.delete(this, index);
+                }
+        }
 
 	renderCanvas() {
 		if (!this._canvas) return;

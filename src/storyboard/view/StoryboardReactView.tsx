@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { t } from 'src/i18n';
-import { App, TFile } from 'obsidian';
+import { App } from 'obsidian';
+import { PsdService } from '../../services/psd-service';
 import { StoryboardData, StoryboardFrame } from '../storyboard-types';
 import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
@@ -14,22 +15,14 @@ interface StoryboardReactViewProps {
   initialData: StoryboardData;
   onDataChange: (data: StoryboardData) => void;
   app: App;
-  generateThumbnail: (app: App, file: TFile) => Promise<string | null>;
-  createPsd: (
-    app: App,
-    imageFile?: TFile,
-    layerName?: string,
-    isOpen?: boolean,
-    targetDir?: string
-  ) => Promise<TFile>;
+  psdService: PsdService;
 }
 
 const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   initialData,
   onDataChange,
   app,
-  generateThumbnail,
-  createPsd,
+  psdService,
 }) => {
   const {
     storyboard,
@@ -79,8 +72,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
           onImageUrlChange={(newUrl: string | null) => onCellChangeForRow('imageUrl', newUrl || '')}
           onImagePromptChange={(newImagePrompt: string) => onCellChangeForRow('imagePrompt', newImagePrompt)}
           app={app}
-          generateThumbnail={generateThumbnail}
-          createPsd={createPsd}
+          psdService={psdService}
           focusPrevCellPrompt={() => {
             if (promptRefs.current[rowIndex - 1]) {
               promptRefs.current[rowIndex - 1]?.focus();
