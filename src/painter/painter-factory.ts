@@ -44,7 +44,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const sidebarView = sidebarLeaf?.view as RightSidebarView | undefined;
 
     // === データアクセス用コールバックを Sidebar へ注入 =================
-    if (sidebarView && typeof (sidebarView as any).setFileOps === 'function') {
+    if (sidebarView) {
         sidebarView.setFileOps({
             loadPsdLayers: async (path: string) => {
                 const fileObj = view.app.vault.getAbstractFileByPath(path);
@@ -57,7 +57,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
         });
     }
 
-    if (sidebarView && typeof (sidebarView as any).setCreatePsd === 'function') {
+    if (sidebarView) {
         sidebarView.setCreatePsd(createPsd);
     }
 
@@ -121,7 +121,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
             const leaves = app.workspace.getLeavesOfType(LAYER_SIDEBAR_VIEW_TYPE);
             if (leaves.length === 0) return;
             const currentSidebarView = leaves[0].view as RightSidebarView | undefined;
-            if (!currentSidebarView || typeof (currentSidebarView as any).syncLayers !== 'function') return;
+            if (!currentSidebarView || typeof currentSidebarView.syncLayers !== 'function') return;
 
             currentSidebarView.syncLayers(currentState.layers, view.layers.currentLayerIndex, layerOps);
         };
@@ -178,7 +178,7 @@ export function saveActive(app: App) {
 export function createLayerSidebar(leaf: WorkspaceLeaf): RightSidebarView {
     const view = new RightSidebarView(leaf);
     // データアクセス用コールバックを Sidebar へ注入
-    if (typeof (view as any).setFileOps === 'function') {
+    if (typeof view.setFileOps === 'function') {
         view.setFileOps({
             loadPsdLayers: async (path: string) => {
                 const fileObj = view.app.vault.getAbstractFileByPath(path);
@@ -190,7 +190,7 @@ export function createLayerSidebar(leaf: WorkspaceLeaf): RightSidebarView {
             }
         });
     }
-    if (typeof (view as any).setCreatePsd === 'function') {
+    if (typeof view.setCreatePsd === 'function') {
         view.setCreatePsd(createPsd);
     }
     return view;

@@ -111,6 +111,7 @@ export class RightSidebarView extends ItemView {
         this.contentEl.empty();
         this.contentEl.addClass('psd-layer-sidebar');
 
+        const createPsd = this.createPsd;
         const root = React.createElement(RightSidebarReactView, {
             view: this,
             layers: this.layers,
@@ -118,7 +119,7 @@ export class RightSidebarView extends ItemView {
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
-            createPsd: this.createPsd!,
+            createPsd,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -141,6 +142,7 @@ export class RightSidebarView extends ItemView {
     }
 
     private updateLayerList() {
+        const createPsd = this.createPsd;
         const root = React.createElement(RightSidebarReactView, {
             view: this,
             layers: this.layers,
@@ -148,7 +150,7 @@ export class RightSidebarView extends ItemView {
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
-            createPsd: this.createPsd!,
+            createPsd,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;

@@ -25,17 +25,12 @@ export class SettingTab extends PluginSettingTab {
     containerEl.empty();
     containerEl.createEl('h2', { text: t('AI_SETTINGS') });
 
-    // OpenAI公式リンク追加
-    const docLink = containerEl.createEl('div');
-    docLink.innerHTML = `<a href="https://platform.openai.com/docs/overview" target="_blank" rel="noopener noreferrer" style="color:var(--interactive-accent);text-decoration:underline;">OpenAI API公式ドキュメントはこちら</a>`;
-    docLink.style.marginBottom = '1em';
-
     // 設定値取得
     const settings: PluginSettings = this.settings;
 
     new Setting(containerEl)
-      .setName(t('OPENAI_API_KEY'))
-      .setDesc(t('OPENAI_API_KEY_DESC'))
+      .setName('API Key')
+      .setDesc('Enter your API key')
       .addText(text => text
         .setPlaceholder('sk-...')
         .setValue(settings.apiKey || '')

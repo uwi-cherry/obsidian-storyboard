@@ -124,8 +124,9 @@ export class TransformEditController {
 
     handle.onpointerdown = (e) => {
       e.stopPropagation();
+      if (!this.overlayCanvas) return;
       handleDragging = true;
-      const r = this.overlayCanvas!.getBoundingClientRect();
+      const r = this.overlayCanvas.getBoundingClientRect();
       const cx = r.left + r.width / 2;
       const cy = r.top + r.height / 2;
       startVx = e.clientX - cx;
@@ -139,8 +140,8 @@ export class TransformEditController {
     };
 
     const handleMove = (e: PointerEvent) => {
-      if (!handleDragging) return;
-      const r = this.overlayCanvas!.getBoundingClientRect();
+      if (!handleDragging || !this.overlayCanvas) return;
+      const r = this.overlayCanvas.getBoundingClientRect();
       const cx = r.left + r.width / 2;
       const cy = r.top + r.height / 2;
       const vx = e.clientX - cx;

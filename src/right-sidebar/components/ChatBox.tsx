@@ -104,8 +104,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({ plugin }) => {
         }
         return updated;
       });
-    } catch (err: any) {
-      setError(err.message || t('AI_RESPONSE_ERROR'));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : t('AI_RESPONSE_ERROR'));
     } finally {
       setLoading(false);
     }

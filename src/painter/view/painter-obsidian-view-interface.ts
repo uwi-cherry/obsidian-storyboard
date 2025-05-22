@@ -1,4 +1,6 @@
 import type { Layer } from '../painter-types';
+import type { LayersState } from '../hooks/useLayers';
+import type { TransformEditController } from '../controller/transform-edit-controller';
 
 export interface PainterViewInterface {
   readonly canvasElement: HTMLCanvasElement | undefined;
@@ -6,8 +8,9 @@ export interface PainterViewInterface {
   psdDataHistory: { layers: Layer[] }[];
   currentIndex: number;
   currentLayerIndex: number;
+  layers: LayersState;
   zoom: number;
   renderCanvas(): void;
   saveLayerStateToHistory?(): void;
-  editController?: unknown;
+  editController?: TransformEditController;
 }

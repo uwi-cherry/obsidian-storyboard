@@ -3,6 +3,7 @@ import { DEFAULT_COLOR } from '../../constants';
 import type { SelectionRect } from '../painter-types';
 import type { PainterViewInterface } from '../view/painter-obsidian-view-interface';
 import { ActionMenu } from '../view/components/ActionMenu';
+import { PainterView } from '../view/painter-obsidian-view';
 import type { SelectionState } from '../hooks/useSelectionState';
 import { TransformEditController } from './transform-edit-controller';
 
@@ -10,7 +11,7 @@ export class ActionMenuController {
   private menu: ActionMenu;
 
   constructor(private view: PainterViewInterface, private state: SelectionState) {
-    this.menu = new ActionMenu(view as any);
+    this.menu = new ActionMenu(view as unknown as PainterView);
   }
 
   dispose() {
