@@ -6,17 +6,10 @@ import { createPsd, loadPsdFile, savePsdFile, addLayer, deleteLayer } from './pa
 import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
-    const view = new PainterView(leaf);
-    // ファイル入出力をビューに委譲
-    view.setFileOperations({
-        save: savePsdFile,
-        load: loadPsdFile
-    });
-
-    // レイヤー操作デリゲートを注入（imageFile オプショナル引数にも対応）
-    view.setLayerOperations({
-        add: addLayer,
-        delete: deleteLayer
+    const view = new PainterView(leaf, {
+        loadFile: loadPsdFile,
+        addLayer,
+        deleteLayer,
     });
 
     // ===== レイヤーサイドバーの初期化・同期 =====================
