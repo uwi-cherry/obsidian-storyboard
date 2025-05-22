@@ -7,7 +7,7 @@ import { PsdService } from '../services/psd-service';
 import { ChatService } from '../services/chat-service';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
-import { RightSidebarService } from '../services/right-sidebar-service';
+import { RightSidebarController } from './controller/right-sidebar-controller';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 export type { Layer };
 
@@ -31,7 +31,7 @@ export class RightSidebarView extends ItemView {
     public layerOps?: LayerOps;
     public psdService?: PsdService;
     public chatService?: ChatService;
-    public sidebarService?: RightSidebarService;
+    public controller?: RightSidebarController;
 
     // === 画像操作 UI 関連 =====================
     private currentRowIndex: number | null = null;
@@ -113,7 +113,7 @@ export class RightSidebarView extends ItemView {
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
             chatService: this.chatService!,
-            service: this.sidebarService!
+            controller: this.controller!
         });
 
         if (!this.reactRoot) {
@@ -134,7 +134,7 @@ export class RightSidebarView extends ItemView {
             currentImagePrompt: this.currentImagePrompt,
             psdService: this.psdService!,
             chatService: this.chatService!,
-            service: this.sidebarService!
+            controller: this.controller!
         });
         if (this.reactRoot) {
             this.reactRoot.render(root);
@@ -220,10 +220,10 @@ export class RightSidebarView extends ItemView {
     }
 
     /**
-     * サイドバー操作サービスを注入
+     * サイドバーコントローラーを注入
      */
-    public setSidebarService(service: RightSidebarService) {
-        this.sidebarService = service;
+    public setController(controller: RightSidebarController) {
+        this.controller = controller;
     }
 
     /**

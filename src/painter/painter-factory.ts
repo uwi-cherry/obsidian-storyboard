@@ -7,7 +7,7 @@ import { PsdService } from '../services/psd-service';
 import { LayerService } from '../services/layer-service';
 import { LayerChangeService } from '../services/layer-change-service';
 import { ChatService } from '../services/chat-service';
-import { RightSidebarService } from '../services/right-sidebar-service';
+import { RightSidebarController } from '../right-sidebar/controller/right-sidebar-controller';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
@@ -173,9 +173,9 @@ export function createLayerSidebar(leaf: WorkspaceLeaf, plugin: MyPlugin): Right
     if (typeof (view as any).setChatService === 'function') {
         view.setChatService(chatService);
     }
-    const sidebarService = new RightSidebarService(view);
-    if (typeof (view as any).setSidebarService === 'function') {
-        view.setSidebarService(sidebarService);
+    const sidebarController = new RightSidebarController(view);
+    if (typeof (view as any).setController === 'function') {
+        view.setController(sidebarController);
     }
     return view;
 }
