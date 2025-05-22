@@ -58,6 +58,10 @@ import {
         super(leaf);
         this.#props = initialProps;
       }
+
+      getProps(): Props {
+        return this.#props;
+      }
   
       /* ── Obsidian 規定メタ ── */
       getViewType()   { return viewType; }
@@ -83,8 +87,8 @@ import {
   
       /* ── 内部描画 ── */
       #rerender() {
-        this.contentEl.empty();
         this.#cleanup?.();
+        this.contentEl.empty();
   
         const ret = render({
           root : this.contentEl,

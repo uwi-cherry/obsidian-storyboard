@@ -11,12 +11,92 @@ import { t } from '../../i18n';
 import type { SelectionState } from '../hooks/useSelectionState';
 import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
-import { ActionMenuController } from '../controller/action-menu-controller';
-import { SelectionController } from '../controller/selection-controller';
-import { TransformEditController } from '../controller/transform-edit-controller';
+import {
+  defineFunctionalView,
+  type FuncCtx,
+  type FuncReturn,
+} from '../../functional-view';
+// コントローラーへの依存を避けるため型指定は行わない
 import PainterReactView from './PainterReactView';
 import type { LayersState } from '../hooks/useLayers';
-export class PainterView extends FileView {
+
+export interface PainterProps {
+  load: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
+  addLayer: (view: PainterView, name?: string, imageFile?: TFile) => void;
+  deleteLayer: (view: PainterView, index: number) => void;
+}
+
+type PainterState = { file: string | null };
+
+function renderPainter(ctx: FuncCtx<PainterProps, PainterState>): FuncReturn<PainterState> {
+  const view = ctx.leaf.view as PainterView;
+
+  view._loadDelegate = ctx.props.load;
+  view._addLayerDelegate = ctx.props.addLayer;
+  view._deleteLayerDelegate = ctx.props.deleteLayer;
+
+  // 履歴初期化
+  if (!view.layers) {
+    view.layers = {
+      history: [{ layers: [] }],
+      currentIndex: 0,
+      currentLayerIndex: 0,
+      maxHistorySize: MAX_HISTORY_SIZE,
+      saveHistory() {},
+      undo() {},
+      redo() {},
+    } as LayersState;
+  } else if (view.layers.history.length === 0) {
+    view.layers.history = [{ layers: [] }];
+    view.layers.currentIndex = 0;
+    view.layers.currentLayerIndex = 0;
+  }
+
+  ctx.root.empty();
+  ctx.root.addClass('psd-view');
+
+  const redoBtn = view.addAction('arrow-right', t('REDO'), () => view.redo()) as HTMLElement;
+  redoBtn.querySelector('svg')?.remove();
+  redoBtn.textContent = t('REDO');
+
+  const undoBtn = view.addAction('arrow-left', t('UNDO'), () => view.undo()) as HTMLElement;
+  undoBtn.querySelector('svg')?.remove();
+  undoBtn.textContent = t('UNDO');
+
+  const reactRoot = createRoot(ctx.root);
+  view.reactRoot = reactRoot;
+  reactRoot.render(React.createElement(PainterReactView, { view }));
+
+  view.setupDragAndDrop();
+
+  return {
+    cleanup: () => {
+      reactRoot.unmount();
+      view.reactRoot = undefined;
+      (view.actionMenu as any)?.dispose();
+      const handler = (view as any)._resizeHandler as (() => void) | undefined;
+      if (handler) window.removeEventListener('resize', handler);
+    },
+    getState: () => ({ file: view.file?.path ?? null }),
+    setState: async (state) => {
+      if (!state.file) return;
+      const file = view.app.vault.getAbstractFileByPath(state.file);
+      if (!(file instanceof TFile)) return;
+      view.file = file;
+      await view._loadAndRenderFile(file);
+      view._emitLayerChanged();
+    },
+  };
+}
+
+const PainterBase = defineFunctionalView<PainterProps, PainterState, typeof FileView>(
+  FileView,
+  PSD_VIEW_TYPE,
+  PSD_ICON,
+  renderPainter,
+);
+
+export class PainterView extends PainterBase {
         isDrawing = false;
         lastX = 0;
         lastY = 0;
@@ -54,13 +134,13 @@ export class PainterView extends FileView {
         private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
         private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
 
-        public _selectionController?: SelectionController;
+        public _selectionController?: unknown;
 
         // フローティングメニュー（クリア・塗りつぶし）用
-        public actionMenu!: ActionMenuController;
+        public actionMenu!: any;
 
         // 選択範囲編集コントローラー
-        public editController?: TransformEditController;
+        public editController?: unknown;
 
 	// ファイル入出力デリゲート
 	public _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
@@ -71,9 +151,9 @@ export class PainterView extends FileView {
   /**
    * SelectionController への public アクセス
    */
-	public get selectionController(): SelectionController | undefined {
-		return this._selectionController;
-	}
+        public get selectionController(): unknown {
+                return this._selectionController;
+        }
 
 	/**
 	 * ViewModel からキャンバス要素へアクセスするための公開ゲッター。
@@ -96,26 +176,7 @@ export class PainterView extends FileView {
 		this._layerChangeCallbacks.forEach(cb => cb());
 	}
 
-	/**
-	 * コントローラーからファイルの読み書き処理を注入する
-	 */
-	public setFileOperations(ops: {
-		save: (app: App, file: TFile, layers: Layer[]) => Promise<void>; // 型安全に修正
-		load: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
-	}) {
-		this._loadDelegate = ops.load;
-	}
-
-	/**
-	 * コントローラーからレイヤー操作を注入する
-	 */
-        public setLayerOperations(ops: {
-                add: (view: PainterView, name?: string, imageFile?: TFile) => void;
-                delete: (view: PainterView, index: number) => void;
-	}) {
-		this._addLayerDelegate = ops.add;
-		this._deleteLayerDelegate = ops.delete;
-	}
+        // デリゲートは props からセットされる
 
 	/**
 	 * ラッパー: PSD を読み込み
@@ -145,9 +206,9 @@ export class PainterView extends FileView {
 		this._emitLayerChanged();
 	}
 
-	constructor(leaf: WorkspaceLeaf) {
-		super(leaf);
-	}
+        constructor(leaf: WorkspaceLeaf, props: PainterProps) {
+                super(leaf, props);
+        }
 
         public saveLayerStateToHistory() {
                 this.layers.saveHistory();
@@ -171,81 +232,6 @@ export class PainterView extends FileView {
                 }
         }
 
-	getViewType(): string {
-		return PSD_VIEW_TYPE;
-	}
-
-	getDisplayText(): string {
-		return this.file?.basename ?? 'PSD View';
-	}
-
-	getIcon(): string {
-		return PSD_ICON;
-	}
-
-	getState(): { file: string | null } {
-		return {
-			file: this.file?.path ?? null
-		};
-	}
-
-	async setState(state: { file: string | null }) {
-		if (!state.file) return;
-
-		const file = this.app.vault.getAbstractFileByPath(state.file);
-		if (!(file instanceof TFile)) return;
-
-		this.file = file;
-		await this._loadAndRenderFile(file);
-
-		// 初期レイヤー情報をサイドバーなどのリスナーへ通知
-		this._emitLayerChanged();
-	}
-
-        async onOpen() {
-                // 履歴初期化
-                if (!this.layers) {
-                        this.layers = {
-                                history: [{ layers: [] }],
-                                currentIndex: 0,
-                                currentLayerIndex: 0,
-                                maxHistorySize: MAX_HISTORY_SIZE,
-                                saveHistory() {},
-                                undo() {},
-                                redo() {}
-                        } as LayersState;
-                } else if (this.layers.history.length === 0) {
-                        this.layers.history = [{ layers: [] }];
-                        this.layers.currentIndex = 0;
-                        this.layers.currentLayerIndex = 0;
-                }
-
-		// 既存コンテンツをクリア
-		this.contentEl.empty();
-		this.contentEl.addClass('psd-view');
-
-		// Undo / Redo アクション（Obsidian ヘッダー）
-                const redoBtn = this.addAction('arrow-right', t('REDO'), () => this.redo()) as HTMLElement;
-                redoBtn.querySelector('svg')?.remove();
-                redoBtn.textContent = t('REDO');
-
-                const undoBtn = this.addAction('arrow-left', t('UNDO'), () => this.undo()) as HTMLElement;
-                undoBtn.querySelector('svg')?.remove();
-                undoBtn.textContent = t('UNDO');
-
-		// React レイアウトをマウント
-		if (!this.reactRoot) {
-			this.reactRoot = createRoot(this.contentEl);
-		}
-                this.reactRoot.render(React.createElement(PainterReactView, { view: this }));
-
-		// Canvas がまだ React サイドで生成されていないため
-		// ファイル読み込みや初期背景キャンバス作成は
-                // PainterReactView 側の useEffect に移譲する。
-
-		// Obsidian のファイルリストからのドラッグ＆ドロップをサポート
-		this.setupDragAndDrop();
-	}
 
         private handlePointerDown(e: PointerEvent) {
                 if (!this._canvas) return;
@@ -439,18 +425,4 @@ export class PainterView extends FileView {
 		this._emitLayerChanged();
 	}
 
-	async onClose() {
-		// React ルートをアンマウント
-		this.reactRoot?.unmount();
-		this.reactRoot = undefined;
-
-		// ActionMenu の破棄（保険）
-		this.actionMenu?.dispose();
-
-		// リサイズイベント解除（旧 onOpen が設定していた場合）
-		const handler = (this as { _resizeHandler?: () => void })._resizeHandler;
-		if (handler) {
-			window.removeEventListener('resize', handler);
-		}
-	}
 }
