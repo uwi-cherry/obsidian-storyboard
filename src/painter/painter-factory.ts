@@ -5,6 +5,8 @@ import { LAYER_SIDEBAR_VIEW_TYPE, RightSidebarView } from '../right-sidebar/righ
 import { LayerAndFileOps } from '../right-sidebar/right-sidebar-obsidian-view-interface';
 import { createPsd, loadPsdFile, savePsdFile, addLayer, deleteLayer } from './painter-files';
 import { PainterView } from './view/painter-obsidian-view';
+import { SelectionController } from './controller/selection-controller';
+import { ActionMenuController } from './controller/action-menu-controller';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const view = new PainterView(leaf);
@@ -18,6 +20,12 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     view.setLayerOperations({
         add: addLayer,
         delete: deleteLayer
+    });
+
+    // コントローラー生成用ファクトリを注入
+    view.setControllerFactories({
+        createSelectionController: (v, state) => new SelectionController(v, state),
+        createActionMenuController: (v, state) => new ActionMenuController(v, state),
     });
 
     // ===== レイヤーサイドバーの初期化・同期 =====================

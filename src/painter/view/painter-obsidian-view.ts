@@ -11,12 +11,13 @@ import { t } from '../../i18n';
 import type { SelectionState } from '../hooks/useSelectionState';
 import React from 'react';
 import { Root, createRoot } from 'react-dom/client';
-import { ActionMenuController } from '../controller/action-menu-controller';
-import { SelectionController } from '../controller/selection-controller';
-import { TransformEditController } from '../controller/transform-edit-controller';
+import type { ActionMenuController } from '../controller/action-menu-controller';
+import type { SelectionController } from '../controller/selection-controller';
+import type { TransformEditController } from '../controller/transform-edit-controller';
 import PainterReactView from './PainterReactView';
 import type { LayersState } from '../hooks/useLayers';
-export class PainterView extends FileView {
+import type { PainterViewInterface } from './painter-obsidian-view-interface';
+export class PainterView extends FileView implements PainterViewInterface {
         isDrawing = false;
         lastX = 0;
         lastY = 0;
@@ -53,6 +54,15 @@ export class PainterView extends FileView {
         // コントローラーから注入されるレイヤー操作デリゲート
         private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
         private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
+
+        private _createSelectionController?: (
+                view: PainterViewInterface,
+                state: SelectionState
+        ) => SelectionController;
+        private _createActionMenuController?: (
+                view: PainterViewInterface,
+                state: SelectionState
+        ) => ActionMenuController;
 
         public _selectionController?: SelectionController;
 
@@ -112,10 +122,27 @@ export class PainterView extends FileView {
         public setLayerOperations(ops: {
                 add: (view: PainterView, name?: string, imageFile?: TFile) => void;
                 delete: (view: PainterView, index: number) => void;
-	}) {
-		this._addLayerDelegate = ops.add;
-		this._deleteLayerDelegate = ops.delete;
-	}
+        }) {
+                this._addLayerDelegate = ops.add;
+                this._deleteLayerDelegate = ops.delete;
+        }
+
+        /**
+         * コントローラー生成用ファクトリを注入する
+         */
+        public setControllerFactories(factories: {
+                createSelectionController: (
+                        view: PainterViewInterface,
+                        state: SelectionState
+                ) => SelectionController;
+                createActionMenuController: (
+                        view: PainterViewInterface,
+                        state: SelectionState
+                ) => ActionMenuController;
+        }) {
+                this._createSelectionController = factories.createSelectionController;
+                this._createActionMenuController = factories.createActionMenuController;
+        }
 
 	/**
 	 * ラッパー: PSD を読み込み
@@ -274,11 +301,13 @@ export class PainterView extends FileView {
                                         this.layers = l;
                                 },
                                 selectionController: this._selectionController,
-                                createSelectionController: (state) => new SelectionController(this, state),
+                                createSelectionController: (state) =>
+                                        this._createSelectionController?.(this, state)!,
                                 setSelectionController: (sc) => {
                                         this._selectionController = sc;
                                 },
-                                createActionMenuController: (state) => new ActionMenuController(this, state),
+                                createActionMenuController: (state) =>
+                                        this._createActionMenuController?.(this, state)!,
                                 setActionMenu: (menu) => {
                                         this.actionMenu = menu;
                                 },
