@@ -4,7 +4,7 @@ import { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 import { PsdService } from '../services/psd-service';
-import { IChatService } from '../services/chat-service';
+import { ChatController } from './controller/chat-controller';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
@@ -20,7 +20,7 @@ interface RightSidebarReactViewProps {
     currentImagePrompt: string | null;
     controller: RightSidebarController;
     psdService: PsdService;
-    chatService: IChatService;
+    chatService: ChatController;
 }
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({

@@ -4,30 +4,10 @@ import {
     createTrack,
     loadOtioFile,
     saveOtioFile,
-} from '../timeline/timeline-files';
-import { OtioProject } from '../timeline/timeline-types';
+} from '../timeline-files';
+import { OtioProject } from '../timeline-types';
 
-export interface ITimelineService {
-    load(app: App, file: TFile): Promise<OtioProject>;
-    save(app: App, file: TFile, project: OtioProject): Promise<void>;
-    addTrack(project: OtioProject, name?: string): OtioProject;
-    addClip(
-        project: OtioProject,
-        trackIndex: number,
-        filePath?: string,
-        start?: number,
-        duration?: number
-    ): OtioProject;
-    updateClip(
-        project: OtioProject,
-        trackIndex: number,
-        clipIndex: number,
-        field: 'path' | 'start' | 'duration',
-        value: string
-    ): OtioProject;
-}
-
-export class TimelineService implements ITimelineService {
+export class TimelineController {
     async load(app: App, file: TFile): Promise<OtioProject> {
         return loadOtioFile(app, file);
     }

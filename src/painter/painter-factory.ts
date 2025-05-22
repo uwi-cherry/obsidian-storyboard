@@ -3,20 +3,20 @@ import type MyPlugin from '../../main';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
-import { PsdService } from '../services/psd-service';
-import { LayerService } from '../services/layer-service';
-import { LayerChangeService } from '../services/layer-change-service';
+import { PsdService } from '../services/psd-service
+import { LayerController } from './controller/layer-controller';
+import { LayerChangeController } from './controller/layer-change-controller';
 import { ChatService } from '../services/chat-service';
 import { RightSidebarController } from '../right-sidebar/controller/right-sidebar-controller';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
 
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
-    const layerChangeService = new LayerChangeService();
+    const layerChangeService = new LayerChangeController();
     const view = new PainterView(leaf, layerChangeService);
     const psdService = new PsdService();
-    const layerService = new LayerService();
-    view.setServices({ psd: psdService, layer: layerService });
+    const layerController = new LayerController();
+    view.setServices({ psd: psdService, layer: layerController });
 
     // ===== レイヤーサイドバーの初期化・同期 =====================
     // 右サイドバーにレイヤービューを開く。既に開いている場合は再利用。
@@ -169,7 +169,7 @@ export function createLayerSidebar(leaf: WorkspaceLeaf, plugin: MyPlugin): Right
     if (typeof (view as any).setPsdService === 'function') {
         view.setPsdService(psdService);
     }
-    const chatService = new ChatService(plugin as any);
+    const chatService = new ChatController(plugin as any);
     if (typeof (view as any).setChatService === 'function') {
         view.setChatService(chatService);
     }
