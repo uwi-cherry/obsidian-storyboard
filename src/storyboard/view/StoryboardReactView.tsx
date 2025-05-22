@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { t } from 'src/i18n';
 import { App } from 'obsidian';
-import { PsdService } from '../../services/psd-service';
+import { PsdController } from '../../painter/controller/psd-controller';
 import { StoryboardData, StoryboardFrame } from '../storyboard-types';
 import CharacterEditModal from './components/CharacterEditModal';
 import EditableTable, { ColumnDef } from './components/EditableTable';
@@ -15,7 +15,7 @@ interface StoryboardReactViewProps {
   initialData: StoryboardData;
   onDataChange: (data: StoryboardData) => void;
   app: App;
-  psdService: PsdService;
+  psdService: PsdController;
 }
 
 const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({

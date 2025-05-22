@@ -3,7 +3,7 @@ import { t } from 'src/i18n';
 import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, App, TFile } from 'obsidian';
 import { Layer } from '../painter/painter-types';
-import { PsdService } from '../services/psd-service';
+import { PsdController } from '../painter/controller/psd-controller';
 import { ChatService } from '../services/chat-service';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
@@ -29,7 +29,7 @@ export class RightSidebarView extends ItemView {
     private currentLayerIndex = 0;
 
     public layerOps?: LayerOps;
-    public psdService?: PsdService;
+    public psdService?: PsdController;
     public chatService?: ChatService;
     public sidebarService?: RightSidebarService;
 
@@ -208,7 +208,7 @@ export class RightSidebarView extends ItemView {
     /**
      * PSD 操作用のサービスを注入
      */
-    public setPsdService(service: PsdService) {
+    public setPsdService(service: PsdController) {
         this.psdService = service;
     }
 

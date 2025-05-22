@@ -5,7 +5,7 @@ import MyPlugin from 'main';
 import { BUTTON_ICONS } from 'src/icons';
 import { generatePsdFromPrompt } from 'src/ai/action/generatePsdFromPrompt';
 import { t } from 'src/i18n';
-import { PsdService } from '../../../services/psd-service';
+import { PsdController } from '../../../painter/controller/psd-controller';
 interface ImageInputCellProps {
   imageUrl?: string;
   imagePrompt?: string;
@@ -14,7 +14,7 @@ interface ImageInputCellProps {
   onImagePromptChange: (newPrompt: string) => void;
   className?: string;
   app: App;
-  psdService: PsdService;
+  psdService: PsdController;
   focusPrevCellPrompt?: () => void;
   focusNextCellPrompt?: () => void;
   refCallback?: (el: HTMLTextAreaElement | null) => void;

@@ -5,7 +5,7 @@ import React from 'react';
 import { StoryboardData } from './storyboard-types';
 import StoryboardReactView from './view/StoryboardReactView';
 import { loadStoryboardData, saveStoryboardData } from './storyboard-files';
-import { PsdService } from '../services/psd-service';
+import { PsdController } from '../painter/controller/psd-controller';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
 const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();
@@ -38,7 +38,7 @@ export async function switchToStoryboardViewMode(leaf: WorkspaceLeaf, app: App):
         }
     };
 
-    const psdService = new PsdService();
+    const psdService = new PsdController();
     root.render(
         React.createElement(StoryboardReactView, {
             initialData: initialData,

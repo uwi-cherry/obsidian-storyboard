@@ -10,7 +10,7 @@ import {
     redoActive,
     createLayerSidebar
 } from './painter-factory';
-import { PsdService } from '../services/psd-service';
+import { PsdController } from './controller/psd-controller';
 
 export function loadPlugin(plugin: Plugin) {
     addIcon(PSD_ICON, PSD_ICON_SVG);
@@ -24,7 +24,7 @@ export function loadPlugin(plugin: Plugin) {
         plugin.app.workspace.detachLeavesOfType(LAYER_SIDEBAR_VIEW_TYPE);
     });
 
-    const psdService = new PsdService();
+    const psdService = new PsdController();
 
     plugin.app.workspace.on('file-menu', (menu, file) => {
         if (file instanceof TFile && file.extension.toLowerCase().match(/^(png|jpe?g|gif|webp)$/)) {

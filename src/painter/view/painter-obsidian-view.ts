@@ -13,7 +13,7 @@ import { Root, createRoot } from 'react-dom/client';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { TransformEditController } from '../controller/transform-edit-controller';
-import { PsdService } from '../../services/psd-service';
+import { PsdController } from '../controller/psd-controller';
 import { LayerService } from '../../services/layer-service';
 import { LayerChangeService } from '../../services/layer-change-service';
 import PainterReactView from './PainterReactView';
@@ -51,7 +51,7 @@ export class PainterView extends FileView {
         public editController?: TransformEditController;
 
         // サービスオブジェクト
-        private psdService?: PsdService;
+        private psdService?: PsdController;
         private layerService?: LayerService;
 
 	// React ルート（レイアウトをマウント）
@@ -81,7 +81,7 @@ export class PainterView extends FileView {
         /**
          * サービスオブジェクトを注入する
          */
-        public setServices(services: { psd: PsdService; layer: LayerService }) {
+        public setServices(services: { psd: PsdController; layer: LayerService }) {
                 this.psdService = services.psd;
                 this.layerService = services.layer;
         }

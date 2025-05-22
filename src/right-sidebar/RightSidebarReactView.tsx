@@ -3,7 +3,7 @@ import { MarkdownView, TFile } from 'obsidian';
 import { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
-import { PsdService } from '../services/psd-service';
+import { PsdController } from '../painter/controller/psd-controller';
 import { IChatService } from '../services/chat-service';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
@@ -19,7 +19,7 @@ interface RightSidebarReactViewProps {
     currentImageUrl: string | null;
     currentImagePrompt: string | null;
     service: IRightSidebarService;
-    psdService: PsdService;
+    psdService: PsdController;
     chatService: IChatService;
 }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { RightSidebarView } from '../right-sidebar-obsidian-view';
 import { Notice, App } from 'obsidian';
 import { t } from '../../i18n';
-import { PsdService } from '../../services/psd-service';
+import { PsdController } from '../../painter/controller/psd-controller';
 
 interface NavigationControlsProps {
     view: RightSidebarView;
@@ -13,7 +13,7 @@ interface NavigationControlsProps {
     onExportImage: () => void;
     app: App;
     onImageUrlChange: (newUrl: string | null) => void;
-    psdService: PsdService;
+    psdService: PsdController;
 }
 
 export const NavigationControls: React.FC<NavigationControlsProps> = ({

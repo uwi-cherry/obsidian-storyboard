@@ -3,7 +3,7 @@ import type MyPlugin from '../../main';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
-import { PsdService } from '../services/psd-service';
+import { PsdController } from './controller/psd-controller';
 import { LayerService } from '../services/layer-service';
 import { LayerChangeService } from '../services/layer-change-service';
 import { ChatService } from '../services/chat-service';
@@ -14,7 +14,7 @@ import { PainterView } from './view/painter-obsidian-view';
 export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     const layerChangeService = new LayerChangeService();
     const view = new PainterView(leaf, layerChangeService);
-    const psdService = new PsdService();
+    const psdService = new PsdController();
     const layerService = new LayerService();
     view.setServices({ psd: psdService, layer: layerService });
 
@@ -151,7 +151,7 @@ function getActivePainterView(app: App): PainterView | null {
 export function saveActive(app: App) {
     const view = getActivePainterView(app);
     if (view && view.file) {
-        const service = new PsdService();
+        const service = new PsdController();
         service.save(app, view.file, view.layers.history[view.layers.currentIndex].layers);
     }
 }
@@ -165,7 +165,7 @@ export function saveActive(app: App) {
 export function createLayerSidebar(leaf: WorkspaceLeaf, plugin: MyPlugin): RightSidebarView {
     const view = new RightSidebarView(leaf);
     // サービスを注入
-    const psdService = new PsdService();
+    const psdService = new PsdController();
     if (typeof (view as any).setPsdService === 'function') {
         view.setPsdService(psdService);
     }
