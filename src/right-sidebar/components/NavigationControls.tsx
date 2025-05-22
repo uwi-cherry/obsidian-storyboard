@@ -1,10 +1,8 @@
 import React from 'react';
-import { RightSidebarView } from '../right-sidebar-obsidian-view';
 import { Notice, App, TFile } from 'obsidian';
 import { t } from '../../i18n';
 
 interface NavigationControlsProps {
-    view: RightSidebarView;
     isPsdPainterOpen: boolean;
     currentImageUrl: string | null;
     onBackToStoryboard: () => void;

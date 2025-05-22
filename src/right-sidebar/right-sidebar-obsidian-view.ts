@@ -105,13 +105,26 @@ export class RightSidebarView extends ItemView {
 
         const createPsd = this.createPsd;
         const root = React.createElement(RightSidebarReactView, {
-            view: this,
+            app: this.app,
             layers: this.layers,
             currentLayerIndex: this.currentLayerIndex,
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
             createPsd,
+            layerOps: {
+                addLayer: this.handleAddLayer,
+                deleteLayer: this.handleDeleteLayer,
+                toggleLayerVisibility: this.handleToggleLayerVisibility,
+                renameLayer: this.handleRenameLayer,
+                setCurrentLayer: this.handleSetCurrentLayer,
+                setOpacity: this.handleSetOpacity,
+                setBlendMode: this.handleSetBlendMode,
+                loadPsdLayers: async (path: string) => {
+                    return this.layerAndFileOps?.loadPsdLayers(path) ?? [];
+                },
+            },
+            addImageLayer: this.addImageLayer,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;
@@ -136,13 +149,26 @@ export class RightSidebarView extends ItemView {
     private updateLayerList() {
         const createPsd = this.createPsd;
         const root = React.createElement(RightSidebarReactView, {
-            view: this,
+            app: this.app,
             layers: this.layers,
             currentLayerIndex: this.currentLayerIndex,
             currentRowIndex: this.currentRowIndex,
             currentImageUrl: this.currentImageUrl,
             currentImagePrompt: this.currentImagePrompt,
             createPsd,
+            layerOps: {
+                addLayer: this.handleAddLayer,
+                deleteLayer: this.handleDeleteLayer,
+                toggleLayerVisibility: this.handleToggleLayerVisibility,
+                renameLayer: this.handleRenameLayer,
+                setCurrentLayer: this.handleSetCurrentLayer,
+                setOpacity: this.handleSetOpacity,
+                setBlendMode: this.handleSetBlendMode,
+                loadPsdLayers: async (path: string) => {
+                    return this.layerAndFileOps?.loadPsdLayers(path) ?? [];
+                },
+            },
+            addImageLayer: this.addImageLayer,
             onLayerChange: (layers: Layer[], currentIndex: number) => {
                 this.layers = layers;
                 this.currentLayerIndex = currentIndex;

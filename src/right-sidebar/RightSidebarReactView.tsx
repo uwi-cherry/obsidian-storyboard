@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { App, TFile } from 'obsidian';
-import type { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 import { NavigationControls } from './components/NavigationControls';
 import { LayerControls } from './components/LayerControls';
 import ChatBox from './components/ChatBox';
+import { LayerAndFileOps } from './right-sidebar-obsidian-view-interface';
 
 interface RightSidebarReactViewProps {
-    view: RightSidebarView;
+    app: App;
     layers: Layer[];
     currentLayerIndex: number;
     currentRowIndex: number | null;
@@ -23,10 +23,12 @@ interface RightSidebarReactViewProps {
         isOpen?: boolean,
         targetDir?: string
     ) => Promise<TFile>;
+    layerOps: LayerAndFileOps;
+    addImageLayer: (file: TFile) => void;
 }
 
 const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
-    view,
+    app,
     layers,
     currentLayerIndex,
     currentImageUrl,
@@ -34,34 +36,36 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
     onLayerChange,
     onImageChange,
     createPsd,
+    layerOps,
+    addImageLayer,
 }) => {
     const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
 
     useEffect(() => {
         const updatePsdPainterState = () => {
             setIsPsdPainterOpen(
-                view.app.workspace.getLeavesOfType('psd-view').length > 0
+                app.workspace.getLeavesOfType('psd-view').length > 0
             );
         };
 
-        view.app.workspace.on('active-leaf-change', updatePsdPainterState);
+        app.workspace.on('active-leaf-change', updatePsdPainterState);
         return () => {
-            view.app.workspace.off('active-leaf-change', updatePsdPainterState);
+            app.workspace.off('active-leaf-change', updatePsdPainterState);
         };
-    }, [view.app.workspace]);
+    }, [app.workspace]);
 
     const handleOpenPsdPainter = async () => {
         if (!currentImageUrl) return;
-        const fileObj = view.app.vault.getAbstractFileByPath(currentImageUrl);
+        const fileObj = app.vault.getAbstractFileByPath(currentImageUrl);
         if (fileObj instanceof TFile) {
-            const leaf = view.app.workspace.getLeaf(true);
+            const leaf = app.workspace.getLeaf(true);
             await leaf.openFile(fileObj, { active: true });
         }
     };
 
     const handleBackToStoryboard = () => {
-        view.app.workspace.getLeavesOfType('psd-view').forEach((l) => l.detach());
-        const storyboardLeaf = view.app.workspace
+        app.workspace.getLeavesOfType('psd-view').forEach((l) => l.detach());
+        const storyboardLeaf = app.workspace
             .getLeavesOfType('markdown')
             .find((l) => {
                 const v = l.view as PainterView | null;
@@ -72,27 +76,28 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
                 );
             });
         if (storyboardLeaf) {
-            view.app.workspace.setActiveLeaf(storyboardLeaf);
+            app.workspace.setActiveLeaf(storyboardLeaf);
         }
     };
 
     return (
         <div className="flex flex-col h-full shrink-0">
             <NavigationControls
-                view={view}
                 isPsdPainterOpen={isPsdPainterOpen}
                 currentImageUrl={currentImageUrl}
                 onBackToStoryboard={handleBackToStoryboard}
                 onOpenPsdPainter={handleOpenPsdPainter}
                 onExportImage={() => {}}
-                app={view.app}
+                app={app}
                 onImageUrlChange={(url) => onImageChange(url, currentImagePrompt)}
                 createPsd={createPsd}
             />
 
             {(currentImageUrl?.endsWith('.psd') || layers.length > 0) && (
                 <LayerControls
-                    view={view}
+                    app={app}
+                    layerOps={layerOps}
+                    addImageLayer={addImageLayer}
                     layers={layers}
                     currentLayerIndex={currentLayerIndex}
                 />

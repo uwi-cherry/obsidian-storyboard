@@ -1,20 +1,25 @@
 import React, { useRef } from 'react';
 import { t } from 'src/i18n';
-import { normalizePath, TFile } from 'obsidian';
-import { RightSidebarView, Layer } from '../right-sidebar-obsidian-view';
+import { normalizePath, TFile, App } from 'obsidian';
+import { Layer } from '../right-sidebar-obsidian-view';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION } from 'src/constants';
 import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from 'src/icons';
+import { LayerAndFileOps } from '../right-sidebar-obsidian-view-interface';
 
 interface LayerControlsProps {
-    view: RightSidebarView;
+    app: App;
     layers: Layer[];
     currentLayerIndex: number;
+    layerOps: LayerAndFileOps;
+    addImageLayer: (file: TFile) => void;
 }
 
 export const LayerControls: React.FC<LayerControlsProps> = ({
-    view,
+    app,
     layers,
-    currentLayerIndex
+    currentLayerIndex,
+    layerOps,
+    addImageLayer
 }) => {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -22,7 +27,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const vaultFiles = view.app.vault.getFiles();
+        const vaultFiles = app.vault.getFiles();
         const found = vaultFiles.find(f => f.name === file.name);
 
         let tFile: TFile;
@@ -30,20 +35,20 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
             tFile = found;
         } else {
             const arrayBuffer = await file.arrayBuffer();
-            const storyboardDir = view.app.workspace.getActiveFile()?.parent?.path || '';
+            const storyboardDir = app.workspace.getActiveFile()?.parent?.path || '';
             const assetsDir = storyboardDir ? normalizePath(`${storyboardDir}/assets`) : 'assets';
             try {
-                if (!view.app.vault.getAbstractFileByPath(assetsDir)) {
-                    await view.app.vault.createFolder(assetsDir);
+                if (!app.vault.getAbstractFileByPath(assetsDir)) {
+                    await app.vault.createFolder(assetsDir);
                 }
             } catch (err) {
                 console.error('Failed to create assets folder:', err);
             }
             const path = normalizePath(`${assetsDir}/${file.name}`);
-            tFile = await view.app.vault.createBinary(path, arrayBuffer);
+            tFile = await app.vault.createBinary(path, arrayBuffer);
         }
 
-        view.addImageLayer(tFile);
+        addImageLayer(tFile);
     };
 
     return (
@@ -63,7 +68,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
             <div className="flex items-center gap-2 mb-2">
                 <button
                     className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-                    onClick={() => view.addLayer(t('NEW_LAYER'))}
+                    onClick={() => layerOps.addLayer(t('NEW_LAYER'))}
                     title={t('NEW_LAYER')}
                     dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
                 />
@@ -75,7 +80,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                 />
                 <button
                     className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-                    onClick={() => view.deleteLayer(currentLayerIndex)}
+                    onClick={() => layerOps.deleteLayer(currentLayerIndex)}
                     title={t('DELETE_LAYER')}
                     dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
                 />
@@ -86,7 +91,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                     value={Math.round((layers[currentLayerIndex]?.opacity ?? 1) * 100)}
                     onChange={(e) => {
                         const opacity = parseInt(e.target.value, 10) / 100;
-                        view.layerOps?.setOpacity(currentLayerIndex, opacity);
+                        layerOps.setOpacity(currentLayerIndex, opacity);
                     }}
                     className="flex-1 h-1 bg-modifier-border rounded outline-none"
                 />
@@ -94,7 +99,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                     value={layers[currentLayerIndex]?.blendMode || 'normal'}
                     onChange={(e) => {
                         const mode = e.target.value as keyof typeof BLEND_MODE_TO_COMPOSITE_OPERATION;
-                        view.layerOps?.setBlendMode(currentLayerIndex, mode);
+                        layerOps.setBlendMode(currentLayerIndex, mode);
                     }}
                     className="p-1 border border-modifier-border rounded bg-primary text-xs"
                 >
@@ -113,13 +118,13 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                     <div
                         key={idx}
                         className={`p-2 bg-primary rounded cursor-pointer flex items-center gap-2 relative select-none touch-none hover:bg-modifier-hover ${idx === currentLayerIndex ? 'ring-2 ring-accent' : ''}`}
-                        onClick={() => view.setCurrentLayer(idx)}
+                        onClick={() => layerOps.setCurrentLayer(idx)}
                     >
                         <div
                             className={`w-4 h-4 border border-modifier-border rounded relative cursor-pointer ${layer.visible ? 'bg-accent' : 'bg-transparent'}`}
                             onClick={(e) => {
                                 e.stopPropagation();
-                                view.toggleLayerVisibility(idx);
+                                layerOps.toggleLayerVisibility(idx);
                             }}
                         />
                         <div
@@ -127,7 +132,7 @@ export const LayerControls: React.FC<LayerControlsProps> = ({
                             onDoubleClick={() => {
                                 const newName = prompt(t('ENTER_LAYER_NAME'), layer.name);
                                 if (newName && newName !== layer.name) {
-                                    view.renameLayer(idx, newName);
+                                    layerOps.renameLayer(idx, newName);
                                 }
                             }}
                         >
