@@ -44,6 +44,12 @@ export const TABLE_ICONS = {
     delete: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path d="M7 7L13 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
         <path d="M13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+    </svg>`,
+    // 行操作メニュー
+    menu: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="4" r="1.5" fill="currentColor" />
+        <circle cx="10" cy="10" r="1.5" fill="currentColor" />
+        <circle cx="10" cy="16" r="1.5" fill="currentColor" />
     </svg>`
 };
 

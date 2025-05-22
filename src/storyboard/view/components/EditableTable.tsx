@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { TABLE_ICONS, ADD_ICON_SVG } from 'src/icons';
 import { t } from 'src/i18n';
 
@@ -51,6 +51,8 @@ const EditableTable = <T,>({
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
     Array.from({ length: columns.length }, () => 300)
   );
+  // 開いているメニュー行番号
+  const [menuRow, setMenuRow] = useState<number | null>(null);
   const resizingCol = useRef<number | null>(null);
   const startX = useRef<number>(0);
   const startWidth = useRef<number>(0);
@@ -84,6 +86,18 @@ if (colIndex !== null) {
     window.removeEventListener('mousemove', handleMouseMove);
     window.removeEventListener('mouseup', handleMouseUp);
   };
+
+  // メニュー外クリックで閉じる
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('.row-action-menu')) {
+        setMenuRow(null);
+      }
+    };
+    window.addEventListener('click', handler);
+    return () => window.removeEventListener('click', handler);
+  }, []);
 
   return (
       <table className="w-full border-collapse border border-modifier-border mb-0 table-fixed">
@@ -140,22 +154,33 @@ if (colIndex !== null) {
                   );
                 })}
                 <td className="border border-modifier-border px-1 py-2 text-center align-middle whitespace-nowrap">
-                  <div className="flex flex-col items-start gap-y-1">
-                    {onMoveRowUp && index > 0 && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onMoveRowUp(index); }}
-                        className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
-                        title={t('MOVE_ROW_UP')}
-                        dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveUp }}
-                      />
-                    )}
-                    {onMoveRowDown && index < data.length - 1 && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onMoveRowDown(index); }}
-                        className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
-                        title={t('MOVE_ROW_DOWN')}
-                        dangerouslySetInnerHTML={{ __html: TABLE_ICONS.moveDown }}
-                      />
+                  <div className="relative row-action-menu">
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setMenuRow(menuRow === index ? null : index); }}
+                      className="text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none"
+                      title={t('EDIT')}
+                      dangerouslySetInnerHTML={{ __html: TABLE_ICONS.menu }}
+                    />
+                    {menuRow === index && (
+                      <div className="absolute left-0 top-full mt-1 flex flex-col bg-secondary border border-modifier-border rounded shadow z-50">
+                        {onMoveRowUp && index > 0 && (
+                          <button
+                            className="px-2 py-1 text-left hover:bg-modifier-hover"
+                            onClick={(e) => { e.stopPropagation(); setMenuRow(null); onMoveRowUp(index); }}
+                          >{t('MOVE_ROW_UP')}</button>
+                        )}
+                        {onMoveRowDown && index < data.length - 1 && (
+                          <button
+                            className="px-2 py-1 text-left hover:bg-modifier-hover"
+                            onClick={(e) => { e.stopPropagation(); setMenuRow(null); onMoveRowDown(index); }}
+                          >{t('MOVE_ROW_DOWN')}</button>
+                        )}
+                        <button
+                          className={`px-2 py-1 text-left hover:bg-modifier-hover ${data.length > 1 ? '' : 'opacity-50 cursor-not-allowed'}`}
+                          onClick={(e) => { e.stopPropagation(); if (data.length > 1) { setMenuRow(null); onDeleteRow(index); } }}
+                          disabled={data.length <= 1}
+                        >{t('DELETE')}</button>
+                      </div>
                     )}
                     {onInsertRowBelow && (
                       <button
@@ -165,16 +190,6 @@ if (colIndex !== null) {
                         dangerouslySetInnerHTML={{ __html: TABLE_ICONS.add }}
                       />
                     )}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        if (data.length > 1) onDeleteRow(index);
-                      }}
-                      className={`text-text-faint ${data.length > 1 ? 'hover:text-error' : 'opacity-50 cursor-not-allowed'} text-base px-1 py-0.5 leading-none`}
-                      title={t('DELETE')}
-                      disabled={data.length <= 1}
-                      dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
-                    />
                   </div>
                 </td>
               </tr>
