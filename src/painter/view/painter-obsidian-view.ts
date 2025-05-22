@@ -55,13 +55,18 @@ function renderPainter(ctx: FuncCtx<PainterProps, PainterState>): FuncReturn<Pai
   ctx.root.empty();
   ctx.root.addClass('psd-view');
 
+  view.redoActionEl?.remove();
+  view.undoActionEl?.remove();
+
   const redoBtn = view.addAction('arrow-right', t('REDO'), () => view.redo()) as HTMLElement;
   redoBtn.querySelector('svg')?.remove();
   redoBtn.textContent = t('REDO');
+  view.redoActionEl = redoBtn;
 
   const undoBtn = view.addAction('arrow-left', t('UNDO'), () => view.undo()) as HTMLElement;
   undoBtn.querySelector('svg')?.remove();
   undoBtn.textContent = t('UNDO');
+  view.undoActionEl = undoBtn;
 
   const reactRoot = createRoot(ctx.root);
   view.reactRoot = reactRoot;
@@ -131,8 +136,8 @@ export class PainterView extends PainterBase {
 	public _selectionState: SelectionState | null = null;
 
         // コントローラーから注入されるレイヤー操作デリゲート
-        private _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
-        private _deleteLayerDelegate?: (view: PainterView, index: number) => void;
+        public _addLayerDelegate?: (view: PainterView, name?: string, imageFile?: TFile) => void;
+        public _deleteLayerDelegate?: (view: PainterView, index: number) => void;
 
         public _selectionController?: unknown;
 
@@ -142,11 +147,17 @@ export class PainterView extends PainterBase {
         // 選択範囲編集コントローラー
         public editController?: unknown;
 
-	// ファイル入出力デリゲート
-	public _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
+        // ファイル入出力デリゲート
+        public _loadDelegate?: (app: App, file: TFile) => Promise<{ width: number; height: number; layers: Layer[] }>;
 
-	// React ルート（レイアウトをマウント）
-	private reactRoot?: Root;
+        // React ルート（レイアウトをマウント）
+        public reactRoot?: Root;
+
+        // Header actions
+        public undoActionEl?: HTMLElement;
+        public redoActionEl?: HTMLElement;
+
+        getViewType() { return PSD_VIEW_TYPE; }
 
   /**
    * SelectionController への public アクセス
@@ -172,7 +183,7 @@ export class PainterView extends PainterBase {
 		this._layerChangeCallbacks.push(cb);
 	}
 
-	private _emitLayerChanged() {
+        public _emitLayerChanged() {
 		this._layerChangeCallbacks.forEach(cb => cb());
 	}
 
@@ -208,6 +219,9 @@ export class PainterView extends PainterBase {
 
         constructor(leaf: WorkspaceLeaf, props: PainterProps) {
                 super(leaf, props);
+                this.onPointerDown = (e) => this.handlePointerDown(e);
+                this.onPointerMove = (e) => this.handlePointerMove(e);
+                this.onPointerUp = () => this.handlePointerUp();
         }
 
         public saveLayerStateToHistory() {
@@ -251,7 +265,7 @@ export class PainterView extends PainterBase {
 			this.saveLayerStateToHistory();
                 } else if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
                         this.actionMenu.hide();
-                        this._selectionController?.onPointerDown(x, y);
+                        (this._selectionController as any)?.onPointerDown(x, y);
                         return;
                 } else if (this.currentTool === 'hand') {
                         this.isPanning = true;
@@ -272,7 +286,7 @@ export class PainterView extends PainterBase {
 
                 // 選択ツールの場合はドラッグ状態に関係なく move を伝播
                 if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        this._selectionController?.onPointerMove(x, y);
+                        (this._selectionController as any)?.onPointerMove(x, y);
                         return;
                 }
 
@@ -317,9 +331,9 @@ export class PainterView extends PainterBase {
                 }
 
                 if (this.currentTool === 'selection' || this.currentTool === 'lasso') {
-                        const valid = this._selectionController?.onPointerUp() ?? false;
+                        const valid = (this._selectionController as any)?.onPointerUp() ?? false;
                         if (valid) {
-                                const cancel = () => this._selectionController?.cancelSelection();
+                                const cancel = () => (this._selectionController as any)?.cancelSelection();
                                 this.actionMenu.showSelection(cancel);
                         } else {
                                 this.actionMenu.showGlobal();
@@ -328,7 +342,7 @@ export class PainterView extends PainterBase {
                 }
         }
 
-	private setupDragAndDrop() {
+        public setupDragAndDrop() {
 		this.contentEl.addEventListener('dragenter', (e) => {
 			e.preventDefault();
 			e.stopPropagation();
@@ -420,7 +434,7 @@ export class PainterView extends PainterBase {
 		}
 
 		// 選択範囲を描画
-		this._selectionController?.drawSelection(ctx);
+                (this._selectionController as any)?.drawSelection(ctx);
 
 		this._emitLayerChanged();
 	}
