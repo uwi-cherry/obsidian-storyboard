@@ -96,8 +96,8 @@ If you have multiple URLs, you can also do:
 
 See https://github.com/obsidianmd/obsidian-api
 
-The plugin allows you to choose between **fal.ai** and **Replicate** as the AI
-provider from the settings screen.
+The plugin allows you to register API keys for **fal.ai** and **Replicate AI**
+and choose which provider to use from the settings screen.
 
 ## 画像の利用について
 

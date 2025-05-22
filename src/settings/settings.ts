@@ -3,11 +3,15 @@ import type MyPlugin from '../../main';
 import { t } from '../i18n';
 
 export interface PluginSettings {
-  apiKey: string;
+  provider: 'fal' | 'replicate';
+  falApiKey: string;
+  replicateApiKey: string;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  apiKey: '',
+  provider: 'fal',
+  falApiKey: '',
+  replicateApiKey: '',
 };
 
 export class SettingTab extends PluginSettingTab {
@@ -29,15 +33,43 @@ export class SettingTab extends PluginSettingTab {
     const settings: PluginSettings = this.settings;
 
     new Setting(containerEl)
-      .setName('API Key')
-      .setDesc('Enter your API key')
-      .addText(text => text
-        .setPlaceholder('sk-...')
-        .setValue(settings.apiKey || '')
-        .onChange(async (value) => {
-          settings.apiKey = value;
-          await saveSettings(this.plugin, settings);
-        })
+      .setName(t('API_PROVIDER'))
+      .setDesc(t('API_PROVIDER_DESC'))
+      .addDropdown(drop =>
+        drop
+          .addOption('fal', 'fal.ai')
+          .addOption('replicate', 'Replicate')
+          .setValue(settings.provider)
+          .onChange(async value => {
+            settings.provider = value as 'fal' | 'replicate';
+            await saveSettings(this.plugin, settings);
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('FAL_API_KEY'))
+      .setDesc(t('FAL_API_KEY_DESC'))
+      .addText(text =>
+        text
+          .setPlaceholder('fal-...')
+          .setValue(settings.falApiKey || '')
+          .onChange(async value => {
+            settings.falApiKey = value;
+            await saveSettings(this.plugin, settings);
+          }),
+      );
+
+    new Setting(containerEl)
+      .setName(t('REPLICATE_API_KEY'))
+      .setDesc(t('REPLICATE_API_KEY_DESC'))
+      .addText(text =>
+        text
+          .setPlaceholder('r8-...')
+          .setValue(settings.replicateApiKey || '')
+          .onChange(async value => {
+            settings.replicateApiKey = value;
+            await saveSettings(this.plugin, settings);
+          }),
       );
   }
 }
