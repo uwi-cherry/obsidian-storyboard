@@ -3,20 +3,49 @@ import { useCanvasTransform } from '../hooks/useCanvasTransform';
 import { usePainterPointer } from '../hooks/usePainterPointer';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
-import type { PainterView } from './painter-obsidian-view';
+import type { TFile } from 'obsidian';
 import { ActionMenuController } from '../controller/action-menu-controller';
 import { SelectionController } from '../controller/selection-controller';
 import { useSelectionState } from '../hooks/useSelectionState';
 import { useLayers } from '../hooks/useLayers';
+import type { SelectionState } from '../hooks/useSelectionState';
+import type { LayersState } from '../hooks/useLayers';
 import { TOOL_ICONS } from 'src/icons';
 
 interface PainterReactViewProps {
-  /**
-   * Obsidian の FileView を継承した PainterView。
-   * Obsidian API 依存の箇所は PainterView に残し、
-   * 本コンポーネントは純粋な UI 操作のみを担当する。
-   */
-  view: PainterView;
+  /** 描画対象のファイル */
+  file: TFile | null;
+  /** ズーム値 */
+  zoom: number;
+  /** 回転角度 */
+  rotation: number;
+  /** ツール種別 */
+  currentTool: string;
+  /** ブラシサイズ */
+  lineWidth: number;
+  /** カラー */
+  color: string;
+  /* 更新メソッド */
+  setZoom: (z: number) => void;
+  setRotation: (angle: number) => void;
+  setTool: (tool: string) => void;
+  setLineWidth: (w: number) => void;
+  setColor: (c: string) => void;
+  onPointerDown?: (e: PointerEvent) => void;
+  onPointerMove?: (e: PointerEvent) => void;
+  onPointerUp?: (e: PointerEvent) => void;
+  setCanvas: (c: HTMLCanvasElement) => void;
+  setSelectionState: (s: SelectionState) => void;
+  layers: LayersState;
+  setLayers: (l: LayersState) => void;
+  selectionController?: SelectionController;
+  createSelectionController: (state: SelectionState) => SelectionController;
+  setSelectionController: (c: SelectionController) => void;
+  createActionMenuController: (state: SelectionState) => ActionMenuController;
+  setActionMenu: (menu: ActionMenuController) => void;
+  renderCanvas: () => void;
+  loadAndRenderFile?: (file: TFile) => Promise<void>;
+  getCanvasSize: () => { width: number; height: number };
 }
 
 /**
@@ -26,14 +55,44 @@ interface PainterReactViewProps {
  * DOM/UI 操作を React コンポーネントとして再実装したもの。
  *
  * Obsidian API と直接やり取りする必要のない処理は全てここに集約し、
- * ビュー側からは <PainterReactView view={this} /> をレンダリングするだけにする。
+ * ビュー側からは必要な値とメソッドを渡して <PainterReactView /> をレンダリングするだけにする。
  */
-const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
+const PainterReactView: React.FC<PainterReactViewProps> = ({
+  file,
+  zoom: initialZoom,
+  rotation: initialRotation,
+  currentTool,
+  lineWidth: initialLineWidth,
+  color: initialColor,
+  setZoom: onZoomChange,
+  setRotation: onRotationChange,
+  setTool: onToolChange,
+  setLineWidth: onLineWidthChange,
+  setColor: onColorChange,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
+  setCanvas,
+  setSelectionState,
+  layers,
+  setLayers,
+  selectionController,
+  createSelectionController,
+  setSelectionController,
+  createActionMenuController,
+  setActionMenu,
+  renderCanvas,
+  loadAndRenderFile,
+  getCanvasSize,
+}) => {
   /* ──────────────── Refs & States ──────────────── */
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { zoom, rotation, setZoom, setRotation } = useCanvasTransform(
     canvasRef.current,
-    view
+    initialZoom,
+    initialRotation,
+    onZoomChange,
+    onRotationChange
   );
   const selectionState = useSelectionState();
   const layersState = useLayers();
@@ -44,7 +103,14 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     setTool,
     setLineWidth,
     setColor,
-  } = usePainterPointer(view);
+  } = usePainterPointer(
+    currentTool,
+    initialLineWidth,
+    initialColor,
+    onToolChange,
+    onLineWidthChange,
+    onColorChange
+  );
   const [selectionVisible, setSelectionVisible] = useState(false);
   const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
 
@@ -75,35 +141,37 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
     canvas.height = DEFAULT_CANVAS_HEIGHT;
     canvas.className = 'bg-transparent shadow-lg touch-none';
 
-    // PainterView へキャンバス DOM を紐付け
-    view._canvas = canvas;
+    // Canvas 要素を親へ伝達
+    setCanvas(canvas);
 
     // ポインタ関連イベント（PainterView 内部実装を使う）
-    const onPointerDown = (e: PointerEvent) => view.onPointerDown?.(e);
-    const onPointerMove = (e: PointerEvent) => view.onPointerMove?.(e);
-    const onPointerUp = (e: PointerEvent) => view.onPointerUp?.(e);
+    const onPointerDown = (e: PointerEvent) => onPointerDown?.(e);
+    const onPointerMove = (e: PointerEvent) => onPointerMove?.(e);
+    const onPointerUp = (e: PointerEvent) => onPointerUp?.(e);
 
     canvas.addEventListener('pointerdown', onPointerDown);
     canvas.addEventListener('pointermove', onPointerMove);
     canvas.addEventListener('pointerup', onPointerUp);
 
     // SelectionController と状態を初期化
-    view._selectionState = selectionState;
-    view.layers = layersState;
-    if (!view._selectionController) {
-      view._selectionController = new SelectionController(view, selectionState);
+    setSelectionState(selectionState);
+    setLayers(layersState);
+    let controller = selectionController;
+    if (!controller) {
+      controller = createSelectionController(selectionState);
+      setSelectionController(controller);
     }
 
-    const actionMenu = new ActionMenuController(view, selectionState);
-    view.actionMenu = actionMenu;
+    const actionMenu = createActionMenuController(selectionState);
+    setActionMenu(actionMenu);
     const resizeHandler = () => actionMenu.showGlobal();
     window.addEventListener('resize', resizeHandler);
     actionMenu.showGlobal();
 
     // ファイル読み込み or 背景レイヤー作成
     (async () => {
-      if (view.file) {
-        await view._loadAndRenderFile?.(view.file);
+      if (file) {
+        await loadAndRenderFile?.(file);
       } else {
         const bgCanvas = document.createElement('canvas');
         bgCanvas.width = DEFAULT_CANVAS_WIDTH;
@@ -114,7 +182,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
           bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
         }
 
-        view.layers.history[0].layers = [
+        layersState.history[0].layers = [
           {
             name: t('BACKGROUND'),
             visible: true,
@@ -123,7 +191,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
             canvas: bgCanvas,
           },
         ];
-        view.renderCanvas();
+        renderCanvas();
       }
     })();
 
@@ -135,7 +203,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
       actionMenu.dispose();
       window.removeEventListener('resize', resizeHandler);
     };
-  }, [view]);
+  }, []);
   // ツールの定義
   const TOOLS = [
       { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
@@ -206,7 +274,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
               onChange={e => {
                 const val = e.currentTarget.value as 'rect' | 'lasso' | 'magic';
                 setSelectionType(val);
-                view.selectionController?.setMode(val);
+                selectionController?.setMode(val);
                 updateTool('selection'); // selection モードに固定
               }}
             >
@@ -221,7 +289,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({ view }) => {
           <div className="flex flex-col gap-1 mt-4 text-xs">
             <div className="text-text-muted">{t('CANVAS_SIZE')}:</div>
             <div>
-              {view.getCanvasSize().width} x {view.getCanvasSize().height}
+              {getCanvasSize().width} x {getCanvasSize().height}
             </div>
             <div className="text-text-muted mt-2">{t('ZOOM_LEVEL')}: {zoom}%</div>
             <input

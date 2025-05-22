@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import type { PainterView } from '../view/painter-obsidian-view';
 
 export interface CanvasTransform {
   zoom: number;
@@ -10,18 +9,21 @@ export interface CanvasTransform {
 
 export function useCanvasTransform(
   canvas: HTMLCanvasElement | null,
-  view: PainterView
+  initialZoom: number,
+  initialRotation: number,
+  onZoomChange?: (zoom: number) => void,
+  onRotationChange?: (angle: number) => void
 ): CanvasTransform {
-  const [zoom, setZoomState] = useState<number>(view.zoom);
-  const [rotation, setRotationState] = useState<number>(view.rotation);
+  const [zoom, setZoomState] = useState<number>(initialZoom);
+  const [rotation, setRotationState] = useState<number>(initialRotation);
 
   useEffect(() => {
-    view.zoom = zoom;
-    view.rotation = rotation;
+    onZoomChange?.(zoom);
+    onRotationChange?.(rotation);
     if (canvas) {
       canvas.style.transform = `scale(${zoom / 100}) rotate(${rotation}deg)`;
     }
-  }, [canvas, zoom, rotation, view]);
+  }, [canvas, zoom, rotation, onZoomChange, onRotationChange]);
 
   const setZoom = (z: number) => {
     setZoomState(z);

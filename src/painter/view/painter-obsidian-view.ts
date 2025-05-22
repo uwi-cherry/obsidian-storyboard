@@ -237,7 +237,56 @@ export class PainterView extends FileView {
 		if (!this.reactRoot) {
 			this.reactRoot = createRoot(this.contentEl);
 		}
-                this.reactRoot.render(React.createElement(PainterReactView, { view: this }));
+                this.reactRoot.render(
+                        React.createElement(PainterReactView, {
+                                file: this.file ?? null,
+                                zoom: this.zoom,
+                                rotation: this.rotation,
+                                currentTool: this.currentTool,
+                                lineWidth: this.currentLineWidth,
+                                color: this.currentColor,
+                                setZoom: (z) => {
+                                        this.zoom = z;
+                                },
+                                setRotation: (a) => {
+                                        this.rotation = a;
+                                },
+                                setTool: (t) => {
+                                        this.currentTool = t;
+                                },
+                                setLineWidth: (w) => {
+                                        this.currentLineWidth = w;
+                                },
+                                setColor: (c) => {
+                                        this.currentColor = c;
+                                },
+                                onPointerDown: (e) => this.handlePointerDown(e),
+                                onPointerMove: (e) => this.handlePointerMove(e),
+                                onPointerUp: () => this.handlePointerUp(),
+                                setCanvas: (c) => {
+                                        this._canvas = c;
+                                },
+                                setSelectionState: (s) => {
+                                        this._selectionState = s;
+                                },
+                                layers: this.layers,
+                                setLayers: (l) => {
+                                        this.layers = l;
+                                },
+                                selectionController: this._selectionController,
+                                createSelectionController: (state) => new SelectionController(this, state),
+                                setSelectionController: (sc) => {
+                                        this._selectionController = sc;
+                                },
+                                createActionMenuController: (state) => new ActionMenuController(this, state),
+                                setActionMenu: (menu) => {
+                                        this.actionMenu = menu;
+                                },
+                                renderCanvas: () => this.renderCanvas(),
+                                loadAndRenderFile: this._loadAndRenderFile ? (f) => this._loadAndRenderFile!(f) : undefined,
+                                getCanvasSize: this.getCanvasSize.bind(this),
+                        })
+                );
 
 		// Canvas がまだ React サイドで生成されていないため
 		// ファイル読み込みや初期背景キャンバス作成は
