@@ -3,10 +3,10 @@ import type MyPlugin from '../../main';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
-import { PsdService } from '../services/psd-service
+import { PsdService } from '../services/psd-service';
 import { LayerController } from './controller/layer-controller';
 import { LayerChangeController } from './controller/layer-change-controller';
-import { ChatService } from '../services/chat-service';
+import { ChatController } from '../right-sidebar/controller/chat-controller';
 import { RightSidebarController } from '../right-sidebar/controller/right-sidebar-controller';
 import { Layer } from './painter-types';
 import { PainterView } from './view/painter-obsidian-view';
