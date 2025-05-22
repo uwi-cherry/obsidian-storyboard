@@ -4,7 +4,7 @@ import { createRoot, Root } from 'react-dom/client';
 import { ItemView, WorkspaceLeaf, App, TFile } from 'obsidian';
 import { Layer } from '../painter/painter-types';
 import { PsdService } from '../services/psd-service';
-import { ChatService } from '../services/chat-service';
+import { ChatController } from './controller/chat-controller';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, PSD_VIEW_TYPE } from '../constants';
 import RightSidebarReactView from './RightSidebarReactView';
 import { RightSidebarService } from '../services/right-sidebar-service';
@@ -30,7 +30,7 @@ export class RightSidebarView extends ItemView {
 
     public layerOps?: LayerOps;
     public psdService?: PsdService;
-    public chatService?: ChatService;
+    public chatService?: ChatController;
     public sidebarService?: RightSidebarService;
 
     // === 画像操作 UI 関連 =====================
@@ -215,7 +215,7 @@ export class RightSidebarView extends ItemView {
     /**
      * Chat 用サービスを注入
      */
-    public setChatService(service: ChatService) {
+    public setChatService(service: ChatController) {
         this.chatService = service;
     }
 

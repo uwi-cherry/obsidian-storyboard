@@ -169,7 +169,7 @@ export function createLayerSidebar(leaf: WorkspaceLeaf, plugin: MyPlugin): Right
     if (typeof (view as any).setPsdService === 'function') {
         view.setPsdService(psdService);
     }
-    const chatService = new ChatService(plugin as any);
+    const chatService = new ChatController(plugin as any);
     if (typeof (view as any).setChatService === 'function') {
         view.setChatService(chatService);
     }
