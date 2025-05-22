@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { MarkdownView, TFile } from 'obsidian';
-import type { RightSidebarView } from './right-sidebar-obsidian-view';
+import { RightSidebarView } from './right-sidebar-obsidian-view';
 import { Layer } from '../painter/painter-types';
 import { PainterView } from '../painter/view/painter-obsidian-view';
 import { PsdService } from '../services/psd-service';
@@ -60,7 +60,8 @@ const RightSidebarReactView: React.FC<RightSidebarReactViewProps> = ({
             const isStoryboard =
                 leaf.view instanceof MarkdownView &&
                 getCurrentViewMode(leaf) === 'storyboard';
-            setShowLayerControls(isPsd || isStoryboard);
+            const isLayerSidebar = leaf.view instanceof RightSidebarView;
+            setShowLayerControls(isPsd || isStoryboard || isLayerSidebar);
         };
 
         updateVisibility();
