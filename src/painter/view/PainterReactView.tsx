@@ -2,24 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DEFAULT_CANVAS_WIDTH, DEFAULT_CANVAS_HEIGHT } from '../../constants';
 import { t } from '../../i18n';
 import { TFile } from 'obsidian';
-import { ActionMenuController } from '../controller/action-menu-controller';
-import { SelectionController } from '../controller/selection-controller';
-import { useSelectionState } from '../hooks/useSelectionState';
 import { TOOL_ICONS } from 'src/icons';
 import type { LayersState } from '../hooks/useLayers';
-import type { SelectionState } from '../hooks/useSelectionState';
+import { BLEND_MODE_TO_COMPOSITE_OPERATION } from '../../constants';
 
 interface PainterReactViewProps {
-  // Canvas 関連
-  setCanvas: (canvas: HTMLCanvasElement) => void;
-  renderCanvas: () => void;
-  getCanvasSize: () => { width: number; height: number };
-  
-  // ポインタイベント
-  onPointerDown: (e: PointerEvent) => void;
-  onPointerMove: (e: PointerEvent) => void;
-  onPointerUp: (e: PointerEvent) => void;
-  
   // ファイル関連
   file?: TFile;
   loadAndRenderFile?: (file: TFile) => Promise<void>;
@@ -44,16 +31,9 @@ interface PainterReactViewProps {
 /**
  * PainterReactView
  *
- * 純粋なUIコンポーネント。必要なデータとメソッドを個別に受け取り、
- * Obsidian APIや複雑な状態管理から独立している。
+ * Canvas管理と描画を内部で完結させるシンプルなUIコンポーネント
  */
 const PainterReactView: React.FC<PainterReactViewProps> = ({ 
-  setCanvas,
-  renderCanvas,
-  getCanvasSize,
-  onPointerDown,
-  onPointerMove,
-  onPointerUp,
   file,
   loadAndRenderFile,
   layers,
@@ -71,11 +51,100 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
 }) => {
   /* ──────────────── Refs & States ──────────────── */
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const selectionState = useSelectionState();
   const [selectionVisible, setSelectionVisible] = useState(false);
   const [selectionType, setSelectionType] = useState<'rect' | 'lasso' | 'magic'>('rect');
-  const [selectionController, setSelectionController] = useState<SelectionController | null>(null);
-  const [actionMenu, setActionMenu] = useState<ActionMenuController | null>(null);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [lastX, setLastX] = useState(0);
+  const [lastY, setLastY] = useState(0);
+
+  /* ──────────────── Canvas Rendering ──────────────── */
+  const renderCanvas = () => {
+    const canvas = canvasRef.current;
+    if (!canvas) {
+      console.log('renderCanvas: canvas ref is null');
+      return;
+    }
+
+    console.log('renderCanvas: starting render', { 
+      canvasSize: `${canvas.width}x${canvas.height}`, 
+      layerCount: layers.history[layers.currentIndex]?.layers?.length ?? 0 
+    });
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      console.error('renderCanvas: could not get 2d context');
+      return;
+    }
+
+    // キャンバスをクリア
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // チェック柄の背景を描画
+    const checkSize = 10;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#e0e0e0';
+    for (let y = 0; y < canvas.height; y += checkSize * 2) {
+      for (let x = 0; x < canvas.width; x += checkSize * 2) {
+        ctx.fillRect(x + checkSize, y, checkSize, checkSize);
+        ctx.fillRect(x, y + checkSize, checkSize, checkSize);
+      }
+    }
+
+    // レイヤーを描画
+    const currentLayers = layers.history[layers.currentIndex]?.layers ?? [];
+    console.log('renderCanvas: drawing layers', currentLayers);
+    
+    for (let i = currentLayers.length - 1; i >= 0; i--) {
+      const layer = currentLayers[i];
+      if (layer.visible && layer.canvas) {
+        ctx.globalAlpha = layer.opacity ?? 1;
+        ctx.globalCompositeOperation = BLEND_MODE_TO_COMPOSITE_OPERATION[layer.blendMode] ?? 'source-over';
+        ctx.drawImage(layer.canvas, 0, 0);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    console.log('renderCanvas: completed');
+  };
+
+  /* ──────────────── Layer Initialization ──────────────── */
+  const initializeDefaultLayer = () => {
+    if (layers.history[0]?.layers?.length > 0) {
+      console.log('initializeDefaultLayer: layers already exist');
+      return;
+    }
+
+    console.log('initializeDefaultLayer: creating background layer');
+    
+    // 背景レイヤーを作成
+    const bgCanvas = document.createElement('canvas');
+    bgCanvas.width = DEFAULT_CANVAS_WIDTH;
+    bgCanvas.height = DEFAULT_CANVAS_HEIGHT;
+    const bgCtx = bgCanvas.getContext('2d');
+    if (bgCtx) {
+      bgCtx.fillStyle = 'white';
+      bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
+    }
+
+    const newLayers = {
+      ...layers,
+      history: [{
+        layers: [{
+          name: t('BACKGROUND'),
+          visible: true,
+          opacity: 1,
+          blendMode: 'normal' as const,
+          canvas: bgCanvas,
+        }]
+      }],
+      currentIndex: 0,
+      currentLayerIndex: 0
+    };
+    
+    setLayers(newLayers);
+  };
 
   /* ──────────────── Helpers ──────────────── */
   const updateTool = (toolId: string) => {
@@ -94,82 +163,29 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
   };
 
   /* ──────────────── Effects ──────────────── */
-  // マウント時 – Canvas, SelectionController, ActionMenu 等の初期化
+  // Canvas初期化
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    console.log('PainterReactView: Canvas initialized', canvas);
+    console.log('PainterReactView: Canvas mounted', canvas);
 
     // キャンバス基本設定
     canvas.width = DEFAULT_CANVAS_WIDTH;
     canvas.height = DEFAULT_CANVAS_HEIGHT;
     canvas.className = 'bg-transparent shadow-lg touch-none';
 
-    // Canvas を親コンポーネントに通知
-    setCanvas(canvas);
-    console.log('PainterReactView: setCanvas called');
+    // 初期レイヤー作成
+    if (!file) {
+      initializeDefaultLayer();
+    }
+  }, []);
 
-    // ポインタ関連イベント
-    canvas.addEventListener('pointerdown', onPointerDown);
-    canvas.addEventListener('pointermove', onPointerMove);
-    canvas.addEventListener('pointerup', onPointerUp);
-
-    // Canvas transform適用
-    canvas.style.transform = `scale(${zoom / 100}) rotate(${rotation}deg)`;
-
-    // ファイル読み込み or 背景レイヤー作成
-    (async () => {
-      console.log('PainterReactView: Initializing layers', { file, layers });
-      
-      if (file && loadAndRenderFile) {
-        await loadAndRenderFile(file);
-      } else {
-        // 背景レイヤーを作成
-        const bgCanvas = document.createElement('canvas');
-        bgCanvas.width = DEFAULT_CANVAS_WIDTH;
-        bgCanvas.height = DEFAULT_CANVAS_HEIGHT;
-        const bgCtx = bgCanvas.getContext('2d');
-        if (bgCtx) {
-          bgCtx.fillStyle = 'white';
-          bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-        }
-
-        // レイヤーが初期化されているかチェック
-        if (!layers?.history?.[0]) {
-          console.error('PainterReactView: Layers not properly initialized');
-          return;
-        }
-
-        const newLayers = {
-          ...layers,
-          history: [{
-            ...layers.history[0],
-            layers: [{
-              name: t('BACKGROUND'),
-              visible: true,
-              opacity: 1,
-              blendMode: 'normal' as const,
-              canvas: bgCanvas,
-            }]
-          }]
-        };
-        
-        setLayers(newLayers);
-        
-        console.log('PainterReactView: Background layer created, calling renderCanvas');
-        renderCanvas();
-      }
-    })();
-
-    return () => {
-      // クリーンアップ
-      canvas.removeEventListener('pointerdown', onPointerDown);
-      canvas.removeEventListener('pointermove', onPointerMove);
-      canvas.removeEventListener('pointerup', onPointerUp);
-      actionMenu?.dispose();
-    };
-  }, []); // 初期化は一度だけ
+  // Layers変更時にcanvasを再描画
+  useEffect(() => {
+    console.log('PainterReactView: Layers changed, re-rendering canvas');
+    renderCanvas();
+  }, [layers]);
 
   // Canvas transform の更新
   useEffect(() => {
@@ -249,7 +265,6 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
               onChange={e => {
                 const val = e.currentTarget.value as 'rect' | 'lasso' | 'magic';
                 setSelectionType(val);
-                selectionController?.setMode(val);
                 updateTool('selection'); // selection モードに固定
               }}
             >
@@ -264,7 +279,7 @@ const PainterReactView: React.FC<PainterReactViewProps> = ({
           <div className="flex flex-col gap-1 mt-4 text-xs">
             <div className="text-text-muted">{t('CANVAS_SIZE')}:</div>
             <div>
-              {getCanvasSize().width} x {getCanvasSize().height}
+              {DEFAULT_CANVAS_WIDTH} x {DEFAULT_CANVAS_HEIGHT}
             </div>
             <div className="text-text-muted mt-2">{t('ZOOM_LEVEL')}: {zoom}%</div>
             <input
