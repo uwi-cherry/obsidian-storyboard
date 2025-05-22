@@ -3,7 +3,6 @@ import type MyPlugin from '../../main';
 import { BLEND_MODE_TO_COMPOSITE_OPERATION, DEFAULT_CANVAS_HEIGHT, DEFAULT_CANVAS_WIDTH } from '../constants';
 import { t } from '../i18n';
 import { LAYER_SIDEBAR_VIEW_TYPE, LayerOps, RightSidebarView } from '../right-sidebar/right-sidebar-obsidian-view';
-import { savePsdFile } from './painter-files';
 import { PsdService } from '../services/psd-service';
 import { LayerService } from '../services/layer-service';
 import { ChatService } from '../services/chat-service';
@@ -120,7 +119,7 @@ export function createPainterView(leaf: WorkspaceLeaf): PainterView {
     // レイヤー変更時に PSD ファイルを自動保存
     view.onLayerChanged(() => {
         if (view.file) {
-            savePsdFile(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);
+            psdService.save(view.app, view.file, view.layers.history[view.layers.currentIndex].layers);
         }
     });
     return view;
@@ -149,7 +148,8 @@ function getActivePainterView(app: App): PainterView | null {
 export function saveActive(app: App) {
     const view = getActivePainterView(app);
     if (view && view.file) {
-        savePsdFile(app, view.file, view.layers.history[view.layers.currentIndex].layers);
+        const service = new PsdService();
+        service.save(app, view.file, view.layers.history[view.layers.currentIndex].layers);
     }
 }
 
