@@ -87,6 +87,9 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     initialData.chapters.map(() => true)
   );
   const [newChapterBgm, setNewChapterBgm] = useState('');
+  
+  // 選択された行の管理（章インデックス + 行インデックス）
+  const [selectedRowPosition, setSelectedRowPosition] = useState<{chapterIndex: number, rowIndex: number} | null>(null);
 
   // BGM入力欄のref配列
   const bgmRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -239,6 +242,29 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     }
   }, [storyboard.chapters.length]);
 
+  // 行の移動処理
+  const handleMoveRowTo = useCallback((chapterIndex: number, fromRowIndex: number, toRowIndex: number) => {
+    const newStoryboard = { ...storyboard };
+    const chapter = newStoryboard.chapters[chapterIndex];
+    
+    if (chapter && chapter.frames) {
+      const [movedFrame] = chapter.frames.splice(fromRowIndex, 1);
+      chapter.frames.splice(toRowIndex, 0, movedFrame);
+      
+      setStoryboard(newStoryboard);
+      handleDataChange(newStoryboard);
+    }
+  }, [storyboard, setStoryboard, handleDataChange]);
+  
+  // 選択状態の管理
+  const handleSelectRow = useCallback((chapterIndex: number, rowIndex: number | null) => {
+    if (rowIndex === null) {
+      setSelectedRowPosition(null);
+    } else {
+      setSelectedRowPosition({ chapterIndex, rowIndex });
+    }
+  }, []);
+
   if (isLoading) {
     return <div className="storyboard-react-view p-4">{t('LOADING')}</div>;
   }
@@ -319,7 +345,10 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             onMoveRowUp={rowIndex => moveRowUp(cIdx, rowIndex)}
             onMoveRowDown={rowIndex => moveRowDown(cIdx, rowIndex)}
             onInsertRowBelow={rowIndex => insertRowBelow(cIdx, rowIndex)}
+            onMoveRowTo={(fromIndex, toIndex) => handleMoveRowTo(cIdx, fromIndex, toIndex)}
             onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
+            selectedRowIndex={selectedRowPosition?.chapterIndex === cIdx ? selectedRowPosition.rowIndex : null}
+            onSelectRow={(rowIndex) => handleSelectRow(cIdx, rowIndex)}
             showAddRow={false}
           />
         </details>

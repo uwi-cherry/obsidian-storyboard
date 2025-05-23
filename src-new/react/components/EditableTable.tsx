@@ -23,6 +23,7 @@ export interface EditableTableProps<T> {
   onMoveRowUp?: (rowIndex: number) => void;
   onMoveRowDown?: (rowIndex: number) => void;
   onInsertRowBelow?: (rowIndex: number) => void;
+  onMoveRowTo?: (fromIndex: number, toIndex: number) => void;
   showAddRow?: boolean;
   /**
    * 行がクリックされた際に呼び出されるオプションのコールバック
@@ -32,6 +33,14 @@ export interface EditableTableProps<T> {
    * ヘッダー行のさらに上に挿入するカスタム行
    */
   headerTop?: React.ReactNode;
+  /**
+   * 選択された行のインデックス
+   */
+  selectedRowIndex?: number | null;
+  /**
+   * 行の選択状態を変更するコールバック
+   */
+  onSelectRow?: (rowIndex: number | null) => void;
 }
 
 const EditableTable = <T,>({
@@ -43,9 +52,12 @@ const EditableTable = <T,>({
   onMoveRowUp,
   onMoveRowDown,
   onInsertRowBelow,
+  onMoveRowTo,
   showAddRow = true,
   onRowClick,
   headerTop,
+  selectedRowIndex,
+  onSelectRow,
 }: EditableTableProps<T>) => {
   // 全カラム分の幅を管理（初期値はすべて300px）
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
@@ -119,8 +131,9 @@ const EditableTable = <T,>({
         </thead>
         <tbody>
           {data.map((row, index) => {
+            const isSelected = selectedRowIndex === index;
             return (
-              <tr key={index} className="hover:bg-modifier-hover" onClick={() => onRowClick?.(row, index)}>
+              <tr key={index} className={`hover:bg-modifier-hover ${isSelected ? 'bg-accent-hover border-l-4 border-l-accent' : ''}`} onClick={() => onRowClick?.(row, index)}>
                 {columns.map((col) => {
                   return (
                     <td
@@ -173,11 +186,28 @@ const EditableTable = <T,>({
                             onClick: () => onMoveRowDown(index),
                             variant: 'default' as const
                           }] : []),
+                          ...(onSelectRow ? [{
+                            label: isSelected ? '選択を解除' : '選択状態にする',
+                            icon: '✓',
+                            onClick: () => onSelectRow(isSelected ? null : index),
+                            variant: 'default' as const
+                          }] : []),
+                          ...(onMoveRowTo && selectedRowIndex !== null && selectedRowIndex !== undefined && selectedRowIndex !== index ? [{
+                            label: '選択したものをここに移動',
+                            icon: '→',
+                            onClick: () => {
+                              if (selectedRowIndex !== null && selectedRowIndex !== undefined) {
+                                onMoveRowTo(selectedRowIndex, index);
+                                onSelectRow?.(null);
+                              }
+                            },
+                            variant: 'default' as const
+                          }] : []),
                           ...(data.length > 1 ? [{
                             label: '削除',
                             icon: TABLE_ICONS.delete,
                             onClick: () => onDeleteRow(index),
-                            variant: 'danger' as const
+                            variant: 'default' as const
                           }] : [])
                         ]
                       }
