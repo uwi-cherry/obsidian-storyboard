@@ -6,8 +6,10 @@ import { t } from '../../../obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import useStoryboardData from '../../hooks/useStoryboardData';
 import { StoryboardData, StoryboardFrame } from '../../types/storyboard';
+import BGMCreationInput from './BGMCreationInput';
 import CharacterEditModal from './CharacterEditModal';
 import ImageInputCell from './ImageInputCell';
+import NewChapterBGMInput from './NewChapterBGMInput';
 import PreviewCell from './PreviewCell';
 import SpeakerDialogueCell from './SpeakerDialogueCell';
 
@@ -269,36 +271,28 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
               className={`inline-block transition-transform ${openChapters[cIdx] ? 'rotate-90' : ''}`}
               dangerouslySetInnerHTML={{ __html: FOLD_ICON_SVG }}
             />
-            <input
-              className="w-full border-none bg-transparent focus:outline-none text-2xl font-bold"
-              value={chapter.bgmPrompt ?? ''}
-              ref={el => {
-                bgmRefs.current[cIdx] = el;
-              }}
-              onClick={e => e.stopPropagation()}
-              onChange={e => {
-                const bgmPrompt = e.target.value;
-                setStoryboard(prev => {
-                  const chapters = prev.chapters.map((ch, idx) =>
-                    idx === cIdx ? { ...ch, bgmPrompt } : ch
-                  );
-                  const updated = { ...prev, chapters };
-                  handleDataChange(updated);
-                  return updated;
-                });
-              }}
-            />
-            <button
-              className="text-text-faint hover:text-error text-base px-1 py-0.5 leading-none"
-              onClick={e => {
-                e.preventDefault();
-                e.stopPropagation();
-                deleteChapter(cIdx);
-                setOpenChapters(prev => prev.filter((_, i) => i !== cIdx));
-              }}
-              title={t('DELETE')}
-              dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
-            />
+            <div className="flex-1">
+              <BGMCreationInput
+                value={chapter.bgmPrompt ?? ''}
+                onChange={(bgmPrompt) => {
+                  setStoryboard(prev => {
+                    const chapters = prev.chapters.map((ch, idx) =>
+                      idx === cIdx ? { ...ch, bgmPrompt } : ch
+                    );
+                    const updated = { ...prev, chapters };
+                    handleDataChange(updated);
+                    return updated;
+                  });
+                }}
+                onDelete={() => {
+                  deleteChapter(cIdx);
+                  setOpenChapters(prev => prev.filter((_, i) => i !== cIdx));
+                }}
+                inputRef={(el) => {
+                  bgmRefs.current[cIdx] = el;
+                }}
+              />
+            </div>
           </summary>
           <EditableTable<StoryboardFrame>
             data={chapter.frames}
@@ -330,30 +324,16 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
           />
         </details>
       ))}
-      <table className="w-full border-collapse border border-modifier-border mb-4 table-fixed">
-        <tbody>
-          <tr className="bg-secondary hover:bg-modifier-hover">
-            <td className="border border-modifier-border px-4 py-2" colSpan={columns.length + 1}>
-              <input
-                type="text"
-                className="w-full border-none bg-transparent focus:outline-none text-center text-text-muted hover:text-text-normal"
-                placeholder={t('NEW_CHAPTER_PLACEHOLDER')}
-                value={newChapterBgm}
-                onChange={e => {
-                  const value = e.target.value;
-                  if (value.length > 0) {
-                    addChapter(value);
-                    setOpenChapters(prev => [...prev, true]);
-                    setNewChapterBgm('');
-                  } else {
-                    setNewChapterBgm(value);
-                  }
-                }}
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <NewChapterBGMInput
+        value={newChapterBgm}
+        onChange={setNewChapterBgm}
+        onSubmit={(value) => {
+          addChapter(value);
+          setOpenChapters(prev => [...prev, true]);
+          setNewChapterBgm('');
+        }}
+        columnsCount={columns.length}
+      />
     </>
   );
 };
