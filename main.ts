@@ -9,28 +9,28 @@ import { SettingsPlugin } from './src-new/obsidian-api/settings/settings-plugin'
  * メインプラグインクラス
  */
 export default class MyPlugin extends Plugin {
-  private painterFactory: PainterPlugin;
-  private rightSidebarFactory: RightSidebarPlugin;
-  private timelineFactory: TimelinePlugin;
-  private storyboardFactory: StoryboardPlugin;
-  private settingsFactory: SettingsPlugin;
+  private painterPlugin: PainterPlugin;
+  private rightSidebarPlugin: RightSidebarPlugin;
+  private timelinePlugin: TimelinePlugin;
+  private storyboardPlugin: StoryboardPlugin;
+  private settingsPlugin: SettingsPlugin;
 
   async onload() {
     console.log('🚀 Loading plugin...');
 
     // Obsidian API層の初期化
-    this.painterFactory = new PainterPlugin(this);
-    this.rightSidebarFactory = new RightSidebarPlugin(this);
-    this.timelineFactory = new TimelinePlugin(this);
-    this.storyboardFactory = new StoryboardPlugin(this);
-    this.settingsFactory = new SettingsPlugin(this);
+    this.painterPlugin = new PainterPlugin(this);
+    this.rightSidebarPlugin = new RightSidebarPlugin(this);
+    this.timelinePlugin = new TimelinePlugin(this);
+    this.storyboardPlugin = new StoryboardPlugin(this);
+    this.settingsPlugin = new SettingsPlugin(this);
 
     // 各ファクトリの初期化
-    this.painterFactory.initialize();
-    this.rightSidebarFactory.initialize();
-    this.timelineFactory.initialize();
-    this.storyboardFactory.initialize();
-    this.settingsFactory.initialize();
+    this.painterPlugin.initialize();
+    this.rightSidebarPlugin.initialize();
+    this.timelinePlugin.initialize();
+    this.storyboardPlugin.initialize();
+    this.settingsPlugin.initialize();
 
     console.log('✅ Plugin loaded successfully');
   }
