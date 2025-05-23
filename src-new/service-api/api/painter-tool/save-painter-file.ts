@@ -1,7 +1,7 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
-import { Layer } from '../../../types/painter-types';
+import { Layer } from 'src-new/types/painter-types';
 
 function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasElement {
   if (typeof HTMLCanvasElement !== 'undefined' && layer.canvas instanceof HTMLCanvasElement) {

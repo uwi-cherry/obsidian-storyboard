@@ -21,7 +21,7 @@ export default function LayerControls() {
     const file = e.target.files?.[0];
     if (!file) return;
     const vaultFiles = view.app.vault.getFiles();
-    const found = vaultFiles.find(f => f.name === file.name);
+    const found = vaultFiles.find((f: TFile) => f.name === file.name);
     let tFile: TFile;
     if (found) {
       tFile = found;

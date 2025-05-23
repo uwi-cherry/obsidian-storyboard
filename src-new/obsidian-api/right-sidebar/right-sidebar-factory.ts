@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { RightSidebarView } from './right-sidebar-view';
-import SidebarReactView from '../../react/app/sidebar/Page';
+import RightSidebarReactView from '../../react/app/right-sidebar/Page';
 import { LayerProvider } from '../../react/context/LayerContext';
 
 /**
@@ -37,9 +37,7 @@ export class RightSidebarFactory {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
     view.reactRoot.render(
-      React.createElement(LayerProvider, { view },
-        React.createElement(SidebarReactView)
-      )
+      React.createElement(RightSidebarReactView, { view, app: view.app })
     );
   }
 }

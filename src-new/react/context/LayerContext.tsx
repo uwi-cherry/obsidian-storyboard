@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { Layer } from '../../obsidian-api/painter/painter-types';
+import { Layer } from '../../types/painter-types';
 
 interface LayerContextValue {
+  view: any;
   layers: Layer[];
   currentLayerIndex: number;
   setLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
@@ -33,7 +34,7 @@ export function LayerProvider({ view, children }: ProviderProps) {
   }, [layers, currentLayerIndex, view]);
 
   return (
-    <LayerContext.Provider value={{ layers, currentLayerIndex, setLayers, setCurrentLayerIndex }}>
+    <LayerContext.Provider value={{ view, layers, currentLayerIndex, setLayers, setCurrentLayerIndex }}>
       {children}
     </LayerContext.Provider>
   );
