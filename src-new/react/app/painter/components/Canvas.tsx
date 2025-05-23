@@ -9,7 +9,7 @@ interface CanvasProps {
 }
 
 export default function PainterCanvas({ pointer, onTransform }: CanvasProps) {
-  const { layers, currentLayerIndex, setLayers } = useLayerContext();
+  const { view, layers, currentLayerIndex, setLayers } = useLayerContext();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { zoom, rotation } = useCanvasTransform(canvasRef.current);
 
@@ -64,6 +64,7 @@ export default function PainterCanvas({ pointer, onTransform }: CanvasProps) {
           lctx.lineWidth = pointer.lineWidth;
         }
       }
+      view.saveHistory();
     };
 
     const handleMove = (e: PointerEvent) => {
@@ -86,7 +87,10 @@ export default function PainterCanvas({ pointer, onTransform }: CanvasProps) {
     };
 
     const handleUp = () => {
-      drawing = false;
+      if (drawing) {
+        drawing = false;
+        view.saveHistory();
+      }
     };
 
     canvas.addEventListener('pointerdown', handleDown);

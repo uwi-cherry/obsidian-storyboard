@@ -3,6 +3,7 @@ import { Layer } from '../../obsidian-api/painter/painter-types';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 
 interface LayerContextValue {
+  view: any;
   layers: Layer[];
   currentLayerIndex: number;
   setLayers: React.Dispatch<React.SetStateAction<Layer[]>>;
@@ -35,8 +36,12 @@ export function LayerProvider({ view, children }: ProviderProps) {
             file: view.file
           });
           const data = JSON.parse(result);
-          setLayers(data.layers || []);
+          const ls = data.layers || [];
+          setLayers(ls);
           setCurrentLayerIndex(0);
+          view.layers = ls;
+          view.currentLayerIndex = 0;
+          view.saveHistory();
         } catch (e) {
           console.error('PSD読み込み失敗', e);
         }
@@ -49,10 +54,12 @@ export function LayerProvider({ view, children }: ProviderProps) {
           ctx.fillStyle = 'white';
           ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
-        setLayers([
-          { name: 'Background', visible: true, opacity: 1, blendMode: 'normal', canvas }
-        ]);
+        const initial = [{ name: 'Background', visible: true, opacity: 1, blendMode: 'normal', canvas }];
+        setLayers(initial);
         setCurrentLayerIndex(0);
+        view.layers = initial;
+        view.currentLayerIndex = 0;
+        view.saveHistory();
       }
     };
     load();
@@ -73,7 +80,7 @@ export function LayerProvider({ view, children }: ProviderProps) {
   }, [layers, currentLayerIndex, view]);
 
   return (
-    <LayerContext.Provider value={{ layers, currentLayerIndex, setLayers, setCurrentLayerIndex }}>
+    <LayerContext.Provider value={{ view, layers, currentLayerIndex, setLayers, setCurrentLayerIndex }}>
       {children}
     </LayerContext.Provider>
   );

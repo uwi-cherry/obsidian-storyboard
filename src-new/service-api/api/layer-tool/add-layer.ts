@@ -74,6 +74,7 @@ namespace Internal {
     view.currentLayerIndex = 0;
     view.setLayers?.(newLayers);
     view.setCurrentLayerIndex?.(0);
+    view.saveHistory?.();
 
     return 'layer_added';
   }

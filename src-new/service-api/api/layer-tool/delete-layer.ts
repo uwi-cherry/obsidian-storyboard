@@ -31,6 +31,7 @@ namespace Internal {
     }
     view.setLayers?.(newLayers);
     view.setCurrentLayerIndex?.(view.currentLayerIndex);
+    view.saveHistory?.();
     return 'layer_deleted';
   }
 }
