@@ -3,22 +3,40 @@
 	"version": "1.0.0",
 	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
+	"type": "module",
 	"scripts": {
-		"dev": "node esbuild.config.mjs",
-		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
-		"version": "node version-bump.mjs && git add manifest.json versions.json"
+		"dev": "tailwindcss -i ./src-new/styles.css -o ./styles.css && node esbuild.config.mjs",
+		"build": "tailwindcss -i ./src-new/styles.css -o ./styles.css --minify && node esbuild.config.mjs production",
+		"version": "node version-bump.mjs && git add manifest.json versions.json",
+		"test": "node --test test/**/*.test.js",
+		"test:watch": "node --test --watch test/**/*.test.js",
+		"test:coverage": "node --test --experimental-test-coverage test/**/*.test.js"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "MIT",
+	"dependencies": {
+		"@ffmpeg/core": "^0.12.10",
+		"ag-psd": "^28.0.1",
+                "replicate": "^0.25.0",
+                "@fal-ai/serverless-client": "^0.9.0",
+                "react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	},
 	"devDependencies": {
 		"@types/node": "^16.11.6",
+		"@types/react": "^18.0.0",
+		"@types/react-dom": "^18.0.0",
 		"@typescript-eslint/eslint-plugin": "5.29.0",
 		"@typescript-eslint/parser": "5.29.0",
 		"builtin-modules": "3.3.0",
-		"esbuild": "0.17.3",
+		"esbuild": "^0.25.4",
 		"obsidian": "latest",
+		"tailwindcss": "^3.4.0",
 		"tslib": "2.4.0",
-		"typescript": "4.7.4"
+		"typescript": "4.7.4",
+		"jest-environment-obsidian": "^1.0.0",
+		"esmock": "^2.6.0",
+		"sinon": "^17.0.0"
 	}
 }
