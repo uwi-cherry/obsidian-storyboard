@@ -1,12 +1,22 @@
 import React from 'react';
+import MenuIconButton from './MenuIconButton';
+
+interface MenuOption {
+  label: string;
+  icon?: string;
+  onClick: () => void;
+  disabled?: boolean;
+  variant?: 'default' | 'danger';
+}
 
 interface IconButton {
   icon: string;
-  onClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   title?: string;
   disabled?: boolean;
   variant?: 'primary' | 'accent' | 'secondary' | 'danger';
   className?: string;
+  menuOptions?: MenuOption[];
 }
 
 interface IconButtonGroupProps {
@@ -40,16 +50,32 @@ const IconButtonGroup: React.FC<IconButtonGroupProps> = ({
 
   return (
     <div className={`flex ${directionClass} ${gap} ${className}`}>
-      {buttons.map((button, index) => (
-        <button
-          key={index}
-          className={`p-1 rounded cursor-pointer disabled:opacity-50 flex items-center justify-center ${getVariantClasses(button.variant)} ${button.className || ''}`}
-          onClick={button.onClick}
-          disabled={button.disabled}
-          title={button.title}
-          dangerouslySetInnerHTML={{ __html: button.icon }}
-        />
-      ))}
+      {buttons.map((button, index) => {
+        if (button.menuOptions && button.menuOptions.length > 0) {
+          return (
+            <MenuIconButton
+              key={index}
+              icon={button.icon}
+              title={button.title}
+              options={button.menuOptions}
+              className={button.className}
+              disabled={button.disabled}
+              variant={button.variant}
+            />
+          );
+        }
+        
+        return (
+          <button
+            key={index}
+            className={`p-1 rounded cursor-pointer disabled:opacity-50 flex items-center justify-center ${getVariantClasses(button.variant)} ${button.className || ''}`}
+            onClick={button.onClick}
+            disabled={button.disabled}
+            title={button.title}
+            dangerouslySetInnerHTML={{ __html: button.icon }}
+          />
+        );
+      })}
     </div>
   );
 };
