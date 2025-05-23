@@ -1,0 +1,17 @@
+{
+  "tools": [
+    {
+      "name": "hello_tool",
+      "modulePath": "./hello-tool",
+      "exportName": "helloTool",
+      "ai_enabled": true,
+      "description": "Basic greeting tool for testing",
+      "category": "utility"
+    }
+  ],
+  "config": {
+    "autoRegister": true,
+    "enableLogging": true,
+    "failOnError": false
+  }
+} 

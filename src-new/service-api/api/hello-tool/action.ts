@@ -1,4 +1,4 @@
-import { Tool } from './tool';
+import { Tool } from '../../core/tool';
 
 /**
  * Hello Tool - 基本的な挨拶ツール
