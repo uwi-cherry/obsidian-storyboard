@@ -248,14 +248,41 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     const chapter = newStoryboard.chapters[chapterIndex];
     
     if (chapter && chapter.frames) {
-      // 現在は1行だけ移動（将来的には複数選択にも対応可能）
-      const [movedFrame] = chapter.frames.splice(fromRowIndex, 1);
-      chapter.frames.splice(toRowIndex, 0, movedFrame);
+      // 現在の章で選択された行のインデックスを取得
+      const selectedInThisChapter = selectedRowPositions
+        .filter(pos => pos.chapterIndex === chapterIndex)
+        .map(pos => pos.rowIndex)
+        .sort((a, b) => a - b); // 昇順でソート
+      
+      if (selectedInThisChapter.length > 0) {
+        // 選択された行のデータを抽出
+        const selectedFrames = selectedInThisChapter.map(index => chapter.frames[index]);
+        
+        // 降順で削除（インデックスがずれないように）
+        selectedInThisChapter.reverse().forEach(index => {
+          chapter.frames.splice(index, 1);
+        });
+        
+        // 移動先のインデックスを調整（削除された行の分だけ調整）
+        let adjustedToIndex = toRowIndex;
+        selectedInThisChapter.forEach(deletedIndex => {
+          if (deletedIndex < toRowIndex) {
+            adjustedToIndex--;
+          }
+        });
+        
+        // 選択された行を移動先に挿入
+        chapter.frames.splice(adjustedToIndex, 0, ...selectedFrames);
+      } else {
+        // 選択されていない場合は従来の1行移動
+        const [movedFrame] = chapter.frames.splice(fromRowIndex, 1);
+        chapter.frames.splice(toRowIndex, 0, movedFrame);
+      }
       
       setStoryboard(newStoryboard);
       handleDataChange(newStoryboard);
     }
-  }, [storyboard, setStoryboard, handleDataChange]);
+  }, [storyboard, setStoryboard, handleDataChange, selectedRowPositions]);
   
   // 選択状態の管理
   const handleSelectRow = useCallback((chapterIndex: number, rowIndex: number, isSelected: boolean) => {
