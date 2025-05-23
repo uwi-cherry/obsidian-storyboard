@@ -2,7 +2,7 @@ import { FileView } from 'obsidian';
 import { Root } from 'react-dom/client';
 import type { Dispatch, SetStateAction } from 'react';
 import type { Layer } from './painter-types';
-import { MAX_HISTORY_SIZE } from '../../constants';
+import { MAX_HISTORY_SIZE, DEFAULT_COLOR } from '../../constants';
 
 /**
  * Painter View - Basic Obsidian View
@@ -13,6 +13,12 @@ export class PainterView extends FileView {
   public currentLayerIndex = 0;
   public setLayers?: Dispatch<SetStateAction<any[]>>;
   public setCurrentLayerIndex?: Dispatch<SetStateAction<number>>;
+
+  public currentTool = 'brush';
+  public currentLineWidth = 5;
+  public currentColor = DEFAULT_COLOR;
+  public zoom = 100;
+  public rotation = 0;
 
   // layer history for undo/redo
   private history: { layers: Layer[] }[] = [];
