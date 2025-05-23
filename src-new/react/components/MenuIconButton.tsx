@@ -102,7 +102,7 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute top-full right-0 mt-1 bg-background border border-modifier-border rounded shadow-lg py-1 min-w-[120px] z-50"
+          className="absolute top-full right-0 mt-1 bg-canvas border border-modifier-border rounded shadow-lg py-1 min-w-[120px] z-50"
         >
           {options.map((option, index) => (
             <button

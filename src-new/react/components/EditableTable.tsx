@@ -173,15 +173,12 @@ const EditableTable = <T,>({
                             onClick: () => onMoveRowDown(index),
                             variant: 'default' as const
                           }] : []),
-                          {
+                          ...(data.length > 1 ? [{
                             label: '削除',
                             icon: TABLE_ICONS.delete,
-                            onClick: () => {
-                              if (data.length > 1) onDeleteRow(index);
-                            },
-                            disabled: data.length <= 1,
+                            onClick: () => onDeleteRow(index),
                             variant: 'danger' as const
-                          }
+                          }] : [])
                         ]
                       }
                     ]}
