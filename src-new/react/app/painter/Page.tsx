@@ -1,17 +1,32 @@
-import React from 'react';
-import { useLayerContext } from '../../context/LayerContext';
+import React, { useState } from 'react';
+import usePainterPointer from '../../hooks/usePainterPointer';
+import Toolbar from './components/Toolbar';
+import ToolProperties from './components/ToolProperties';
+import CanvasContainer from './components/CanvasContainer';
+import PainterCanvas from './components/Canvas';
 
 export default function PainterReactView() {
-  const { layers, currentLayerIndex, setLayers } = useLayerContext();
+  const pointer = usePainterPointer();
+  const [zoom, setZoom] = useState(100);
+  const [rotation, setRotation] = useState(0);
 
   return (
-    <div className="painter-view">
-      <h2>Painter View (PSD)</h2>
-      <p>Layers: {layers.length}</p>
-      <p>Current Layer: {currentLayerIndex}</p>
-      <button onClick={() => setLayers([...layers, { name: 'New Layer', visible: true, opacity: 1, blendMode: 'normal', canvas: document.createElement('canvas') }])}>
-        Add Layer
-      </button>
+    <div className="flex flex-1 overflow-hidden">
+      <Toolbar tool={pointer.tool} onChange={pointer.setTool} />
+      <ToolProperties
+        tool={pointer.tool}
+        lineWidth={pointer.lineWidth}
+        color={pointer.color}
+        zoom={zoom}
+        rotation={rotation}
+        setLineWidth={pointer.setLineWidth}
+        setColor={pointer.setColor}
+        setZoom={setZoom}
+        setRotation={setRotation}
+      />
+      <CanvasContainer>
+        <PainterCanvas pointer={pointer} onTransform={(z, r) => { setZoom(z); setRotation(r); }} />
+      </CanvasContainer>
     </div>
   );
 }
