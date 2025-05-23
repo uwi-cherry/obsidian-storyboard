@@ -44,13 +44,7 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
   };
 
   const getMenuOptionClasses = (optionVariant: MenuOption['variant'] = 'default') => {
-    switch (optionVariant) {
-      case 'danger':
-        return 'text-error hover:bg-error hover:text-on-error';
-      case 'default':
-      default:
-        return 'text-text-normal hover:bg-modifier-hover';
-    }
+    return 'text-gray-700 hover:bg-gray-100';
   };
 
   // メニューを開く/閉じる
@@ -102,22 +96,22 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute top-full right-0 mt-1 bg-canvas border border-modifier-border rounded shadow-lg py-1 min-w-[120px] z-50"
+          className="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-xl py-2 z-50 whitespace-nowrap"
         >
           {options.map((option, index) => (
             <button
               key={index}
-              className={`w-full text-left px-3 py-1.5 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${getMenuOptionClasses(option.variant)}`}
+              className={`w-full text-left px-4 py-2 text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-3 transition-colors ${getMenuOptionClasses(option.variant)}`}
               onClick={(e) => handleOptionClick(option, e)}
               disabled={option.disabled}
             >
               {option.icon && (
                 <span 
-                  className="w-4 h-4 flex items-center justify-center"
+                  className="w-4 h-4 flex items-center justify-center flex-shrink-0"
                   dangerouslySetInnerHTML={{ __html: option.icon }} 
                 />
               )}
-              <span>{option.label}</span>
+              <span className="font-medium">{option.label}</span>
             </button>
           ))}
         </div>
