@@ -49,6 +49,22 @@
       "category": "painter"
     },
     {
+      "name": "load_painter_file",
+      "modulePath": "../../src-new/service-api/api/painter-tool/load-painter-file",
+      "exportName": "loadPainterFileTool",
+      "ai_enabled": false,
+      "description": "Load PSD file",
+      "category": "painter"
+    },
+    {
+      "name": "save_painter_file",
+      "modulePath": "../../src-new/service-api/api/painter-tool/save-painter-file",
+      "exportName": "savePainterFileTool",
+      "ai_enabled": false,
+      "description": "Save PSD file",
+      "category": "painter"
+    },
+    {
       "name": "undo_painter",
       "modulePath": "../../src-new/service-api/api/painter-tool/undo-painter",
       "exportName": "undoPainterTool",

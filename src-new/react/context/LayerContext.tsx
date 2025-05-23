@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { Layer } from '../../obsidian-api/painter/painter-types';
+import { toolRegistry } from '../../service-api/core/tool-registry';
 
 interface LayerContextValue {
   layers: Layer[];
@@ -26,10 +27,49 @@ export function LayerProvider({ view, children }: ProviderProps) {
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(view.currentLayerIndex || 0);
 
   useEffect(() => {
+    const load = async () => {
+      if (view.file) {
+        try {
+          const result = await toolRegistry.executeTool('load_painter_file', {
+            app: view.app,
+            file: view.file
+          });
+          const data = JSON.parse(result);
+          setLayers(data.layers || []);
+          setCurrentLayerIndex(0);
+        } catch (e) {
+          console.error('PSD読み込み失敗', e);
+        }
+      } else {
+        const canvas = document.createElement('canvas');
+        canvas.width = 800;
+        canvas.height = 600;
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+        setLayers([
+          { name: 'Background', visible: true, opacity: 1, blendMode: 'normal', canvas }
+        ]);
+        setCurrentLayerIndex(0);
+      }
+    };
+    load();
+  }, [view]);
+
+  useEffect(() => {
     view.layers = layers;
     view.currentLayerIndex = currentLayerIndex;
     view.setLayers = setLayers;
     view.setCurrentLayerIndex = setCurrentLayerIndex;
+    if (view.file) {
+      toolRegistry.executeTool('save_painter_file', {
+        app: view.app,
+        file: view.file,
+        layers
+      }).catch((e) => console.error('PSD保存失敗', e));
+    }
   }, [layers, currentLayerIndex, view]);
 
   return (
