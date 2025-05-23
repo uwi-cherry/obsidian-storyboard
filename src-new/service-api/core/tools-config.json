@@ -2,7 +2,7 @@
   "tools": [
     {
       "name": "hello_tool",
-      "modulePath": "./hello-tool",
+      "modulePath": "../api/hello-tool/action",
       "exportName": "helloTool",
       "ai_enabled": true,
       "description": "Basic greeting tool for testing",
