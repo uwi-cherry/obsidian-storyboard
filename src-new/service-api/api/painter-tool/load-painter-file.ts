@@ -3,6 +3,20 @@ import { App, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
 import { Layer } from '../../../obsidian-api/painter/painter-types';
 
+function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
+  if (typeof HTMLCanvasElement !== 'undefined' && obj instanceof HTMLCanvasElement) return obj;
+  if (typeof document === 'undefined' || typeof HTMLCanvasElement === 'undefined') return obj as HTMLCanvasElement;
+  const canvas = document.createElement('canvas');
+  canvas.width = obj?.width ?? width;
+  canvas.height = obj?.height ?? height;
+  const ctx = canvas.getContext('2d');
+  if (ctx && obj?.data) {
+    const imageData = new ImageData(new Uint8ClampedArray(obj.data), canvas.width, canvas.height);
+    ctx.putImageData(imageData, 0, 0);
+  }
+  return canvas;
+}
+
 namespace Internal {
   export interface LoadPainterFileInput {
     app: App;
@@ -39,7 +53,7 @@ namespace Internal {
       visible: !layer.hidden,
       opacity: layer.opacity,
       blendMode: layer.blendMode,
-      canvas: layer.canvas as HTMLCanvasElement
+      canvas: toCanvas(layer.canvas, psd.width, psd.height)
     }));
     const result = {
       width: psd.width,

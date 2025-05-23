@@ -63,6 +63,12 @@ export function t(key: string): string {
       'CANVAS_SIZE': 'キャンバスサイズ',
       'ZOOM_LEVEL': '拡大率',
       'ROTATION_ANGLE': '回転角'
+      , 'LAYERS': 'レイヤー'
+      , 'NEW_LAYER': '新規レイヤー'
+      , 'IMAGE_LAYER': '画像レイヤー'
+      , 'DELETE_LAYER': 'レイヤー削除'
+      , 'ENTER_LAYER_NAME': 'レイヤー名を入力'
+      , 'BACKGROUND': '背景'
     };
     return jaTranslations[key] || key;
   }
@@ -106,7 +112,13 @@ export function t(key: string): string {
     'SELECT_MAGIC': 'Magic wand',
     'CANVAS_SIZE': 'Canvas Size',
     'ZOOM_LEVEL': 'Zoom',
-    'ROTATION_ANGLE': 'Rotation'
+    'ROTATION_ANGLE': 'Rotation',
+    'LAYERS': 'Layers',
+    'NEW_LAYER': 'New Layer',
+    'IMAGE_LAYER': 'Image Layer',
+    'DELETE_LAYER': 'Delete Layer',
+    'ENTER_LAYER_NAME': 'Enter layer name',
+    'BACKGROUND': 'Background'
   };
   return enTranslations[key] || key;
 } 

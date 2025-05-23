@@ -11,7 +11,7 @@ interface CanvasProps {
 export default function PainterCanvas({ pointer, onTransform }: CanvasProps) {
   const { view, layers, currentLayerIndex, setLayers } = useLayerContext();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const { zoom, rotation } = useCanvasTransform(canvasRef.current);
+  const { zoom, rotation } = useCanvasTransform(canvasRef.current, view);
 
   useEffect(() => {
     onTransform?.(zoom, rotation);

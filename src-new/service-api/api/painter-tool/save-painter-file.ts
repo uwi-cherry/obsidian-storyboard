@@ -3,6 +3,22 @@ import { App, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
 import { Layer } from '../../../obsidian-api/painter/painter-types';
 
+function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasElement {
+  if (typeof HTMLCanvasElement !== 'undefined' && layer.canvas instanceof HTMLCanvasElement) return layer.canvas;
+  if (typeof document === 'undefined' || typeof HTMLCanvasElement === 'undefined') return layer.canvas as any;
+  const canvas = document.createElement('canvas');
+  canvas.width = layer.canvas?.width ?? width;
+  canvas.height = layer.canvas?.height ?? height;
+  const ctx = canvas.getContext('2d');
+  const src = layer.canvas as any;
+  if (ctx && src?.data) {
+    const imageData = new ImageData(new Uint8ClampedArray(src.data), canvas.width, canvas.height);
+    ctx.putImageData(imageData, 0, 0);
+  }
+  layer.canvas = canvas;
+  return canvas;
+}
+
 namespace Internal {
   export interface SavePainterFileInput {
     app: App;
@@ -27,8 +43,9 @@ namespace Internal {
   export async function executeSavePainterFile(args: SavePainterFileInput): Promise<string> {
     const { app, file, layers } = args;
     if (!layers || layers.length === 0) return 'no-op';
-    const width = layers[0].canvas.width;
-    const height = layers[0].canvas.height;
+    const first = ensureCanvas(layers[0], layers[0].canvas.width || 1, layers[0].canvas.height || 1);
+    const width = first.width;
+    const height = first.height;
     const composite = document.createElement('canvas');
     composite.width = width;
     composite.height = height;
@@ -36,25 +53,29 @@ namespace Internal {
     if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
     ctx.clearRect(0, 0, width, height);
     for (const layer of layers) {
+      const c = ensureCanvas(layer, width, height);
       if (layer.visible) {
         ctx.globalAlpha = layer.opacity ?? 1;
         const blend = layer.blendMode === 'normal' ? 'source-over' : layer.blendMode;
         ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
-        ctx.drawImage(layer.canvas, 0, 0);
+        ctx.drawImage(c, 0, 0);
       }
     }
     const psdData = {
       width,
       height,
-      children: layers.map(l => ({
-        name: l.name,
-        canvas: l.canvas,
-        hidden: !l.visible,
-        opacity: l.opacity,
-        blendMode: l.blendMode,
-        left: 0,
-        top: 0
-      })),
+      children: layers.map(l => {
+        const c = ensureCanvas(l, width, height);
+        return {
+          name: l.name,
+          canvas: c,
+          hidden: !l.visible,
+          opacity: l.opacity,
+          blendMode: l.blendMode,
+          left: 0,
+          top: 0
+        };
+      }),
       canvas: composite
     } as agPsd.Psd;
     const buffer = agPsd.writePsd(psdData, { generateThumbnail: false });
