@@ -133,7 +133,7 @@ const EditableTable = <T,>({
           {data.map((row, index) => {
             const isSelected = selectedRowIndex === index;
             return (
-              <tr key={index} className={`hover:bg-modifier-hover ${isSelected ? 'bg-accent-hover border-l-4 border-l-accent' : ''}`} onClick={() => onRowClick?.(row, index)}>
+              <tr key={index} className={`${isSelected ? 'bg-accent text-on-accent' : 'hover:bg-modifier-hover'}`} onClick={() => onRowClick?.(row, index)}>
                 {columns.map((col) => {
                   return (
                     <td
