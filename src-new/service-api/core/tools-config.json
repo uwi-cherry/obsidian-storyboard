@@ -47,6 +47,30 @@
       "ai_enabled": false,
       "description": "Save storyboard data to file",
       "category": "storyboard"
+    },
+    {
+      "name": "create_painter_file",
+      "modulePath": "../../src-new/service-api/api/painter-tool/create-painter-file",
+      "exportName": "createPainterFileTool",
+      "ai_enabled": false,
+      "description": "Create new PSD file",
+      "category": "painter"
+    },
+    {
+      "name": "undo_painter",
+      "modulePath": "../../src-new/service-api/api/painter-tool/undo-painter",
+      "exportName": "undoPainterTool",
+      "ai_enabled": false,
+      "description": "Undo painter view",
+      "category": "painter"
+    },
+    {
+      "name": "redo_painter",
+      "modulePath": "../../src-new/service-api/api/painter-tool/redo-painter",
+      "exportName": "redoPainterTool",
+      "ai_enabled": false,
+      "description": "Redo painter view",
+      "category": "painter"
     }
   ],
   "config": {

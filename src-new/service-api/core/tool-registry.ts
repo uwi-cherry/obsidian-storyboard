@@ -10,6 +10,9 @@ import { renameFileExtensionTool } from '../api/storyboard-tool/rename-file-exte
 import { toggleStoryboardViewTool } from '../api/storyboard-tool/toggle-storyboard-view';
 import { loadStoryboardDataTool } from '../api/storyboard-tool/load-storyboard-data';
 import { saveStoryboardDataTool } from '../api/storyboard-tool/save-storyboard-data';
+import { createPainterFileTool } from '../api/painter-tool/create-painter-file';
+import { undoPainterTool } from '../api/painter-tool/undo-painter';
+import { redoPainterTool } from '../api/painter-tool/redo-painter';
 
 /**
  * 内部実装 - 外部からアクセス不可
@@ -26,7 +29,10 @@ namespace Internal {
     'rename_file_extension': renameFileExtensionTool,
     'toggle_storyboard_view': toggleStoryboardViewTool,
     'load_storyboard_data': loadStoryboardDataTool,
-    'save_storyboard_data': saveStoryboardDataTool
+    'save_storyboard_data': saveStoryboardDataTool,
+    'create_painter_file': createPainterFileTool,
+    'undo_painter': undoPainterTool,
+    'redo_painter': redoPainterTool
   };
 
   /**
