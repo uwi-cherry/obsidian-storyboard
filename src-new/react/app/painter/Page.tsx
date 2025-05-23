@@ -1,5 +1,4 @@
 import React from 'react';
-import PainterReactView from './components/PainterView';
 
 interface PainterPageProps {
   view?: any;
@@ -15,5 +14,4 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     );
   }
 
-  return <PainterReactView view={view} app={app} />;
 }
