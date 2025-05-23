@@ -1,7 +1,7 @@
 import { FileView, WorkspaceLeaf, TFile } from 'obsidian';
 import { createRoot, Root } from 'react-dom/client';
 import React from 'react';
-import TimelineReactView from '../react/TimelineReactView';
+import TimelineReactView from '../../react/TimelineReactView';
 
 export const TIMELINE_VIEW_TYPE = 'timeline-view';
 

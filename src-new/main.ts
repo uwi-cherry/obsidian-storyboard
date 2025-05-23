@@ -1,26 +1,26 @@
 import { Plugin } from 'obsidian';
-import { PainterFactory } from './obsidian-api/painter-factory';
-import { RightSidebarFactory } from './obsidian-api/right-sidebar-factory';
-import { TimelineFactory } from './obsidian-api/timeline-factory';
-import { StoryboardFactory } from './obsidian-api/storyboard-factory';
+import { PainterPlugin } from './obsidian-api/painter/painter-plugin';
+import { RightSidebarPlugin } from './obsidian-api/right-sidebar/right-sidebar-plugin';
+import { TimelinePlugin } from './obsidian-api/timeline/timeline-plugin';
+import { StoryboardPlugin } from './obsidian-api/storyboard/storyboard-plugin';
 
 /**
  * メインプラグインクラス
  */
 export default class MyPlugin extends Plugin {
-  private painterFactory: PainterFactory;
-  private rightSidebarFactory: RightSidebarFactory;
-  private timelineFactory: TimelineFactory;
-  private storyboardFactory: StoryboardFactory;
+  private painterFactory: PainterPlugin;
+  private rightSidebarFactory: RightSidebarPlugin;
+  private timelineFactory: TimelinePlugin;
+  private storyboardFactory: StoryboardPlugin;
 
   async onload() {
     console.log('🚀 Loading plugin...');
 
     // Obsidian API層の初期化
-    this.painterFactory = new PainterFactory(this);
-    this.rightSidebarFactory = new RightSidebarFactory(this);
-    this.timelineFactory = new TimelineFactory(this);
-    this.storyboardFactory = new StoryboardFactory(this);
+    this.painterFactory = new PainterPlugin(this);
+    this.rightSidebarFactory = new RightSidebarPlugin(this);
+    this.timelineFactory = new TimelinePlugin(this);
+    this.storyboardFactory = new StoryboardPlugin(this);
 
     // 各ファクトリの初期化
     this.painterFactory.initialize();

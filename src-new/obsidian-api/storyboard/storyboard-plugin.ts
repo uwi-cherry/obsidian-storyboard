@@ -1,7 +1,7 @@
 import { Plugin, addIcon, App, WorkspaceLeaf, MarkdownView } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
-import StoryboardReactView from '../react/StoryboardReactView';
+import StoryboardReactView from '../../react/StoryboardReactView';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
 const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();
@@ -9,7 +9,7 @@ const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap
 /**
  * Storyboard Factory - Markdown View Integration
  */
-export class StoryboardFactory {
+export class StoryboardPlugin {
   private plugin: Plugin;
 
   constructor(plugin: Plugin) {

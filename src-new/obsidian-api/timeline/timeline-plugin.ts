@@ -4,7 +4,7 @@ import { TIMELINE_VIEW_TYPE, createTimelineView } from './timeline-view';
 /**
  * Timeline Factory - Timeline View Registration
  */
-export class TimelineFactory {
+export class TimelinePlugin {
   private plugin: Plugin;
 
   constructor(plugin: Plugin) {

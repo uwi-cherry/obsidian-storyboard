@@ -2,12 +2,12 @@ import { Plugin } from 'obsidian';
 import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { RightSidebarView, RIGHT_SIDEBAR_VIEW_TYPE } from './right-sidebar-view';
-import SidebarReactView from '../react/SidebarReactView';
+import SidebarReactView from '../../react/SidebarReactView';
 
 /**
  * Right Sidebar Factory - React Injection
  */
-export class RightSidebarFactory {
+export class RightSidebarPlugin {
   private plugin: Plugin;
 
   constructor(plugin: Plugin) {

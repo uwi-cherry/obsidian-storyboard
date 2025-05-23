@@ -1,13 +1,13 @@
 import { Plugin, addIcon } from 'obsidian';
 import { createRoot } from 'react-dom/client';
 import React from 'react';
+import PainterReactView from '../../react/PainterReactView';
 import { PainterView } from './painter-view';
-import PainterReactView from '../react/PainterReactView';
 
 /**
  * Painter Factory - React Injection
  */
-export class PainterFactory {
+export class PainterPlugin {
   private plugin: Plugin;
 
   constructor(plugin: Plugin) {
