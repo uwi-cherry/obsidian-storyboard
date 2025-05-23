@@ -1,5 +1,7 @@
-import { Plugin, addIcon } from 'obsidian';
+import { Plugin, addIcon, TFile } from 'obsidian';
 import { PainterFactory } from './painter-factory';
+import { toolRegistry } from '../../service-api/core/tool-registry';
+import { PainterView } from './painter-view';
 
 /**
  * Painter Plugin - Obsidian Plugin Integration
@@ -18,18 +20,59 @@ export class PainterPlugin {
     this.plugin.registerView('psd-view', (leaf) => this.factory.createPainterView(leaf));
     this.plugin.registerExtensions(['psd', 'painter'], 'psd-view');
     
-    this.plugin.addRibbonIcon('palette', 'Open Painter', () => {
-      // サービスAPIが処理
+    this.plugin.addRibbonIcon('palette', 'Open Painter', async () => {
+      await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app });
+    });
+
+    this.plugin.addCommand({
+      id: 'add-blank-layer',
+      name: 'Add Blank Layer',
+      callback: async () => {
+        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
+        if (view) {
+          await toolRegistry.executeTool('add_layer', { view });
+        }
+      }
+    });
+
+    this.plugin.addCommand({
+      id: 'delete-current-layer',
+      name: 'Delete Current Layer',
+      callback: async () => {
+        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
+        if (view) {
+          await toolRegistry.executeTool('delete_layer', { view, index: view.currentLayerIndex });
+        }
+      }
+    });
+
+    this.plugin.app.workspace.on('file-menu', (menu, file) => {
+      if (file instanceof TFile && file.extension.toLowerCase().match(/^(png|jpe?g|gif|webp)$/)) {
+        menu.addItem((item) => {
+          item
+            .setTitle('PSDで開く')
+            .setIcon('image')
+            .onClick(async () => {
+              await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app, imageFile: file });
+            });
+        });
+      }
     });
     
     this.plugin.registerDomEvent(document, 'keydown', (evt: KeyboardEvent) => {
       if (evt.ctrlKey && evt.key === 'z' && !evt.shiftKey) {
         evt.preventDefault();
-        // サービスAPIが処理
+        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
+        if (view) {
+          toolRegistry.executeTool('undo_painter', { view });
+        }
       }
       if ((evt.ctrlKey && evt.shiftKey && evt.key === 'z') || (evt.ctrlKey && evt.key === 'y')) {
         evt.preventDefault();
-        // サービスAPIが処理
+        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
+        if (view) {
+          toolRegistry.executeTool('redo_painter', { view });
+        }
       }
     });
     

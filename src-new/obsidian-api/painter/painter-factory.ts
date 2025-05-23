@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { PainterView } from './painter-view';
 import PainterReactView from 'src-new/react/app/painter/Page';
+import { LayerProvider } from 'src-new/react/context/LayerContext';
 
 /**
  * Painter Factory - React Injection and View Creation
@@ -35,10 +36,10 @@ export class PainterFactory {
   private renderReactComponent(view: PainterView): void {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
-    view.reactRoot.render(React.createElement(PainterReactView, {
-      layers: [],
-      currentLayer: 0,
-      onLayerChange: () => {}
-    }));
+    view.reactRoot.render(
+      React.createElement(LayerProvider, { view },
+        React.createElement(PainterReactView)
+      )
+    );
   }
-} 
+}
