@@ -16,12 +16,12 @@ const BGMCreationInput: React.FC<BGMCreationInputProps> = ({
   onDelete,
   inputRef,
   className = '',
-  placeholder = 'BGMプロンプトを入力してください...'
+  placeholder = t('BGM_PROMPT_PLACEHOLDER')
 }) => {
   return (
     <div className={`flex items-center gap-2 p-2 border border-modifier-border rounded bg-secondary ${className}`}>
       <div className="flex items-center gap-2 flex-1">
-        <span className="text-sm text-text-muted min-w-fit">🎵 BGM:</span>
+        <span className="text-sm text-text-muted min-w-fit">🎵 {t('BGM_LABEL')}:</span>
         <input
           ref={inputRef}
           type="text"

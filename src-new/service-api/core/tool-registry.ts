@@ -4,7 +4,6 @@ import { ToolExecutor } from './tool-executor';
 import toolsConfig from './tools-config.json';
 
 // 静的インポート - 動的インポートの問題を回避
-import { helloTool } from '../api/hello-tool/action';
 import { createStoryboardFileTool } from '../api/storyboard-tool/create-storyboard-file';
 import { renameFileExtensionTool } from '../api/storyboard-tool/rename-file-extension';
 import { toggleStoryboardViewTool } from '../api/storyboard-tool/toggle-storyboard-view';
@@ -24,7 +23,6 @@ namespace Internal {
 
   // 静的ツールマッピング
   export const staticTools: Record<string, Tool<any>> = {
-    'hello_tool': helloTool,
     'create_storyboard_file': createStoryboardFileTool,
     'rename_file_extension': renameFileExtensionTool,
     'toggle_storyboard_view': toggleStoryboardViewTool,

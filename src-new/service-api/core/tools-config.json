@@ -1,14 +1,6 @@
 {
   "tools": [
     {
-      "name": "hello_tool",
-      "modulePath": "../../src-new/service-api/api/hello-tool/action",
-      "exportName": "helloTool",
-      "ai_enabled": true,
-      "description": "Basic greeting tool for testing",
-      "category": "utility"
-    },
-    {
       "name": "create_storyboard_file",
       "modulePath": "../../src-new/service-api/api/storyboard-tool/create-storyboard-file",
       "exportName": "createStoryboardFileTool",
