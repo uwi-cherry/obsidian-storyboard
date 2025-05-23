@@ -143,28 +143,8 @@ const EditableTable = <T,>({
                   <IconButtonGroup
                     direction="vertical"
                     gap="gap-y-1"
-                    className="items-start"
+                    className="items-center"
                     buttons={[
-                      ...(onMoveRowUp && index > 0 ? [{
-                        icon: TABLE_ICONS.moveUp,
-                        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-                          e.stopPropagation();
-                          onMoveRowUp(index);
-                        },
-                        title: '行を上に移動',
-                        variant: 'secondary' as const,
-                        className: 'text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none'
-                      }] : []),
-                      ...(onMoveRowDown && index < data.length - 1 ? [{
-                        icon: TABLE_ICONS.moveDown,
-                        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-                          e.stopPropagation();
-                          onMoveRowDown(index);
-                        },
-                        title: '行を下に移動',
-                        variant: 'secondary' as const,
-                        className: 'text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none'
-                      }] : []),
                       ...(onInsertRowBelow ? [{
                         icon: TABLE_ICONS.add,
                         onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -176,15 +156,33 @@ const EditableTable = <T,>({
                         className: 'text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none'
                       }] : []),
                       {
-                        icon: TABLE_ICONS.delete,
-                        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
-                          e.stopPropagation();
-                          if (data.length > 1) onDeleteRow(index);
-                        },
-                        title: '削除',
-                        disabled: data.length <= 1,
+                        icon: TABLE_ICONS.menu,
+                        title: '行操作',
                         variant: 'secondary' as const,
-                        className: `text-text-faint ${data.length > 1 ? 'hover:text-error' : 'opacity-50 cursor-not-allowed'} text-base px-1 py-0.5 leading-none`
+                        className: 'text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none',
+                        menuOptions: [
+                          ...(onMoveRowUp && index > 0 ? [{
+                            label: '行を上に移動',
+                            icon: TABLE_ICONS.moveUp,
+                            onClick: () => onMoveRowUp(index),
+                            variant: 'default' as const
+                          }] : []),
+                          ...(onMoveRowDown && index < data.length - 1 ? [{
+                            label: '行を下に移動',
+                            icon: TABLE_ICONS.moveDown,
+                            onClick: () => onMoveRowDown(index),
+                            variant: 'default' as const
+                          }] : []),
+                          {
+                            label: '削除',
+                            icon: TABLE_ICONS.delete,
+                            onClick: () => {
+                              if (data.length > 1) onDeleteRow(index);
+                            },
+                            disabled: data.length <= 1,
+                            variant: 'danger' as const
+                          }
+                        ]
                       }
                     ]}
                   />
@@ -198,9 +196,13 @@ const EditableTable = <T,>({
                 colSpan={columns.length + 1 }
                 className="border border-modifier-border px-4 py-2 text-center cursor-pointer text-text-muted hover:text-text-normal"
                 onClick={() => onAddRow()}
-                title="下に行を挿入"
-                dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
-              />
+                title="新しい行を追加"
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <span dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }} />
+                  <span className="text-sm">新しい行を追加</span>
+                </div>
+              </td>
             </tr>
           )}
         </tbody>
