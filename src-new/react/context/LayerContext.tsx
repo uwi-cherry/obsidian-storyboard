@@ -1,11 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from 'react';
 import { Layer, PainterView, PainterData } from '../../types/painter-types';
+import { SelectionState, SelectionController } from '../app/painter/components/SelectionController';
 
 interface LayerContextValue {
   view: PainterView | null;
   layers: Layer[];
   currentLayerIndex: number;
   painterData: PainterData | null;
+  selectionState: SelectionState | null;
+  selectionController: SelectionController | null;
   setLayers: (layers: Layer[]) => void;
   setCurrentLayerIndex: (index: number) => void;
   addLayer: (layer: Layer) => void;
@@ -29,12 +32,68 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
   const [layers, setLayers] = useState<Layer[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
   const [painterData, setPainterData] = useState<PainterData | null>(null);
+  
+  // Selection関連のstate
+  const [selectionState, setSelectionState] = useState<SelectionState | null>(null);
+  const [selectionController, setSelectionController] = useState<SelectionController | null>(null);
+
+  // Selection stateを初期化
+  const initializeSelectionState = useCallback(() => {
+    const state: SelectionState = {
+      mode: 'rect',
+      selectionRect: undefined,
+      lassoPoints: [],
+      magicClipPath: undefined,
+      magicOutline: undefined,
+      magicBounding: undefined,
+      reset() {
+        state.selectionRect = undefined;
+        state.lassoPoints = [];
+        state.magicClipPath = undefined;
+        state.magicOutline = undefined;
+        state.magicBounding = undefined;
+      },
+      hasSelection(): boolean {
+        return (
+          (state.mode === 'rect' && !!state.selectionRect) ||
+          (state.mode === 'lasso' && state.lassoPoints.length > 0) ||
+          (state.mode === 'magic' && !!state.magicClipPath)
+        );
+      },
+      getBoundingRect() {
+        if (state.mode === 'rect') {
+          return state.selectionRect;
+        }
+        if (state.mode === 'magic') {
+          return state.magicBounding;
+        }
+        if (state.lassoPoints.length === 0) return undefined;
+        const xs = state.lassoPoints.map(p => p.x);
+        const ys = state.lassoPoints.map(p => p.y);
+        const minX = Math.min(...xs);
+        const maxX = Math.max(...xs);
+        const minY = Math.min(...ys);
+        const maxY = Math.max(...ys);
+        return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+      }
+    };
+    
+    setSelectionState(state);
+    
+    const controller = new SelectionController(state);
+    setSelectionController(controller);
+    
+    return { state, controller };
+  }, []);
 
   // PainterViewを初期化
   const initializePainterData = useCallback((view: PainterView) => {
     if (!view) return;
     
     setPainterView(view);
+    
+    // Selection stateを初期化
+    const { state, controller } = initializeSelectionState();
     
     // 既存のレイヤーをロード
     if (view._painterData?.layers && view._painterData.layers.length > 0) {
@@ -75,7 +134,7 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
       // viewにデータを保存
       view._painterData = initialData;
     }
-  }, []);
+  }, [initializeSelectionState]);
 
   // レイヤー更新時にviewにも保存
   useEffect(() => {
@@ -207,11 +266,13 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     setCurrentLayerIndex(0);
   }, [layers]);
 
-  const contextValue: LayerContextValue = {
+  const value: LayerContextValue = {
     view: painterView,
     layers,
     currentLayerIndex,
     painterData,
+    selectionState,
+    selectionController,
     setLayers: updateLayers,
     setCurrentLayerIndex: updateCurrentLayerIndex,
     addLayer,
@@ -220,11 +281,11 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     duplicateLayer,
     mergeDown,
     flattenImage,
-    initializePainterData
+    initializePainterData,
   };
 
   return (
-    <LayerContext.Provider value={contextValue}>
+    <LayerContext.Provider value={value}>
       {children}
     </LayerContext.Provider>
   );
