@@ -1,27 +1,29 @@
 import { Plugin, addIcon } from 'obsidian';
-import { TIMELINE_VIEW_TYPE, createTimelineView } from './timeline-view';
+import { TimelineFactory } from './timeline-factory';
 
 /**
- * Timeline Factory - Timeline View Registration
+ * Timeline Plugin - Obsidian Plugin Integration
  */
 export class TimelinePlugin {
   private plugin: Plugin;
+  private factory: TimelineFactory;
 
   constructor(plugin: Plugin) {
     this.plugin = plugin;
+    this.factory = new TimelineFactory();
   }
 
   initialize(): void {
     addIcon('timeline', this.getTimelineIcon());
-    this.plugin.registerView(TIMELINE_VIEW_TYPE, (leaf) => createTimelineView(leaf));
-    this.plugin.registerExtensions(['otio'], TIMELINE_VIEW_TYPE);
+    this.plugin.registerView('timeline-view', (leaf) => this.factory.createTimelineView(leaf));
+    this.plugin.registerExtensions(['otio', 'timeline'], 'timeline-view');
     
-    this.plugin.addRibbonIcon('timeline', 'Create Timeline', () => {
+    this.plugin.addRibbonIcon('timeline', 'Open Timeline', () => {
       // サービスAPIが処理
     });
     
     this.plugin.register(() => {
-      this.plugin.app.workspace.detachLeavesOfType(TIMELINE_VIEW_TYPE);
+      this.plugin.app.workspace.detachLeavesOfType('timeline-view');
     });
   }
 

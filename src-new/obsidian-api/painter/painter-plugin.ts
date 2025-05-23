@@ -1,22 +1,21 @@
 import { Plugin, addIcon } from 'obsidian';
-import { createRoot } from 'react-dom/client';
-import React from 'react';
-import PainterReactView from '../../react/PainterReactView';
-import { PainterView } from './painter-view';
+import { PainterFactory } from './painter-factory';
 
 /**
- * Painter Factory - React Injection
+ * Painter Plugin - Obsidian Plugin Integration
  */
 export class PainterPlugin {
   private plugin: Plugin;
+  private factory: PainterFactory;
 
   constructor(plugin: Plugin) {
     this.plugin = plugin;
+    this.factory = new PainterFactory();
   }
 
   initialize(): void {
     addIcon('palette', this.getPainterIcon());
-    this.plugin.registerView('psd-view', (leaf) => this.createPainterView(leaf));
+    this.plugin.registerView('psd-view', (leaf) => this.factory.createPainterView(leaf));
     this.plugin.registerExtensions(['psd', 'painter'], 'psd-view');
     
     this.plugin.addRibbonIcon('palette', 'Open Painter', () => {
@@ -37,40 +36,6 @@ export class PainterPlugin {
     this.plugin.register(() => {
       this.plugin.app.workspace.detachLeavesOfType('psd-view');
     });
-  }
-
-  private createPainterView(leaf: any): PainterView {
-    const view = new PainterView(leaf);
-    this.injectReact(view);
-    return view;
-  }
-
-  private injectReact(view: PainterView): void {
-    const originalOnOpen = view.onOpen.bind(view);
-    const originalOnClose = view.onClose.bind(view);
-    
-    view.onOpen = async () => {
-      await originalOnOpen();
-      this.renderReactComponent(view);
-    };
-    
-    view.onClose = async () => {
-      if (view.reactRoot) {
-        view.reactRoot.unmount();
-        view.reactRoot = null;
-      }
-      await originalOnClose();
-    };
-  }
-
-  private renderReactComponent(view: PainterView): void {
-    view.containerEl.empty();
-    view.reactRoot = createRoot(view.containerEl);
-    view.reactRoot.render(React.createElement(PainterReactView, {
-      layers: [],
-      currentLayer: 0,
-      onLayerChange: () => {}
-    }));
   }
 
   private getPainterIcon(): string {
