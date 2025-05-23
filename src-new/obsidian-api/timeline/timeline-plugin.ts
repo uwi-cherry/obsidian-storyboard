@@ -1,5 +1,6 @@
 import { Plugin, addIcon } from 'obsidian';
 import { TimelineFactory } from './timeline-factory';
+import { TIMELINE_ICON_SVG } from '../common/icons';
 
 /**
  * Timeline Plugin - Obsidian Plugin Integration
@@ -14,7 +15,7 @@ export class TimelinePlugin {
   }
 
   initialize(): void {
-    addIcon('timeline', this.getTimelineIcon());
+    addIcon('timeline', TIMELINE_ICON_SVG);
     this.plugin.registerView('timeline-view', (leaf) => this.factory.createTimelineView(leaf));
     this.plugin.registerExtensions(['otio', 'timeline'], 'timeline-view');
     
@@ -27,11 +28,5 @@ export class TimelinePlugin {
     });
   }
 
-  private getTimelineIcon(): string {
-    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <path d="M9 9h1v1H9zM9 12h1v1H9zM9 15h1v1H9z"/>
-      <path d="M13 9h7M13 12h7M13 15h7"/>
-    </svg>`;
-  }
+  // アイコンは共通定義から読み込み
 } 
