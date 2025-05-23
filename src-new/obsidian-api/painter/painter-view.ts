@@ -15,10 +15,6 @@ export class PainterView extends FileView {
     return this.file?.basename || 'Painter';
   }
 
-  async onLoadFile(): Promise<void> {
-    // ファクトリによってReactが注入される
-  }
-
   async onOpen(): Promise<void> {
     // ファクトリによってオーバーライドされる
   }
