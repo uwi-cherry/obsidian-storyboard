@@ -34,13 +34,17 @@ export interface EditableTableProps<T> {
    */
   headerTop?: React.ReactNode;
   /**
-   * 選択された行のインデックス
+   * 選択された行のインデックス配列
    */
-  selectedRowIndex?: number | null;
+  selectedRowIndexes?: number[];
   /**
    * 行の選択状態を変更するコールバック
    */
-  onSelectRow?: (rowIndex: number | null) => void;
+  onSelectRow?: (rowIndex: number, isSelected: boolean) => void;
+  /**
+   * すべての選択を解除するコールバック
+   */
+  onClearSelection?: () => void;
 }
 
 const EditableTable = <T,>({
@@ -56,8 +60,9 @@ const EditableTable = <T,>({
   showAddRow = true,
   onRowClick,
   headerTop,
-  selectedRowIndex,
+  selectedRowIndexes,
   onSelectRow,
+  onClearSelection,
 }: EditableTableProps<T>) => {
   // 全カラム分の幅を管理（初期値はすべて300px）
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
@@ -131,7 +136,7 @@ const EditableTable = <T,>({
         </thead>
         <tbody>
           {data.map((row, index) => {
-            const isSelected = selectedRowIndex === index;
+            const isSelected = selectedRowIndexes?.includes(index) ?? false;
             return (
               <tr key={index} className={`${isSelected ? 'bg-accent text-on-accent' : 'hover:bg-modifier-hover'}`} onClick={() => onRowClick?.(row, index)}>
                 {columns.map((col) => {
@@ -189,16 +194,17 @@ const EditableTable = <T,>({
                           ...(onSelectRow ? [{
                             label: isSelected ? '選択を解除' : '選択状態にする',
                             icon: '✓',
-                            onClick: () => onSelectRow(isSelected ? null : index),
+                            onClick: () => onSelectRow(index, !isSelected),
                             variant: 'default' as const
                           }] : []),
-                          ...(onMoveRowTo && selectedRowIndex !== null && selectedRowIndex !== undefined && selectedRowIndex !== index ? [{
-                            label: '選択したものをここに移動',
+                          ...(onMoveRowTo && selectedRowIndexes && selectedRowIndexes.length > 0 && !selectedRowIndexes.includes(index) ? [{
+                            label: `選択した${selectedRowIndexes.length}行をここに移動`,
                             icon: '→',
                             onClick: () => {
-                              if (selectedRowIndex !== null && selectedRowIndex !== undefined) {
-                                onMoveRowTo(selectedRowIndex, index);
-                                onSelectRow?.(null);
+                              if (selectedRowIndexes && selectedRowIndexes.length > 0) {
+                                // 最初の選択行をベースに移動
+                                onMoveRowTo(selectedRowIndexes[0], index);
+                                onClearSelection?.();
                               }
                             },
                             variant: 'default' as const

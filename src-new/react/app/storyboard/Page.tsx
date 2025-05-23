@@ -89,7 +89,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   const [newChapterBgm, setNewChapterBgm] = useState('');
   
   // 選択された行の管理（章インデックス + 行インデックス）
-  const [selectedRowPosition, setSelectedRowPosition] = useState<{chapterIndex: number, rowIndex: number} | null>(null);
+  const [selectedRowPositions, setSelectedRowPositions] = useState<{chapterIndex: number, rowIndex: number}[]>([]);
 
   // BGM入力欄のref配列
   const bgmRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -242,12 +242,13 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     }
   }, [storyboard.chapters.length]);
 
-  // 行の移動処理
+  // 行の移動処理（複数選択対応）
   const handleMoveRowTo = useCallback((chapterIndex: number, fromRowIndex: number, toRowIndex: number) => {
     const newStoryboard = { ...storyboard };
     const chapter = newStoryboard.chapters[chapterIndex];
     
     if (chapter && chapter.frames) {
+      // 現在は1行だけ移動（将来的には複数選択にも対応可能）
       const [movedFrame] = chapter.frames.splice(fromRowIndex, 1);
       chapter.frames.splice(toRowIndex, 0, movedFrame);
       
@@ -257,12 +258,21 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   }, [storyboard, setStoryboard, handleDataChange]);
   
   // 選択状態の管理
-  const handleSelectRow = useCallback((chapterIndex: number, rowIndex: number | null) => {
-    if (rowIndex === null) {
-      setSelectedRowPosition(null);
+  const handleSelectRow = useCallback((chapterIndex: number, rowIndex: number, isSelected: boolean) => {
+    if (isSelected) {
+      // 選択に追加
+      setSelectedRowPositions(prev => [...prev, { chapterIndex, rowIndex }]);
     } else {
-      setSelectedRowPosition({ chapterIndex, rowIndex });
+      // 選択から除去
+      setSelectedRowPositions(prev => 
+        prev.filter(pos => !(pos.chapterIndex === chapterIndex && pos.rowIndex === rowIndex))
+      );
     }
+  }, []);
+  
+  // 選択解除
+  const handleClearSelection = useCallback((chapterIndex: number) => {
+    setSelectedRowPositions(prev => prev.filter(pos => pos.chapterIndex !== chapterIndex));
   }, []);
 
   if (isLoading) {
@@ -347,8 +357,9 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             onInsertRowBelow={rowIndex => insertRowBelow(cIdx, rowIndex)}
             onMoveRowTo={(fromIndex, toIndex) => handleMoveRowTo(cIdx, fromIndex, toIndex)}
             onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
-            selectedRowIndex={selectedRowPosition?.chapterIndex === cIdx ? selectedRowPosition.rowIndex : null}
-            onSelectRow={(rowIndex) => handleSelectRow(cIdx, rowIndex)}
+            selectedRowIndexes={selectedRowPositions.filter(pos => pos.chapterIndex === cIdx).map(pos => pos.rowIndex)}
+            onSelectRow={(rowIndex, isSelected) => handleSelectRow(cIdx, rowIndex, isSelected)}
+            onClearSelection={() => handleClearSelection(cIdx)}
             showAddRow={false}
           />
         </details>
