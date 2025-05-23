@@ -22,7 +22,8 @@
     ]
   },
   "include": [
-    "**/*.ts",
-    "**/*.tsx"
+    "main.ts",
+    "src-new/**/*.ts",
+    "src-new/**/*.tsx"
   ]
 }

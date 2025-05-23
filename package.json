@@ -4,8 +4,8 @@
 	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
-		"dev": "tailwindcss -i ./src/styles.css -o ./styles.css && node esbuild.config.mjs",
-		"build": "tailwindcss -i ./src/styles.css -o ./styles.css --minify && node esbuild.config.mjs production",
+		"dev": "tailwindcss -i ./src-new/styles.css -o ./styles.css && node esbuild.config.mjs",
+		"build": "tailwindcss -i ./src-new/styles.css -o ./styles.css --minify && node esbuild.config.mjs production",
 		"version": "node version-bump.mjs && git add manifest.json versions.json"
 	},
 	"keywords": [],
