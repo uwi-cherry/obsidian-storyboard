@@ -50,7 +50,25 @@ export function t(key: string): string {
       'NEW_CHAPTER_PLACEHOLDER': '新しいBGMプロンプトを追加',
       'PROMPT_PLACEHOLDER': 'プロンプト',
       'IMAGE_PROMPT_PLACEHOLDER': '画像生成プロンプト(任意)',
-      'CLEAR_PATH': 'クリア'
+      'CLEAR_PATH': 'クリア',
+      'TOOL_BRUSH': 'ブラシ',
+      'TOOL_ERASER': '消しゴム',
+      'TOOL_SELECTION': '選択',
+      'TOOL_HAND': '手のひら',
+      'BRUSH_SIZE': 'ブラシサイズ',
+      'SELECTION_TYPE': '選択種別',
+      'SELECT_RECT': '矩形',
+      'SELECT_LASSO': '投げ縄',
+      'SELECT_MAGIC': 'マジックワンド',
+      'CANVAS_SIZE': 'キャンバスサイズ',
+      'ZOOM_LEVEL': '拡大率',
+      'ROTATION_ANGLE': '回転角'
+      , 'LAYERS': 'レイヤー'
+      , 'NEW_LAYER': '新規レイヤー'
+      , 'IMAGE_LAYER': '画像レイヤー'
+      , 'DELETE_LAYER': 'レイヤー削除'
+      , 'ENTER_LAYER_NAME': 'レイヤー名を入力'
+      , 'BACKGROUND': '背景'
     };
     return jaTranslations[key] || key;
   }
@@ -82,7 +100,25 @@ export function t(key: string): string {
     'NEW_CHAPTER_PLACEHOLDER': 'Add new BGM prompt',
     'PROMPT_PLACEHOLDER': 'Prompt',
     'IMAGE_PROMPT_PLACEHOLDER': 'Image generation prompt (optional)',
-    'CLEAR_PATH': 'Clear'
+    'CLEAR_PATH': 'Clear',
+    'TOOL_BRUSH': 'Brush',
+    'TOOL_ERASER': 'Eraser',
+    'TOOL_SELECTION': 'Select',
+    'TOOL_HAND': 'Hand',
+    'BRUSH_SIZE': 'Brush size',
+    'SELECTION_TYPE': 'Selection mode',
+    'SELECT_RECT': 'Rectangle',
+    'SELECT_LASSO': 'Lasso',
+    'SELECT_MAGIC': 'Magic wand',
+    'CANVAS_SIZE': 'Canvas Size',
+    'ZOOM_LEVEL': 'Zoom',
+    'ROTATION_ANGLE': 'Rotation',
+    'LAYERS': 'Layers',
+    'NEW_LAYER': 'New Layer',
+    'IMAGE_LAYER': 'Image Layer',
+    'DELETE_LAYER': 'Delete Layer',
+    'ENTER_LAYER_NAME': 'Enter layer name',
+    'BACKGROUND': 'Background'
   };
   return enTranslations[key] || key;
 } 

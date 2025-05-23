@@ -1,6 +1,6 @@
 import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
-import { Layer } from '../../../obsidian-api/painter/painter-types';
+import { Layer } from '../../../types/painter-types';
 
 namespace Internal {
   export interface AddLayerInput {
@@ -74,6 +74,7 @@ namespace Internal {
     view.currentLayerIndex = 0;
     view.setLayers?.(newLayers);
     view.setCurrentLayerIndex?.(0);
+    view.saveHistory?.();
 
     return 'layer_added';
   }

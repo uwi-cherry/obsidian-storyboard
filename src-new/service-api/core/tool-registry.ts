@@ -12,6 +12,8 @@ import { saveStoryboardDataTool } from '../api/storyboard-tool/save-storyboard-d
 import { createPainterFileTool } from '../api/painter-tool/create-painter-file';
 import { undoPainterTool } from '../api/painter-tool/undo-painter';
 import { redoPainterTool } from '../api/painter-tool/redo-painter';
+import { loadPainterFileTool } from '../api/painter-tool/load-painter-file';
+import { savePainterFileTool } from '../api/painter-tool/save-painter-file';
 import { addLayerTool } from '../api/layer-tool/add-layer';
 import { deleteLayerTool } from '../api/layer-tool/delete-layer';
 
@@ -31,6 +33,8 @@ namespace Internal {
     'load_storyboard_data': loadStoryboardDataTool,
     'save_storyboard_data': saveStoryboardDataTool,
     'create_painter_file': createPainterFileTool,
+    'load_painter_file': loadPainterFileTool,
+    'save_painter_file': savePainterFileTool,
     'undo_painter': undoPainterTool,
     'redo_painter': redoPainterTool,
     'add_layer': addLayerTool,

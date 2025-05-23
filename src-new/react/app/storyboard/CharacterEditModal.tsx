@@ -3,7 +3,7 @@ import { ADD_ICON_SVG, TABLE_ICONS } from '../../../icons';
 import { t } from '../../../obsidian-i18n';
 import IconButtonGroup from '../../components/IconButtonGroup';
 import Modal from '../../components/Modal';
-import { CharacterInfo, StoryboardFrame } from '../../types/storyboard';
+import { CharacterInfo, StoryboardFrame } from '../../../types/storyboard';
 
 const CharacterEditModal: React.FC<{
   open: boolean;

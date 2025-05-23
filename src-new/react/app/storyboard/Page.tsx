@@ -5,7 +5,7 @@ import EditableTable, { ColumnDef } from 'src-new/react/components/EditableTable
 import { t } from '../../../obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import useStoryboardData from '../../hooks/useStoryboardData';
-import { StoryboardData, StoryboardFrame } from '../../types/storyboard';
+import { StoryboardData, StoryboardFrame } from '../../../types/storyboard';
 import BGMCreationInput from './BGMCreationInput';
 import CharacterEditModal from './CharacterEditModal';
 import ImageInputCell from './ImageInputCell';

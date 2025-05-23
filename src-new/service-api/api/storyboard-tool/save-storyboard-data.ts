@@ -1,6 +1,6 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
-import { StoryboardData } from '../../../react/types/storyboard';
+import { StoryboardData } from '../../../types/storyboard';
 
 /**
  * 内部実装 - サービスAPI内部でのみ使用
