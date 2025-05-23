@@ -24,6 +24,28 @@ export class PainterPlugin {
       await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app });
     });
 
+    this.plugin.addCommand({
+      id: 'add-blank-layer',
+      name: 'Add Blank Layer',
+      callback: async () => {
+        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
+        if (view) {
+          await toolRegistry.executeTool('add_layer', { view });
+        }
+      }
+    });
+
+    this.plugin.addCommand({
+      id: 'delete-current-layer',
+      name: 'Delete Current Layer',
+      callback: async () => {
+        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
+        if (view) {
+          await toolRegistry.executeTool('delete_layer', { view, index: view.currentLayerIndex });
+        }
+      }
+    });
+
     this.plugin.app.workspace.on('file-menu', (menu, file) => {
       if (file instanceof TFile && file.extension.toLowerCase().match(/^(png|jpe?g|gif|webp)$/)) {
         menu.addItem((item) => {
