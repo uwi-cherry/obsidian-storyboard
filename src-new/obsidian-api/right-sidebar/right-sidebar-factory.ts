@@ -37,9 +37,7 @@ export class RightSidebarFactory {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
     view.reactRoot.render(
-      React.createElement(LayerProvider, { view },
-        React.createElement(SidebarReactView)
-      )
+      React.createElement(LayerProvider, { view, children: React.createElement(SidebarReactView) })
     );
   }
 }

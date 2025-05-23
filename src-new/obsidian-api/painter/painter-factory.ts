@@ -37,9 +37,7 @@ export class PainterFactory {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
     view.reactRoot.render(
-      React.createElement(LayerProvider, { view },
-        React.createElement(PainterReactView)
-      )
+      React.createElement(LayerProvider, { view, children: React.createElement(PainterReactView) })
     );
   }
 }
