@@ -12,6 +12,8 @@ import { saveStoryboardDataTool } from '../api/storyboard-tool/save-storyboard-d
 import { createPainterFileTool } from '../api/painter-tool/create-painter-file';
 import { undoPainterTool } from '../api/painter-tool/undo-painter';
 import { redoPainterTool } from '../api/painter-tool/redo-painter';
+import { addLayerTool } from '../api/layer-tool/add-layer';
+import { deleteLayerTool } from '../api/layer-tool/delete-layer';
 
 /**
  * 内部実装 - 外部からアクセス不可
@@ -30,7 +32,9 @@ namespace Internal {
     'save_storyboard_data': saveStoryboardDataTool,
     'create_painter_file': createPainterFileTool,
     'undo_painter': undoPainterTool,
-    'redo_painter': redoPainterTool
+    'redo_painter': redoPainterTool,
+    'add_layer': addLayerTool,
+    'delete_layer': deleteLayerTool
   };
 
   /**

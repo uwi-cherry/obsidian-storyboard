@@ -1,20 +1,17 @@
 import React from 'react';
+import { useLayerContext } from '../../context/LayerContext';
 
-interface PainterReactViewProps {
-  layers: any[];
-  currentLayer: number;
-  onLayerChange: (layers: any[]) => void;
-}
+export default function PainterReactView() {
+  const { layers, currentLayerIndex, setLayers } = useLayerContext();
 
-export default function PainterReactView({ layers, currentLayer, onLayerChange }: PainterReactViewProps) {
   return (
     <div className="painter-view">
       <h2>Painter View (PSD)</h2>
       <p>Layers: {layers.length}</p>
-      <p>Current Layer: {currentLayer}</p>
-      <button onClick={() => onLayerChange([...layers, { name: 'New Layer' }])}>
+      <p>Current Layer: {currentLayerIndex}</p>
+      <button onClick={() => setLayers([...layers, { name: 'New Layer', visible: true, opacity: 1, blendMode: 'normal', canvas: document.createElement('canvas') }])}>
         Add Layer
       </button>
     </div>
   );
-} 
+}

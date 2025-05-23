@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { RightSidebarView } from './right-sidebar-view';
 import SidebarReactView from '../../react/app/sidebar/Page';
+import { LayerProvider } from '../../react/context/LayerContext';
 
 /**
  * Right Sidebar Factory - React Injection and View Creation
@@ -35,10 +36,10 @@ export class RightSidebarFactory {
   private renderReactComponent(view: RightSidebarView): void {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
-    view.reactRoot.render(React.createElement(SidebarReactView, {
-      layers: [],
-      currentLayerIndex: 0,
-      onLayerChange: () => {}
-    }));
+    view.reactRoot.render(
+      React.createElement(LayerProvider, { view },
+        React.createElement(SidebarReactView)
+      )
+    );
   }
-} 
+}
