@@ -1,5 +1,6 @@
 import { Plugin, addIcon } from 'obsidian';
 import { StoryboardFactory } from './storyboard-factory';
+import { STORYBOARD_ICON_SVG } from '../common/icons';
 
 /**
  * Storyboard Plugin - Obsidian Plugin Integration
@@ -14,7 +15,7 @@ export class StoryboardPlugin {
   }
 
   initialize(): void {
-    addIcon('storyboard', this.getStoryboardIcon());
+    addIcon('storyboard', STORYBOARD_ICON_SVG);
     this.plugin.registerExtensions(['storyboard'], 'markdown');
     
     this.plugin.addRibbonIcon('storyboard', 'Add Storyboard', () => {
@@ -31,13 +32,5 @@ export class StoryboardPlugin {
     return this.factory;
   }
 
-  private getStoryboardIcon(): string {
-    return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <rect x="3" y="3" width="18" height="18" rx="2"/>
-      <path d="M7 7h10M7 12h10M7 17h10"/>
-      <circle cx="5" cy="7" r="1"/>
-      <circle cx="5" cy="12" r="1"/>
-      <circle cx="5" cy="17" r="1"/>
-    </svg>`;
-  }
+  // アイコンは共通定義から読み込み
 } 
