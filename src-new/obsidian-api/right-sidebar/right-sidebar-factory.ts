@@ -1,7 +1,7 @@
 import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { RightSidebarView } from './right-sidebar-view';
-import SidebarReactView from '../../react/SidebarReactView';
+import SidebarReactView from '../../react/app/SidebarReactView';
 
 /**
  * Right Sidebar Factory - React Injection and View Creation

@@ -1,7 +1,7 @@
 import { App, WorkspaceLeaf, MarkdownView } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
-import StoryboardReactView from '../../react/StoryboardReactView';
+import StoryboardReactView from '../../react/app/StoryboardReactView';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
 const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();

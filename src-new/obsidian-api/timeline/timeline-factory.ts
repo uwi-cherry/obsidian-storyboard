@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import React from 'react';
-import TimelineReactView from '../../react/TimelineReactView';
+import TimelineReactView from '../../react/app/TimelineReactView';
 import { TimelineView } from './timeline-view';
 
 /**

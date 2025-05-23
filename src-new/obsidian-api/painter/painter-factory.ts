@@ -1,6 +1,6 @@
 import { createRoot } from 'react-dom/client';
 import React from 'react';
-import PainterReactView from '../../react/PainterReactView';
+import PainterReactView from '../../react/app/PainterReactView';
 import { PainterView } from './painter-view';
 
 /**
