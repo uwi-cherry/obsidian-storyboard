@@ -1,5 +1,7 @@
 import { Tool } from '../../core/tool';
 import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 namespace Internal {
   export interface RefreshLayersInput {
@@ -39,22 +41,14 @@ namespace Internal {
         hasApp: !!view.app
       });
 
-      // GlobalVariableManagerを更新して通知
-      if (view.app && typeof window !== 'undefined') {
-        const globalVariableManager = view.app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-        console.log('🔍 refresh_layers: GlobalVariableManager取得:', globalVariableManager ? 'あり' : 'なし');
-        
-        if (globalVariableManager) {
-          // レイヤー情報を更新
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
-          
-          console.log('🔍 refresh_layers: レイヤー表示をリフレッシュしました:', {
-            layersCount: currentLayers.length,
-            currentIndex: currentLayerIndex
-          });
-        }
-      }
+      // zustand ストアを更新して通知
+      useLayersStore.getState().setLayers(currentLayers);
+      useCurrentLayerIndexStore.getState().setCurrentLayerIndex(currentLayerIndex);
+
+      console.log('🔍 refresh_layers: レイヤー表示をリフレッシュしました:', {
+        layersCount: currentLayers.length,
+        currentIndex: currentLayerIndex
+      });
 
       // ビューの再描画を促す
       if (view.requestUpdate) {

@@ -1,5 +1,6 @@
 import { Tool } from '../../core/tool';
 import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 namespace Internal {
   export interface SetCurrentLayerInput {
@@ -27,13 +28,8 @@ namespace Internal {
     view.currentLayerIndex = index;
     view.setCurrentLayerIndex?.(index);
 
-    // GlobalVariableManagerを更新
-    if (view.app && typeof window !== 'undefined') {
-      const globalVariableManager = view.app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-      if (globalVariableManager) {
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, index);
-      }
-    }
+    // zustand ストアを更新
+    useCurrentLayerIndexStore.getState().setCurrentLayerIndex(index);
     
     return 'current_layer_set';
   }
