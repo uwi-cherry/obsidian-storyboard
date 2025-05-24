@@ -99,6 +99,16 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [app]);
 
+  // デバッグ: レイヤー状態をログ出力
+  useEffect(() => {
+    console.log('🔍 RightSidebar: レイヤー状態変化:', {
+      layers: layers,
+      layersLength: layers?.length,
+      currentPsdFile: currentPsdFile?.path,
+      isPsdPainterOpen: isPsdPainterOpen
+    });
+  }, [layers, currentPsdFile, isPsdPainterOpen]);
+
   const handleImageChange = (url: string | null) => {
     // ストーリーボードコンテキストがある場合は更新
     // （注：これは将来的にはストーリーボード側で管理すべき）
@@ -147,6 +157,13 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
 
   // 現在選択されているフレームの情報を取得
   const currentImageUrl = selectedFrame?.imageUrl || null;
+
+  console.log('🔍 RightSidebar: レンダリング時の状態:', {
+    layers: layers,
+    layersLength: layers?.length,
+    showLayerControls: layers && layers.length > 0,
+    currentPsdFile: currentPsdFile?.path
+  });
 
   return (
     <div className="w-full h-full flex flex-col bg-primary border-l border-modifier-border">

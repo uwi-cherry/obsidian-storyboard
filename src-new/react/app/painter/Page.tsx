@@ -34,15 +34,36 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
   // PSDファイルが開かれた時に selectedFrame を設定
   useEffect(() => {
-    if (!view?.file || !app) return;
+    console.log('🔍 PainterPage: useEffect発火 - view:', view, 'app:', app);
+    console.log('🔍 PainterPage: view.file:', view?.file);
+    console.log('🔍 PainterPage: view.file詳細:', view?.file ? {
+      name: view.file.name,
+      path: view.file.path,
+      extension: view.file.extension
+    } : 'ファイルなし');
+    
+    if (!view?.file || !app) {
+      console.log('🔍 PainterPage: 条件不一致でリターン');
+      return;
+    }
+    
+    console.log('🔍 PainterPage: ファイル変化検知:', {
+      file: view.file,
+      extension: view.file.extension,
+      path: view.file.path
+    });
     
     if (view.file.extension === 'psd') {
       console.log('🔍 PainterPage: PSDファイルが開かれました:', view.file.path);
       
       // current-psd-file-storeを更新
       useCurrentPsdFileStore.getState().setCurrentPsdFile(view.file);
+      console.log('🔍 PainterPage: current-psd-file-storeを設定しました:', view.file.path);
+    } else {
+      console.log('🔍 PainterPage: PSDファイルではありません:', view.file.extension);
+      useCurrentPsdFileStore.getState().clearCurrentPsdFile();
     }
-  }, [view?.file, app]);
+  }, [view, app, view?.file, view?.file?.path]);
 
   // zustandストアからレイヤー情報を同期
   useEffect(() => {
@@ -50,13 +71,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     setLayers(storeLayersRaw || []);
     setCurrentLayerIndex(storeCurrentLayerIndex || 0);
   }, [storeLayersRaw, storeCurrentLayerIndex]);
-
-  // ローカル状態とストアの同期
-  useEffect(() => {
-    if (!app) return;
-    useLayersStore.getState().setLayers(layers);
-    useCurrentLayerIndexStore.getState().setCurrentLayerIndex(currentLayerIndex);
-  }, [layers, currentLayerIndex, app]);
 
   return (
   <div className="flex w-full h-full overflow-hidden">
