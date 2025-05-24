@@ -1,0 +1,71 @@
+import { Plugin, addIcon, Menu, TFile } from 'obsidian';
+import { ADD_ICON_SVG } from '../../icons';
+import { toolRegistry } from '../../service-api/core/tool-registry';
+
+/**
+ * Create Menu Plugin - provides a single ribbon icon to create various items
+ */
+export class CreateMenuPlugin {
+  private plugin: Plugin;
+
+  constructor(plugin: Plugin) {
+    this.plugin = plugin;
+  }
+
+  initialize(): void {
+    addIcon('create-menu', ADD_ICON_SVG);
+    this.plugin.addRibbonIcon('create-menu', '新規作成', async (evt: MouseEvent) => {
+      const menu = new Menu();
+      menu.addItem(item =>
+        item
+          .setTitle('Painter')
+          .setIcon('palette')
+          .onClick(async () => {
+            await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app });
+          })
+      );
+      menu.addItem(item =>
+        item
+          .setTitle('Timeline')
+          .setIcon('timeline')
+          .onClick(async () => {
+            const leaf = this.plugin.app.workspace.getLeaf(true);
+            await leaf.setViewState({ type: 'timeline-view', active: true });
+            this.plugin.app.workspace.revealLeaf(leaf);
+          })
+      );
+      menu.addItem(item =>
+        item
+          .setTitle('Storyboard')
+          .setIcon('storyboard')
+          .onClick(async () => {
+            try {
+              const result = await toolRegistry.executeTool('create_storyboard_file', { app: this.plugin.app });
+              try {
+                const resultData = JSON.parse(result);
+                if (resultData.filePath) {
+                  const file = this.plugin.app.vault.getAbstractFileByPath(resultData.filePath);
+                  if (file instanceof TFile) {
+                    const activeLeaf = this.plugin.app.workspace.getLeaf(true);
+                    await activeLeaf.openFile(file);
+                    return;
+                  }
+                }
+              } catch {
+                // ignore parse error and fall back
+              }
+              const activeLeaf = this.plugin.app.workspace.getLeaf(true);
+              const storyboardFiles = this.plugin.app.vault.getFiles().filter(f => f.extension === 'storyboard');
+              if (storyboardFiles.length > 0) {
+                const latestFile = storyboardFiles[storyboardFiles.length - 1];
+                await activeLeaf.openFile(latestFile);
+              }
+            } catch (error) {
+              console.error('ストーリーボードファイル作成エラー:', error);
+            }
+          })
+      );
+      menu.showAtMouseEvent(evt);
+    });
+  }
+}
