@@ -27,17 +27,16 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
     try {
       new Notice('動画エクスポート機能は実装予定です');
     } catch (error) {
-      console.error('Export video failed:', error);
       new Notice('動画エクスポートに失敗しました');
     }
   };
 
   const handleCreateNewPsd = async () => {
     try {
-      // ストーリーボードのディレクトリを取得
+      
       const storyboardPath = app.workspace.getActiveFile()?.parent?.path || '';
       
-      // toolRegistryを使用してPSDファイルを作成
+      
       const result = await toolRegistry.executeTool('create_painter_file', { 
         app 
       });
@@ -46,7 +45,6 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
       onImageUrlChange(parsedResult.filePath);
       onOpenPsdPainter();
     } catch (error) {
-      console.error('PSD作成に失敗しました:', error);
       new Notice('PSD作成に失敗しました: ' + (error as Error).message);
     }
   };

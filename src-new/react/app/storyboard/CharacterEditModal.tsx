@@ -8,18 +8,18 @@ import { CharacterInfo, StoryboardFrame } from '../../../types/storyboard';
 const CharacterEditModal: React.FC<{
   open: boolean;
   characters: CharacterInfo[];
-  frames: StoryboardFrame[];  // シナリオのフレームデータを追加
+  frames: StoryboardFrame[];  
   onClose: () => void;
   onSave: (chars: CharacterInfo[]) => void;
 }> = ({ open, characters, frames, onClose, onSave }) => {
   const [editChars, setEditChars] = useState<CharacterInfo[]>(characters);
   const [selectedIdx, setSelectedIdx] = useState(0);
 
-  // 使用中のキャラクター名を取得
+  
   const usedCharacterNames = Array.from(new Set(frames.map(frame => frame.speaker).filter(Boolean)));
 
   useEffect(() => {
-    // キャラクター配列が空の場合、デフォルトで空文字のキャラクターを1つ追加
+    
     const initialChars = characters.length === 0 
       ? [{ name: '', attributes: { 説明: '' } }] 
       : characters;
@@ -38,12 +38,12 @@ const CharacterEditModal: React.FC<{
   };
   const handleAddChar = () => {
     setEditChars(chars => [...chars, { name: '', attributes: { 説明: '' } }]);
-    setSelectedIdx(editChars.length); // 新規キャラに即選択
+    setSelectedIdx(editChars.length); 
   };
   const handleDeleteChar = () => {
     if (editChars.length === 0) return;
     const selectedChar = editChars[selectedIdx];
-    if (usedCharacterNames.includes(selectedChar.name)) return; // 使用中のキャラは削除不可
+    if (usedCharacterNames.includes(selectedChar.name)) return; 
     const newChars = editChars.filter((_, i) => i !== selectedIdx);
     setEditChars(newChars);
     setSelectedIdx(Math.max(0, selectedIdx - 1));

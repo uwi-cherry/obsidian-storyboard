@@ -65,7 +65,7 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
           onChange={e => {
             if (e.target.value === "__edit__") {
               onEditCharacters && onEditCharacters();
-              // 選択状態を元に戻すためにblur
+              
               e.target.blur();
               return;
             }

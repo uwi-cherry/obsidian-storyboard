@@ -44,19 +44,19 @@ export default function Canvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // キャンバスをクリア
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // レイヤーを描画
+    
     if (layers && layers.length > 0) {
       layers.forEach((layer: any) => {
         if (layer.visible && layer.imageData) {
-          // 実際の描画ロジックはここに実装
+          
         }
       });
     }
 
-    // 選択範囲描画
+    
     if (selectionRect) {
       ctx.save();
       ctx.setLineDash([6]);

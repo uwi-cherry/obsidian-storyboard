@@ -78,7 +78,7 @@ export default function ChatBox() {
       { role: 'user', content: userMessage, attachments },
     ]);
     
-    // プレースホルダーのassistantメッセージを追加
+    
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
     
     setInput('');
@@ -86,7 +86,7 @@ export default function ChatBox() {
     setLoading(true);
     
     try {
-      // TODO: 実際のチャットAPI呼び出しを実装
+      
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       const response = `AI応答（開発中）: ${userMessage}`;
@@ -108,7 +108,7 @@ export default function ChatBox() {
 
   return (
     <div className="flex flex-col h-full w-full border-t border-modifier-border bg-primary">
-      {/* メッセージ履歴 */}
+      
       <div className="flex-1 overflow-y-auto p-2 space-y-2">
         {messages.map((msg, idx) => (
           <div
@@ -155,7 +155,7 @@ export default function ChatBox() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 入力フォーム */}
+      
       <form onSubmit={handleSend} className="flex flex-col p-2 border-t border-modifier-border w-full gap-2 relative">
         <input
           ref={fileInputRef}
@@ -165,7 +165,7 @@ export default function ChatBox() {
           onChange={handleFileSelect}
         />
 
-        {/* 添付ファイルプレビュー */}
+        
         {attachments.length > 0 && (
           <div className="flex gap-2">
             {attachments.map((att, idx) => {
@@ -193,7 +193,7 @@ export default function ChatBox() {
           </div>
         )}
 
-        {/* 入力欄とボタン */}
+        
         <div className="flex gap-2">
           <div className="relative">
             <button
