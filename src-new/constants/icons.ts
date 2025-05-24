@@ -1,51 +1,48 @@
-// 内部定数（大中小サイズのみ）
-const SVG_BASE = 'xmlns="http://www.w3.org/2000/svg" fill="none"';
-const SVG_FILLED = 'xmlns="http://www.w3.org/2000/svg" fill="currentColor"';
-const STROKE_ATTRS = 'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+// 内部定数（中小サイズのみ）
+const SVG_BASE = 'xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"';
+const STROKE_ATTRS = 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
 
-// 大中小サイズ
-const SVG_LARGE = `${SVG_BASE} viewBox="0 0 24 24" ${STROKE_ATTRS}`;    // 24x24
-const SVG_MEDIUM = `${SVG_BASE} viewBox="0 0 20 20" ${STROKE_ATTRS}`;   // 20x20  
-const SVG_SMALL = `${SVG_FILLED} viewBox="0 0 16 16"`;                  // 16x16
-const SVG_MEDIUM_SIZED = `width="18" height="18" viewBox="0 0 20 20" ${SVG_BASE} ${STROKE_ATTRS}`; // レイヤー用
+// 中小サイズ
+const SVG_MEDIUM = `${SVG_BASE} width="20" height="20" viewBox="0 0 20 20" ${STROKE_ATTRS}`;   // 20x20  
+const SVG_SMALL = `${SVG_BASE} width="16" height="16" viewBox="0 0 16 16" ${STROKE_ATTRS}`;    // 16x16
 
 // ───────────────────────────
-// 1) ベース 24×24 アイコン
+// 1) ベースアイコン（20x20統一）
 // ───────────────────────────
 
-// PSDアイコン（サイズ属性ナシ）
-export const PSD_ICON_SVG = `<svg ${SVG_LARGE}>
-  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-  <line x1="3" y1="9" x2="21" y2="9"/>
-  <line x1="9" y1="21" x2="9" y2="9"/>
+// PSDアイコン
+export const PSD_ICON_SVG = `<svg ${SVG_MEDIUM}>
+  <rect x="3" y="3" width="14" height="14" rx="2" ry="2"/>
+  <line x1="3" y1="8" x2="17" y2="8"/>
+  <line x1="8" y1="17" x2="8" y2="8"/>
 </svg>`;
 
 // ペインターアイコン（パレットと星の組み合わせ）
-export const PAINTER_ICON_SVG = `<svg ${SVG_LARGE}>
-  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-  <circle cx="12" cy="12" r="3"/>
+export const PAINTER_ICON_SVG = `<svg ${SVG_MEDIUM}>
+  <path d="M10 2l2.5 5L17 7.5l-4 4L14 16l-4-2.5L6 16l1-4.5L3 7.5l4.5-.5L10 2z"/>
+  <circle cx="10" cy="10" r="2"/>
 </svg>`;
 
-// タイムラインアイコン（サイズ属性ナシ）
-export const TIMELINE_ICON_SVG = `<svg ${SVG_LARGE}>
-  <line x1="4" y1="12" x2="20" y2="12"/>
-  <circle cx="6" cy="12" r="1.5"/>
-  <circle cx="12" cy="12" r="1.5"/>
-  <circle cx="18" cy="12" r="1.5"/>
-  <line x1="6" y1="9" x2="6" y2="10.5"/>
-  <line x1="12" y1="9" x2="12" y2="10.5"/>
-  <line x1="18" y1="9" x2="18" y2="10.5"/>
+// タイムラインアイコン
+export const TIMELINE_ICON_SVG = `<svg ${SVG_MEDIUM}>
+  <line x1="3" y1="10" x2="17" y2="10"/>
+  <circle cx="5" cy="10" r="1"/>
+  <circle cx="10" cy="10" r="1"/>
+  <circle cx="15" cy="10" r="1"/>
+  <line x1="5" y1="7" x2="5" y2="8"/>
+  <line x1="10" y1="7" x2="10" y2="8"/>
+  <line x1="15" y1="7" x2="15" y2="8"/>
 </svg>`;
 
-// ストーリーボード（サイズ属性ナシ）
-export const STORYBOARD_ICON_SVG = `<svg ${SVG_LARGE}>
-  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-  <path d="M8 7h6"/><path d="M8 11h6"/><path d="M8 15h4"/>
+// ストーリーボード
+export const STORYBOARD_ICON_SVG = `<svg ${SVG_MEDIUM}>
+  <path d="M3 16v-12A2 2 0 0 1 5 2h12v16H5a2 2 0 0 1 0-4h12"/>
+  <path d="M6 6h8"/><path d="M6 9h8"/><path d="M6 12h6"/>
 </svg>`;
 
-// ストーリーボードトグル（サイズ属性ナシ）
-export const STORYBOARD_TOGGLE_ICON_SVG = `<svg ${SVG_LARGE}>
-  <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="8 21 3 21 3 16"/>
+// ストーリーボードトグル
+export const STORYBOARD_TOGGLE_ICON_SVG = `<svg ${SVG_MEDIUM}>
+  <polyline points="13 3 17 3 17 7"/><line x1="3" y1="17" x2="17" y2="3"/><polyline points="7 17 3 17 3 13"/>
 </svg>`;
 
 // ───────────────────────────
@@ -93,13 +90,13 @@ export const TABLE_ICONS = {
 // ───────────────────────────
 export const LAYER_ICONS = {
   // レイヤー追加（可視性改善版）
-  add: `<svg ${SVG_MEDIUM_SIZED}>
+  add: `<svg ${SVG_SMALL}>
     <line x1="10" y1="6" x2="10" y2="14"/>
     <line x1="6" y1="10" x2="14" y2="10"/>
   </svg>`,
 
   // レイヤー削除（可視性改善版）
-  delete: `<svg ${SVG_MEDIUM_SIZED}>
+  delete: `<svg ${SVG_SMALL}>
     <line x1="7" y1="7" x2="13" y2="13"/>
     <line x1="13" y1="7" x2="7" y2="13"/>
   </svg>`
@@ -122,26 +119,26 @@ export const ADD_ICON_SVG = `<svg ${SVG_MEDIUM}>
   <line x1="6" y1="10" x2="14" y2="10"/>
 </svg>`;
 
-// ツールアイコン（24×24統一）
+// ツールアイコン（20×20統一）
 export const TOOL_ICONS = {
-    brush: `<svg ${SVG_LARGE}>
-        <path d="M20.71 5.63l-2.34 2.34a2 2 0 0 1-2.83 0L5.63 20.71a2 2 0 0 1-2.83-2.83l12.91-12.91a2 2 0 0 1 2.83 0l2.34 2.34a2 2 0 0 1 0 2.83z"/>
+    brush: `<svg ${SVG_MEDIUM}>
+        <path d="M17 4l-1.5 1.5a1.5 1.5 0 0 1-2 0L4 15l-1.5 1.5a1.5 1.5 0 0 1-2-2L11 5a1.5 1.5 0 0 1 2 0L17 4z"/>
     </svg>`,
-    eraser: `<svg ${SVG_LARGE}>
-        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
-        <polyline points="15 3 21 3 21 9"/>
-        <line x1="10" y1="14" x2="21" y2="3"/>
+    eraser: `<svg ${SVG_MEDIUM}>
+        <path d="M15 10v5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5h5"/>
+        <polyline points="12 2 17 2 17 7"/>
+        <line x1="8" y1="12" x2="17" y2="3"/>
     </svg>`,
-    selection: `<svg ${SVG_LARGE}>
-        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-        <line x1="3" y1="9" x2="21" y2="9"/>
-        <line x1="9" y1="21" x2="9" y2="9"/>
+    selection: `<svg ${SVG_MEDIUM}>
+        <rect x="2" y="2" width="16" height="16" rx="2" ry="2"/>
+        <line x1="2" y1="8" x2="18" y2="8"/>
+        <line x1="8" y1="18" x2="8" y2="8"/>
     </svg>`,
-    hand: `<svg ${SVG_LARGE}>
-        <path d="M8 12V5a1 1 0 0 1 2 0v5"/>
-        <path d="M12 13V3a1 1 0 0 1 2 0v8"/>
-        <path d="M16 12V6a1 1 0 0 1 2 0v6"/>
-        <path d="M5 14s1 3 4 3 4-3 4-3 1 3 4 3 4-3 4-3"/>
+    hand: `<svg ${SVG_MEDIUM}>
+        <path d="M6 10V4a1 1 0 0 1 2 0v4"/>
+        <path d="M10 11V2a1 1 0 0 1 2 0v7"/>
+        <path d="M14 10V5a1 1 0 0 1 2 0v5"/>
+        <path d="M4 12s1 2 3 2 3-2 3-2 1 2 3 2 3-2 3-2"/>
     </svg>`
 };
 
@@ -158,10 +155,10 @@ export const BUTTON_ICONS = {
         <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.73 1.73 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.73 1.73 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.73 1.73 0 0 0 1.097-1.097zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
     </svg>`,
     // パスをクリア
-    clearPath: `<svg ${SVG_LARGE}>
-        <path d="M3 6h18"/>
-        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-        <line x1="10" y1="11" x2="10" y2="17"/>
-        <line x1="14" y1="11" x2="14" y2="17"/>
+    clearPath: `<svg ${SVG_SMALL}>
+        <path d="M2 5h16"/>
+        <path d="M16 5v10a1.5 1.5 0 0 1-1.5 1.5H5.5a1.5 1.5 0 0 1-1.5-1.5V5m2 0V3a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 12 3v2"/>
+        <line x1="8" y1="9" x2="8" y2="14"/>
+        <line x1="12" y1="9" x2="12" y2="14"/>
     </svg>`
 }; 
