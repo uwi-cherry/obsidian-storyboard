@@ -34,9 +34,6 @@ export class PainterPlugin {
       })
     );
 
-    this.plugin.addRibbonIcon('palette', 'Open Painter', async () => {
-      await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app });
-    });
 
     this.plugin.addCommand({
       id: 'add-blank-layer',

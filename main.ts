@@ -4,6 +4,7 @@ import { RightSidebarPlugin } from './src-new/obsidian-api/right-sidebar/right-s
 import { TimelinePlugin } from './src-new/obsidian-api/timeline/timeline-plugin';
 import { StoryboardPlugin } from './src-new/obsidian-api/storyboard/storyboard-plugin';
 import { SettingsPlugin } from './src-new/obsidian-api/settings/settings-plugin';
+import { CreateMenuPlugin } from './src-new/obsidian-api/create-menu/create-menu-plugin';
 import { setAppInstance } from './src-new/constants/obsidian-i18n';
 
 /**
@@ -15,6 +16,7 @@ export default class MyPlugin extends Plugin {
   private timelinePlugin: TimelinePlugin;
   private storyboardPlugin: StoryboardPlugin;
   private settingsPlugin: SettingsPlugin;
+  private createMenuPlugin: CreateMenuPlugin;
 
   async onload() {
     console.log('🚀 Loading plugin...');
@@ -28,6 +30,7 @@ export default class MyPlugin extends Plugin {
     this.timelinePlugin = new TimelinePlugin(this);
     this.storyboardPlugin = new StoryboardPlugin(this);
     this.settingsPlugin = new SettingsPlugin(this);
+    this.createMenuPlugin = new CreateMenuPlugin(this);
 
     // 各ファクトリの初期化
     this.painterPlugin.initialize();
@@ -35,6 +38,7 @@ export default class MyPlugin extends Plugin {
     this.timelinePlugin.initialize();
     this.storyboardPlugin.initialize();
     this.settingsPlugin.initialize();
+    this.createMenuPlugin.initialize();
 
     console.log('✅ Plugin loaded successfully');
   }

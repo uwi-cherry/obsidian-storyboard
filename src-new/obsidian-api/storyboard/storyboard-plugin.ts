@@ -23,41 +23,6 @@ export class StoryboardPlugin {
     // .storyboard拡張子を独自の拡張子として登録
     this.plugin.registerExtensions(['storyboard'], 'markdown');
     
-    // 左メニューにサンプルファイルを追加
-    this.plugin.addRibbonIcon('storyboard', '新規ストーリーボードを追加', async () => {
-      try {
-        const result = await toolRegistry.executeTool('create_storyboard_file', { app: this.plugin.app });
-        console.log(result);
-        
-        // 戻り値からファイルパス情報を取得
-        try {
-          const resultData = JSON.parse(result);
-          if (resultData.filePath) {
-            // 作成されたファイルを直接開く
-            const file = this.plugin.app.vault.getAbstractFileByPath(resultData.filePath);
-            if (file instanceof TFile) {
-              const activeLeaf = this.plugin.app.workspace.getLeaf(true);
-              await activeLeaf.openFile(file);
-            } else {
-              console.error('作成されたファイルが見つかりません:', resultData.filePath);
-            }
-          } else {
-            console.error('ファイル作成に失敗しました:', resultData.message);
-          }
-        } catch (parseError) {
-          console.error('レスポンスのパースに失敗しました:', parseError);
-          // フォールバック: 従来の方法で最新のstoryboardファイルを開く
-          const activeLeaf = this.plugin.app.workspace.getLeaf(true);
-          const storyboardFiles = this.plugin.app.vault.getFiles().filter(f => f.extension === 'storyboard');
-          if (storyboardFiles.length > 0) {
-            const latestFile = storyboardFiles[storyboardFiles.length - 1];
-            await activeLeaf.openFile(latestFile);
-          }
-        }
-      } catch (error) {
-        console.error('ストーリーボードファイル作成エラー:', error);
-      }
-    });
 
     // 全てのMarkdownビューにボタンを確実に表示するための処理
     const ensureButtonsInAllMarkdownViews = () => {

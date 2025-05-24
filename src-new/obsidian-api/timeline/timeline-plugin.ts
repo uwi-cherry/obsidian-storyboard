@@ -19,9 +19,6 @@ export class TimelinePlugin {
     this.plugin.registerView('timeline-view', (leaf) => this.factory.createTimelineView(leaf));
     this.plugin.registerExtensions(['otio', 'timeline'], 'timeline-view');
     
-    this.plugin.addRibbonIcon('timeline', 'Open Timeline', () => {
-      // サービスAPIが処理
-    });
     
     this.plugin.register(() => {
       this.plugin.app.workspace.detachLeavesOfType('timeline-view');
