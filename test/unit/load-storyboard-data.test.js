@@ -2,16 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { createMockApp } from '../utils/obsidian-mock.js';
 import { TestDataFactory } from '../test-config.js';
-import ts from 'typescript';
-import { readFile } from 'fs/promises';
+import { buildSync } from 'esbuild';
+import path from 'node:path';
+import fs from 'node:fs';
+
+const sourceFile = path.resolve('src-new/service-api/api/storyboard-tool/load-storyboard-data.ts');
+const tmpDir = fs.mkdtempSync(path.join(process.cwd(), 'test', 'tmp-load-storyboard-'));
+const tmpFile = path.join(tmpDir, 'load-storyboard-data.mjs');
+buildSync({
+  entryPoints: [sourceFile],
+  outfile: tmpFile,
+  bundle: true,
+  format: 'esm',
+  platform: 'node',
+  sourcemap: 'inline'
+});
 
 async function importTool() {
-  const source = await readFile(new URL('../../src-new/service-api/api/storyboard-tool/load-storyboard-data.ts', import.meta.url), 'utf8');
-  const transpiled = ts.transpileModule(source, {
-    compilerOptions: { module: ts.ModuleKind.ES2022, target: ts.ScriptTarget.ES2022 }
-  }).outputText;
-  const dataUrl = 'data:text/javascript;base64,' + Buffer.from(transpiled).toString('base64');
-  return await import(dataUrl);
+  return await import(tmpFile);
 }
 
 const { loadStoryboardDataTool } = await importTool();

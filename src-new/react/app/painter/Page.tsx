@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Toolbar from './components/Toolbar';
 import ToolProperties from './components/ToolProperties';
-import Canvas from './components/Canvas';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer from '../../hooks/usePainterPointer';
 import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
@@ -46,9 +45,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         setZoom={setZoom}
         setRotation={setRotation}
       />
-      <CanvasContainer>
-        <Canvas pointer={pointer} onTransform={(z, r) => { setZoom(z); setRotation(r); }} />
-      </CanvasContainer>
+      <CanvasContainer pointer={pointer} />
     </div>
   );
 }
