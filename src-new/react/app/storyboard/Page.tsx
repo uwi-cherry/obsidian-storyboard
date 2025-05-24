@@ -28,7 +28,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  // データ読み込み
+  
   useEffect(() => {
     const loadData = async () => {
       if (!file) return;
@@ -41,7 +41,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         });
         setInitialData(JSON.parse(result));
       } catch (error) {
-        console.error('ストーリーボードデータの読み込みに失敗しました:', error);
       } finally {
         setIsLoading(false);
       }
@@ -50,7 +49,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     loadData();
   }, [app, file]);
 
-  // データ保存
+  
   const handleDataChange = async (updatedData: StoryboardData) => {
     if (!file) return;
     
@@ -61,7 +60,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         data: JSON.stringify(updatedData)
       });
     } catch (error) {
-      console.error('ストーリーボードデータの保存に失敗しました:', error);
     }
   };
 
@@ -87,26 +85,26 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   );
   const [newChapterBgm, setNewChapterBgm] = useState('');
   
-  // 選択された行の管理（章インデックス + 行インデックス）
+  
   const [selectedRowPositions, setSelectedRowPositions] = useState<{chapterIndex: number, rowIndex: number}[]>([]);
 
-  // BGM入力欄のref配列
+  
   const bgmRefs = useRef<(HTMLInputElement | null)[]>([]);
   const prevChapterCount = useRef(initialData.chapters.length);
 
-  // セリフ欄（textarea）のref配列
+  
   const dialogueRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
-  // プロンプト欄（textarea）のref配列
+  
   const promptRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   useEffect(() => {
     setOpenChapters(initialData.chapters.map(() => true));
   }, [initialData]);
 
-  // ダミーの関数（将来的に実装）
+  
   const generateThumbnail = async (app: App, file: TFile): Promise<string | null> => {
     try {
-      // toolRegistryを使用してサムネイルを生成
+      
       const result = await toolRegistry.executeTool('generate_thumbnail', { 
         app, 
         file 
@@ -114,7 +112,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
       const parsedResult = JSON.parse(result);
       return parsedResult.thumbnailData;
     } catch (error) {
-      console.error('サムネイル生成に失敗しました:', error);
       return null;
     }
   };
@@ -127,26 +124,25 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     targetDir?: string
   ): Promise<TFile> => {
     try {
-      // toolRegistryを使用してPSDファイルを作成
+      
       const result = await toolRegistry.executeTool('create_painter_file', { 
         app, 
         imageFile 
       });
       const parsedResult = JSON.parse(result);
       
-      // 作成されたPSDファイルを取得
+      
       const psdFile = app.vault.getAbstractFileByPath(parsedResult.filePath);
       if (!(psdFile instanceof TFile)) {
         throw new Error('作成されたPSDファイルが見つかりません');
       }
       
-      // ファイルを開く場合
+      
       if (isOpen) {
-        console.log('🔍 Page: PSDファイルを開いています...');
         const leaf = app.workspace.getLeaf(true);
         await leaf.openFile(psdFile, { active: true });
         
-        // レイヤーストアを初期化
+        
         try {
           const loadResult = await toolRegistry.executeTool('load_painter_file', {
             app,
@@ -156,13 +152,11 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
           if (parsed.layers && parsed.layers.length > 0) {
           }
         } catch (err) {
-          console.error('レイヤーストアの初期化に失敗しました:', err);
         }
       }
       
       return psdFile;
     } catch (error) {
-      console.error('PSD作成に失敗しました:', error);
       new Notice('PSD作成に失敗しました: ' + (error as Error).message);
       throw error;
     }
@@ -246,21 +240,18 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   ];
 
   const handleRowSelect = useCallback((row: StoryboardFrame, index: number, chapterIndex: number) => {
-    // 章を考慮した全体のインデックスを計算
+    
     let globalIndex = 0;
     for (let i = 0; i < chapterIndex; i++) {
       globalIndex += storyboard.chapters[i].frames.length;
     }
     globalIndex += index;
     
-    console.log('🔍 Page: 行選択イベント:', { chapterIndex, localIndex: index, globalIndex, row });
-    
-    // zustand ストアに選択行を通知
     useSelectedRowIndexStore.getState().setSelectedRowIndex(globalIndex);
     useSelectedFrameStore.getState().setSelectedFrame(row);
   }, [app, storyboard]);
 
-  // サイドバーからの画像・プロンプト更新を受信
+  
   useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
@@ -286,7 +277,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     return () => window.removeEventListener('psd-sidebar-update-image', handler);
   }, [handleCellChange, storyboard]);
 
-  // 新しく章が追加された際にBGM入力へフォーカスする
+  
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {
       const idx = storyboard.chapters.length - 1;
@@ -297,28 +288,28 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [storyboard.chapters.length]);
 
-  // 行の移動処理（複数選択対応）
+  
   const handleMoveRowTo = useCallback((chapterIndex: number, fromRowIndex: number, toRowIndex: number) => {
     const newStoryboard = { ...storyboard };
     const chapter = newStoryboard.chapters[chapterIndex];
     
     if (chapter && chapter.frames) {
-      // 現在の章で選択された行のインデックスを取得
+      
       const selectedInThisChapter = selectedRowPositions
         .filter(pos => pos.chapterIndex === chapterIndex)
         .map(pos => pos.rowIndex)
-        .sort((a, b) => a - b); // 昇順でソート
+        .sort((a, b) => a - b); 
       
       if (selectedInThisChapter.length > 0) {
-        // 選択された行のデータを抽出
+        
         const selectedFrames = selectedInThisChapter.map(index => chapter.frames[index]);
         
-        // 降順で削除（インデックスがずれないように）
+        
         selectedInThisChapter.reverse().forEach(index => {
           chapter.frames.splice(index, 1);
         });
         
-        // 移動先のインデックスを調整（削除された行の分だけ調整）
+        
         let adjustedToIndex = toRowIndex;
         selectedInThisChapter.forEach(deletedIndex => {
           if (deletedIndex < toRowIndex) {
@@ -326,10 +317,10 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
           }
         });
         
-        // 選択された行を移動先に挿入
+        
         chapter.frames.splice(adjustedToIndex, 0, ...selectedFrames);
       } else {
-        // 選択されていない場合は従来の1行移動
+        
         const [movedFrame] = chapter.frames.splice(fromRowIndex, 1);
         chapter.frames.splice(toRowIndex, 0, movedFrame);
       }
@@ -339,20 +330,20 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [storyboard, setStoryboard, handleDataChange, selectedRowPositions]);
   
-  // 選択状態の管理
+  
   const handleSelectRow = useCallback((chapterIndex: number, rowIndex: number, isSelected: boolean) => {
     if (isSelected) {
-      // 選択に追加
+      
       setSelectedRowPositions(prev => [...prev, { chapterIndex, rowIndex }]);
     } else {
-      // 選択から除去
+      
       setSelectedRowPositions(prev => 
         prev.filter(pos => !(pos.chapterIndex === chapterIndex && pos.rowIndex === rowIndex))
       );
     }
   }, []);
   
-  // 選択解除
+  
   const handleClearSelection = useCallback((chapterIndex: number) => {
     setSelectedRowPositions(prev => prev.filter(pos => pos.chapterIndex !== chapterIndex));
   }, []);

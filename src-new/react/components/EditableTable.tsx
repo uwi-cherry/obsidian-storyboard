@@ -25,25 +25,15 @@ export interface EditableTableProps<T> {
   onInsertRowBelow?: (rowIndex: number) => void;
   onMoveRowTo?: (fromIndex: number, toIndex: number) => void;
   showAddRow?: boolean;
-  /**
-   * 行がクリックされた際に呼び出されるオプションのコールバック
-   */
+  
   onRowClick?: (row: T, rowIndex: number) => void;
-  /**
-   * ヘッダー行のさらに上に挿入するカスタム行
-   */
+  
   headerTop?: React.ReactNode;
-  /**
-   * 選択された行のインデックス配列
-   */
+  
   selectedRowIndexes?: number[];
-  /**
-   * 行の選択状態を変更するコールバック
-   */
+  
   onSelectRow?: (rowIndex: number, isSelected: boolean) => void;
-  /**
-   * すべての選択を解除するコールバック
-   */
+  
   onClearSelection?: () => void;
 }
 
@@ -64,7 +54,7 @@ const EditableTable = <T,>({
   onSelectRow,
   onClearSelection,
 }: EditableTableProps<T>) => {
-  // 全カラム分の幅を管理（初期値はすべて300px）
+  
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
     Array.from({ length: columns.length }, () => 300)
   );
@@ -121,7 +111,7 @@ const EditableTable = <T,>({
               >
                 <div className="flex items-center justify-between">
                   <span>{col.header}</span>
-                  {/* ドラッグハンドル（最後の列以外） */}
+                  
                   {i < columns.length - 1 && (
                     <div
                       className="absolute right-0 top-0 h-full w-2 cursor-col-resize z-10 bg-transparent hover:bg-accent-hover transition"
@@ -202,7 +192,7 @@ const EditableTable = <T,>({
                             icon: '→',
                             onClick: () => {
                               if (selectedRowIndexes && selectedRowIndexes.length > 0) {
-                                // 最初の選択行をベースに移動
+                                
                                 onMoveRowTo(selectedRowIndexes[0], index);
                                 onClearSelection?.();
                               }

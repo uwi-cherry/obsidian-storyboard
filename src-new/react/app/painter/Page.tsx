@@ -25,21 +25,20 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
   
-  // zustandストアからレイヤー情報を取得
+  
   const storeLayersRaw = useLayersStore((state) => state.layers);
   const storeCurrentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
   
   const [layers, setLayers] = useState<any[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
 
-  // zustandストアからレイヤー情報を同期
+  
   useEffect(() => {
-    console.log('🔍 PainterPage: zustandストアからレイヤー情報を同期中...', storeLayersRaw);
     setLayers(storeLayersRaw || []);
     setCurrentLayerIndex(storeCurrentLayerIndex || 0);
   }, [storeLayersRaw, storeCurrentLayerIndex]);
 
-  // ローカル状態とストアの同期
+  
   useEffect(() => {
     if (!app) return;
     useLayersStore.getState().setLayers(layers);
