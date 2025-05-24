@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { App, TFile } from 'obsidian';
 import { useLayerContext } from '../../context/LayerContext';
 import { useStoryboardContext } from '../../context/StoryboardContext';
-import NavigationControls from './components/NavigationControls';
+import { NavigationControls } from './components/NavigationControls';
 import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
 import { t } from '../../../obsidian-i18n';
@@ -105,24 +105,66 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [layerContext, app]);
 
-  const handleImageChange = (url: string | null, prompt: string | null) => {
+  const handleImageChange = (url: string | null) => {
     // ストーリーボードコンテキストがある場合は更新
     // （注：これは将来的にはストーリーボード側で管理すべき）
   };
 
+  const handleOpenPsdPainter = async () => {
+    if (!currentImageUrl || !app) return;
+    
+    try {
+      const fileObj = app.vault.getAbstractFileByPath(currentImageUrl);
+      if (fileObj instanceof TFile) {
+        const leaf = app.workspace.getLeaf(true);
+        await leaf.openFile(fileObj, { active: true });
+      }
+    } catch (error) {
+      console.error('PSDファイルを開けませんでした:', error);
+    }
+  };
+
+  const handleBackToStoryboard = () => {
+    if (!app) return;
+    
+    try {
+      app.workspace.getLeavesOfType('psd-view').forEach((l) => l.detach());
+      const storyboardLeaf = app.workspace
+        .getLeavesOfType('markdown')
+        .find((l) => {
+          const v = l.view as any;
+          return (
+            v &&
+            v.contentEl &&
+            v.contentEl.querySelector('.storyboard-view-container')
+          );
+        });
+      if (storyboardLeaf) {
+        app.workspace.setActiveLeaf(storyboardLeaf);
+      }
+    } catch (error) {
+      console.error('ストーリーボードに戻れませんでした:', error);
+    }
+  };
+
+  const handleExportImage = () => {
+    // エクスポート機能は後で実装
+  };
+
   // 現在選択されているフレームの情報を取得
   const currentImageUrl = storyboardContext?.selectedFrame?.imageUrl || null;
-  const currentImagePrompt = storyboardContext?.selectedFrame?.imagePrompt || null;
 
   return (
     <div className="w-full h-full flex flex-col bg-primary border-l border-modifier-border">
       <NavigationControls
         view={view}
-        app={app}
         isPsdPainterOpen={isPsdPainterOpen}
         currentImageUrl={currentImageUrl}
-        currentImagePrompt={currentImagePrompt}
-        onImageChange={handleImageChange}
+        onBackToStoryboard={handleBackToStoryboard}
+        onOpenPsdPainter={handleOpenPsdPainter}
+        onExportImage={handleExportImage}
+        app={app || ({} as App)}
+        onImageUrlChange={handleImageChange}
       />
       {layerContext && layerContext.layers.length > 0 && <LayerControls />}
       <ChatBox plugin={app} />

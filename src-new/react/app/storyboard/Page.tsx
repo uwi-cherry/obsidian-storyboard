@@ -107,7 +107,18 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
 
   // ダミーの関数（将来的に実装）
   const generateThumbnail = async (app: App, file: TFile): Promise<string | null> => {
-    return null;
+    try {
+      // toolRegistryを使用してサムネイルを生成
+      const result = await toolRegistry.executeTool('generate_thumbnail', { 
+        app, 
+        file 
+      });
+      const parsedResult = JSON.parse(result);
+      return parsedResult.thumbnailData;
+    } catch (error) {
+      console.error('サムネイル生成に失敗しました:', error);
+      return null;
+    }
   };
 
   const createPsd = async (

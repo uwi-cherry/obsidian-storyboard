@@ -14,6 +14,7 @@ import { undoPainterTool } from '../api/painter-tool/undo-painter';
 import { redoPainterTool } from '../api/painter-tool/redo-painter';
 import { loadPainterFileTool } from '../api/painter-tool/load-painter-file';
 import { savePainterFileTool } from '../api/painter-tool/save-painter-file';
+import { generateThumbnailTool } from '../api/painter-tool/generate-thumbnail';
 import { addLayerTool } from '../api/layer-tool/add-layer';
 import { deleteLayerTool } from '../api/layer-tool/delete-layer';
 import { updateLayerTool } from '../api/layer-tool/update-layer';
@@ -39,6 +40,7 @@ namespace Internal {
     'create_painter_file': createPainterFileTool,
     'load_painter_file': loadPainterFileTool,
     'save_painter_file': savePainterFileTool,
+    'generate_thumbnail': generateThumbnailTool,
     'undo_painter': undoPainterTool,
     'redo_painter': redoPainterTool,
     'add_layer': addLayerTool,

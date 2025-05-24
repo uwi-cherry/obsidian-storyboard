@@ -6,6 +6,7 @@ import IconButtonGroup from '../../components/IconButtonGroup';
 import TextAreaField from '../../components/TextAreaField';
 import ThumbnailViewer from '../../components/ThumbnailViewer';
 import useTextareaArrowNav from '../../hooks/useTextareaArrowNav';
+import { toolRegistry } from '../../../service-api/core/tool-registry';
 
 interface ImageInputCellProps {
   imageUrl?: string;
@@ -70,10 +71,24 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
         if (file instanceof TFile) {
           const currentModified = file.stat.mtime;
           if (lastModifiedRef.current === null || currentModified > lastModifiedRef.current) {
-            const thumbnailData = await generateThumbnail(app, file);
-            if (!cancelled) {
-              setThumbnail(thumbnailData);
-              lastModifiedRef.current = currentModified;
+            try {
+              // toolRegistryを使用してサムネイルを生成
+              const result = await toolRegistry.executeTool('generate_thumbnail', { 
+                app, 
+                file 
+              });
+              const parsedResult = JSON.parse(result);
+              const thumbnailData = parsedResult.thumbnailData;
+              if (!cancelled) {
+                setThumbnail(thumbnailData);
+                lastModifiedRef.current = currentModified;
+              }
+            } catch (error) {
+              console.error('サムネイル生成に失敗しました:', error);
+              if (!cancelled) {
+                setThumbnail(null);
+                lastModifiedRef.current = null;
+              }
             }
           }
         }
@@ -144,10 +159,18 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     if (ext && ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
       const imageFile = app.vault.getAbstractFileByPath(path);
       if (imageFile instanceof TFile) {
-        // ストーリーボードのディレクトリを取得
-        const storyboardPath = app.workspace.getActiveFile()?.parent?.path || '';
-        const psdFile = await createPsd(app, imageFile, imageFile.basename, false, storyboardPath);
-        path = psdFile.path;
+        try {
+          // toolRegistryを使用してPSDファイルを作成
+          const result = await toolRegistry.executeTool('create_painter_file', { 
+            app, 
+            imageFile 
+          });
+          const parsedResult = JSON.parse(result);
+          path = parsedResult.filePath;
+        } catch (error) {
+          console.error('PSD作成に失敗しました:', error);
+          // エラーの場合は元の画像パスを使用
+        }
       }
     }
 

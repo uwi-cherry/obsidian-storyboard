@@ -65,6 +65,14 @@
       "category": "painter"
     },
     {
+      "name": "generate_thumbnail",
+      "modulePath": "../../src-new/service-api/api/painter-tool/generate-thumbnail",
+      "exportName": "generateThumbnailTool",
+      "ai_enabled": false,
+      "description": "Generate thumbnail from PSD file",
+      "category": "painter"
+    },
+    {
       "name": "undo_painter",
       "modulePath": "../../src-new/service-api/api/painter-tool/undo-painter",
       "exportName": "undoPainterTool",
