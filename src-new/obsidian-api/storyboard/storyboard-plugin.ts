@@ -23,6 +23,11 @@ export class StoryboardPlugin {
 
     // .storyboard拡張子を独自の拡張子として登録
     this.plugin.registerExtensions(['storyboard'], 'markdown');
+    
+    // リボンアイコンは統一メニュー（CreateMenuPlugin）で管理されるため、個別追加はコメントアウト
+    // this.plugin.addRibbonIcon('storyboard', '新規ストーリーボードを追加', async () => {
+    //   // ... (個別リボンアイコンのコード)
+    // });
 
     // 全てのMarkdownビューにボタンを確実に表示するための処理
     const ensureButtonsInAllMarkdownViews = () => {
