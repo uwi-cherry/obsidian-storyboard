@@ -2,7 +2,6 @@ import { FileView } from 'obsidian';
 import { Root } from 'react-dom/client';
 import type { Dispatch, SetStateAction } from 'react';
 import { Layer } from '../../types/painter-types';
-import { initializePainterDataTool } from '../../service-api/api/layer-tool/initialize-painter-data';
 
 /**
  * Painter View - Basic Obsidian View
@@ -13,6 +12,12 @@ export class PainterView extends FileView {
   public setCurrentLayerIndex?: Dispatch<SetStateAction<number>>;
   public zoom = 100;
   public rotation = 0;
+  public renderReact: () => void;
+
+  constructor(leaf: any, renderReact: () => void) {
+    super(leaf);
+    this.renderReact = renderReact;
+  }
 
   getViewType(): string {
     return 'psd-view';
@@ -23,9 +28,7 @@ export class PainterView extends FileView {
   }
 
   async onOpen(): Promise<void> {
-    // 初期レイヤーを作成 - service-apiのツールを使用
-    await initializePainterDataTool.execute({ view: this });
-    // ファクトリによってオーバーライドされる
+    this.renderReact();
   }
 
   async onClose(): Promise<void> {

@@ -9,27 +9,8 @@ import PainterPage from '../../react/app/painter/Page';
 export class PainterFactory {
   
   createPainterView(leaf: any): PainterView {
-    const view = new PainterView(leaf);
-    this.injectReact(view);
+    const view = new PainterView(leaf, () => this.renderReactComponent(view));
     return view;
-  }
-
-  private injectReact(view: PainterView): void {
-    const originalOnOpen = view.onOpen.bind(view);
-    const originalOnClose = view.onClose.bind(view);
-    
-    view.onOpen = async () => {
-      await originalOnOpen();
-      this.renderReactComponent(view);
-    };
-    
-    view.onClose = async () => {
-      if (view.reactRoot) {
-        view.reactRoot.unmount();
-        view.reactRoot = null;
-      }
-      await originalOnClose();
-    };
   }
 
   private renderReactComponent(view: PainterView): void {
