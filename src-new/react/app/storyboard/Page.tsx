@@ -147,14 +147,19 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         const leaf = app.workspace.getLeaf(true);
         await leaf.openFile(psdFile, { active: true });
         
-        // global-variable-managerに現在のファイルを通知してレイヤー表示をリフレッシュ
-        const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-        if (globalVariableManager) {
-          console.log('🔍 Page: CURRENT_FILEをglobalVariableManagerに設定中...');
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, psdFile);
-          console.log('🔍 Page: CURRENT_FILE設定完了');
-        } else {
-          console.log('🔍 Page: createPsd - GlobalVariableManagerが見つかりません');
+        // レイヤーストアを初期化
+        try {
+          const loadResult = await toolRegistry.executeTool('load_painter_file', {
+            app,
+            file: psdFile,
+          });
+          const parsed = JSON.parse(loadResult);
+          if (parsed.layers && parsed.layers.length > 0) {
+            useLayersStore.getState().setLayers(parsed.layers);
+            useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
+          }
+        } catch (err) {
+          console.error('レイヤーストアの初期化に失敗しました:', err);
         }
       }
       

@@ -3,7 +3,6 @@ import Toolbar from './components/Toolbar';
 import ToolProperties from './components/ToolProperties';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
@@ -34,10 +33,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
     console.log('🔍 PainterPage: useEffect実行 - view:', view, 'app:', app);
 
-    const globalVariableManager =
-      app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-    console.log('🔍 PainterPage: globalVariableManager:', globalVariableManager);
-
     const loadPainterData = async () => {
       console.log('🔍 PainterPage: loadPainterData開始');
       console.log('🔍 PainterPage: view.file:', view.file);
@@ -56,7 +51,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
           setLayers(psdData.layers || []);
           setCurrentLayerIndex(0);
-
           useLayersStore.getState().setLayers(psdData.layers || []);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
         } catch (error) {
@@ -76,16 +70,10 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     };
 
     // ファイルは常に読み込む
-    loadPainterData().then(() => {
-      if (globalVariableManager) {
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, view);
-      } else {
-        console.log('🔍 PainterPage: GlobalVariableManagerが見つかりません');
-      }
-    });
+    loadPainterData();
   }, [view, app]);
 
-  // レイヤー変更時にzustandストアとグローバル変数を更新
+  // レイヤー変更時にzustandストアを更新
   useEffect(() => {
     if (!app) return;
     useLayersStore.getState().setLayers(layers);
@@ -93,14 +81,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       .getState()
       .setCurrentLayerIndex(currentLayerIndex);
 
-    const globalVariableManager =
-      app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-    if (globalVariableManager) {
-      console.log('🔍 PainterPage: レイヤー情報更新:', {
-        layersCount: layers.length,
-        currentIndex: currentLayerIndex
-      });
-    }
   }, [layers, currentLayerIndex, app]);
 
   return (
