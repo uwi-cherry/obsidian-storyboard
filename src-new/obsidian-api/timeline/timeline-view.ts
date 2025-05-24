@@ -8,6 +8,12 @@ const TIMELINE_VIEW_TYPE = 'timeline-view';
  */
 export class TimelineView extends FileView {
   public reactRoot: Root | null = null;
+  public renderReact: () => void;
+
+  constructor(leaf: any, renderReact: () => void) {
+    super(leaf);
+    this.renderReact = renderReact;
+  }
 
   getViewType(): string {
     return TIMELINE_VIEW_TYPE;
@@ -18,10 +24,13 @@ export class TimelineView extends FileView {
   }
 
   async onOpen(): Promise<void> {
-    // ファクトリによってオーバーライドされる
+    this.renderReact();
   }
 
   async onClose(): Promise<void> {
-    // ファクトリによってオーバーライドされる
+    if (this.reactRoot) {
+      this.reactRoot.unmount();
+      this.reactRoot = null;
+    }
   }
 } 

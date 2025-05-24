@@ -8,9 +8,11 @@ export const RIGHT_SIDEBAR_VIEW_TYPE = 'right-sidebar-view';
  */
 export class RightSidebarView extends ItemView {
   public reactRoot?: Root;
+  public renderReact: () => void;
 
-  constructor(leaf: WorkspaceLeaf) {
+  constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
     super(leaf);
+    this.renderReact = renderReact;
   }
 
   getViewType(): string {
@@ -24,7 +26,7 @@ export class RightSidebarView extends ItemView {
   async onOpen(): Promise<void> {
     this.contentEl.empty();
     this.contentEl.addClass('right-sidebar');
-    // React注入はファクトリで行う
+    this.renderReact();
   }
 
   async onClose(): Promise<void> {

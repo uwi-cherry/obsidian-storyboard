@@ -9,27 +9,8 @@ import { TimelineView } from './timeline-view';
 export class TimelineFactory {
   
   createTimelineView(leaf: any): TimelineView {
-    const view = new TimelineView(leaf);
-    this.injectReact(view);
+    const view = new TimelineView(leaf, () => this.renderReactComponent(view));
     return view;
-  }
-
-  private injectReact(view: TimelineView): void {
-    const originalOnOpen = view.onOpen.bind(view);
-    const originalOnClose = view.onClose.bind(view);
-    
-    view.onOpen = async () => {
-      await originalOnOpen();
-      this.renderReactComponent(view);
-    };
-    
-    view.onClose = async () => {
-      if (view.reactRoot) {
-        view.reactRoot.unmount();
-        view.reactRoot = null;
-      }
-      await originalOnClose();
-    };
   }
 
   private renderReactComponent(view: TimelineView): void {

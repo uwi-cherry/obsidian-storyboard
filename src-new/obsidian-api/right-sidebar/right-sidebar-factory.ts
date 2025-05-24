@@ -10,27 +10,8 @@ import { PainterView } from '../painter/painter-view';
 export class RightSidebarFactory {
   
   createRightSidebarView(leaf: any): RightSidebarView {
-    const view = new RightSidebarView(leaf);
-    this.injectReact(view);
+    const view = new RightSidebarView(leaf, () => this.renderReactComponent(view));
     return view;
-  }
-
-  private injectReact(view: RightSidebarView): void {
-    const originalOnOpen = view.onOpen.bind(view);
-    const originalOnClose = view.onClose.bind(view);
-    
-    view.onOpen = async () => {
-      await originalOnOpen();
-      this.renderReactComponent(view);
-    };
-    
-    view.onClose = async () => {
-      if (view.reactRoot) {
-        view.reactRoot.unmount();
-        view.reactRoot = undefined;
-      }
-      await originalOnClose();
-    };
   }
 
   private renderReactComponent(view: RightSidebarView): void {
