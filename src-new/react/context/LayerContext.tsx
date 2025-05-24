@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from 'react';
 import { Layer, PainterView, PainterData } from '../../types/painter-types';
 
 interface LayerContextValue {
@@ -26,6 +26,7 @@ interface LayerProviderProps {
 
 export function LayerProvider({ children, view }: LayerProviderProps) {
   const [painterView, setPainterView] = useState<PainterView | null>(null);
+  const instanceIdRef = useRef<string>(Math.random().toString(36).slice(2));
   const [layers, setLayers] = useState<Layer[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
   const [painterData, setPainterData] = useState<PainterData | null>(null);
@@ -77,6 +78,24 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     }
   }, []);
 
+  // 他の LayerProvider からの更新を受け取る
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail) return;
+      if (detail.view === painterView && detail.source !== instanceIdRef.current) {
+        if (Array.isArray(detail.layers)) {
+          setLayers(detail.layers);
+        }
+        if (typeof detail.currentLayerIndex === 'number') {
+          setCurrentLayerIndex(detail.currentLayerIndex);
+        }
+      }
+    };
+    window.addEventListener('layer-context-sync', handler as EventListener);
+    return () => window.removeEventListener('layer-context-sync', handler as EventListener);
+  }, [painterView]);
+
   // レイヤー更新時にviewにも保存
   useEffect(() => {
     if (painterView && painterData) {
@@ -85,6 +104,16 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
         layers,
         currentLayerIndex
       };
+      window.dispatchEvent(
+        new CustomEvent('layer-context-sync', {
+          detail: {
+            view: painterView,
+            layers,
+            currentLayerIndex,
+            source: instanceIdRef.current,
+          }
+        })
+      );
     }
   }, [layers, currentLayerIndex, painterView, painterData]);
 
