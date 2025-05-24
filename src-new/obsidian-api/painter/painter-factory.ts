@@ -15,6 +15,9 @@ export class PainterFactory {
 
   private renderReactComponent(view: PainterView): void {
     view.contentEl.empty();
+    view.contentEl.style.width = '100%';
+    view.contentEl.style.height = '100%';
+    view.contentEl.style.display = 'flex';
     view.reactRoot = createRoot(view.contentEl);
     view.reactRoot.render(
       React.createElement(PainterPage, { view, app: view.app })

@@ -104,8 +104,8 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   }, [layers, currentLayerIndex, app]);
 
   return (
-  <div className="flex flex-1 overflow-hidden">
-    <Toolbar tool={pointer.tool} onChange={(tool) => pointer.setTool(tool as PainterTool)} />     
+  <div className="flex w-full h-full overflow-hidden">
+    <Toolbar tool={pointer.tool} onChange={(tool) => pointer.setTool(tool as PainterTool)} />
     <ToolProperties tool={pointer.tool} lineWidth={pointer.lineWidth} color={pointer.color} zoom={zoom} rotation={rotation} setLineWidth={pointer.setLineWidth} setColor={pointer.setColor} setZoom={setZoom} setRotation={setRotation} />   
     <CanvasContainer pointer={pointer} />    
   </div>);

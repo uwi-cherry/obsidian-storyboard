@@ -113,12 +113,12 @@ export default function Canvas({
   };
 
   return (
-    <div className="flex-1 bg-background overflow-hidden relative">
+    <div className="flex flex-1 w-full h-full bg-background overflow-hidden relative">
       <canvas
         ref={canvasRef}
         width={800}
         height={600}
-        className="border border-modifier-border"
+        className="border border-modifier-border w-full h-full"
         style={{ display: 'block', margin: '0 auto' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
