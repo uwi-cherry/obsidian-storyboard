@@ -14,6 +14,7 @@ import PreviewCell from './PreviewCell';
 import SpeakerDialogueCell from './SpeakerDialogueCell';
 import { useSelectedRowIndexStore } from '../../../obsidian-api/zustand/store/selected-row-index-store';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
+import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 
 interface StoryboardReactViewProps {
   app: App;
@@ -258,6 +259,17 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     // zustand ストアに選択行を通知
     useSelectedRowIndexStore.getState().setSelectedRowIndex(globalIndex);
     useSelectedFrameStore.getState().setSelectedFrame(row);
+    
+    // PSDファイルの場合はcurrent-psd-file-storeも更新
+    if (row.imageUrl?.endsWith('.psd')) {
+      const file = app.vault.getAbstractFileByPath(row.imageUrl);
+      if (file instanceof TFile) {
+        useCurrentPsdFileStore.getState().setCurrentPsdFile(file);
+        console.log('🔍 Page: current-psd-file-storeを更新:', file.path);
+      }
+    } else {
+      useCurrentPsdFileStore.getState().clearCurrentPsdFile();
+    }
   }, [app, storyboard]);
 
   // サイドバーからの画像・プロンプト更新を受信

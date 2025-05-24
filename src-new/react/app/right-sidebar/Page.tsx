@@ -8,6 +8,7 @@ import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 
 interface RightSidebarReactViewProps {
   view?: any;
@@ -17,6 +18,7 @@ interface RightSidebarReactViewProps {
 export default function RightSidebarReactView({ view, app }: RightSidebarReactViewProps) {
   const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
+  const currentPsdFile = useCurrentPsdFileStore((state) => state.currentPsdFile);
   const layers = useLayersStore((state) => state.layers);
   const [currentFile, setCurrentFile] = useState<TFile | null>(null);
 
@@ -32,35 +34,32 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [view?.app]);
 
-  // ストーリーボード行選択時にレイヤーを自動ロード/クリア
+  // current-psd-file-storeの変化を監視してレイヤーを読み込み
   useEffect(() => {
     if (!app) return;
 
-    if (!selectedFrame || !selectedFrame.imageUrl?.endsWith('.psd')) {
-      // PSDパスがない場合はレイヤーをクリア
+    if (!currentPsdFile) {
+      // PSDファイルがない場合はレイヤーをクリア
       useLayersStore.getState().clearLayers();
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
       setCurrentFile(null);
       return;
     }
 
-    const frame = selectedFrame;
-
     const loadLayers = async () => {
       try {
-        const file = app.vault.getAbstractFileByPath(frame.imageUrl!);
-        if (file instanceof TFile) {
-          const result = await toolRegistry.executeTool('load_painter_file', {
-            app,
-            file
-          });
-          const psdData = JSON.parse(result);
-          if (psdData.layers && psdData.layers.length > 0) {
-            useLayersStore.getState().setLayers(psdData.layers);
-            useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
-            setCurrentFile(file);
-            console.log('ストーリーボード行選択により、PSDレイヤーを自動ロードしました:', file.name);
-          }
+        console.log('🔍 RightSidebar: PSDファイルを読み込み中:', currentPsdFile.path);
+        
+        const result = await toolRegistry.executeTool('load_painter_file', {
+          app,
+          file: currentPsdFile
+        });
+        const psdData = JSON.parse(result);
+        if (psdData.layers && psdData.layers.length > 0) {
+          useLayersStore.getState().setLayers(psdData.layers);
+          useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
+          setCurrentFile(currentPsdFile);
+          console.log('PSDレイヤーを自動ロードしました:', currentPsdFile.name);
         }
       } catch (error) {
         console.error('PSD レイヤー情報の読み込みに失敗しました:', error);
@@ -68,7 +67,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
 
     loadLayers();
-  }, [selectedFrame, app]);
+  }, [currentPsdFile, app]);
 
   // PSDファイルを開いた時のレイヤー同期処理
   useEffect(() => {

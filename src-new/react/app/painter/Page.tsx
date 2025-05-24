@@ -3,9 +3,9 @@ import Toolbar from './components/Toolbar';
 import ToolProperties from './components/ToolProperties';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
-import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 
 interface PainterPageProps {
   view?: any;
@@ -31,6 +31,18 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   
   const [layers, setLayers] = useState<any[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
+
+  // PSDファイルが開かれた時に selectedFrame を設定
+  useEffect(() => {
+    if (!view?.file || !app) return;
+    
+    if (view.file.extension === 'psd') {
+      console.log('🔍 PainterPage: PSDファイルが開かれました:', view.file.path);
+      
+      // current-psd-file-storeを更新
+      useCurrentPsdFileStore.getState().setCurrentPsdFile(view.file);
+    }
+  }, [view?.file, app]);
 
   // zustandストアからレイヤー情報を同期
   useEffect(() => {
