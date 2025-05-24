@@ -74,6 +74,35 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [layerContext, app]);
 
+  // PSDファイルを開いた時のレイヤー同期処理
+  useEffect(() => {
+    const handlePsdFileOpened = async (e: Event) => {
+      const custom = e as CustomEvent;
+      const { file } = custom.detail || {};
+      if (!file || !layerContext || !app) return;
+
+      try {
+        const result = await toolRegistry.executeTool('load_painter_file', {
+          app,
+          file
+        });
+        const psdData = JSON.parse(result);
+        if (psdData.layers && psdData.layers.length > 0) {
+          layerContext.setLayers(psdData.layers);
+          layerContext.setCurrentLayerIndex(0);
+          console.log('PSDファイルのレイヤーを同期しました:', file.name);
+        }
+      } catch (error) {
+        console.error('PSDファイルのレイヤー同期に失敗しました:', error);
+      }
+    };
+
+    window.addEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
+    return () => {
+      window.removeEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
+    };
+  }, [layerContext, app]);
+
   const handleImageChange = (url: string | null, prompt: string | null) => {
     setCurrentImageUrl(url);
     setCurrentImagePrompt(prompt);

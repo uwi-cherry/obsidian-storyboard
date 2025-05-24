@@ -20,6 +20,20 @@ export class PainterPlugin {
     this.plugin.registerView('psd-view', (leaf) => this.factory.createPainterView(leaf));
     this.plugin.registerExtensions(['psd', 'painter'], 'psd-view');
     
+    // PSDファイルを開いた時のレイヤー同期処理
+    this.plugin.registerEvent(
+      this.plugin.app.workspace.on('file-open', async (file) => {
+        if (file instanceof TFile && file.extension === 'psd') {
+          // PSDファイルが開かれたタイミングでレイヤー同期イベントを発火
+          window.dispatchEvent(
+            new CustomEvent('psd-file-opened', {
+              detail: { file }
+            })
+          );
+        }
+      })
+    );
+
     this.plugin.addRibbonIcon('palette', 'Open Painter', async () => {
       await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app });
     });

@@ -224,6 +224,26 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     }
   }, [view]);
 
+  // PSDファイルオープンイベントを監視してレイヤーを自動ロード
+  useEffect(() => {
+    const handlePsdFileOpened = async (e: Event) => {
+      const custom = e as CustomEvent;
+      const { file } = custom.detail || {};
+      if (!file || !view?.app) return;
+
+      try {
+        await loadFromFile(file);
+      } catch (error) {
+        console.error('PSDファイルの自動ロードに失敗しました:', error);
+      }
+    };
+
+    window.addEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
+    return () => {
+      window.removeEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
+    };
+  }, [loadFromFile, view]);
+
   const saveToFile = useCallback(async (file?: TFile) => {
     const targetFile = file || currentFile;
     if (!targetFile || layers.length === 0) return;
