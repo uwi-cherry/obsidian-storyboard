@@ -16,6 +16,10 @@ import { loadPainterFileTool } from '../api/painter-tool/load-painter-file';
 import { savePainterFileTool } from '../api/painter-tool/save-painter-file';
 import { addLayerTool } from '../api/layer-tool/add-layer';
 import { deleteLayerTool } from '../api/layer-tool/delete-layer';
+import { updateLayerTool } from '../api/layer-tool/update-layer';
+import { duplicateLayerTool } from '../api/layer-tool/duplicate-layer';
+import { initializePainterDataTool } from '../api/layer-tool/initialize-painter-data';
+import { setCurrentLayerTool } from '../api/layer-tool/set-current-layer';
 
 /**
  * 内部実装 - 外部からアクセス不可
@@ -38,7 +42,11 @@ namespace Internal {
     'undo_painter': undoPainterTool,
     'redo_painter': redoPainterTool,
     'add_layer': addLayerTool,
-    'delete_layer': deleteLayerTool
+    'delete_layer': deleteLayerTool,
+    'update_layer': updateLayerTool,
+    'duplicate_layer': duplicateLayerTool,
+    'initialize_painter_data': initializePainterDataTool,
+    'set_current_layer': setCurrentLayerTool
   };
 
   /**

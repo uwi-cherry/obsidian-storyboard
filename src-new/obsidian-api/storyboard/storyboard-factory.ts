@@ -3,6 +3,7 @@ import { Root, createRoot } from 'react-dom/client';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import React from 'react';
 import StoryboardReactView from 'src-new/react/app/storyboard/Page';
+import { LayerProvider } from '../../react/context/LayerContext';
 import { t } from '../../obsidian-i18n';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
@@ -126,10 +127,16 @@ export class StoryboardFactory {
     viewRoots.set(leaf, root);
     
     root.render(
-      React.createElement(StoryboardReactView, {
-        app: app,
-        file: view.file
-      })
+      React.createElement(
+        LayerProvider,
+        { 
+          view: null,  // ストーリーボード独自のコンテキスト
+          children: React.createElement(StoryboardReactView, {
+            app: app,
+            file: view.file
+          })
+        }
+      )
     );
   }
 

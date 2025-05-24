@@ -1,6 +1,6 @@
+import { Layer } from 'src-new/types/painter-types';
 import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
-import { Layer } from '../../../types/painter-types';
 
 namespace Internal {
   export interface AddLayerInput {

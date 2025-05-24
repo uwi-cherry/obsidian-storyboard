@@ -37,12 +37,15 @@ export class RightSidebarFactory {
   private renderReactComponent(view: RightSidebarView): void {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
-    const painter = view.app.workspace.getActiveViewOfType(PainterView);
+    
+    // LayerContextで状態共有 - PainterViewの有無は関係なし
     view.reactRoot.render(
       React.createElement(
         LayerProvider,
-        { view: painter },
-        React.createElement(RightSidebarReactView, { view, app: view.app })
+        { 
+          view: null,  // 右サイドバー独自のインスタンス
+          children: React.createElement(RightSidebarReactView, { view, app: view.app })
+        }
       )
     );
   }

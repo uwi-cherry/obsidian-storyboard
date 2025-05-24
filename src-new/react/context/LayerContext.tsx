@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, ReactNode, useCallback, useEffect, useRef } from 'react';
 import { Layer, PainterView, PainterData } from '../../types/painter-types';
+import { toolRegistry } from '../../service-api/core/tool-registry';
+import { TFile } from 'obsidian';
 
 interface LayerContextValue {
   view: PainterView | null;
   layers: Layer[];
   currentLayerIndex: number;
   painterData: PainterData | null;
+  currentFile: TFile | null;
   setLayers: (layers: Layer[]) => void;
   setCurrentLayerIndex: (index: number) => void;
   addLayer: (layer: Layer) => void;
@@ -15,6 +18,9 @@ interface LayerContextValue {
   mergeDown: (index: number) => void;
   flattenImage: () => void;
   initializePainterData: (view: PainterView) => void;
+  loadFromFile: (file: TFile) => Promise<void>;
+  saveToFile: (file?: TFile) => Promise<void>;
+  setCurrentFile: (file: TFile | null) => void;
 }
 
 const LayerContext = createContext<LayerContextValue | null>(null);
@@ -30,51 +36,15 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
   const [layers, setLayers] = useState<Layer[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
   const [painterData, setPainterData] = useState<PainterData | null>(null);
+  const [currentFile, setCurrentFile] = useState<TFile | null>(null);
 
   // PainterViewを初期化
-  const initializePainterData = useCallback((view: PainterView) => {
+  const initializePainterData = useCallback(async (view: PainterView) => {
     if (!view) return;
-    
-    setPainterView(view);
-    
-    // 既存のレイヤーをロード
-    if (view._painterData?.layers && view._painterData.layers.length > 0) {
-      setLayers(view._painterData.layers);
-      setCurrentLayerIndex(view._painterData.currentLayerIndex || 0);
-      setPainterData(view._painterData);
-    } else {
-      // 新しいデフォルトレイヤーを作成
-      const defaultLayer: Layer = {
-        name: '背景',
-        visible: true,
-        opacity: 1,
-        blendMode: 'normal',
-        canvas: document.createElement('canvas')
-      };
-      
-      // キャンバスを初期化
-      defaultLayer.canvas.width = 800;
-      defaultLayer.canvas.height = 600;
-      const ctx = defaultLayer.canvas.getContext('2d');
-      if (ctx) {
-        ctx.fillStyle = 'white';
-        ctx.fillRect(0, 0, defaultLayer.canvas.width, defaultLayer.canvas.height);
-      }
-      
-      const initialLayers = [defaultLayer];
-      const initialData: PainterData = {
-        layers: initialLayers,
-        currentLayerIndex: 0,
-        canvasWidth: 800,
-        canvasHeight: 600
-      };
-      
-      setLayers(initialLayers);
-      setCurrentLayerIndex(0);
-      setPainterData(initialData);
-      
-      // viewにデータを保存
-      view._painterData = initialData;
+    try {
+      await toolRegistry.executeTool('initialize_painter_data', { view });
+    } catch (error) {
+      console.error('Failed to initialize painter data:', error);
     }
   }, []);
 
@@ -83,102 +53,102 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail;
       if (!detail) return;
-      if (detail.view === painterView && detail.source !== instanceIdRef.current) {
-        if (Array.isArray(detail.layers)) {
-          setLayers(detail.layers);
-        }
-        if (typeof detail.currentLayerIndex === 'number') {
-          setCurrentLayerIndex(detail.currentLayerIndex);
-        }
+      // 自分が発信したイベントは無視
+      if (detail.source === instanceIdRef.current) return;
+      
+      // 全てのLayerProviderインスタンス間で同期
+      if (Array.isArray(detail.layers)) {
+        setLayers(detail.layers);
+      }
+      if (typeof detail.currentLayerIndex === 'number') {
+        setCurrentLayerIndex(detail.currentLayerIndex);
       }
     };
     window.addEventListener('layer-context-sync', handler as EventListener);
     return () => window.removeEventListener('layer-context-sync', handler as EventListener);
-  }, [painterView]);
+  }, []);
 
-  // レイヤー更新時にviewにも保存
+  // レイヤー更新時に全てのコンテキストに同期
   useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('layer-context-sync', {
+        detail: {
+          layers,
+          currentLayerIndex,
+          source: instanceIdRef.current,
+        }
+      })
+    );
+    
+    // PainterViewがある場合は、そこにもデータを保存
     if (painterView && painterData) {
       painterView._painterData = {
         ...painterData,
         layers,
         currentLayerIndex
       };
-      window.dispatchEvent(
-        new CustomEvent('layer-context-sync', {
-          detail: {
-            view: painterView,
-            layers,
-            currentLayerIndex,
-            source: instanceIdRef.current,
-          }
-        })
-      );
     }
   }, [layers, currentLayerIndex, painterView, painterData]);
+
+  // PainterViewが提供されている場合は、それを設定・初期化
+  useEffect(() => {
+    if (view && view !== painterView) {
+      setPainterView(view);
+      initializePainterData(view);
+    }
+  }, [view, painterView, initializePainterData]);
 
   const updateLayers = useCallback((newLayers: Layer[]) => {
     setLayers(newLayers);
   }, []);
 
-  const updateCurrentLayerIndex = useCallback((index: number) => {
-    if (index >= 0 && index < layers.length) {
-      setCurrentLayerIndex(index);
+  const updateCurrentLayerIndex = useCallback(async (index: number) => {
+    if (!view || index < 0 || index >= layers.length) return;
+    try {
+      await toolRegistry.executeTool('set_current_layer', { view, index });
+    } catch (error) {
+      console.error('Failed to set current layer:', error);
     }
-  }, [layers.length]);
+  }, [view, layers.length]);
 
-  const addLayer = useCallback((layer: Layer) => {
-    const newLayers = [...layers, layer];
-    setLayers(newLayers);
-    setCurrentLayerIndex(newLayers.length - 1);
-  }, [layers]);
-
-  const deleteLayer = useCallback((index: number) => {
-    if (layers.length <= 1) return; // 最後のレイヤーは削除不可
-    
-    const newLayers = layers.filter((_, i) => i !== index);
-    setLayers(newLayers);
-    
-    // currentLayerIndexを調整
-    if (currentLayerIndex >= newLayers.length) {
-      setCurrentLayerIndex(newLayers.length - 1);
-    } else if (currentLayerIndex > index) {
-      setCurrentLayerIndex(currentLayerIndex - 1);
+  const addLayer = useCallback(async (layer: Layer) => {
+    if (!view) return;
+    try {
+      await toolRegistry.executeTool('add_layer', {
+        view,
+        name: layer.name
+      });
+    } catch (error) {
+      console.error('Failed to add layer:', error);
     }
-  }, [layers, currentLayerIndex]);
+  }, [view]);
 
-  const updateLayer = useCallback((index: number, updates: Partial<Layer>) => {
-    if (index < 0 || index >= layers.length) return;
-    
-    const newLayers = [...layers];
-    newLayers[index] = { ...newLayers[index], ...updates };
-    setLayers(newLayers);
-  }, [layers]);
-
-  const duplicateLayer = useCallback((index: number) => {
-    if (index < 0 || index >= layers.length) return;
-    
-    const layerToDuplicate = layers[index];
-    const newCanvas = document.createElement('canvas');
-    newCanvas.width = layerToDuplicate.canvas.width;
-    newCanvas.height = layerToDuplicate.canvas.height;
-    
-    const newCtx = newCanvas.getContext('2d');
-    if (newCtx) {
-      newCtx.drawImage(layerToDuplicate.canvas, 0, 0);
+  const deleteLayer = useCallback(async (index: number) => {
+    if (!view) return;
+    try {
+      await toolRegistry.executeTool('delete_layer', { view, index });
+    } catch (error) {
+      console.error('Failed to delete layer:', error);
     }
-    
-    const duplicatedLayer: Layer = {
-      ...layerToDuplicate,
-      name: `${layerToDuplicate.name} コピー`,
-      canvas: newCanvas
-    };
-    
-    const newLayers = [...layers];
-    newLayers.splice(index + 1, 0, duplicatedLayer);
-    setLayers(newLayers);
-    setCurrentLayerIndex(index + 1);
-  }, [layers]);
+  }, [view]);
+
+  const updateLayer = useCallback(async (index: number, updates: Partial<Layer>) => {
+    if (!view) return;
+    try {
+      await toolRegistry.executeTool('update_layer', { view, index, updates });
+    } catch (error) {
+      console.error('Failed to update layer:', error);
+    }
+  }, [view]);
+
+  const duplicateLayer = useCallback(async (index: number) => {
+    if (!view) return;
+    try {
+      await toolRegistry.executeTool('duplicate_layer', { view, index });
+    } catch (error) {
+      console.error('Failed to duplicate layer:', error);
+    }
+  }, [view]);
 
   const mergeDown = useCallback((index: number) => {
     if (index <= 0 || index >= layers.length) return;
@@ -236,11 +206,44 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     setCurrentLayerIndex(0);
   }, [layers]);
 
+  const loadFromFile = useCallback(async (file: TFile) => {
+    if (!file) return;
+    try {
+      const result = await toolRegistry.executeTool('load_painter_file', {
+        app: view?.app,
+        file
+      });
+      const psdData = JSON.parse(result);
+      if (psdData.layers && psdData.layers.length > 0) {
+        setLayers(psdData.layers);
+        setCurrentLayerIndex(0);
+        setCurrentFile(file);
+      }
+    } catch (error) {
+      console.error('Failed to load file:', error);
+    }
+  }, [view]);
+
+  const saveToFile = useCallback(async (file?: TFile) => {
+    const targetFile = file || currentFile;
+    if (!targetFile || layers.length === 0) return;
+    try {
+      await toolRegistry.executeTool('save_painter_file', {
+        app: view?.app,
+        file: targetFile,
+        layers
+      });
+    } catch (error) {
+      console.error('Failed to save file:', error);
+    }
+  }, [view, currentFile, layers]);
+
   const value: LayerContextValue = {
     view: painterView,
     layers,
     currentLayerIndex,
     painterData,
+    currentFile,
     setLayers: updateLayers,
     setCurrentLayerIndex: updateCurrentLayerIndex,
     addLayer,
@@ -250,6 +253,9 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     mergeDown,
     flattenImage,
     initializePainterData,
+    loadFromFile,
+    saveToFile,
+    setCurrentFile,
   };
 
   return (

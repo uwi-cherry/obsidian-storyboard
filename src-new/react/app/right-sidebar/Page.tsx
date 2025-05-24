@@ -5,6 +5,7 @@ import NavigationControls from './components/NavigationControls';
 import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
 import { t } from '../../../obsidian-i18n';
+import { toolRegistry } from '../../../service-api/core/tool-registry';
 
 interface RightSidebarReactViewProps {
   view?: any;
@@ -34,6 +35,44 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
       view.app.workspace.off('active-leaf-change', updateState);
     };
   }, [view?.app]);
+
+  // ストーリーボードからの行選択イベントを受け取る
+  useEffect(() => {
+    const handleStoryboardRowSelected = async (e: Event) => {
+      const custom = e as CustomEvent;
+      const { rowIndex, frame } = custom.detail || {};
+      if (rowIndex === undefined) return;
+
+      setCurrentImageUrl(frame?.imageUrl || '');
+      setCurrentImagePrompt(frame?.imagePrompt || '');
+
+      // PSDファイルの場合、レイヤー情報を読み込む
+      const hasPsd = frame?.imageUrl?.endsWith('.psd');
+      if (hasPsd && frame.imageUrl && layerContext && app) {
+        try {
+          const file = app.vault.getAbstractFileByPath(frame.imageUrl);
+          if (file) {
+            const result = await toolRegistry.executeTool('load_painter_file', {
+              app,
+              file
+            });
+            const psdData = JSON.parse(result);
+            if (psdData.layers && psdData.layers.length > 0) {
+              layerContext.setLayers(psdData.layers);
+              layerContext.setCurrentLayerIndex(0);
+            }
+          }
+        } catch (error) {
+          console.error('PSD レイヤー情報の読み込みに失敗しました:', error);
+        }
+      }
+    };
+
+    window.addEventListener('storyboard-row-selected', handleStoryboardRowSelected as EventListener);
+    return () => {
+      window.removeEventListener('storyboard-row-selected', handleStoryboardRowSelected as EventListener);
+    };
+  }, [layerContext, app]);
 
   const handleImageChange = (url: string | null, prompt: string | null) => {
     setCurrentImageUrl(url);

@@ -95,6 +95,38 @@
       "ai_enabled": false,
       "description": "Delete layer from painter view",
       "category": "painter"
+    },
+    {
+      "name": "update_layer",
+      "modulePath": "../../src-new/service-api/api/layer-tool/update-layer",
+      "exportName": "updateLayerTool",
+      "ai_enabled": false,
+      "description": "Update layer properties in painter view",
+      "category": "painter"
+    },
+    {
+      "name": "duplicate_layer",
+      "modulePath": "../../src-new/service-api/api/layer-tool/duplicate-layer",
+      "exportName": "duplicateLayerTool",
+      "ai_enabled": false,
+      "description": "Duplicate layer in painter view",
+      "category": "painter"
+    },
+    {
+      "name": "initialize_painter_data",
+      "modulePath": "../../src-new/service-api/api/layer-tool/initialize-painter-data",
+      "exportName": "initializePainterDataTool",
+      "ai_enabled": false,
+      "description": "Initialize painter data with default layer",
+      "category": "painter"
+    },
+    {
+      "name": "set_current_layer",
+      "modulePath": "../../src-new/service-api/api/layer-tool/set-current-layer",
+      "exportName": "setCurrentLayerTool",
+      "ai_enabled": false,
+      "description": "Set current layer index in painter view",
+      "category": "painter"
     }
   ],
   "config": {
