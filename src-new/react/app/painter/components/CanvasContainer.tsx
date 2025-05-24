@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Canvas from './Canvas';
 import ActionMenu from './ActionMenu';
-import type { PainterPointer } from '../../hooks/usePainterPointer';
+import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
 
 interface SelectionRect {
   x: number;

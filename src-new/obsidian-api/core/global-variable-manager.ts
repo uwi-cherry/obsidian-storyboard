@@ -3,13 +3,11 @@ import { Plugin, App } from 'obsidian';
 type Listener<T = any> = (value: T) => void;
 
 export class GlobalVariableManager {
-  private plugin: Plugin;
   private app: App;
   private globalData: Record<string, any> = {};
   private listeners: Map<string, Set<Listener>> = new Map();
 
   constructor(plugin: Plugin) {
-    this.plugin = plugin;
     this.app = plugin.app;
   }
 

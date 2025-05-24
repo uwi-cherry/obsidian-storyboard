@@ -1,5 +1,5 @@
 import React from 'react';
-import { Notice, App, TFile } from 'obsidian';
+import { Notice, App } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 

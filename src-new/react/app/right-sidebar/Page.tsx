@@ -187,7 +187,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         onImageUrlChange={handleImageChange}
       />
       {layers && layers.length > 0 && <LayerControls />}
-      <ChatBox plugin={app} />
+      <ChatBox />
     </div>
   );
 }

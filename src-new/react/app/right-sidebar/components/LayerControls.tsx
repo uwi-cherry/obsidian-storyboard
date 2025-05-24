@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
-import { LAYER_ICONS, BUTTON_ICONS, TABLE_ICONS } from '../../../../constants/icons';
+import { LAYER_ICONS } from '../../../../constants/icons';
 import { GLOBAL_VARIABLE_KEYS } from '../../../../constants/constants';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
