@@ -21,10 +21,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const pointer = usePainterPointer();
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
-  const [layers, setLayers] = useState<any[]>(view?.layers || []);
-  const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(
-    view?.currentLayerIndex || 0
-  );
 
   useEffect(() => {
     if (view && app) {
@@ -51,8 +47,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
         globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
         globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
-        setLayers(currentLayers);
-        setCurrentLayerIndex(currentLayerIndex);
+
         console.log('🔍 PainterPage: GlobalVariableManager設定完了:', {
           layersCount: currentLayers.length,
           currentIndex: currentLayerIndex
@@ -63,16 +58,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           const updatedLayers = view.layers || [];
           const updatedLayerIndex = view.currentLayerIndex || 0;
 
-          globalVariableManager.setVariable(
-            GLOBAL_VARIABLE_KEYS.LAYERS,
-            updatedLayers
-          );
-          globalVariableManager.setVariable(
-            GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX,
-            updatedLayerIndex
-          );
-          setLayers(updatedLayers);
-          setCurrentLayerIndex(updatedLayerIndex);
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, updatedLayers);
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, updatedLayerIndex);
+
           console.log('🔍 PainterPage: レイヤー情報更新:', {
             layersCount: updatedLayers.length,
             currentIndex: updatedLayerIndex
@@ -102,26 +90,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   }, [view, app]);
 
   return (
-    <div className="flex flex-1 overflow-hidden">
-      <Toolbar tool={pointer.tool} onChange={pointer.setTool} />
-      <ToolProperties
-        tool={pointer.tool}
-        lineWidth={pointer.lineWidth}
-        color={pointer.color}
-        zoom={zoom}
-        rotation={rotation}
-        setLineWidth={pointer.setLineWidth}
-        setColor={pointer.setColor}
-        setZoom={setZoom}
-        setRotation={setRotation}
-      />
-      <CanvasContainer
-        pointer={pointer}
-        layers={layers}
-        currentLayerIndex={currentLayerIndex}
-        setLayers={setLayers}
-        view={view}
-      />
-    </div>
-  );
+  <div className="flex flex-1 overflow-hidden">
+    <Toolbar tool={pointer.tool} onChange={(tool) => pointer.setTool(tool as PainterTool)} />     
+    <ToolProperties tool={pointer.tool} lineWidth={pointer.lineWidth} color={pointer.color} zoom={zoom} rotation={rotation} setLineWidth={pointer.setLineWidth} setColor={pointer.setColor} setZoom={setZoom} setRotation={setRotation} />   
+    <CanvasContainer pointer={pointer} />    
+  </div>);
 }
