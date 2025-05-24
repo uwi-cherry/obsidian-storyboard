@@ -2,9 +2,6 @@ import { Plugin } from 'obsidian';
 import { RIGHT_SIDEBAR_VIEW_TYPE } from './right-sidebar-view';
 import { RightSidebarFactory } from './right-sidebar-factory';
 
-/**
- * Right Sidebar Plugin - Obsidian Plugin Integration
- */
 export class RightSidebarPlugin {
   private plugin: Plugin;
   private factory: RightSidebarFactory;
@@ -17,7 +14,7 @@ export class RightSidebarPlugin {
   initialize(): void {
     this.plugin.registerView(RIGHT_SIDEBAR_VIEW_TYPE, (leaf) => this.factory.createRightSidebarView(leaf));
 
-    // プラグイン初期化時に右サイドバーを自動で開く
+
     this.plugin.app.workspace.onLayoutReady(() => {
       this.activateRightSidebar();
     });

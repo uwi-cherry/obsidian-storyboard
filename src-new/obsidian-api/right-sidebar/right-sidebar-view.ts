@@ -3,9 +3,6 @@ import { Root } from 'react-dom/client';
 
 export const RIGHT_SIDEBAR_VIEW_TYPE = 'right-sidebar-view';
 
-/**
- * Right Sidebar View - Basic Obsidian ItemView
- */
 export class RightSidebarView extends ItemView {
   public reactRoot?: Root;
   public renderReact: () => void;

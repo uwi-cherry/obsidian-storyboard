@@ -1,8 +1,5 @@
 import { Plugin, PluginSettingTab, Setting } from 'obsidian';
 
-/**
- * Storyboard Settings Tab - Settings View
- */
 export class StoryboardSettingTab extends PluginSettingTab {
   plugin: Plugin;
 
@@ -23,8 +20,7 @@ export class StoryboardSettingTab extends PluginSettingTab {
       .addToggle(toggle => toggle
         .setValue(true)
         .onChange(async (value) => {
-          // サービスAPIが処理
-          console.log('Auto-save setting changed:', value);
+
         }));
         
     new Setting(containerEl)
@@ -35,8 +31,7 @@ export class StoryboardSettingTab extends PluginSettingTab {
         .addOption('storyboard', 'Storyboard')
         .setValue('markdown')
         .onChange(async (value) => {
-          // サービスAPIが処理
-          console.log('Default view mode changed:', value);
+
         }));
   }
 } 

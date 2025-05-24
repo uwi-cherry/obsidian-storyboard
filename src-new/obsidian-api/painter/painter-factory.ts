@@ -3,9 +3,6 @@ import React from 'react';
 import { PainterView } from './painter-view';
 import PainterPage from '../../react/app/painter/Page';
 
-/**
- * Painter Factory - React Injection and View Creation
- */
 export class PainterFactory {
   
   createPainterView(leaf: any): PainterView {
