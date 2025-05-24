@@ -18,7 +18,6 @@ export class RightSidebarFactory {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
     
-    // GlobalVariableManagerで状態管理
     view.reactRoot.render(
       React.createElement(RightSidebarReactView, { view, app: view.app })
     );

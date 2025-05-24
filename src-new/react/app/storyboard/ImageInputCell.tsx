@@ -126,11 +126,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       const leaf = app.workspace.getLeaf(true);
       await leaf.openFile(file, { active: true });
       
-      // global-variable-managerに現在のファイルを通知してレイヤー表示をリフレッシュ
-      const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-      if (globalVariableManager) {
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, file);
-      }
     }
   };
 
