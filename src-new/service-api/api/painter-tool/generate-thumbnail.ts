@@ -2,23 +2,21 @@ import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
 
-/**
- * 内部実装 - サービスAPI内部でのみ使用
- */
+
 namespace Internal {
-  /** Generate Thumbnail の入力型 */
+  
   export interface GenerateThumbnailInput {
     app: App;
     file: TFile;
   }
 
-  /** 出力型 */
+  
   export interface GenerateThumbnailOutput {
     thumbnailData: string | null;
     message: string;
   }
 
-  /** Generate Thumbnail のメタデータ */
+  
   export const GENERATE_THUMBNAIL_METADATA = {
     name: 'generate_thumbnail',
     description: 'Generate thumbnail from PSD file',
@@ -32,7 +30,7 @@ namespace Internal {
     }
   } as const;
 
-  /** 実行関数 */
+  
   export async function executeGenerateThumbnail(args: GenerateThumbnailInput): Promise<string> {
     const { app, file } = args;
 
@@ -88,7 +86,6 @@ namespace Internal {
       };
       return JSON.stringify(result);
     } catch (error) {
-      console.error('サムネイルの生成に失敗しました:', error);
       const result: GenerateThumbnailOutput = {
         thumbnailData: null,
         message: 'サムネイル生成に失敗しました: ' + (error as Error).message
@@ -98,7 +95,7 @@ namespace Internal {
   }
 }
 
-/** 外部公開用ツール定義 */
+
 export const generateThumbnailTool: Tool<Internal.GenerateThumbnailInput> = {
   name: 'generate_thumbnail',
   description: 'Generate thumbnail from PSD file',

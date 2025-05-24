@@ -37,7 +37,6 @@ namespace Internal {
   } as const;
 
   function convertPsdLayerToCanvas(psdLayer: any): HTMLCanvasElement {
-    // DOM が存在しない環境では toCanvas がそのままオブジェクトを返す
     return toCanvas(
       psdLayer.canvas ?? {},
       psdLayer.canvas?.width || 800,

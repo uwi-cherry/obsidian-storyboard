@@ -34,7 +34,6 @@ namespace Internal {
     view.setLayers?.(newLayers);
     view.saveHistory?.();
 
-    // zustand ストアを更新
     useLayersStore.getState().setLayers(newLayers);
     
     return 'layer_updated';
