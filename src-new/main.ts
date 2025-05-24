@@ -5,6 +5,7 @@ import { TimelinePlugin } from './obsidian-api/timeline/timeline-plugin';
 import { StoryboardPlugin } from './obsidian-api/storyboard/storyboard-plugin';
 import { SettingsPlugin } from './obsidian-api/settings/settings-plugin';
 import { toolRegistry } from './service-api/core/tool-registry';
+import { GlobalState } from './obsidian-api/core/global-state';
 
 /**
  * メインプラグインクラス
@@ -58,7 +59,8 @@ export default class MyPlugin extends Plugin {
 
   onunload() {
     console.log('🔄 Unloading plugin...');
-    // 必要に応じてクリーンアップ処理
+    // グローバル状態をクリーンアップ
+    GlobalState.cleanup();
     console.log('✅ Plugin unloaded');
   }
 } 
