@@ -19,10 +19,7 @@ interface StoryboardReactViewProps {
   file: TFile | null;
 }
 
-const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
-  app,
-  file,
-}) => {
+const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) => {
   const [initialData, setInitialData] = useState<StoryboardData>({
     title: '',
     chapters: [{ bgmPrompt: '第1章', frames: [] }],
@@ -244,7 +241,44 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     },
   ];
 
-  const handleRowSelect = useCallback((row: StoryboardFrame, index: number, chapterIndex: number) => {    // 章を考慮した全体のインデックスを計算    let globalIndex = 0;    for (let i = 0; i < chapterIndex; i++) {      globalIndex += storyboard.chapters[i].frames.length;    }    globalIndex += index;        console.log('🔍 Page: 行選択イベント:', { chapterIndex, localIndex: index, globalIndex, row });        // GlobalVariableManagerに選択行を通知    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;    console.log('🔍 Page: globalVariableManager:', globalVariableManager);        if (globalVariableManager) {      console.log('🔍 Page: グローバル変数を更新中...');      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);      console.log('🔍 Page: グローバル変数更新完了 - globalIndex:', globalIndex);    } else {      console.log('🔍 Page: GlobalVariableManagerが見つかりません - リトライを試行');            // 少し待ってからリトライ      setTimeout(() => {        const retryManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;        console.log('🔍 Page: リトライ後のglobalVariableManager:', retryManager);                if (retryManager) {          console.log('🔍 Page: リトライ成功 - グローバル変数を更新中...');          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);          console.log('🔍 Page: リトライでグローバル変数更新完了 - globalIndex:', globalIndex);        } else {          console.log('🔍 Page: リトライでもGlobalVariableManagerが見つかりませんでした');        }      }, 1000);    }  }, [app, storyboard]);
+  const handleRowSelect = useCallback((row: StoryboardFrame, index: number, chapterIndex: number) => {
+    // 章を考慮した全体のインデックスを計算
+    let globalIndex = 0;
+    for (let i = 0; i < chapterIndex; i++) {
+      globalIndex += storyboard.chapters[i].frames.length;
+    }
+    globalIndex += index;
+    
+    console.log('🔍 Page: 行選択イベント:', { chapterIndex, localIndex: index, globalIndex, row });
+    
+    // GlobalVariableManagerに選択行を通知
+    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+    console.log('🔍 Page: globalVariableManager:', globalVariableManager);
+    
+    if (globalVariableManager) {
+      console.log('🔍 Page: グローバル変数を更新中...');
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
+      console.log('🔍 Page: グローバル変数更新完了 - globalIndex:', globalIndex);
+    } else {
+      console.log('🔍 Page: GlobalVariableManagerが見つかりません - リトライを試行');
+      
+      // 少し待ってからリトライ
+      setTimeout(() => {
+        const retryManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+        console.log('🔍 Page: リトライ後のglobalVariableManager:', retryManager);
+        
+        if (retryManager) {
+          console.log('🔍 Page: リトライ成功 - グローバル変数を更新中...');
+          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);
+          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
+          console.log('🔍 Page: リトライでグローバル変数更新完了 - globalIndex:', globalIndex);
+        } else {
+          console.log('🔍 Page: リトライでもGlobalVariableManagerが見つかりませんでした');
+        }
+      }, 1000);
+    }
+  }, [app, storyboard]);
 
   // サイドバーからの画像・プロンプト更新を受信
   useEffect(() => {
