@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { App } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import { useLayerContext } from '../../context/LayerContext';
+import { useStoryboardContext } from '../../context/StoryboardContext';
 import NavigationControls from './components/NavigationControls';
 import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
@@ -14,14 +15,19 @@ interface RightSidebarReactViewProps {
 
 export default function RightSidebarReactView({ view, app }: RightSidebarReactViewProps) {
   const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
-  const [currentImageUrl, setCurrentImageUrl] = useState<string | null>(null);
-  const [currentImagePrompt, setCurrentImagePrompt] = useState<string | null>(null);
 
   let layerContext;
   try {
     layerContext = useLayerContext();
   } catch {
     layerContext = null;
+  }
+
+  let storyboardContext;
+  try {
+    storyboardContext = useStoryboardContext();
+  } catch {
+    storyboardContext = null;
   }
 
   useEffect(() => {
@@ -36,22 +42,18 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [view?.app]);
 
-  // ストーリーボードからの行選択イベントを受け取る
+  // ストーリーボード行選択時にレイヤーを自動ロード
   useEffect(() => {
-    const handleStoryboardRowSelected = async (e: Event) => {
-      const custom = e as CustomEvent;
-      const { rowIndex, frame } = custom.detail || {};
-      if (rowIndex === undefined) return;
+    if (!storyboardContext?.selectedFrame || !layerContext || !app) return;
 
-      setCurrentImageUrl(frame?.imageUrl || '');
-      setCurrentImagePrompt(frame?.imagePrompt || '');
-
-      // PSDファイルの場合、レイヤー情報を読み込む
-      const hasPsd = frame?.imageUrl?.endsWith('.psd');
-      if (hasPsd && frame.imageUrl && layerContext && app) {
+    const frame = storyboardContext.selectedFrame;
+    const hasPsd = frame.imageUrl?.endsWith('.psd');
+    
+    if (hasPsd && frame.imageUrl) {
+      const loadLayers = async () => {
         try {
-          const file = app.vault.getAbstractFileByPath(frame.imageUrl);
-          if (file) {
+          const file = app.vault.getAbstractFileByPath(frame.imageUrl!);
+          if (file instanceof TFile) {
             const result = await toolRegistry.executeTool('load_painter_file', {
               app,
               file
@@ -60,19 +62,18 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
             if (psdData.layers && psdData.layers.length > 0) {
               layerContext.setLayers(psdData.layers);
               layerContext.setCurrentLayerIndex(0);
+              layerContext.setCurrentFile(file);
+              console.log('ストーリーボード行選択により、PSDレイヤーを自動ロードしました:', file.name);
             }
           }
         } catch (error) {
           console.error('PSD レイヤー情報の読み込みに失敗しました:', error);
         }
-      }
-    };
-
-    window.addEventListener('storyboard-row-selected', handleStoryboardRowSelected as EventListener);
-    return () => {
-      window.removeEventListener('storyboard-row-selected', handleStoryboardRowSelected as EventListener);
-    };
-  }, [layerContext, app]);
+      };
+      
+      loadLayers();
+    }
+  }, [storyboardContext?.selectedFrame, layerContext, app]);
 
   // PSDファイルを開いた時のレイヤー同期処理
   useEffect(() => {
@@ -90,6 +91,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         if (psdData.layers && psdData.layers.length > 0) {
           layerContext.setLayers(psdData.layers);
           layerContext.setCurrentLayerIndex(0);
+          layerContext.setCurrentFile(file);
           console.log('PSDファイルのレイヤーを同期しました:', file.name);
         }
       } catch (error) {
@@ -104,9 +106,13 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
   }, [layerContext, app]);
 
   const handleImageChange = (url: string | null, prompt: string | null) => {
-    setCurrentImageUrl(url);
-    setCurrentImagePrompt(prompt);
+    // ストーリーボードコンテキストがある場合は更新
+    // （注：これは将来的にはストーリーボード側で管理すべき）
   };
+
+  // 現在選択されているフレームの情報を取得
+  const currentImageUrl = storyboardContext?.selectedFrame?.imageUrl || null;
+  const currentImagePrompt = storyboardContext?.selectedFrame?.imagePrompt || null;
 
   return (
     <div className="w-full h-full flex flex-col bg-primary border-l border-modifier-border">

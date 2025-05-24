@@ -1,9 +1,10 @@
-import { App, TFile } from 'obsidian';
+import { App, TFile, Notice } from 'obsidian';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { FOLD_ICON_SVG, TABLE_ICONS } from 'src-new/icons';
 import EditableTable, { ColumnDef } from 'src-new/react/components/EditableTable';
 import { t } from '../../../obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
+import { useStoryboardContext } from '../../context/StoryboardContext';
 import useStoryboardData from '../../hooks/useStoryboardData';
 import { StoryboardData, StoryboardFrame } from '../../../types/storyboard';
 import BGMCreationInput from './BGMCreationInput';
@@ -116,7 +117,32 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     isOpen?: boolean,
     targetDir?: string
   ): Promise<TFile> => {
-    throw new Error('PSD作成機能は未実装です');
+    try {
+      // toolRegistryを使用してPSDファイルを作成
+      const result = await toolRegistry.executeTool('create_painter_file', { 
+        app, 
+        imageFile 
+      });
+      const parsedResult = JSON.parse(result);
+      
+      // 作成されたPSDファイルを取得
+      const psdFile = app.vault.getAbstractFileByPath(parsedResult.filePath);
+      if (!(psdFile instanceof TFile)) {
+        throw new Error('作成されたPSDファイルが見つかりません');
+      }
+      
+      // ファイルを開く場合
+      if (isOpen) {
+        const leaf = app.workspace.getLeaf(true);
+        await leaf.openFile(psdFile, { active: true });
+      }
+      
+      return psdFile;
+    } catch (error) {
+      console.error('PSD作成に失敗しました:', error);
+      new Notice('PSD作成に失敗しました: ' + (error as Error).message);
+      throw error;
+    }
   };
 
   const columns: ColumnDef<StoryboardFrame>[] = [
@@ -197,12 +223,9 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   ];
 
   const handleRowSelect = useCallback((row: StoryboardFrame, index: number) => {
-    // サイドバーへ選択行を通知
-    window.dispatchEvent(
-      new CustomEvent('storyboard-row-selected', {
-        detail: { rowIndex: index, frame: row },
-      })
-    );
+    // StoryboardContextに選択行を通知
+    const storyboardContext = useStoryboardContext();
+    storyboardContext.setSelectedRow(index, row);
   }, []);
 
   // サイドバーからの画像・プロンプト更新を受信

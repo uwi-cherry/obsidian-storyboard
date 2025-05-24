@@ -32,7 +32,6 @@ interface LayerProviderProps {
 
 export function LayerProvider({ children, view }: LayerProviderProps) {
   const [painterView, setPainterView] = useState<PainterView | null>(null);
-  const instanceIdRef = useRef<string>(Math.random().toString(36).slice(2));
   const [layers, setLayers] = useState<Layer[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
   const [painterData, setPainterData] = useState<PainterData | null>(null);
@@ -48,48 +47,6 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
     }
   }, []);
 
-  // 他の LayerProvider からの更新を受け取る
-  useEffect(() => {
-    const handler = (e: Event) => {
-      const detail = (e as CustomEvent).detail;
-      if (!detail) return;
-      // 自分が発信したイベントは無視
-      if (detail.source === instanceIdRef.current) return;
-      
-      // 全てのLayerProviderインスタンス間で同期
-      if (Array.isArray(detail.layers)) {
-        setLayers(detail.layers);
-      }
-      if (typeof detail.currentLayerIndex === 'number') {
-        setCurrentLayerIndex(detail.currentLayerIndex);
-      }
-    };
-    window.addEventListener('layer-context-sync', handler as EventListener);
-    return () => window.removeEventListener('layer-context-sync', handler as EventListener);
-  }, []);
-
-  // レイヤー更新時に全てのコンテキストに同期
-  useEffect(() => {
-    window.dispatchEvent(
-      new CustomEvent('layer-context-sync', {
-        detail: {
-          layers,
-          currentLayerIndex,
-          source: instanceIdRef.current,
-        }
-      })
-    );
-    
-    // PainterViewがある場合は、そこにもデータを保存
-    if (painterView && painterData) {
-      painterView._painterData = {
-        ...painterData,
-        layers,
-        currentLayerIndex
-      };
-    }
-  }, [layers, currentLayerIndex, painterView, painterData]);
-
   // PainterViewが提供されている場合は、それを設定・初期化
   useEffect(() => {
     if (view && view !== painterView) {
@@ -104,6 +61,7 @@ export function LayerProvider({ children, view }: LayerProviderProps) {
 
   const updateCurrentLayerIndex = useCallback(async (index: number) => {
     if (!view || index < 0 || index >= layers.length) return;
+    setCurrentLayerIndex(index);
     try {
       await toolRegistry.executeTool('set_current_layer', { view, index });
     } catch (error) {
