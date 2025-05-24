@@ -3,7 +3,6 @@ import React from 'react';
 import { RightSidebarView } from './right-sidebar-view';
 import RightSidebarReactView from '../../react/app/right-sidebar/Page';
 import { LayerProvider } from '../../react/context/LayerContext';
-import { StoryboardProvider } from '../../react/context/StoryboardContext';
 import { PainterView } from '../painter/painter-view';
 
 /**
@@ -39,18 +38,13 @@ export class RightSidebarFactory {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
     
-    // StoryboardProviderとLayerContextで状態共有
+    // LayerContextで状態管理
     view.reactRoot.render(
       React.createElement(
-        StoryboardProvider,
-        {
-          children: React.createElement(
-            LayerProvider,
-            { 
-              view: null,  // 右サイドバー独自のインスタンス
-              children: React.createElement(RightSidebarReactView, { view, app: view.app })
-            }
-          )
+        LayerProvider,
+        { 
+          view: null,  // 右サイドバー独自のインスタンス
+          children: React.createElement(RightSidebarReactView, { view, app: view.app })
         }
       )
     );

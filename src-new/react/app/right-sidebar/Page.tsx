@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { App, TFile } from 'obsidian';
 import { useLayerContext } from '../../context/LayerContext';
-import { useStoryboardContext } from '../../context/StoryboardContext';
 import { NavigationControls } from './components/NavigationControls';
 import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
@@ -15,19 +14,13 @@ interface RightSidebarReactViewProps {
 
 export default function RightSidebarReactView({ view, app }: RightSidebarReactViewProps) {
   const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
+  const [selectedFrame, setSelectedFrame] = useState<any>(null);
 
   let layerContext;
   try {
     layerContext = useLayerContext();
   } catch {
     layerContext = null;
-  }
-
-  let storyboardContext;
-  try {
-    storyboardContext = useStoryboardContext();
-  } catch {
-    storyboardContext = null;
   }
 
   useEffect(() => {
@@ -42,11 +35,25 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [view?.app]);
 
+  // GlobalVariableManagerから選択されたフレームを監視
+  useEffect(() => {
+    if (!app) return;
+    
+    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+    if (!globalVariableManager) return;
+
+    const unsubscribe = globalVariableManager.subscribe('selectedFrame', (frame: any) => {
+      setSelectedFrame(frame);
+    });
+
+    return unsubscribe;
+  }, [app]);
+
   // ストーリーボード行選択時にレイヤーを自動ロード
   useEffect(() => {
-    if (!storyboardContext?.selectedFrame || !layerContext || !app) return;
+    if (!selectedFrame || !layerContext || !app) return;
 
-    const frame = storyboardContext.selectedFrame;
+    const frame = selectedFrame;
     const hasPsd = frame.imageUrl?.endsWith('.psd');
     
     if (hasPsd && frame.imageUrl) {
@@ -73,7 +80,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
       
       loadLayers();
     }
-  }, [storyboardContext?.selectedFrame, layerContext, app]);
+  }, [selectedFrame, layerContext, app]);
 
   // PSDファイルを開いた時のレイヤー同期処理
   useEffect(() => {
@@ -152,7 +159,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
   };
 
   // 現在選択されているフレームの情報を取得
-  const currentImageUrl = storyboardContext?.selectedFrame?.imageUrl || null;
+  const currentImageUrl = selectedFrame?.imageUrl || null;
 
   return (
     <div className="w-full h-full flex flex-col bg-primary border-l border-modifier-border">
