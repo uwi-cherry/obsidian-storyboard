@@ -32,10 +32,28 @@ export default function Canvas({
   onSelectionEnd
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
 
   const selectingRef = useRef(false);
   const startXRef = useRef(0);
   const startYRef = useRef(0);
+  const drawingRef = useRef(false);
+  const lastPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  // キャンバスサイズをPSDサイズに合わせる
+  useEffect(() => {
+    if (view?._painterData?.canvasWidth && view?._painterData?.canvasHeight) {
+      setCanvasSize({
+        width: view._painterData.canvasWidth,
+        height: view._painterData.canvasHeight
+      });
+    } else if (layers.length > 0 && layers[0].canvas) {
+      setCanvasSize({
+        width: layers[0].canvas.width || 800,
+        height: layers[0].canvas.height || 600
+      });
+    }
+  }, [view, layers]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -98,31 +116,78 @@ export default function Canvas({
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = (e.clientX - rect.left) * scaleX;
+    const y = (e.clientY - rect.top) * scaleY;
     return { x, y };
   };
 
+  const drawOnCurrentLayer = (fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
+    if (!layers[currentLayerIndex] || !layers[currentLayerIndex].canvas) return;
+
+    const layerCanvas = layers[currentLayerIndex].canvas;
+    const ctx = layerCanvas.getContext('2d');
+    if (!ctx) return;
+
+    ctx.globalCompositeOperation = 'source-over';
+    ctx.strokeStyle = pointer.color;
+    ctx.lineWidth = pointer.lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(fromPos.x, fromPos.y);
+    ctx.lineTo(toPos.x, toPos.y);
+    ctx.stroke();
+
+    // メインキャンバスを再描画
+    const mainCanvas = canvasRef.current;
+    if (mainCanvas) {
+      const mainCtx = mainCanvas.getContext('2d');
+      if (mainCtx) {
+        mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
+        layers.forEach((layer: any) => {
+          if (layer.visible && layer.canvas) {
+            const originalAlpha = mainCtx.globalAlpha;
+            mainCtx.globalAlpha = layer.opacity || 1;
+            mainCtx.drawImage(layer.canvas, 0, 0);
+            mainCtx.globalAlpha = originalAlpha;
+          }
+        });
+      }
+    }
+  };
+
   const handlePointerDown = (e: React.PointerEvent) => {
+    const { x, y } = getPointerPos(e);
+
     if (pointer.tool === 'selection') {
-      const { x, y } = getPointerPos(e);
       selectingRef.current = true;
       startXRef.current = x;
       startYRef.current = y;
       onSelectionUpdate?.({ x, y, width: 0, height: 0 });
       onSelectionStart?.();
+    } else if (pointer.tool === 'brush') {
+      drawingRef.current = true;
+      lastPosRef.current = { x, y };
+      // 点を描画
+      drawOnCurrentLayer({ x, y }, { x, y });
     }
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
-    if (pointer.tool === 'selection') {
-      const { x, y } = getPointerPos(e);
-      if (!selectingRef.current) return;
+    const { x, y } = getPointerPos(e);
+
+    if (pointer.tool === 'selection' && selectingRef.current) {
       const x0 = Math.min(startXRef.current, x);
       const y0 = Math.min(startYRef.current, y);
       const w = Math.abs(x - startXRef.current);
       const h = Math.abs(y - startYRef.current);
       onSelectionUpdate?.({ x: x0, y: y0, width: w, height: h });
+    } else if ((pointer.tool === 'brush') && drawingRef.current && lastPosRef.current) {
+      drawOnCurrentLayer(lastPosRef.current, { x, y });
+      lastPosRef.current = { x, y };
     }
   };
 
@@ -136,21 +201,29 @@ export default function Canvas({
         onSelectionUpdate?.(undefined as any);
         onSelectionEnd?.(undefined);
       }
+    } else if (pointer.tool === 'brush') {
+      drawingRef.current = false;
+      lastPosRef.current = null;
     }
   };
 
   return (
     <div className="flex flex-1 w-full h-full bg-background overflow-hidden relative">
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        className="border border-modifier-border w-full h-full"
-        style={{ display: 'block', margin: '0 auto' }}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-      />
+      <div className="flex items-center justify-center w-full h-full">
+        <canvas
+          ref={canvasRef}
+          width={canvasSize.width}
+          height={canvasSize.height}
+          className="border border-modifier-border max-w-full max-h-full"
+          style={{ 
+            display: 'block',
+            objectFit: 'contain'
+          }}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+        />
+      </div>
     </div>
   );
 }
