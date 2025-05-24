@@ -33,37 +33,42 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [view?.app]);
 
-  // ストーリーボード行選択時にレイヤーを自動ロード
+  // ストーリーボード行選択時にレイヤーを自動ロード/クリア
   useEffect(() => {
-    if (!selectedFrame || !app) return;
+    if (!app) return;
+
+    if (!selectedFrame || !selectedFrame.imageUrl?.endsWith('.psd')) {
+      // PSDパスがない場合はレイヤーをクリア
+      useLayersStore.getState().clearLayers();
+      useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
+      setCurrentFile(null);
+      return;
+    }
 
     const frame = selectedFrame;
-    const hasPsd = frame.imageUrl?.endsWith('.psd');
-    
-    if (hasPsd && frame.imageUrl) {
-      const loadLayers = async () => {
-        try {
-          const file = app.vault.getAbstractFileByPath(frame.imageUrl!);
-          if (file instanceof TFile) {
-            const result = await toolRegistry.executeTool('load_painter_file', {
-              app,
-              file
-            });
-            const psdData = JSON.parse(result);
-            if (psdData.layers && psdData.layers.length > 0) {
-              useLayersStore.getState().setLayers(psdData.layers);
-              useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
-              setCurrentFile(file);
-              console.log('ストーリーボード行選択により、PSDレイヤーを自動ロードしました:', file.name);
-            }
+
+    const loadLayers = async () => {
+      try {
+        const file = app.vault.getAbstractFileByPath(frame.imageUrl!);
+        if (file instanceof TFile) {
+          const result = await toolRegistry.executeTool('load_painter_file', {
+            app,
+            file
+          });
+          const psdData = JSON.parse(result);
+          if (psdData.layers && psdData.layers.length > 0) {
+            useLayersStore.getState().setLayers(psdData.layers);
+            useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
+            setCurrentFile(file);
+            console.log('ストーリーボード行選択により、PSDレイヤーを自動ロードしました:', file.name);
           }
-        } catch (error) {
-          console.error('PSD レイヤー情報の読み込みに失敗しました:', error);
         }
-      };
-      
-      loadLayers();
-    }
+      } catch (error) {
+        console.error('PSD レイヤー情報の読み込みに失敗しました:', error);
+      }
+    };
+
+    loadLayers();
   }, [selectedFrame, app]);
 
   // PSDファイルを開いた時のレイヤー同期処理
