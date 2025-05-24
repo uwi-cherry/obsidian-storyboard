@@ -26,11 +26,17 @@ export const TOOL_NAMES = {
   SET_CURRENT_LAYER: 'set_current_layer'
 } as const;
 
+// ツール名の型定義
+export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
+
 // カテゴリ定数
 export const TOOL_CATEGORIES = {
   STORYBOARD: 'storyboard',
   PAINTER: 'painter'
 } as const;
+
+// カテゴリの型定義
+export type ToolCategory = typeof TOOL_CATEGORIES[keyof typeof TOOL_CATEGORIES];
 
 export const TOOLS_CONFIG: ToolsConfiguration = {
   tools: [
@@ -176,4 +182,25 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     enableLogging: true,
     failOnError: false
   }
-}; 
+};
+
+/**
+ * ツール名が有効かチェック
+ */
+export function isValidToolName(name: string): name is ToolName {
+  return Object.values(TOOL_NAMES).includes(name as ToolName);
+}
+
+/**
+ * カテゴリが有効かチェック
+ */
+export function isValidToolCategory(category: string): category is ToolCategory {
+  return Object.values(TOOL_CATEGORIES).includes(category as ToolCategory);
+}
+
+/**
+ * 設定に含まれるすべてのツール名を取得
+ */
+export function getConfiguredToolNames(): ToolName[] {
+  return TOOLS_CONFIG.tools.map(tool => tool.name as ToolName);
+} 

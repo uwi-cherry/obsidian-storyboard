@@ -27,6 +27,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     if (view && app) {
       const globalVariableManager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
       if (globalVariableManager) {
+        // ペインタービューをGlobalVariableManagerに登録
         globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, view);
       }
     }

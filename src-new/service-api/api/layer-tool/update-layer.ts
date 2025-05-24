@@ -1,5 +1,6 @@
 import { Tool } from '../../core/tool';
 import { Layer } from '../../../types/painter-types';
+import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 
 namespace Internal {
   export interface UpdateLayerInput {
@@ -32,6 +33,14 @@ namespace Internal {
     view.layers = newLayers;
     view.setLayers?.(newLayers);
     view.saveHistory?.();
+
+    // GlobalVariableManagerを更新
+    if (view.app && typeof window !== 'undefined') {
+      const globalVariableManager = view.app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      if (globalVariableManager) {
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, newLayers);
+      }
+    }
     
     return 'layer_updated';
   }

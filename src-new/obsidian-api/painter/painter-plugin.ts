@@ -2,6 +2,7 @@ import { Plugin, addIcon, TFile } from 'obsidian';
 import { PainterFactory } from './painter-factory';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { PainterView } from './painter-view';
+import { GLOBAL_VARIABLE_KEYS } from '../../constants/constants';
 
 /**
  * Painter Plugin - Obsidian Plugin Integration
@@ -20,42 +21,6 @@ export class PainterPlugin {
     this.plugin.registerView('psd-view', (leaf) => this.factory.createPainterView(leaf));
     this.plugin.registerExtensions(['psd', 'painter'], 'psd-view');
     
-    // PSDファイルを開いた時のレイヤー同期処理
-    this.plugin.registerEvent(
-      this.plugin.app.workspace.on('file-open', async (file) => {
-        if (file instanceof TFile && file.extension === 'psd') {
-          // PSDファイルが開かれたタイミングでレイヤー同期イベントを発火
-          window.dispatchEvent(
-            new CustomEvent('psd-file-opened', {
-              detail: { file }
-            })
-          );
-        }
-      })
-    );
-
-
-    this.plugin.addCommand({
-      id: 'add-blank-layer',
-      name: 'Add Blank Layer',
-      callback: async () => {
-        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
-        if (view) {
-          await toolRegistry.executeTool('add_layer', { view });
-        }
-      }
-    });
-
-    this.plugin.addCommand({
-      id: 'delete-current-layer',
-      name: 'Delete Current Layer',
-      callback: async () => {
-        const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
-        if (view) {
-          await toolRegistry.executeTool('delete_layer', { view, index: view.currentLayerIndex });
-        }
-      }
-    });
 
     this.plugin.app.workspace.on('file-menu', (menu, file) => {
       if (file instanceof TFile && file.extension.toLowerCase().match(/^(png|jpe?g|gif|webp)$/)) {

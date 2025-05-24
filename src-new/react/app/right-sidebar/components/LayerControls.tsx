@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
 import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from '../../../../constants/icons';
 import { GLOBAL_VARIABLE_KEYS } from '../../../../constants/constants';
+import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
 export default function LayerControls() {
   const [layers, setLayers] = useState<any[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
   const [globalVariableManager, setGlobalVariableManager] = useState<any>(null);
+  const [painterView, setPainterView] = useState<any>(null);
 
   // GlobalVariableManagerを取得
   useEffect(() => {
@@ -17,7 +19,7 @@ export default function LayerControls() {
     }
   }, []);
 
-  // レイヤー情報を監視
+  // レイヤー情報とペインタービューを監視
   useEffect(() => {
     if (!globalVariableManager) return;
 
@@ -29,71 +31,117 @@ export default function LayerControls() {
       setCurrentLayerIndex(index || 0);
     });
 
+    const unsubscribeView = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, (view: any) => {
+      setPainterView(view);
+    });
+
     return () => {
       unsubscribeLayers();
       unsubscribeIndex();
+      unsubscribeView();
     };
   }, [globalVariableManager]);
 
-  const updateLayers = (newLayers: any[]) => {
-    if (globalVariableManager) {
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, newLayers);
-    }
-    setLayers(newLayers);
-  };
-
-  const updateCurrentLayerIndex = (index: number) => {
-    if (globalVariableManager) {
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, index);
-    }
-    setCurrentLayerIndex(index);
-  };
-
-  const addBlankLayer = () => {
-    const newLayer = {
-      name: `レイヤー ${layers.length + 1}`,
-      visible: true,
-      opacity: 1,
-      blendMode: 'normal',
-      canvas: document.createElement('canvas')
-    };
-    updateLayers([...layers, newLayer]);
-  };
-
-  const deleteCurrentLayer = () => {
-    if (layers.length <= 1) return;
-    const newLayers = layers.filter((_, index) => index !== currentLayerIndex);
-    updateLayers(newLayers);
-    if (currentLayerIndex >= newLayers.length) {
-      updateCurrentLayerIndex(newLayers.length - 1);
+  const addBlankLayer = async () => {
+    if (!painterView) return;
+    
+    try {
+      await toolRegistry.executeTool('add_layer', {
+        view: painterView,
+        name: `レイヤー ${layers.length + 1}`
+      });
+      
+      // GlobalVariableManagerが自動的に更新を通知するので、
+      // ここでは明示的に状態を更新する必要はありません
+    } catch (error) {
+      console.error('レイヤー追加に失敗しました:', error);
     }
   };
 
-  const toggleVisibility = (index: number) => {
-    const newLayers = [...layers];
-    newLayers[index].visible = !newLayers[index].visible;
-    updateLayers(newLayers);
+  const deleteCurrentLayer = async () => {
+    if (!painterView || layers.length <= 1) return;
+    
+    try {
+      await toolRegistry.executeTool('delete_layer', {
+        view: painterView,
+        index: currentLayerIndex
+      });
+    } catch (error) {
+      console.error('レイヤー削除に失敗しました:', error);
+    }
   };
 
-  const renameLayer = (index: number) => {
+  const toggleVisibility = async (index: number) => {
+    if (!painterView) return;
+    
+    try {
+      const layer = layers[index];
+      await toolRegistry.executeTool('update_layer', {
+        view: painterView,
+        index,
+        updates: { visible: !layer.visible }
+      });
+    } catch (error) {
+      console.error('レイヤー表示切り替えに失敗しました:', error);
+    }
+  };
+
+  const renameLayer = async (index: number) => {
+    if (!painterView) return;
+    
     const newName = prompt(t('ENTER_LAYER_NAME') || 'レイヤー名を入力', layers[index].name);
     if (newName && newName !== layers[index].name) {
-      const newLayers = [...layers];
-      newLayers[index].name = newName;
-      updateLayers(newLayers);
+      try {
+        await toolRegistry.executeTool('update_layer', {
+          view: painterView,
+          index,
+          updates: { name: newName }
+        });
+      } catch (error) {
+        console.error('レイヤー名変更に失敗しました:', error);
+      }
     }
   };
 
-  const changeOpacity = (opacity: number) => {
-    const newLayers = [...layers];
-    newLayers[currentLayerIndex].opacity = opacity / 100;
-    updateLayers(newLayers);
+  const changeOpacity = async (opacity: number) => {
+    if (!painterView) return;
+    
+    try {
+      await toolRegistry.executeTool('update_layer', {
+        view: painterView,
+        index: currentLayerIndex,
+        updates: { opacity: opacity / 100 }
+      });
+    } catch (error) {
+      console.error('不透明度変更に失敗しました:', error);
+    }
   };
 
-  const changeBlendMode = (blendMode: string) => {
-    const newLayers = [...layers];
-    newLayers[currentLayerIndex].blendMode = blendMode;
-    updateLayers(newLayers);
+  const changeBlendMode = async (blendMode: string) => {
+    if (!painterView) return;
+    
+    try {
+      await toolRegistry.executeTool('update_layer', {
+        view: painterView,
+        index: currentLayerIndex,
+        updates: { blendMode }
+      });
+    } catch (error) {
+      console.error('ブレンドモード変更に失敗しました:', error);
+    }
+  };
+
+  const selectLayer = async (index: number) => {
+    if (!painterView) return;
+    
+    try {
+      await toolRegistry.executeTool('set_current_layer', {
+        view: painterView,
+        index
+      });
+    } catch (error) {
+      console.error('レイヤー選択に失敗しました:', error);
+    }
   };
 
   if (layers.length === 0) {
@@ -170,7 +218,7 @@ export default function LayerControls() {
           <div
             key={idx}
             className={`p-2 bg-primary rounded cursor-pointer flex items-center gap-2 relative select-none hover:bg-modifier-hover ${idx === currentLayerIndex ? 'ring-2 ring-accent' : ''}`}
-            onClick={() => updateCurrentLayerIndex(idx)}
+            onClick={() => selectLayer(idx)}
           >
             <div
               className={`w-4 h-4 border border-modifier-border rounded relative cursor-pointer ${layer.visible ? 'bg-accent' : 'bg-transparent'}`}

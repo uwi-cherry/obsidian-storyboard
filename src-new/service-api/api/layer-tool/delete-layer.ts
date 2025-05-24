@@ -1,4 +1,5 @@
 import { Tool } from '../../core/tool';
+import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 
 namespace Internal {
   export interface DeleteLayerInput {
@@ -13,7 +14,7 @@ namespace Internal {
       type: 'object',
       properties: {
         view: { type: 'object', description: 'Painter view instance' },
-        index: { type: 'number', description: 'Layer index' }
+        index: { type: 'number', description: 'Layer index to delete' }
       },
       required: ['view', 'index']
     }
@@ -21,17 +22,31 @@ namespace Internal {
 
   export async function executeDeleteLayer(args: DeleteLayerInput): Promise<string> {
     const { view, index } = args;
-    if (!Array.isArray(view.layers) || view.layers.length <= index) return 'no-op';
-    const newLayers = view.layers.slice();
+    if (!Array.isArray(view.layers) || view.layers.length <= 1 || index < 0 || index >= view.layers.length) return 'no-op';
+    
+    const newLayers = [...view.layers];
     newLayers.splice(index, 1);
-    if (newLayers.length === 0) return 'no-op';
-    view.layers = newLayers;
-    if (view.currentLayerIndex >= newLayers.length) {
-      view.currentLayerIndex = newLayers.length - 1;
+    
+    let newCurrentIndex = view.currentLayerIndex;
+    if (newCurrentIndex >= newLayers.length) {
+      newCurrentIndex = newLayers.length - 1;
     }
+    
+    view.layers = newLayers;
+    view.currentLayerIndex = newCurrentIndex;
     view.setLayers?.(newLayers);
-    view.setCurrentLayerIndex?.(view.currentLayerIndex);
+    view.setCurrentLayerIndex?.(newCurrentIndex);
     view.saveHistory?.();
+
+    // GlobalVariableManagerを更新
+    if (view.app && typeof window !== 'undefined') {
+      const globalVariableManager = view.app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      if (globalVariableManager) {
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, newLayers);
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, newCurrentIndex);
+      }
+    }
+    
     return 'layer_deleted';
   }
 }

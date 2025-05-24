@@ -1,18 +1,25 @@
 import React from 'react';
-import { useLayerContext } from '../../context/LayerContext';
 
-export default function SidebarReactView() {
-  const { layers, currentLayerIndex, setCurrentLayerIndex } = useLayerContext();
+interface SidebarProps {
+  layers?: any[];
+  currentLayerIndex?: number;
+  setCurrentLayerIndex?: (index: number) => void;
+}
 
+export default function SidebarPage({ layers = [], currentLayerIndex = 0, setCurrentLayerIndex }: SidebarProps) {
   return (
-    <div className="sidebar-view">
-      <h2>Layer Sidebar</h2>
-      <div className="layer-list">
-        {layers.map((layer, index) => (
+    <div className="h-full">
+      <div className="p-2">
+        <h2 className="font-bold text-lg">Sidebar</h2>
+      </div>
+      <div className="p-2">
+        {layers.map((layer: any, index: number) => (
           <div
-            key={index}
-            className={`layer-item ${index === currentLayerIndex ? 'active' : ''}`}
-            onClick={() => setCurrentLayerIndex(index)}
+            key={layer.id || index}
+            className={`p-2 rounded cursor-pointer ${
+              index === currentLayerIndex ? 'bg-accent text-on-accent' : 'hover:bg-modifier-hover'
+            }`}
+            onClick={() => setCurrentLayerIndex?.(index)}
           >
             {layer.name || `Layer ${index + 1}`}
           </div>

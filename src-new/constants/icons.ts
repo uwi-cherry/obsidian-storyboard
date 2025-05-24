@@ -1,72 +1,102 @@
-// PSDアイコン
-export const PSD_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>`;
+// ⚠️ SVGアイコン定義の注意事項 ⚠️
+// -----------------------------------------
+// ・SVG内に `width` / `height` 属性を直接書くな
+// ・サイズは CSS 側で制御すること（例: .icon { width: 16px; height: 16px }）
+// ・Obsidian Sidebar 等のUIに埋め込む際は、描画されないバグが出るため
+// ・SVGには `viewBox` のみ定義しておけ
+// ・必要なら `<svg class="icon">` としてスタイルで制御
+// -----------------------------------------
 
-// タイムラインアイコン
+// ───────────────────────────
+// 1) ベース 24×24 アイコン
+// ───────────────────────────
+
+// PSDアイコン（サイズ属性ナシ）
+export const PSD_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+  <line x1="3" y1="9" x2="21" y2="9"/>
+  <line x1="9" y1="21" x2="9" y2="9"/>
+</svg>`;
+
+// タイムラインアイコン（サイズ属性ナシ）
 export const TIMELINE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <line x1="4" y1="12" x2="20" y2="12"/>
-    <circle cx="6" cy="12" r="1.5"/>
-    <circle cx="12" cy="12" r="1.5"/>
-    <circle cx="18" cy="12" r="1.5"/>
-    <line x1="6" y1="9" x2="6" y2="10.5"/>
-    <line x1="12" y1="9" x2="12" y2="10.5"/>
-    <line x1="18" y1="9" x2="18" y2="10.5"/>
+  <line x1="4" y1="12" x2="20" y2="12"/>
+  <circle cx="6" cy="12" r="1.5"/>
+  <circle cx="12" cy="12" r="1.5"/>
+  <circle cx="18" cy="12" r="1.5"/>
+  <line x1="6" y1="9" x2="6" y2="10.5"/>
+  <line x1="12" y1="9" x2="12" y2="10.5"/>
+  <line x1="18" y1="9" x2="18" y2="10.5"/>
 </svg>`;
 
-// ストーリーボードアイコン
-export const STORYBOARD_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
-    <path d="M8 7h6"/>
-    <path d="M8 11h6"/>
-    <path d="M8 15h4"/>
+// ストーリーボード
+export const STORYBOARD_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/>
+  <path d="M8 7h6"/><path d="M8 11h6"/><path d="M8 15h4"/>
 </svg>`;
 
-// ストーリーボードトグルアイコン
-export const STORYBOARD_TOGGLE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <polyline points="16 3 21 3 21 8"/>
-    <line x1="4" y1="20" x2="21" y2="3"/>
-    <polyline points="8 21 3 21 3 16"/>
+// ストーリーボードトグル
+export const STORYBOARD_TOGGLE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="8 21 3 21 3 16"/>
 </svg>`;
 
-// テーブル操作アイコン
+// ───────────────────────────
+// 2) テーブル操作 18×18 アイコン
+// ───────────────────────────
 export const TABLE_ICONS = {
-    // 行を上に移動
-    moveUp: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 5L5 10H15L10 5Z" fill="currentColor"/>
+  // 上へ
+  moveUp: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="5 12 10 7 15 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  // 下へ
+  moveDown: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="5 8 10 13 15 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`,
+
+  // 行を上に挿入（既存）
+  add: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="10" y1="6" x2="10" y2="14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="6"  y1="10" x2="14" y2="10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+
+    // 行を追加（下に）←★新規
+    addBelow: `<svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <polyline points="10 4 10 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        <polyline points="6 8 10 12 14 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`,
-    // 行を下に移動
-    moveDown: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 15L15 10H5L10 15Z" fill="currentColor"/>
-    </svg>`,
-    // 行を追加
-    add: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M10 6V14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M6 10H14" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>`,
-    // 行を削除
-    delete: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M7 7L13 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-        <path d="M13 7L7 13" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-    </svg>`,
-    // 行操作メニュー
-    menu: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="10" cy="4" r="1.5" fill="currentColor" />
-        <circle cx="10" cy="10" r="1.5" fill="currentColor" />
-        <circle cx="10" cy="16" r="1.5" fill="currentColor" />
-    </svg>`
+
+  // 行を削除
+  delete: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="7" y1="7" x2="13" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    <line x1="13" y1="7" x2="7"  y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+
+  // メニュー
+  menu: `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="10" cy="4"  r="1.5" fill="currentColor"/>
+    <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+    <circle cx="10" cy="16" r="1.5" fill="currentColor"/>
+  </svg>`
 };
 
-// 折り畳み用アイコン（右向きの矢印）
+// ───────────────────────────
+// 3) そのほか（元のサイズを保持）
+// ───────────────────────────
 export const FOLD_ICON_SVG = `<svg width="18" height="18" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M8 5L13 10L8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <polyline points="8 5 13 10 8 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>`;
 
-// 音符アイコン
 export const NOTE_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-    <path d="M9 3v12.563A2.5 2.5 0 1 1 7 13V6.132L19 4v9.563A2.5 2.5 0 1 1 17 11V3H9z"/>
+  <path d="M9 3v12.563A2.5 2.5 0 1 1 7 13V6.132L19 4v9.563A2.5 2.5 0 1 1 17 11V3H9z"/>
 </svg>`;
 
-// 汎用の追加アイコン
-export const ADD_ICON_SVG = TABLE_ICONS.add;
+// add を汎用追加に流用
+export const ADD_ICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="12" y1="6" x2="12" y2="18"/>
+  <line x1="6" y1="12" x2="18" y2="12"/>
+</svg>`;
+
 
 // ツールアイコン
 export const TOOL_ICONS = {

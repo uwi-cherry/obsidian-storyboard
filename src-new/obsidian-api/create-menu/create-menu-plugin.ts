@@ -1,6 +1,7 @@
 import { Plugin, addIcon, Menu, TFile } from 'obsidian';
-import { ADD_ICON_SVG } from '../../icons';
+import { ADD_ICON_SVG } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
+import { TOOL_NAMES } from '../../constants/tools-config';
 
 /**
  * Create Menu Plugin - provides a single ribbon icon to create various items
@@ -13,15 +14,20 @@ export class CreateMenuPlugin {
   }
 
   initialize(): void {
+    console.log('📋 CreateMenuPlugin: Initializing...');
     addIcon('create-menu', ADD_ICON_SVG);
-    this.plugin.addRibbonIcon('create-menu', '新規作成', async (evt: MouseEvent) => {
+    console.log('📋 CreateMenuPlugin: Icon added');
+    console.log('📋 CreateMenuPlugin: ADD_ICON_SVG content:', ADD_ICON_SVG);
+    
+    const ribbonIcon = this.plugin.addRibbonIcon('create-menu', '新規作成', async (evt: MouseEvent) => {
+      console.log('📋 CreateMenuPlugin: Ribbon icon clicked');
       const menu = new Menu();
       menu.addItem(item =>
         item
           .setTitle('Painter')
           .setIcon('palette')
           .onClick(async () => {
-            await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app });
+            await toolRegistry.executeTool(TOOL_NAMES.CREATE_PAINTER_FILE, { app: this.plugin.app });
           })
       );
       menu.addItem(item =>
@@ -40,7 +46,7 @@ export class CreateMenuPlugin {
           .setIcon('storyboard')
           .onClick(async () => {
             try {
-              const result = await toolRegistry.executeTool('create_storyboard_file', { app: this.plugin.app });
+              const result = await toolRegistry.executeTool(TOOL_NAMES.CREATE_STORYBOARD_FILE, { app: this.plugin.app });
               try {
                 const resultData = JSON.parse(result);
                 if (resultData.filePath) {
@@ -67,5 +73,7 @@ export class CreateMenuPlugin {
       );
       menu.showAtMouseEvent(evt);
     });
+    console.log('📋 CreateMenuPlugin: Ribbon icon created:', ribbonIcon);
+    console.log('📋 CreateMenuPlugin: Initialization complete');
   }
 }

@@ -16,15 +16,6 @@ export class RightSidebarPlugin {
 
   initialize(): void {
     this.plugin.registerView(RIGHT_SIDEBAR_VIEW_TYPE, (leaf) => this.factory.createRightSidebarView(leaf));
-    
-    // 右サイドバーを開くコマンドを追加
-    this.plugin.addCommand({
-      id: 'open-right-sidebar',
-      name: 'Open Right Sidebar',
-      callback: async () => {
-        await this.activateRightSidebar();
-      }
-    });
 
     // プラグイン初期化時に右サイドバーを自動で開く
     this.plugin.app.workspace.onLayoutReady(() => {
