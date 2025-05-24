@@ -6,7 +6,6 @@ import { SettingsPlugin } from './src-new/obsidian-api/settings/settings-plugin'
 import { CreateMenuPlugin } from './src-new/obsidian-api/create-menu/create-menu-plugin';
 import { setAppInstance } from './src-new/constants/obsidian-i18n';
 import { toolRegistry } from './src-new/service-api/core/tool-registry';
-import { GlobalVariableManager } from './src-new/obsidian-api/core/global-variable-manager';
 import { RightSidebarPlugin } from 'src-new/obsidian-api/right-sidebar/right-sidebar-plugin';
 
 /**
@@ -19,7 +18,6 @@ export default class MyPlugin extends Plugin {
   private storyboardPlugin: StoryboardPlugin;
   private settingsPlugin: SettingsPlugin;
   private createMenuPlugin: CreateMenuPlugin;
-  public globalVariableManager: GlobalVariableManager;
 
   async onload() {
     console.log('🚀 Loading plugin...');
@@ -27,11 +25,6 @@ export default class MyPlugin extends Plugin {
     // Obsidian標準の翻訳システムを初期化
     setAppInstance(this.app);
 
-    // GlobalVariableManagerを初期化
-    this.globalVariableManager = new GlobalVariableManager(this);
-    console.log('🔍 Main: globalVariableManager初期化完了:', this.globalVariableManager);
-    console.log('🔍 Main: this.globalVariableManager:', this.globalVariableManager);
-    console.log('🔍 Main: プラグインインスタンスのプロパティ:', Object.keys(this));
 
     // Service API層の初期化（最初に実行）
     console.log('🔧 Initializing Service API...');
@@ -62,16 +55,11 @@ export default class MyPlugin extends Plugin {
     this.settingsPlugin.initialize();
     this.createMenuPlugin.initialize();
 
-    console.log('🔍 Main: 初期化完了後のglobalVariableManager:', this.globalVariableManager);
     console.log('✅ Plugin loaded successfully');
   }
 
   onunload() {
     console.log('🔄 Unloading plugin...');
-    // グローバル変数をクリーンアップ
-    if (this.globalVariableManager) {
-      // 必要に応じてクリーンアップ処理を追加
-    }
     // 必要に応じてクリーンアップ処理
     console.log('✅ Plugin unloaded');
   }

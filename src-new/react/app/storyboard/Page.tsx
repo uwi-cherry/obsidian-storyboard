@@ -13,6 +13,8 @@ import ImageInputCell from './ImageInputCell';
 import NewChapterBGMInput from './NewChapterBGMInput';
 import PreviewCell from './PreviewCell';
 import SpeakerDialogueCell from './SpeakerDialogueCell';
+import { useSelectedRowIndexStore } from '../../../obsidian-api/zustand/store/selected-row-index-store';
+import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
 
 interface StoryboardReactViewProps {
   app: App;
@@ -251,33 +253,9 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     
     console.log('🔍 Page: 行選択イベント:', { chapterIndex, localIndex: index, globalIndex, row });
     
-    // GlobalVariableManagerに選択行を通知
-    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-    console.log('🔍 Page: globalVariableManager:', globalVariableManager);
-    
-    if (globalVariableManager) {
-      console.log('🔍 Page: グローバル変数を更新中...');
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
-      console.log('🔍 Page: グローバル変数更新完了 - globalIndex:', globalIndex);
-    } else {
-      console.log('🔍 Page: GlobalVariableManagerが見つかりません - リトライを試行');
-      
-      // 少し待ってからリトライ
-      setTimeout(() => {
-        const retryManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-        console.log('🔍 Page: リトライ後のglobalVariableManager:', retryManager);
-        
-        if (retryManager) {
-          console.log('🔍 Page: リトライ成功 - グローバル変数を更新中...');
-          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);
-          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
-          console.log('🔍 Page: リトライでグローバル変数更新完了 - globalIndex:', globalIndex);
-        } else {
-          console.log('🔍 Page: リトライでもGlobalVariableManagerが見つかりませんでした');
-        }
-      }, 1000);
-    }
+    // zustand ストアに選択行を通知
+    useSelectedRowIndexStore.getState().setSelectedRowIndex(globalIndex);
+    useSelectedFrameStore.getState().setSelectedFrame(row);
   }, [app, storyboard]);
 
   // サイドバーからの画像・プロンプト更新を受信

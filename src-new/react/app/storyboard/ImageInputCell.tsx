@@ -128,9 +128,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       
       // global-variable-managerに現在のファイルを通知してレイヤー表示をリフレッシュ
       const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-      if (globalVariableManager) {
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, file);
-      }
     }
   };
 

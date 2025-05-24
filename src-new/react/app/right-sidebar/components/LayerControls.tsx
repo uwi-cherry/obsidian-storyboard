@@ -1,67 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
 import { LAYER_ICONS } from '../../../../constants/icons';
 import { GLOBAL_VARIABLE_KEYS } from '../../../../constants/constants';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
+import { useLayersStore } from '../../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 
 export default function LayerControls() {
-  const [layers, setLayers] = useState<any[]>([]);
-  const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
-  const [globalVariableManager, setGlobalVariableManager] = useState<any>(null);
+  const layers = useLayersStore((state) => state.layers);
+  const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
 
-  // GlobalVariableManagerを取得
-  useEffect(() => {
-    if (typeof window !== 'undefined' && (window as any).app) {
-      const app = (window as any).app;
-      console.log('🔍 LayerControls: app:', app);
-      console.log('🔍 LayerControls: app.plugins:', app.plugins);
-      console.log('🔍 LayerControls: app.plugins.plugins:', app.plugins?.plugins);
-      console.log('🔍 LayerControls: obsidian-storyboard plugin:', app.plugins?.plugins?.['obsidian-storyboard']);
-      
-      const manager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-      console.log('🔍 LayerControls: GlobalVariableManager取得:', manager ? '成功' : '失敗');
-      console.log('🔍 LayerControls: manager object:', manager);
-      
-      // 現在のglobal variableの値をチェック
-      if (manager) {
-        const currentLayers = manager.getVariable(GLOBAL_VARIABLE_KEYS.LAYERS);
-        const currentLayerIndex = manager.getVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX);
-        
-        console.log('🔍 LayerControls: 現在のグローバル変数:', {
-          layers: currentLayers,
-          layerIndex: currentLayerIndex
-        });
-      }
-      
-      setGlobalVariableManager(manager);
-    }
-  }, []);
-
-  // レイヤー情報を監視
-  useEffect(() => {
-    if (!globalVariableManager) return;
-
-    console.log('🔍 LayerControls: グローバル変数監視を開始');
-
-    const unsubscribeLayers = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.LAYERS, (layersData: any[]) => {
-      console.log('🔍 LayerControls: レイヤーデータ更新:', layersData);
-      setLayers(layersData || []);
-    });
-
-    const unsubscribeIndex = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, (index: number) => {
-      console.log('🔍 LayerControls: 現在のレイヤーインデックス更新:', index);
-      setCurrentLayerIndex(index || 0);
-    });
-
-    return () => {
-      unsubscribeLayers();
-      unsubscribeIndex();
-    };
-  }, [globalVariableManager]);
 
   const addBlankLayer = async () => {
-    if (!globalVariableManager) return;
-    
     try {
       const currentLayers = [...layers];
       const newLayer = {
@@ -71,42 +21,38 @@ export default function LayerControls() {
         blendMode: 'normal'
       };
       currentLayers.push(newLayer);
-      
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+      useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
       console.error('レイヤー追加に失敗しました:', error);
     }
   };
 
   const deleteCurrentLayer = async () => {
-    if (!globalVariableManager || layers.length <= 1) return;
+    if (layers.length <= 1) return;
     
     try {
       const currentLayers = [...layers];
       currentLayers.splice(currentLayerIndex, 1);
       
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
-      
+      useLayersStore.getState().setLayers(currentLayers);
+
       // 削除後のインデックス調整
       const newIndex = Math.min(currentLayerIndex, currentLayers.length - 1);
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, newIndex);
+      useCurrentLayerIndexStore.getState().setCurrentLayerIndex(newIndex);
     } catch (error) {
       console.error('レイヤー削除に失敗しました:', error);
     }
   };
 
   const selectLayer = async (index: number) => {
-    if (!globalVariableManager) return;
-    
     try {
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, index);
+      useCurrentLayerIndexStore.getState().setCurrentLayerIndex(index);
     } catch (error) {
       console.error('レイヤー選択に失敗しました:', error);
     }
   };
 
   const toggleVisibility = async (index: number) => {
-    if (!globalVariableManager) return;
     
     try {
       const currentLayers = [...layers];
@@ -117,14 +63,13 @@ export default function LayerControls() {
         visible: !currentLayers[index].visible
       };
       
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+      useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
       console.error('レイヤー表示切り替えに失敗しました:', error);
     }
   };
 
   const renameLayer = async (index: number) => {
-    if (!globalVariableManager) return;
     
     const newName = prompt(t('ENTER_LAYER_NAME') || 'レイヤー名を入力', layers[index].name);
     if (newName && newName !== layers[index].name) {
@@ -137,7 +82,7 @@ export default function LayerControls() {
           name: newName
         };
         
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+        useLayersStore.getState().setLayers(currentLayers);
       } catch (error) {
         console.error('レイヤー名変更に失敗しました:', error);
       }
@@ -145,7 +90,6 @@ export default function LayerControls() {
   };
 
   const changeOpacity = async (opacity: number) => {
-    if (!globalVariableManager) return;
     
     try {
       const currentLayers = [...layers];
@@ -156,14 +100,13 @@ export default function LayerControls() {
         opacity: opacity / 100
       };
       
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+      useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
       console.error('不透明度変更に失敗しました:', error);
     }
   };
 
   const changeBlendMode = async (blendMode: string) => {
-    if (!globalVariableManager) return;
     
     try {
       const currentLayers = [...layers];
@@ -174,7 +117,7 @@ export default function LayerControls() {
         blendMode
       };
       
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+      useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
       console.error('ブレンドモード変更に失敗しました:', error);
     }
@@ -188,7 +131,6 @@ export default function LayerControls() {
         </div>
         <div className="text-text-muted text-xs mt-1">
           デバッグ情報:
-          <br />• GlobalVariableManager: {globalVariableManager ? '利用可能' : '利用不可'}
           <br />• Layers配列: {JSON.stringify(layers)}
         </div>
       </div>
