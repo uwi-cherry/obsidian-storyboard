@@ -92,26 +92,28 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             layersCount: layers.length,
             currentIndex: currentLayerIndex
           });
-        });
-
-        // レイヤー変更の監視を設定
-        const updateGlobalLayers = () => {
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, layers);
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
-
-          console.log('🔍 PainterPage: レイヤー情報更新:', {
-            layersCount: layers.length,
-            currentIndex: currentLayerIndex
-          });
-        };
-
-        // レイヤーが変更されたらGlobalVariableManagerも更新
-        updateGlobalLayers();
+                });
       } else {
         console.log('🔍 PainterPage: GlobalVariableManagerが見つかりません');
       }
     }
-  }, [view, app, layers, currentLayerIndex]);
+  }, [view, app]);
+
+  // レイヤー情報が変更された時にGlobalVariableManagerを更新
+  useEffect(() => {
+    if (app) {
+      const globalVariableManager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      if (globalVariableManager) {
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, layers);
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
+
+        console.log('🔍 PainterPage: レイヤー情報更新:', {
+          layersCount: layers.length,
+          currentIndex: currentLayerIndex
+        });
+      }
+    }
+  }, [layers, currentLayerIndex, app]);
 
   return (
   <div className="flex flex-1 overflow-hidden">
