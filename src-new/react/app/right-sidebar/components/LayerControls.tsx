@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
-import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from '../../../../constants/icons';
+import { LAYER_ICONS, BUTTON_ICONS, TABLE_ICONS } from '../../../../constants/icons';
 import { GLOBAL_VARIABLE_KEYS } from '../../../../constants/constants';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
@@ -251,16 +251,16 @@ export default function LayerControls() {
       {/* レイヤー操作ボタン */}
       <div className="flex items-center gap-2 mb-2">
         <button
-          className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
+          className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
           onClick={addBlankLayer}
           title={t('NEW_LAYER') || '新しいレイヤー'}
-          dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }}
+          dangerouslySetInnerHTML={{ __html: LAYER_ICONS.add }}
         />
         <button
-          className="p-1 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
+          className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
           onClick={deleteCurrentLayer}
           title={t('DELETE_LAYER') || 'レイヤーを削除'}
-          dangerouslySetInnerHTML={{ __html: TABLE_ICONS.delete }}
+          dangerouslySetInnerHTML={{ __html: LAYER_ICONS.delete }}
         />
       </div>
 
