@@ -2,17 +2,15 @@ import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
 
-/**
- * 内部実装 - サービスAPI内部でのみ使用
- */
+
 namespace Internal {
-  /** Create Painter File の入力型 */
+  
   export interface CreatePainterFileInput {
     app: App;
     imageFile?: TFile;
   }
 
-  /** 出力型 */
+  
   export interface CreatePainterFileOutput {
     filePath: string;
     message: string;
@@ -21,7 +19,7 @@ namespace Internal {
   const DEFAULT_CANVAS_WIDTH = 800;
   const DEFAULT_CANVAS_HEIGHT = 600;
 
-  /** Create Painter File のメタデータ */
+  
   export const CREATE_PAINTER_FILE_METADATA = {
     name: 'create_painter_file',
     description: 'Create new PSD file',
@@ -35,7 +33,7 @@ namespace Internal {
     }
   } as const;
 
-  /** 実行関数 */
+  
   export async function executeCreatePainterFile(args: CreatePainterFileInput): Promise<string> {
     const { app, imageFile } = args;
     const canvas = document.createElement('canvas');
@@ -100,7 +98,7 @@ namespace Internal {
   }
 }
 
-/** 外部公開用ツール定義 */
+
 export const createPainterFileTool: Tool<Internal.CreatePainterFileInput> = {
   name: 'create_painter_file',
   description: 'Create new PSD file',

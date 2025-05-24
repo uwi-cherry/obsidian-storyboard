@@ -78,7 +78,6 @@ namespace Internal {
     view.setCurrentLayerIndex?.(0);
     view.saveHistory?.();
 
-    // zustand ストアを更新
     useLayersStore.getState().setLayers(newLayers);
     useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
 

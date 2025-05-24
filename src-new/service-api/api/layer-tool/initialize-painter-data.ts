@@ -25,7 +25,6 @@ namespace Internal {
   export async function executeInitializePainterData(args: InitializePainterDataInput): Promise<string> {
     const { view, width = 800, height = 600 } = args;
     
-    // 既存のデータがある場合はそれを使用
     if (view._painterData?.layers && view._painterData.layers.length > 0) {
       view.layers = view._painterData.layers;
       view.currentLayerIndex = view._painterData.currentLayerIndex || 0;
@@ -34,10 +33,8 @@ namespace Internal {
       return 'existing_data_loaded';
     }
     
-    // ファイル名がある場合はそれを使用、なければデフォルト名
     const layerName = view.file?.basename || '背景';
     
-    // 新しいデフォルトレイヤーを作成
     const defaultLayer: Layer = {
       name: layerName,
       visible: true,
@@ -46,7 +43,6 @@ namespace Internal {
       canvas: document.createElement('canvas')
     };
     
-    // キャンバスを初期化
     defaultLayer.canvas.width = width;
     defaultLayer.canvas.height = height;
     const ctx = defaultLayer.canvas.getContext('2d');
@@ -63,7 +59,6 @@ namespace Internal {
       canvasHeight: height
     };
     
-    // viewにデータを設定
     view.layers = initialLayers;
     view.currentLayerIndex = 0;
     view._painterData = initialData;

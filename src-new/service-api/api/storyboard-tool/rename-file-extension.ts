@@ -2,25 +2,19 @@ import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-/**
- * 内部実装 - サービスAPI内部でのみ使用
- */
+
 namespace Internal {
-  /**
-   * Rename File Extension の入力型
-   */
+  
   export interface RenameFileExtensionInput {
-    /** アプリインスタンス */
+    
     app: any;
-    /** 対象ファイル */
+    
     file: TFile;
-    /** 新しい拡張子 */
+    
     newExt: string;
   }
 
-  /**
-   * Rename File Extension のメタデータ
-   */
+  
   export const RENAME_FILE_EXTENSION_METADATA = {
     name: TOOL_NAMES.RENAME_FILE_EXTENSION,
     description: 'Rename file extension with collision avoidance',
@@ -44,16 +38,13 @@ namespace Internal {
     }
   } as const;
 
-  /**
-   * Rename File Extension の実行関数
-   */
+  
   export async function executeRenameFileExtension(args: RenameFileExtensionInput): Promise<string> {
     const { app, file, newExt } = args;
     
     const parentPath = file.parent?.path ?? '';
     const baseName = file.basename;
 
-    // 衝突回避のため存在チェックを行う
     let counter = 0;
     let newPath = `${parentPath ? parentPath + '/' : ''}${baseName}.${newExt}`;
     while (app.vault.getAbstractFileByPath(newPath)) {
@@ -65,16 +56,12 @@ namespace Internal {
       await app.vault.rename(file, newPath);
       return `ファイル拡張子を ${newExt} に変更しました`;
     } catch (error) {
-      console.error('ファイル拡張子の変更に失敗しました:', error);
       throw new Error('ファイル拡張子の変更に失敗しました');
     }
   }
 }
 
-/**
- * 外部公開用のツール定義
- * リフレクションシステムでのみ使用される
- */
+
 export const renameFileExtensionTool: Tool<Internal.RenameFileExtensionInput> = {
   name: TOOL_NAMES.RENAME_FILE_EXTENSION,
   description: 'Rename file extension with collision avoidance',
