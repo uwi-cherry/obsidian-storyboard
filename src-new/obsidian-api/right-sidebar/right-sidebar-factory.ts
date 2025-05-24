@@ -3,6 +3,7 @@ import React from 'react';
 import { RightSidebarView } from './right-sidebar-view';
 import RightSidebarReactView from '../../react/app/right-sidebar/Page';
 import { LayerProvider } from '../../react/context/LayerContext';
+import { PainterView } from '../painter/painter-view';
 
 /**
  * Right Sidebar Factory - React Injection and View Creation
@@ -36,8 +37,13 @@ export class RightSidebarFactory {
   private renderReactComponent(view: RightSidebarView): void {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
+    const painter = view.app.workspace.getActiveViewOfType(PainterView);
     view.reactRoot.render(
-      React.createElement(RightSidebarReactView, { view, app: view.app })
+      React.createElement(
+        LayerProvider,
+        { view: painter },
+        React.createElement(RightSidebarReactView, { view, app: view.app })
+      )
     );
   }
 }
