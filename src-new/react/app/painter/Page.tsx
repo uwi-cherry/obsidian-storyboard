@@ -21,6 +21,10 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const pointer = usePainterPointer();
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
+  const [layers, setLayers] = useState<any[]>(view?.layers || []);
+  const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(
+    view?.currentLayerIndex || 0
+  );
 
   useEffect(() => {
     if (view && app) {
@@ -47,6 +51,8 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         
         globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
         globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
+        setLayers(currentLayers);
+        setCurrentLayerIndex(currentLayerIndex);
         
         console.log('🔍 PainterPage: GlobalVariableManager設定完了:', {
           layersCount: currentLayers.length,
@@ -57,9 +63,17 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         const updateGlobalLayers = () => {
           const updatedLayers = view.layers || [];
           const updatedLayerIndex = view.currentLayerIndex || 0;
-          
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, updatedLayers);
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, updatedLayerIndex);
+
+          globalVariableManager.setVariable(
+            GLOBAL_VARIABLE_KEYS.LAYERS,
+            updatedLayers
+          );
+          globalVariableManager.setVariable(
+            GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX,
+            updatedLayerIndex
+          );
+          setLayers(updatedLayers);
+          setCurrentLayerIndex(updatedLayerIndex);
           
           console.log('🔍 PainterPage: レイヤー情報更新:', {
             layersCount: updatedLayers.length,
@@ -103,7 +117,13 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         setZoom={setZoom}
         setRotation={setRotation}
       />
-      <CanvasContainer pointer={pointer} />
+      <CanvasContainer
+        pointer={pointer}
+        layers={layers}
+        currentLayerIndex={currentLayerIndex}
+        setLayers={setLayers}
+        view={view}
+      />
     </div>
   );
 }
