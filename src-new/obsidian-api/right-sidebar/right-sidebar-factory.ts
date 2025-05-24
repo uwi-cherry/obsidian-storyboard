@@ -2,7 +2,6 @@ import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { RightSidebarView } from './right-sidebar-view';
 import RightSidebarReactView from '../../react/app/right-sidebar/Page';
-import { LayerProvider } from '../../react/context/LayerContext';
 import { PainterView } from '../painter/painter-view';
 
 /**
@@ -38,15 +37,9 @@ export class RightSidebarFactory {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
     
-    // LayerContextで状態管理
+    // GlobalVariableManagerで状態管理
     view.reactRoot.render(
-      React.createElement(
-        LayerProvider,
-        { 
-          view: null,  // 右サイドバー独自のインスタンス
-          children: React.createElement(RightSidebarReactView, { view, app: view.app })
-        }
-      )
+      React.createElement(RightSidebarReactView, { view, app: view.app })
     );
   }
 }

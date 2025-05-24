@@ -79,4 +79,16 @@ export class GlobalVariableManager {
   private emit<T = any>(key: string, value: T): void {
     this.listeners.get(key)?.forEach((listener) => listener(value));
   }
+
+  /** コアプラグイン「アウトライン」を強制的に更新する */
+  refreshOutline(): void {
+    const outlinePlugin = (this.app as any).internalPlugins?.plugins?.["outline"];
+    if (outlinePlugin?.enabled) {
+      const instance = outlinePlugin.instance as any;
+      const view = instance?.outlineView;
+      if (view && typeof view.onFileChanged === "function") {
+        view.onFileChanged();  // ← ここでアウトラインを再読み込み
+      }
+    }
+  }
 }

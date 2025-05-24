@@ -1,25 +1,52 @@
-import React from 'react';
-import { useLayerContext } from '../../../context/LayerContext';
+import React, { useEffect, useState } from 'react';
 import { t } from '../../../../obsidian-i18n';
 import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from '../../../../icons';
 
 export default function LayerControls() {
-  // LayerContextが利用可能な場合のみ使用
-  let layerContext;
-  try {
-    layerContext = useLayerContext();
-  } catch {
-    // LayerContextが利用できない場合は何もしない
-    return (
-      <div className="p-2 border-b border-modifier-border">
-        <div className="text-text-muted text-sm">
-          レイヤー情報は利用できません
-        </div>
-      </div>
-    );
-  }
+  const [layers, setLayers] = useState<any[]>([]);
+  const [currentLayerIndex, setCurrentLayerIndex] = useState(0);
+  const [globalVariableManager, setGlobalVariableManager] = useState<any>(null);
 
-  const { layers, currentLayerIndex, setLayers, setCurrentLayerIndex } = layerContext;
+  // GlobalVariableManagerを取得
+  useEffect(() => {
+    if (typeof window !== 'undefined' && (window as any).app) {
+      const app = (window as any).app;
+      const manager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      setGlobalVariableManager(manager);
+    }
+  }, []);
+
+  // レイヤー情報を監視
+  useEffect(() => {
+    if (!globalVariableManager) return;
+
+    const unsubscribeLayers = globalVariableManager.subscribe('layers', (layersData: any[]) => {
+      setLayers(layersData || []);
+    });
+
+    const unsubscribeIndex = globalVariableManager.subscribe('currentLayerIndex', (index: number) => {
+      setCurrentLayerIndex(index || 0);
+    });
+
+    return () => {
+      unsubscribeLayers();
+      unsubscribeIndex();
+    };
+  }, [globalVariableManager]);
+
+  const updateLayers = (newLayers: any[]) => {
+    if (globalVariableManager) {
+      globalVariableManager.setVariable('layers', newLayers);
+    }
+    setLayers(newLayers);
+  };
+
+  const updateCurrentLayerIndex = (index: number) => {
+    if (globalVariableManager) {
+      globalVariableManager.setVariable('currentLayerIndex', index);
+    }
+    setCurrentLayerIndex(index);
+  };
 
   const addBlankLayer = () => {
     const newLayer = {
@@ -29,22 +56,22 @@ export default function LayerControls() {
       blendMode: 'normal',
       canvas: document.createElement('canvas')
     };
-    setLayers([...layers, newLayer]);
+    updateLayers([...layers, newLayer]);
   };
 
   const deleteCurrentLayer = () => {
     if (layers.length <= 1) return;
     const newLayers = layers.filter((_, index) => index !== currentLayerIndex);
-    setLayers(newLayers);
+    updateLayers(newLayers);
     if (currentLayerIndex >= newLayers.length) {
-      setCurrentLayerIndex(newLayers.length - 1);
+      updateCurrentLayerIndex(newLayers.length - 1);
     }
   };
 
   const toggleVisibility = (index: number) => {
     const newLayers = [...layers];
     newLayers[index].visible = !newLayers[index].visible;
-    setLayers(newLayers);
+    updateLayers(newLayers);
   };
 
   const renameLayer = (index: number) => {
@@ -52,20 +79,20 @@ export default function LayerControls() {
     if (newName && newName !== layers[index].name) {
       const newLayers = [...layers];
       newLayers[index].name = newName;
-      setLayers(newLayers);
+      updateLayers(newLayers);
     }
   };
 
   const changeOpacity = (opacity: number) => {
     const newLayers = [...layers];
     newLayers[currentLayerIndex].opacity = opacity / 100;
-    setLayers(newLayers);
+    updateLayers(newLayers);
   };
 
   const changeBlendMode = (blendMode: string) => {
     const newLayers = [...layers];
     newLayers[currentLayerIndex].blendMode = blendMode;
-    setLayers(newLayers);
+    updateLayers(newLayers);
   };
 
   if (layers.length === 0) {
@@ -142,7 +169,7 @@ export default function LayerControls() {
           <div
             key={idx}
             className={`p-2 bg-primary rounded cursor-pointer flex items-center gap-2 relative select-none hover:bg-modifier-hover ${idx === currentLayerIndex ? 'ring-2 ring-accent' : ''}`}
-            onClick={() => setCurrentLayerIndex(idx)}
+            onClick={() => updateCurrentLayerIndex(idx)}
           >
             <div
               className={`w-4 h-4 border border-modifier-border rounded relative cursor-pointer ${layer.visible ? 'bg-accent' : 'bg-transparent'}`}

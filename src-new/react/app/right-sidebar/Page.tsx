@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { App, TFile } from 'obsidian';
-import { useLayerContext } from '../../context/LayerContext';
 import { NavigationControls } from './components/NavigationControls';
 import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
@@ -15,13 +14,34 @@ interface RightSidebarReactViewProps {
 export default function RightSidebarReactView({ view, app }: RightSidebarReactViewProps) {
   const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
   const [selectedFrame, setSelectedFrame] = useState<any>(null);
+  const [layers, setLayers] = useState<any[]>([]);
+  const [currentFile, setCurrentFile] = useState<TFile | null>(null);
 
-  let layerContext;
-  try {
-    layerContext = useLayerContext();
-  } catch {
-    layerContext = null;
-  }
+  // GlobalVariableManagerから選択されたフレームを監視
+  useEffect(() => {
+    if (!app) return;
+    
+    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+    if (!globalVariableManager) return;
+
+    const unsubscribeFrame = globalVariableManager.subscribe('selectedFrame', (frame: any) => {
+      setSelectedFrame(frame);
+    });
+
+    const unsubscribeLayers = globalVariableManager.subscribe('layers', (layersData: any[]) => {
+      setLayers(layersData || []);
+    });
+
+    const unsubscribeCurrentFile = globalVariableManager.subscribe('currentFile', (file: TFile | null) => {
+      setCurrentFile(file);
+    });
+
+    return () => {
+      unsubscribeFrame();
+      unsubscribeLayers();
+      unsubscribeCurrentFile();
+    };
+  }, [app]);
 
   useEffect(() => {
     if (!view?.app) return;
@@ -35,23 +55,9 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [view?.app]);
 
-  // GlobalVariableManagerから選択されたフレームを監視
-  useEffect(() => {
-    if (!app) return;
-    
-    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-    if (!globalVariableManager) return;
-
-    const unsubscribe = globalVariableManager.subscribe('selectedFrame', (frame: any) => {
-      setSelectedFrame(frame);
-    });
-
-    return unsubscribe;
-  }, [app]);
-
   // ストーリーボード行選択時にレイヤーを自動ロード
   useEffect(() => {
-    if (!selectedFrame || !layerContext || !app) return;
+    if (!selectedFrame || !app) return;
 
     const frame = selectedFrame;
     const hasPsd = frame.imageUrl?.endsWith('.psd');
@@ -67,9 +73,12 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
             });
             const psdData = JSON.parse(result);
             if (psdData.layers && psdData.layers.length > 0) {
-              layerContext.setLayers(psdData.layers);
-              layerContext.setCurrentLayerIndex(0);
-              layerContext.setCurrentFile(file);
+              const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+              if (globalVariableManager) {
+                globalVariableManager.setVariable('layers', psdData.layers);
+                globalVariableManager.setVariable('currentLayerIndex', 0);
+                globalVariableManager.setVariable('currentFile', file);
+              }
               console.log('ストーリーボード行選択により、PSDレイヤーを自動ロードしました:', file.name);
             }
           }
@@ -80,14 +89,14 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
       
       loadLayers();
     }
-  }, [selectedFrame, layerContext, app]);
+  }, [selectedFrame, app]);
 
   // PSDファイルを開いた時のレイヤー同期処理
   useEffect(() => {
     const handlePsdFileOpened = async (e: Event) => {
       const custom = e as CustomEvent;
       const { file } = custom.detail || {};
-      if (!file || !layerContext || !app) return;
+      if (!file || !app) return;
 
       try {
         const result = await toolRegistry.executeTool('load_painter_file', {
@@ -96,9 +105,12 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         });
         const psdData = JSON.parse(result);
         if (psdData.layers && psdData.layers.length > 0) {
-          layerContext.setLayers(psdData.layers);
-          layerContext.setCurrentLayerIndex(0);
-          layerContext.setCurrentFile(file);
+          const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+          if (globalVariableManager) {
+            globalVariableManager.setVariable('layers', psdData.layers);
+            globalVariableManager.setVariable('currentLayerIndex', 0);
+            globalVariableManager.setVariable('currentFile', file);
+          }
           console.log('PSDファイルのレイヤーを同期しました:', file.name);
         }
       } catch (error) {
@@ -110,7 +122,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     return () => {
       window.removeEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
     };
-  }, [layerContext, app]);
+  }, [app]);
 
   const handleImageChange = (url: string | null) => {
     // ストーリーボードコンテキストがある場合は更新
@@ -173,7 +185,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         app={app || ({} as App)}
         onImageUrlChange={handleImageChange}
       />
-      {layerContext && layerContext.layers.length > 0 && <LayerControls />}
+      {layers && layers.length > 0 && <LayerControls />}
       <ChatBox plugin={app} />
     </div>
   );
