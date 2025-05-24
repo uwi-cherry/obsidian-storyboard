@@ -49,11 +49,38 @@ export default function Canvas({
 
     // レイヤーを描画
     if (layers && layers.length > 0) {
-      layers.forEach((layer: any) => {
-        if (layer.visible && layer.imageData) {
-          // 実際の描画ロジックはここに実装
+      layers.forEach((layer: any, index: number) => {
+        if (layer.visible && layer.canvas) {
+          console.log('🎨 Canvas: レイヤーを描画中:', layer.name, index);
+          
+          // レイヤーの不透明度を設定
+          const originalAlpha = ctx.globalAlpha;
+          ctx.globalAlpha = layer.opacity || 1;
+          
+          // ブレンドモードを設定（サポートされているもののみ）
+          const originalCompositeOperation = ctx.globalCompositeOperation;
+          if (layer.blendMode && layer.blendMode !== 'normal') {
+            try {
+              ctx.globalCompositeOperation = layer.blendMode;
+            } catch (e) {
+              console.warn('サポートされていないブレンドモード:', layer.blendMode);
+            }
+          }
+          
+          // レイヤーのキャンバスを描画
+          try {
+            ctx.drawImage(layer.canvas, 0, 0);
+          } catch (error) {
+            console.error('レイヤー描画エラー:', error, layer);
+          }
+          
+          // 設定を元に戻す
+          ctx.globalAlpha = originalAlpha;
+          ctx.globalCompositeOperation = originalCompositeOperation;
         }
       });
+    } else {
+      console.log('🎨 Canvas: 描画するレイヤーがありません');
     }
 
     // 選択範囲描画

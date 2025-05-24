@@ -3,9 +3,8 @@ import Toolbar from './components/Toolbar';
 import ToolProperties from './components/ToolProperties';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
-import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
-import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
+import { toolRegistry } from '../../../service-api/core/tool-registry';
 
 interface PainterPageProps {
   view?: any;
@@ -25,14 +24,11 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
   
-  // zustandストアからレイヤー情報を取得
-  const storeLayersRaw = useLayersStore((state) => state.layers);
-  const storeCurrentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
-  
+  // ペインター内で直接管理するレイヤーデータ
   const [layers, setLayers] = useState<any[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
 
-  // PSDファイルが開かれた時に selectedFrame を設定
+  // PSDファイルが開かれた時に適切なツールを実行
   useEffect(() => {
     console.log('🔍 PainterPage: useEffect発火 - view:', view, 'app:', app);
     console.log('🔍 PainterPage: view.file:', view?.file);
@@ -56,26 +52,124 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     if (view.file.extension === 'psd') {
       console.log('🔍 PainterPage: PSDファイルが開かれました:', view.file.path);
       
-      // current-psd-file-storeを更新
+      // current-psd-file-storeを更新（サイドバーとの連携用）
       useCurrentPsdFileStore.getState().setCurrentPsdFile(view.file);
       console.log('🔍 PainterPage: current-psd-file-storeを設定しました:', view.file.path);
+      
+      // PSDファイルを読み込んでレイヤーデータを取得
+      const loadPsdFile = async () => {
+        try {
+          console.log('🔍 PainterPage: PSDファイル読み込み開始');
+          const result = await toolRegistry.executeTool('load_painter_file', {
+            app: app,
+            file: view.file
+          });
+          
+          console.log('🔍 PainterPage: PSDファイル読み込み結果:', result);
+          const psdData = JSON.parse(result);
+          
+          // DataURLからCanvasに変換
+          const layersWithCanvas = await Promise.all(psdData.layers.map(async (layer: any) => {
+            const canvas = document.createElement('canvas');
+            canvas.width = layer.width || psdData.width;
+            canvas.height = layer.height || psdData.height;
+            
+            if (layer.canvasDataUrl) {
+              try {
+                const img = new Image();
+                await new Promise((resolve, reject) => {
+                  img.onload = resolve;
+                  img.onerror = reject;
+                  img.src = layer.canvasDataUrl;
+                });
+                
+                const ctx = canvas.getContext('2d');
+                if (ctx) {
+                  ctx.drawImage(img, 0, 0);
+                }
+                console.log('🔍 DataURLからCanvas変換成功:', layer.name);
+              } catch (error) {
+                console.warn('🔍 DataURLからCanvas変換エラー:', layer.name, error);
+              }
+            }
+            
+            return {
+              name: layer.name,
+              visible: layer.visible,
+              opacity: layer.opacity,
+              blendMode: layer.blendMode,
+              canvas: canvas
+            };
+          }));
+          
+          console.log('🔍 変換後のレイヤー:', layersWithCanvas.length, '個');
+          
+          // ビューにレイヤーデータを設定
+          view.layers = layersWithCanvas;
+          view.currentLayerIndex = 0;
+          view._painterData = {
+            layers: layersWithCanvas,
+            currentLayerIndex: 0,
+            canvasWidth: psdData.width,
+            canvasHeight: psdData.height
+          };
+          
+          // ペインター内のstateを直接更新
+          setLayers(layersWithCanvas);
+          setCurrentLayerIndex(0);
+          
+          console.log('🔍 PainterPage: レイヤーデータを設定しました:', layersWithCanvas.length, 'レイヤー');
+          
+        } catch (error) {
+          console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
+          
+          // エラーの場合は初期化ツールを実行
+          try {
+            await toolRegistry.executeTool('initialize_painter_data', { view });
+            // 初期化されたデータを取得
+            if (view.layers) {
+              setLayers(view.layers);
+              setCurrentLayerIndex(view.currentLayerIndex || 0);
+            }
+          } catch (initError) {
+            console.error('🔍 PainterPage: 初期化エラー:', initError);
+          }
+        }
+      };
+      
+      loadPsdFile();
+      
     } else {
       console.log('🔍 PainterPage: PSDファイルではありません:', view.file.extension);
       useCurrentPsdFileStore.getState().clearCurrentPsdFile();
+      
+      // PSDファイルでない場合は初期化
+      const initializePainter = async () => {
+        try {
+          await toolRegistry.executeTool('initialize_painter_data', { view });
+          // 初期化されたデータを取得
+          if (view.layers) {
+            setLayers(view.layers);
+            setCurrentLayerIndex(view.currentLayerIndex || 0);
+          }
+        } catch (error) {
+          console.error('🔍 PainterPage: 初期化エラー:', error);
+        }
+      };
+      
+      initializePainter();
     }
   }, [view, app, view?.file, view?.file?.path]);
-
-  // zustandストアからレイヤー情報を同期
-  useEffect(() => {
-    console.log('🔍 PainterPage: zustandストアからレイヤー情報を同期中...', storeLayersRaw);
-    setLayers(storeLayersRaw || []);
-    setCurrentLayerIndex(storeCurrentLayerIndex || 0);
-  }, [storeLayersRaw, storeCurrentLayerIndex]);
 
   return (
   <div className="flex w-full h-full overflow-hidden">
     <Toolbar tool={pointer.tool} onChange={(tool) => pointer.setTool(tool as PainterTool)} />
     <ToolProperties tool={pointer.tool} lineWidth={pointer.lineWidth} color={pointer.color} zoom={zoom} rotation={rotation} setLineWidth={pointer.setLineWidth} setColor={pointer.setColor} setZoom={setZoom} setRotation={setRotation} />   
-    <CanvasContainer pointer={pointer} />    
+    <CanvasContainer 
+      pointer={pointer} 
+      layers={layers} 
+      currentLayerIndex={currentLayerIndex}
+      view={view}
+    />    
   </div>);
 }
