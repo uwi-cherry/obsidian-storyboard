@@ -42,6 +42,54 @@ export default function LayerControls() {
     };
   }, [globalVariableManager]);
 
+  // ストーリーボード行選択とPSDファイルを開いた時のリフレッシュ処理
+  useEffect(() => {
+    if (!globalVariableManager) return;
+
+    // ストーリーボード行選択時のリフレッシュ
+    const unsubscribeSelectedRow = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, () => {
+      refreshLayerDisplay();
+    });
+
+    // PSDファイルを開いた時のリフレッシュ
+    const unsubscribeCurrentFile = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, (file: any) => {
+      if (file && file.path && file.path.endsWith('.psd')) {
+        refreshLayerDisplay();
+      }
+    });
+
+    return () => {
+      unsubscribeSelectedRow();
+      unsubscribeCurrentFile();
+    };
+  }, [globalVariableManager]);
+
+  // レイヤー表示のリフレッシュ処理
+  const refreshLayerDisplay = async () => {
+    let currentView = painterView;
+    
+    // painterViewがない場合はglobal-variable-managerから取得を試行
+    if (!currentView && globalVariableManager) {
+      currentView = globalVariableManager.getVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW);
+    }
+    
+    if (!currentView) {
+      console.log('ペインタービューが見つからないため、レイヤーリフレッシュをスキップします');
+      return;
+    }
+
+    try {
+      // サービスAPIからレイヤー情報を再取得
+      await toolRegistry.executeTool('refresh_layers', {
+        view: currentView
+      });
+      
+      console.log('レイヤー表示のリフレッシュが完了しました');
+    } catch (error) {
+      console.error('レイヤー表示のリフレッシュに失敗しました:', error);
+    }
+  };
+
   const addBlankLayer = async () => {
     if (!painterView) return;
     

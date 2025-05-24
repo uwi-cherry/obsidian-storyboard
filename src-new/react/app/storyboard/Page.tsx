@@ -146,6 +146,12 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
       if (isOpen) {
         const leaf = app.workspace.getLeaf(true);
         await leaf.openFile(psdFile, { active: true });
+        
+        // global-variable-managerに現在のファイルを通知してレイヤー表示をリフレッシュ
+        const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+        if (globalVariableManager) {
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, psdFile);
+        }
       }
       
       return psdFile;

@@ -2,6 +2,7 @@ import { App, normalizePath, Notice, TFile } from 'obsidian';
 import React, { useEffect, useRef, useState } from 'react';
 import { BUTTON_ICONS } from '../../../constants/icons';
 import { t } from '../../../constants/obsidian-i18n';
+import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import IconButtonGroup from '../../components/IconButtonGroup';
 import TextAreaField from '../../components/TextAreaField';
 import ThumbnailViewer from '../../components/ThumbnailViewer';
@@ -124,6 +125,12 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     if (file instanceof TFile) {
       const leaf = app.workspace.getLeaf(true);
       await leaf.openFile(file, { active: true });
+      
+      // global-variable-managerに現在のファイルを通知してレイヤー表示をリフレッシュ
+      const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      if (globalVariableManager) {
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, file);
+      }
     }
   };
 

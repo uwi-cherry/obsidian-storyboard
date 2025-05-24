@@ -21,6 +21,7 @@ import { updateLayerTool } from '../api/layer-tool/update-layer';
 import { duplicateLayerTool } from '../api/layer-tool/duplicate-layer';
 import { initializePainterDataTool } from '../api/layer-tool/initialize-painter-data';
 import { setCurrentLayerTool } from '../api/layer-tool/set-current-layer';
+import { refreshLayersTool } from '../api/layer-tool/refresh-layers';
 
 /**
  * 内部実装 - 外部からアクセス不可
@@ -48,7 +49,8 @@ namespace Internal {
     [TOOL_NAMES.UPDATE_LAYER]: updateLayerTool,
     [TOOL_NAMES.DUPLICATE_LAYER]: duplicateLayerTool,
     [TOOL_NAMES.INITIALIZE_PAINTER_DATA]: initializePainterDataTool,
-    [TOOL_NAMES.SET_CURRENT_LAYER]: setCurrentLayerTool
+    [TOOL_NAMES.SET_CURRENT_LAYER]: setCurrentLayerTool,
+    [TOOL_NAMES.REFRESH_LAYERS]: refreshLayersTool
   };
 
   /**

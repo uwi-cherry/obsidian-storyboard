@@ -23,7 +23,8 @@ export const TOOL_NAMES = {
   UPDATE_LAYER: 'update_layer',
   DUPLICATE_LAYER: 'duplicate_layer',
   INITIALIZE_PAINTER_DATA: 'initialize_painter_data',
-  SET_CURRENT_LAYER: 'set_current_layer'
+  SET_CURRENT_LAYER: 'set_current_layer',
+  REFRESH_LAYERS: 'refresh_layers'
 } as const;
 
 // ツール名の型定義
@@ -174,6 +175,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "setCurrentLayerTool",
       ai_enabled: false,
       description: "Set current layer index in painter view",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.REFRESH_LAYERS,
+      modulePath: "../../src-new/service-api/api/layer-tool/refresh-layers",
+      exportName: "refreshLayersTool",
+      ai_enabled: false,
+      description: "Refresh layer display when PSD file is opened or storyboard row is selected",
       category: TOOL_CATEGORIES.PAINTER
     }
   ],
