@@ -4,6 +4,7 @@ import { toolRegistry } from '../../service-api/core/tool-registry';
 import React from 'react';
 import StoryboardReactView from 'src-new/react/app/storyboard/Page';
 import { t } from '../../constants/obsidian-i18n';
+import { TOOL_NAMES } from '../../constants/tools-config';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
 const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();
@@ -57,7 +58,7 @@ export class StoryboardFactory {
     const fileName = (leaf.view instanceof MarkdownView) ? leaf.view.file?.name : 'unknown';
     console.log('toggleStoryboardForLeaf開始:', fileName);
     try {
-      const result = await toolRegistry.executeTool('toggle_storyboard_view', {
+      const result = await toolRegistry.executeTool(TOOL_NAMES.TOGGLE_STORYBOARD_VIEW, {
         app,
         leaf,
         factory: this
@@ -75,7 +76,7 @@ export class StoryboardFactory {
    */
   async createSampleStoryboardFile(app: App): Promise<any> {
     try {
-      const result = await toolRegistry.executeTool('create_storyboard_file', { app });
+      const result = await toolRegistry.executeTool(TOOL_NAMES.CREATE_STORYBOARD_FILE, { app });
       console.log(result);
       return result;
     } catch (error) {

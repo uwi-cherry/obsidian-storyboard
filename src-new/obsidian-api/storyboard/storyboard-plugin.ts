@@ -2,6 +2,7 @@ import { Plugin, addIcon, TFile, WorkspaceLeaf, MarkdownView } from 'obsidian';
 import { StoryboardFactory } from './storyboard-factory';
 import { STORYBOARD_ICON_SVG, STORYBOARD_TOGGLE_ICON_SVG } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
+import { TOOL_NAMES } from '../../constants/tools-config';
 
 /**
  * Storyboard Plugin - Obsidian Plugin Integration
@@ -26,7 +27,7 @@ export class StoryboardPlugin {
     // 左メニューにサンプルファイルを追加
     this.plugin.addRibbonIcon('storyboard', '新規ストーリーボードを追加', async () => {
       try {
-        const result = await toolRegistry.executeTool('create_storyboard_file', { app: this.plugin.app });
+        const result = await toolRegistry.executeTool(TOOL_NAMES.CREATE_STORYBOARD_FILE, { app: this.plugin.app });
         console.log(result);
         
         // 戻り値からファイルパス情報を取得

@@ -1,5 +1,6 @@
 import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
+import { TOOL_NAMES } from '../../../constants/tools-config';
 
 /**
  * 内部実装 - サービスAPI内部でのみ使用
@@ -21,7 +22,7 @@ namespace Internal {
    * Rename File Extension のメタデータ
    */
   export const RENAME_FILE_EXTENSION_METADATA = {
-    name: 'rename_file_extension',
+    name: TOOL_NAMES.RENAME_FILE_EXTENSION,
     description: 'Rename file extension with collision avoidance',
     parameters: {
       type: 'object',
@@ -75,7 +76,7 @@ namespace Internal {
  * リフレクションシステムでのみ使用される
  */
 export const renameFileExtensionTool: Tool<Internal.RenameFileExtensionInput> = {
-  name: 'rename_file_extension',
+  name: TOOL_NAMES.RENAME_FILE_EXTENSION,
   description: 'Rename file extension with collision avoidance',
   parameters: {
     type: 'object',

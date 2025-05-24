@@ -1,142 +1,174 @@
 import { ToolsConfiguration } from '../service-api/core/tool-config-types';
 
+// ツール名定数
+export const TOOL_NAMES = {
+  // ストーリーボード関連
+  CREATE_STORYBOARD_FILE: 'create_storyboard_file',
+  RENAME_FILE_EXTENSION: 'rename_file_extension',
+  TOGGLE_STORYBOARD_VIEW: 'toggle_storyboard_view',
+  LOAD_STORYBOARD_DATA: 'load_storyboard_data',
+  SAVE_STORYBOARD_DATA: 'save_storyboard_data',
+  
+  // ペインター関連
+  CREATE_PAINTER_FILE: 'create_painter_file',
+  LOAD_PAINTER_FILE: 'load_painter_file',
+  SAVE_PAINTER_FILE: 'save_painter_file',
+  GENERATE_THUMBNAIL: 'generate_thumbnail',
+  UNDO_PAINTER: 'undo_painter',
+  REDO_PAINTER: 'redo_painter',
+  
+  // レイヤー関連
+  ADD_LAYER: 'add_layer',
+  DELETE_LAYER: 'delete_layer',
+  UPDATE_LAYER: 'update_layer',
+  DUPLICATE_LAYER: 'duplicate_layer',
+  INITIALIZE_PAINTER_DATA: 'initialize_painter_data',
+  SET_CURRENT_LAYER: 'set_current_layer'
+} as const;
+
+// カテゴリ定数
+export const TOOL_CATEGORIES = {
+  STORYBOARD: 'storyboard',
+  PAINTER: 'painter'
+} as const;
+
 export const TOOLS_CONFIG: ToolsConfiguration = {
   tools: [
     {
-      name: "create_storyboard_file",
+      name: TOOL_NAMES.CREATE_STORYBOARD_FILE,
       modulePath: "../../src-new/service-api/api/storyboard-tool/create-storyboard-file",
       exportName: "createStoryboardFileTool",
       ai_enabled: false,
       description: "Create a new storyboard file with sample content",
-      category: "storyboard"
+      category: TOOL_CATEGORIES.STORYBOARD
     },
     {
-      name: "rename_file_extension",
+      name: TOOL_NAMES.RENAME_FILE_EXTENSION,
       modulePath: "../../src-new/service-api/api/storyboard-tool/rename-file-extension",
       exportName: "renameFileExtensionTool",
       ai_enabled: false,
       description: "Rename file extension with collision avoidance",
-      category: "storyboard"
+      category: TOOL_CATEGORIES.STORYBOARD
     },
     {
-      name: "toggle_storyboard_view",
+      name: TOOL_NAMES.TOGGLE_STORYBOARD_VIEW,
       modulePath: "../../src-new/service-api/api/storyboard-tool/toggle-storyboard-view",
       exportName: "toggleStoryboardViewTool",
       ai_enabled: false,
       description: "Toggle between markdown and storyboard view",
-      category: "storyboard"
+      category: TOOL_CATEGORIES.STORYBOARD
     },
     {
-      name: "load_storyboard_data",
+      name: TOOL_NAMES.LOAD_STORYBOARD_DATA,
       modulePath: "../../src-new/service-api/api/storyboard-tool/load-storyboard-data",
       exportName: "loadStoryboardDataTool",
       ai_enabled: false,
       description: "Load storyboard data from file",
-      category: "storyboard"
+      category: TOOL_CATEGORIES.STORYBOARD
     },
     {
-      name: "save_storyboard_data",
+      name: TOOL_NAMES.SAVE_STORYBOARD_DATA,
       modulePath: "../../src-new/service-api/api/storyboard-tool/save-storyboard-data",
       exportName: "saveStoryboardDataTool",
       ai_enabled: false,
       description: "Save storyboard data to file",
-      category: "storyboard"
+      category: TOOL_CATEGORIES.STORYBOARD
     },
     {
-      name: "create_painter_file",
+      name: TOOL_NAMES.CREATE_PAINTER_FILE,
       modulePath: "../../src-new/service-api/api/painter-tool/create-painter-file",
       exportName: "createPainterFileTool",
       ai_enabled: false,
       description: "Create new PSD file",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "load_painter_file",
+      name: TOOL_NAMES.LOAD_PAINTER_FILE,
       modulePath: "../../src-new/service-api/api/painter-tool/load-painter-file",
       exportName: "loadPainterFileTool",
       ai_enabled: false,
       description: "Load PSD file",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "save_painter_file",
+      name: TOOL_NAMES.SAVE_PAINTER_FILE,
       modulePath: "../../src-new/service-api/api/painter-tool/save-painter-file",
       exportName: "savePainterFileTool",
       ai_enabled: false,
       description: "Save PSD file",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "generate_thumbnail",
+      name: TOOL_NAMES.GENERATE_THUMBNAIL,
       modulePath: "../../src-new/service-api/api/painter-tool/generate-thumbnail",
       exportName: "generateThumbnailTool",
       ai_enabled: false,
       description: "Generate thumbnail from PSD file",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "undo_painter",
+      name: TOOL_NAMES.UNDO_PAINTER,
       modulePath: "../../src-new/service-api/api/painter-tool/undo-painter",
       exportName: "undoPainterTool",
       ai_enabled: false,
       description: "Undo painter view",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "redo_painter",
+      name: TOOL_NAMES.REDO_PAINTER,
       modulePath: "../../src-new/service-api/api/painter-tool/redo-painter",
       exportName: "redoPainterTool",
       ai_enabled: false,
       description: "Redo painter view",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "add_layer",
+      name: TOOL_NAMES.ADD_LAYER,
       modulePath: "../../src-new/service-api/api/layer-tool/add-layer",
       exportName: "addLayerTool",
       ai_enabled: false,
       description: "Add new layer to painter view",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "delete_layer",
+      name: TOOL_NAMES.DELETE_LAYER,
       modulePath: "../../src-new/service-api/api/layer-tool/delete-layer",
       exportName: "deleteLayerTool",
       ai_enabled: false,
       description: "Delete layer from painter view",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "update_layer",
+      name: TOOL_NAMES.UPDATE_LAYER,
       modulePath: "../../src-new/service-api/api/layer-tool/update-layer",
       exportName: "updateLayerTool",
       ai_enabled: false,
       description: "Update layer properties in painter view",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "duplicate_layer",
+      name: TOOL_NAMES.DUPLICATE_LAYER,
       modulePath: "../../src-new/service-api/api/layer-tool/duplicate-layer",
       exportName: "duplicateLayerTool",
       ai_enabled: false,
       description: "Duplicate layer in painter view",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "initialize_painter_data",
+      name: TOOL_NAMES.INITIALIZE_PAINTER_DATA,
       modulePath: "../../src-new/service-api/api/layer-tool/initialize-painter-data",
       exportName: "initializePainterDataTool",
       ai_enabled: false,
       description: "Initialize painter data with default layer",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: "set_current_layer",
+      name: TOOL_NAMES.SET_CURRENT_LAYER,
       modulePath: "../../src-new/service-api/api/layer-tool/set-current-layer",
       exportName: "setCurrentLayerTool",
       ai_enabled: false,
       description: "Set current layer index in painter view",
-      category: "painter"
+      category: TOOL_CATEGORIES.PAINTER
     }
   ],
   config: {

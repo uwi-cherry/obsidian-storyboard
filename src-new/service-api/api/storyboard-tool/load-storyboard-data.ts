@@ -1,6 +1,7 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo, StoryboardChapter } from '../../../types/storyboard';
+import { TOOL_NAMES } from '../../../constants/tools-config';
 
 /**
  * 内部実装 - サービスAPI内部でのみ使用
@@ -179,7 +180,7 @@ namespace Internal {
  * 外部公開用のツール定義
  */
 export const loadStoryboardDataTool: Tool<Internal.LoadStoryboardDataInput> = {
-  name: 'load_storyboard_data',
+  name: TOOL_NAMES.LOAD_STORYBOARD_DATA,
   description: 'Load storyboard data from file',
   parameters: {
     type: 'object',

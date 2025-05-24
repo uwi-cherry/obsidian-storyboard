@@ -1,5 +1,6 @@
 import { Tool } from '../../core/tool';
 import { WorkspaceLeaf, MarkdownView } from 'obsidian';
+import { TOOL_NAMES } from '../../../constants/tools-config';
 
 /**
  * 内部実装 - サービスAPI内部でのみ使用
@@ -21,7 +22,7 @@ namespace Internal {
    * Toggle Storyboard View のメタデータ
    */
   export const TOGGLE_STORYBOARD_VIEW_METADATA = {
-    name: 'toggle_storyboard_view',
+    name: TOOL_NAMES.TOGGLE_STORYBOARD_VIEW,
     description: 'Toggle between markdown and storyboard view',
     parameters: {
       type: 'object',
@@ -129,7 +130,7 @@ namespace Internal {
  * リフレクションシステムでのみ使用される
  */
 export const toggleStoryboardViewTool: Tool<Internal.ToggleStoryboardViewInput> = {
-  name: 'toggle_storyboard_view',
+  name: TOOL_NAMES.TOGGLE_STORYBOARD_VIEW,
   description: 'Toggle between markdown and storyboard view',
   parameters: {
     type: 'object',

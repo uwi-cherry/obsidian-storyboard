@@ -1,5 +1,6 @@
 import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
+import { TOOL_NAMES } from '../../../constants/tools-config';
 
 /**
  * 内部実装 - サービスAPI内部でのみ使用
@@ -27,7 +28,7 @@ namespace Internal {
    * Create Storyboard File のメタデータ
    */
   export const CREATE_STORYBOARD_FILE_METADATA = {
-    name: 'create_storyboard_file',
+    name: TOOL_NAMES.CREATE_STORYBOARD_FILE,
     description: 'Create a new storyboard file with sample content',
     parameters: {
       type: 'object',
@@ -87,7 +88,7 @@ namespace Internal {
  * リフレクションシステムでのみ使用される
  */
 export const createStoryboardFileTool: Tool<Internal.CreateStoryboardFileInput> = {
-  name: 'create_storyboard_file',
+  name: TOOL_NAMES.CREATE_STORYBOARD_FILE,
   description: 'Create a new storyboard file with sample content',
   parameters: {
     type: 'object',

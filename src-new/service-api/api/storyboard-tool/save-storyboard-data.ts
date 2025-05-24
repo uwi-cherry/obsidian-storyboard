@@ -1,6 +1,7 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import { StoryboardData } from '../../../types/storyboard';
+import { TOOL_NAMES } from '../../../constants/tools-config';
 
 /**
  * 内部実装 - サービスAPI内部でのみ使用
@@ -76,7 +77,7 @@ namespace Internal {
  * 外部公開用のツール定義
  */
 export const saveStoryboardDataTool: Tool<Internal.SaveStoryboardDataInput> = {
-  name: 'save_storyboard_data',
+  name: TOOL_NAMES.SAVE_STORYBOARD_DATA,
   description: 'Save storyboard data to file',
   parameters: {
     type: 'object',

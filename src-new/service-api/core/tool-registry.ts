@@ -1,7 +1,7 @@
 import { Tool } from './tool';
 import { ToolsConfiguration, ToolConfig } from './tool-config-types';
 import { ToolExecutor } from './tool-executor';
-import { TOOLS_CONFIG } from '../../constants/tools-config';
+import { TOOLS_CONFIG, TOOL_NAMES } from '../../constants/tools-config';
 
 // 静的インポート - 動的インポートの問題を回避
 import { createStoryboardFileTool } from '../api/storyboard-tool/create-storyboard-file';
@@ -32,23 +32,23 @@ namespace Internal {
 
   // 静的ツールマッピング
   export const staticTools: Record<string, Tool<any>> = {
-    'create_storyboard_file': createStoryboardFileTool,
-    'rename_file_extension': renameFileExtensionTool,
-    'toggle_storyboard_view': toggleStoryboardViewTool,
-    'load_storyboard_data': loadStoryboardDataTool,
-    'save_storyboard_data': saveStoryboardDataTool,
-    'create_painter_file': createPainterFileTool,
-    'load_painter_file': loadPainterFileTool,
-    'save_painter_file': savePainterFileTool,
-    'generate_thumbnail': generateThumbnailTool,
-    'undo_painter': undoPainterTool,
-    'redo_painter': redoPainterTool,
-    'add_layer': addLayerTool,
-    'delete_layer': deleteLayerTool,
-    'update_layer': updateLayerTool,
-    'duplicate_layer': duplicateLayerTool,
-    'initialize_painter_data': initializePainterDataTool,
-    'set_current_layer': setCurrentLayerTool
+    [TOOL_NAMES.CREATE_STORYBOARD_FILE]: createStoryboardFileTool,
+    [TOOL_NAMES.RENAME_FILE_EXTENSION]: renameFileExtensionTool,
+    [TOOL_NAMES.TOGGLE_STORYBOARD_VIEW]: toggleStoryboardViewTool,
+    [TOOL_NAMES.LOAD_STORYBOARD_DATA]: loadStoryboardDataTool,
+    [TOOL_NAMES.SAVE_STORYBOARD_DATA]: saveStoryboardDataTool,
+    [TOOL_NAMES.CREATE_PAINTER_FILE]: createPainterFileTool,
+    [TOOL_NAMES.LOAD_PAINTER_FILE]: loadPainterFileTool,
+    [TOOL_NAMES.SAVE_PAINTER_FILE]: savePainterFileTool,
+    [TOOL_NAMES.GENERATE_THUMBNAIL]: generateThumbnailTool,
+    [TOOL_NAMES.UNDO_PAINTER]: undoPainterTool,
+    [TOOL_NAMES.REDO_PAINTER]: redoPainterTool,
+    [TOOL_NAMES.ADD_LAYER]: addLayerTool,
+    [TOOL_NAMES.DELETE_LAYER]: deleteLayerTool,
+    [TOOL_NAMES.UPDATE_LAYER]: updateLayerTool,
+    [TOOL_NAMES.DUPLICATE_LAYER]: duplicateLayerTool,
+    [TOOL_NAMES.INITIALIZE_PAINTER_DATA]: initializePainterDataTool,
+    [TOOL_NAMES.SET_CURRENT_LAYER]: setCurrentLayerTool
   };
 
   /**
