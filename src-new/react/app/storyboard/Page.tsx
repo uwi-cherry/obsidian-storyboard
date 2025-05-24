@@ -244,50 +244,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
     },
   ];
 
-  const handleRowSelect = useCallback((row: StoryboardFrame, index: number) => {
-    console.log('🔍 Page: 行選択イベント:', { index, row });
-    
-    // デバッグ: appオブジェクトの構造を確認
-    console.log('🔍 Page: app:', app);
-    console.log('🔍 Page: app.plugins:', (app as any).plugins);
-    console.log('🔍 Page: app.plugins.plugins:', (app as any).plugins?.plugins);
-    console.log('🔍 Page: obsidian-storyboard plugin:', (app as any).plugins?.plugins?.['obsidian-storyboard']);
-    
-    // プラグインインスタンスのプロパティを確認
-    const pluginInstance = (app as any).plugins?.plugins?.['obsidian-storyboard'];
-    if (pluginInstance) {
-      console.log('🔍 Page: プラグインのプロパティ一覧:', Object.keys(pluginInstance));
-      console.log('🔍 Page: プラグインインスタンス詳細:', pluginInstance);
-    }
-    
-    // GlobalVariableManagerに選択行を通知
-    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-    console.log('🔍 Page: globalVariableManager:', globalVariableManager);
-    
-    if (globalVariableManager) {
-      console.log('🔍 Page: グローバル変数を更新中...');
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, index);
-      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
-      console.log('🔍 Page: グローバル変数更新完了');
-    } else {
-      console.log('🔍 Page: GlobalVariableManagerが見つかりません - リトライを試行');
-      
-      // 少し待ってからリトライ
-      setTimeout(() => {
-        const retryManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-        console.log('🔍 Page: リトライ後のglobalVariableManager:', retryManager);
-        
-        if (retryManager) {
-          console.log('🔍 Page: リトライ成功 - グローバル変数を更新中...');
-          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, index);
-          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
-          console.log('🔍 Page: リトライでグローバル変数更新完了');
-        } else {
-          console.log('🔍 Page: リトライでもGlobalVariableManagerが見つかりませんでした');
-        }
-      }, 1000);
-    }
-  }, [app]);
+  const handleRowSelect = useCallback((row: StoryboardFrame, index: number, chapterIndex: number) => {    // 章を考慮した全体のインデックスを計算    let globalIndex = 0;    for (let i = 0; i < chapterIndex; i++) {      globalIndex += storyboard.chapters[i].frames.length;    }    globalIndex += index;        console.log('🔍 Page: 行選択イベント:', { chapterIndex, localIndex: index, globalIndex, row });        // GlobalVariableManagerに選択行を通知    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;    console.log('🔍 Page: globalVariableManager:', globalVariableManager);        if (globalVariableManager) {      console.log('🔍 Page: グローバル変数を更新中...');      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);      console.log('🔍 Page: グローバル変数更新完了 - globalIndex:', globalIndex);    } else {      console.log('🔍 Page: GlobalVariableManagerが見つかりません - リトライを試行');            // 少し待ってからリトライ      setTimeout(() => {        const retryManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;        console.log('🔍 Page: リトライ後のglobalVariableManager:', retryManager);                if (retryManager) {          console.log('🔍 Page: リトライ成功 - グローバル変数を更新中...');          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, globalIndex);          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);          console.log('🔍 Page: リトライでグローバル変数更新完了 - globalIndex:', globalIndex);        } else {          console.log('🔍 Page: リトライでもGlobalVariableManagerが見つかりませんでした');        }      }, 1000);    }  }, [app, storyboard]);
 
   // サイドバーからの画像・プロンプト更新を受信
   useEffect(() => {
@@ -467,7 +424,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
             onMoveRowDown={rowIndex => moveRowDown(cIdx, rowIndex)}
             onInsertRowBelow={rowIndex => insertRowBelow(cIdx, rowIndex)}
             onMoveRowTo={(fromIndex, toIndex) => handleMoveRowTo(cIdx, fromIndex, toIndex)}
-            onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex)}
+            onRowClick={(row, rowIndex) => handleRowSelect(row, rowIndex, cIdx)}
             selectedRowIndexes={selectedRowPositions.filter(pos => pos.chapterIndex === cIdx).map(pos => pos.rowIndex)}
             onSelectRow={(rowIndex, isSelected) => handleSelectRow(cIdx, rowIndex, isSelected)}
             onClearSelection={() => handleClearSelection(cIdx)}

@@ -153,32 +153,100 @@ export default function LayerControls() {
     }
   };
 
-  const toggleVisibility = async (index: number) => {
-    if (!painterView) return;
+  const selectLayer = async (index: number) => {
+    if (!globalVariableManager) {
+      console.log('🔍 LayerControls: selectLayer - GlobalVariableManagerが利用できません');
+      return;
+    }
     
     try {
-      const layer = layers[index];
-      await toolRegistry.executeTool('update_layer', {
-        view: painterView,
-        index,
-        updates: { visible: !layer.visible }
-      });
+      console.log('🔍 LayerControls: レイヤー選択をストーリーボード経由で実行:', index);
+      
+      // GlobalVariableManagerで直接現在のレイヤーインデックスを更新
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, index);
+      
+      // ペインタービューがある場合は、そちらも更新
+      if (painterView) {
+        console.log('🔍 LayerControls: ペインタービューも更新');
+        await toolRegistry.executeTool('set_current_layer', {
+          view: painterView,
+          index
+        });
+      }
+    } catch (error) {
+      console.error('レイヤー選択に失敗しました:', error);
+    }
+  };
+
+  const toggleVisibility = async (index: number) => {
+    if (!globalVariableManager) {
+      console.log('🔍 LayerControls: toggleVisibility - GlobalVariableManagerが利用できません');
+      return;
+    }
+    
+    try {
+      console.log('🔍 LayerControls: レイヤー表示切り替えをストーリーボード経由で実行:', index);
+      
+      // 現在のレイヤー配列を取得
+      const currentLayers = [...layers];
+      if (index < 0 || index >= currentLayers.length) return;
+      
+      // 表示状態を切り替え
+      currentLayers[index] = {
+        ...currentLayers[index],
+        visible: !currentLayers[index].visible
+      };
+      
+      // GlobalVariableManagerで更新されたレイヤー配列を設定
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+      
+      // ペインタービューがある場合は、そちらも更新
+      if (painterView) {
+        console.log('🔍 LayerControls: ペインタービューも更新');
+        await toolRegistry.executeTool('update_layer', {
+          view: painterView,
+          index,
+          updates: { visible: !layers[index].visible }
+        });
+      }
     } catch (error) {
       console.error('レイヤー表示切り替えに失敗しました:', error);
     }
   };
 
   const renameLayer = async (index: number) => {
-    if (!painterView) return;
+    if (!globalVariableManager) {
+      console.log('🔍 LayerControls: renameLayer - GlobalVariableManagerが利用できません');
+      return;
+    }
     
     const newName = prompt(t('ENTER_LAYER_NAME') || 'レイヤー名を入力', layers[index].name);
     if (newName && newName !== layers[index].name) {
       try {
-        await toolRegistry.executeTool('update_layer', {
-          view: painterView,
-          index,
-          updates: { name: newName }
-        });
+        console.log('🔍 LayerControls: レイヤー名変更をストーリーボード経由で実行:', { index, newName });
+        
+        // 現在のレイヤー配列を取得
+        const currentLayers = [...layers];
+        if (index < 0 || index >= currentLayers.length) return;
+        
+        // レイヤー名を更新
+        currentLayers[index] = {
+          ...currentLayers[index],
+          name: newName
+        };
+        
+        // GlobalVariableManagerで更新されたレイヤー配列を設定
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+        
+        // ペインタービューがある場合は、そちらも更新
+        if (painterView) {
+          console.log('🔍 LayerControls: ペインタービューも更新');
+          await toolRegistry.executeTool('update_layer', {
+            view: painterView,
+            index,
+            updates: { name: newName }
+          });
+        }
       } catch (error) {
         console.error('レイヤー名変更に失敗しました:', error);
       }
@@ -186,43 +254,74 @@ export default function LayerControls() {
   };
 
   const changeOpacity = async (opacity: number) => {
-    if (!painterView) return;
+    if (!globalVariableManager) {
+      console.log('🔍 LayerControls: changeOpacity - GlobalVariableManagerが利用できません');
+      return;
+    }
     
     try {
-      await toolRegistry.executeTool('update_layer', {
-        view: painterView,
-        index: currentLayerIndex,
-        updates: { opacity: opacity / 100 }
-      });
+      console.log('🔍 LayerControls: 不透明度変更をストーリーボード経由で実行:', { index: currentLayerIndex, opacity });
+      
+      // 現在のレイヤー配列を取得
+      const currentLayers = [...layers];
+      if (currentLayerIndex < 0 || currentLayerIndex >= currentLayers.length) return;
+      
+      // 不透明度を更新
+      currentLayers[currentLayerIndex] = {
+        ...currentLayers[currentLayerIndex],
+        opacity: opacity / 100
+      };
+      
+      // GlobalVariableManagerで更新されたレイヤー配列を設定
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+      
+      // ペインタービューがある場合は、そちらも更新
+      if (painterView) {
+        console.log('🔍 LayerControls: ペインタービューも更新');
+        await toolRegistry.executeTool('update_layer', {
+          view: painterView,
+          index: currentLayerIndex,
+          updates: { opacity: opacity / 100 }
+        });
+      }
     } catch (error) {
       console.error('不透明度変更に失敗しました:', error);
     }
   };
 
   const changeBlendMode = async (blendMode: string) => {
-    if (!painterView) return;
+    if (!globalVariableManager) {
+      console.log('🔍 LayerControls: changeBlendMode - GlobalVariableManagerが利用できません');
+      return;
+    }
     
     try {
-      await toolRegistry.executeTool('update_layer', {
-        view: painterView,
-        index: currentLayerIndex,
-        updates: { blendMode }
-      });
+      console.log('🔍 LayerControls: ブレンドモード変更をストーリーボード経由で実行:', { index: currentLayerIndex, blendMode });
+      
+      // 現在のレイヤー配列を取得
+      const currentLayers = [...layers];
+      if (currentLayerIndex < 0 || currentLayerIndex >= currentLayers.length) return;
+      
+      // ブレンドモードを更新
+      currentLayers[currentLayerIndex] = {
+        ...currentLayers[currentLayerIndex],
+        blendMode
+      };
+      
+      // GlobalVariableManagerで更新されたレイヤー配列を設定
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+      
+      // ペインタービューがある場合は、そちらも更新
+      if (painterView) {
+        console.log('🔍 LayerControls: ペインタービューも更新');
+        await toolRegistry.executeTool('update_layer', {
+          view: painterView,
+          index: currentLayerIndex,
+          updates: { blendMode }
+        });
+      }
     } catch (error) {
       console.error('ブレンドモード変更に失敗しました:', error);
-    }
-  };
-
-  const selectLayer = async (index: number) => {
-    if (!painterView) return;
-    
-    try {
-      await toolRegistry.executeTool('set_current_layer', {
-        view: painterView,
-        index
-      });
-    } catch (error) {
-      console.error('レイヤー選択に失敗しました:', error);
     }
   };
 
