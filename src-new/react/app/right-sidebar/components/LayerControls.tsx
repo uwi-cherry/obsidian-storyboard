@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { t } from '../../../../obsidian-i18n';
-import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from '../../../../icons';
+import { t } from '../../../../constants/obsidian-i18n';
+import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from '../../../../constants/icons';
+import { GLOBAL_VARIABLE_KEYS } from '../../../../constants/constants';
 
 export default function LayerControls() {
   const [layers, setLayers] = useState<any[]>([]);
@@ -20,11 +21,11 @@ export default function LayerControls() {
   useEffect(() => {
     if (!globalVariableManager) return;
 
-    const unsubscribeLayers = globalVariableManager.subscribe('layers', (layersData: any[]) => {
+    const unsubscribeLayers = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.LAYERS, (layersData: any[]) => {
       setLayers(layersData || []);
     });
 
-    const unsubscribeIndex = globalVariableManager.subscribe('currentLayerIndex', (index: number) => {
+    const unsubscribeIndex = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, (index: number) => {
       setCurrentLayerIndex(index || 0);
     });
 
@@ -36,14 +37,14 @@ export default function LayerControls() {
 
   const updateLayers = (newLayers: any[]) => {
     if (globalVariableManager) {
-      globalVariableManager.setVariable('layers', newLayers);
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, newLayers);
     }
     setLayers(newLayers);
   };
 
   const updateCurrentLayerIndex = (index: number) => {
     if (globalVariableManager) {
-      globalVariableManager.setVariable('currentLayerIndex', index);
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, index);
     }
     setCurrentLayerIndex(index);
   };

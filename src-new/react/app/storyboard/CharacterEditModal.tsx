@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ADD_ICON_SVG, TABLE_ICONS } from '../../../icons';
-import { t } from '../../../obsidian-i18n';
+import { ADD_ICON_SVG, TABLE_ICONS } from '../../../constants/icons';
+import { t } from '../../../constants/obsidian-i18n';
 import IconButtonGroup from '../../components/IconButtonGroup';
 import Modal from '../../components/Modal';
 import { CharacterInfo, StoryboardFrame } from '../../../types/storyboard';

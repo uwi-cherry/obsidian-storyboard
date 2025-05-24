@@ -3,8 +3,9 @@ import { App, TFile } from 'obsidian';
 import { NavigationControls } from './components/NavigationControls';
 import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
-import { t } from '../../../obsidian-i18n';
+import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
+import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 
 interface RightSidebarReactViewProps {
   view?: any;
@@ -24,15 +25,15 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
     if (!globalVariableManager) return;
 
-    const unsubscribeFrame = globalVariableManager.subscribe('selectedFrame', (frame: any) => {
+    const unsubscribeFrame = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, (frame: any) => {
       setSelectedFrame(frame);
     });
 
-    const unsubscribeLayers = globalVariableManager.subscribe('layers', (layersData: any[]) => {
+    const unsubscribeLayers = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.LAYERS, (layersData: any[]) => {
       setLayers(layersData || []);
     });
 
-    const unsubscribeCurrentFile = globalVariableManager.subscribe('currentFile', (file: TFile | null) => {
+    const unsubscribeCurrentFile = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, (file: TFile | null) => {
       setCurrentFile(file);
     });
 
@@ -75,9 +76,9 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
             if (psdData.layers && psdData.layers.length > 0) {
               const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
               if (globalVariableManager) {
-                globalVariableManager.setVariable('layers', psdData.layers);
-                globalVariableManager.setVariable('currentLayerIndex', 0);
-                globalVariableManager.setVariable('currentFile', file);
+                globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, psdData.layers);
+                globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
+                globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, file);
               }
               console.log('ストーリーボード行選択により、PSDレイヤーを自動ロードしました:', file.name);
             }
@@ -107,9 +108,9 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         if (psdData.layers && psdData.layers.length > 0) {
           const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
           if (globalVariableManager) {
-            globalVariableManager.setVariable('layers', psdData.layers);
-            globalVariableManager.setVariable('currentLayerIndex', 0);
-            globalVariableManager.setVariable('currentFile', file);
+            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, psdData.layers);
+            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
+            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, file);
           }
           console.log('PSDファイルのレイヤーを同期しました:', file.name);
         }

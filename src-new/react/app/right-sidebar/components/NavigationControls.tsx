@@ -1,6 +1,6 @@
 import React from 'react';
 import { Notice, App, TFile } from 'obsidian';
-import { t } from '../../../../obsidian-i18n';
+import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
 interface NavigationControlsProps {

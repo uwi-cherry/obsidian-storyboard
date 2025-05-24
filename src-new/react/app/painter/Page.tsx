@@ -4,7 +4,7 @@ import ToolProperties from './components/ToolProperties';
 import Canvas from './components/Canvas';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer from '../../hooks/usePainterPointer';
-import { useLayerContext } from '../../context/LayerContext';
+import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 
 interface PainterPageProps {
   view?: any;
@@ -20,15 +20,17 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     );
   }
   const pointer = usePainterPointer();
-  const { initializePainterData } = useLayerContext();
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
 
   useEffect(() => {
-    if (view) {
-      initializePainterData(view);
+    if (view && app) {
+      const globalVariableManager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      if (globalVariableManager) {
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, view);
+      }
     }
-  }, [view, initializePainterData]);
+  }, [view, app]);
 
   return (
     <div className="flex flex-1 overflow-hidden">

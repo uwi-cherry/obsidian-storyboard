@@ -1,6 +1,6 @@
 import { Plugin, addIcon, TFile, WorkspaceLeaf, MarkdownView } from 'obsidian';
 import { StoryboardFactory } from './storyboard-factory';
-import { STORYBOARD_ICON_SVG, STORYBOARD_TOGGLE_ICON_SVG } from '../../icons';
+import { STORYBOARD_ICON_SVG, STORYBOARD_TOGGLE_ICON_SVG } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 
 /**

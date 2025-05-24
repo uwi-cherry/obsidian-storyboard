@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { t } from '../../../obsidian-i18n';
+import { t } from '../../../constants/obsidian-i18n';
 import TextAreaField from '../../components/TextAreaField';
 import useTextareaArrowNav from '../../hooks/useTextareaArrowNav';
 

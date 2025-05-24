@@ -4,7 +4,7 @@ import { RightSidebarPlugin } from './src-new/obsidian-api/right-sidebar/right-s
 import { TimelinePlugin } from './src-new/obsidian-api/timeline/timeline-plugin';
 import { StoryboardPlugin } from './src-new/obsidian-api/storyboard/storyboard-plugin';
 import { SettingsPlugin } from './src-new/obsidian-api/settings/settings-plugin';
-import { setAppInstance } from './src-new/obsidian-i18n';
+import { setAppInstance } from './src-new/constants/obsidian-i18n';
 
 /**
  * メインプラグインクラス

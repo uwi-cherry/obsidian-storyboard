@@ -3,7 +3,7 @@ import { Root, createRoot } from 'react-dom/client';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import React from 'react';
 import StoryboardReactView from 'src-new/react/app/storyboard/Page';
-import { t } from '../../obsidian-i18n';
+import { t } from '../../constants/obsidian-i18n';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
 const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();

@@ -1,0 +1,147 @@
+import { ToolsConfiguration } from '../service-api/core/tool-config-types';
+
+export const TOOLS_CONFIG: ToolsConfiguration = {
+  tools: [
+    {
+      name: "create_storyboard_file",
+      modulePath: "../../src-new/service-api/api/storyboard-tool/create-storyboard-file",
+      exportName: "createStoryboardFileTool",
+      ai_enabled: false,
+      description: "Create a new storyboard file with sample content",
+      category: "storyboard"
+    },
+    {
+      name: "rename_file_extension",
+      modulePath: "../../src-new/service-api/api/storyboard-tool/rename-file-extension",
+      exportName: "renameFileExtensionTool",
+      ai_enabled: false,
+      description: "Rename file extension with collision avoidance",
+      category: "storyboard"
+    },
+    {
+      name: "toggle_storyboard_view",
+      modulePath: "../../src-new/service-api/api/storyboard-tool/toggle-storyboard-view",
+      exportName: "toggleStoryboardViewTool",
+      ai_enabled: false,
+      description: "Toggle between markdown and storyboard view",
+      category: "storyboard"
+    },
+    {
+      name: "load_storyboard_data",
+      modulePath: "../../src-new/service-api/api/storyboard-tool/load-storyboard-data",
+      exportName: "loadStoryboardDataTool",
+      ai_enabled: false,
+      description: "Load storyboard data from file",
+      category: "storyboard"
+    },
+    {
+      name: "save_storyboard_data",
+      modulePath: "../../src-new/service-api/api/storyboard-tool/save-storyboard-data",
+      exportName: "saveStoryboardDataTool",
+      ai_enabled: false,
+      description: "Save storyboard data to file",
+      category: "storyboard"
+    },
+    {
+      name: "create_painter_file",
+      modulePath: "../../src-new/service-api/api/painter-tool/create-painter-file",
+      exportName: "createPainterFileTool",
+      ai_enabled: false,
+      description: "Create new PSD file",
+      category: "painter"
+    },
+    {
+      name: "load_painter_file",
+      modulePath: "../../src-new/service-api/api/painter-tool/load-painter-file",
+      exportName: "loadPainterFileTool",
+      ai_enabled: false,
+      description: "Load PSD file",
+      category: "painter"
+    },
+    {
+      name: "save_painter_file",
+      modulePath: "../../src-new/service-api/api/painter-tool/save-painter-file",
+      exportName: "savePainterFileTool",
+      ai_enabled: false,
+      description: "Save PSD file",
+      category: "painter"
+    },
+    {
+      name: "generate_thumbnail",
+      modulePath: "../../src-new/service-api/api/painter-tool/generate-thumbnail",
+      exportName: "generateThumbnailTool",
+      ai_enabled: false,
+      description: "Generate thumbnail from PSD file",
+      category: "painter"
+    },
+    {
+      name: "undo_painter",
+      modulePath: "../../src-new/service-api/api/painter-tool/undo-painter",
+      exportName: "undoPainterTool",
+      ai_enabled: false,
+      description: "Undo painter view",
+      category: "painter"
+    },
+    {
+      name: "redo_painter",
+      modulePath: "../../src-new/service-api/api/painter-tool/redo-painter",
+      exportName: "redoPainterTool",
+      ai_enabled: false,
+      description: "Redo painter view",
+      category: "painter"
+    },
+    {
+      name: "add_layer",
+      modulePath: "../../src-new/service-api/api/layer-tool/add-layer",
+      exportName: "addLayerTool",
+      ai_enabled: false,
+      description: "Add new layer to painter view",
+      category: "painter"
+    },
+    {
+      name: "delete_layer",
+      modulePath: "../../src-new/service-api/api/layer-tool/delete-layer",
+      exportName: "deleteLayerTool",
+      ai_enabled: false,
+      description: "Delete layer from painter view",
+      category: "painter"
+    },
+    {
+      name: "update_layer",
+      modulePath: "../../src-new/service-api/api/layer-tool/update-layer",
+      exportName: "updateLayerTool",
+      ai_enabled: false,
+      description: "Update layer properties in painter view",
+      category: "painter"
+    },
+    {
+      name: "duplicate_layer",
+      modulePath: "../../src-new/service-api/api/layer-tool/duplicate-layer",
+      exportName: "duplicateLayerTool",
+      ai_enabled: false,
+      description: "Duplicate layer in painter view",
+      category: "painter"
+    },
+    {
+      name: "initialize_painter_data",
+      modulePath: "../../src-new/service-api/api/layer-tool/initialize-painter-data",
+      exportName: "initializePainterDataTool",
+      ai_enabled: false,
+      description: "Initialize painter data with default layer",
+      category: "painter"
+    },
+    {
+      name: "set_current_layer",
+      modulePath: "../../src-new/service-api/api/layer-tool/set-current-layer",
+      exportName: "setCurrentLayerTool",
+      ai_enabled: false,
+      description: "Set current layer index in painter view",
+      category: "painter"
+    }
+  ],
+  config: {
+    autoRegister: true,
+    enableLogging: true,
+    failOnError: false
+  }
+}; 

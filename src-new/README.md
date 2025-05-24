@@ -153,7 +153,7 @@ react → obsidian-api → service-api
 5. **service-api/api/[feature]-tool/**: サービスAPI実装
    - `action.ts`: ツール定義と実装
 
-6. **service-api/core/tools-config.json**: ツール登録
+6. **constants/tools-config.ts**: ツール登録
 
 ## アーキテクチャの利点
 
