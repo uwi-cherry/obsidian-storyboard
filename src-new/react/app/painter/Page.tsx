@@ -4,6 +4,7 @@ import ToolProperties from './components/ToolProperties';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
 import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
+import { toolRegistry } from '../../../service-api/core/tool-registry';
 
 interface PainterPageProps {
   view?: any;
@@ -34,10 +35,14 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
       // ファイルからPSDデータを読み込む
       const loadPainterData = async () => {
-        if (view.file && globalVariableManager?.toolRegistry) {
+        console.log('🔍 PainterPage: loadPainterData開始');
+        console.log('🔍 PainterPage: view.file:', view.file);
+        console.log('🔍 PainterPage: toolRegistry:', toolRegistry);
+        
+        if (view.file) {
           try {
             console.log('🔍 PainterPage: PSDファイルを読み込み中...', view.file.path);
-            const result = await globalVariableManager.toolRegistry.executeTool('load_painter_file', {
+            const result = await toolRegistry.executeTool('load_painter_file', {
               app,
               file: view.file
             });
@@ -50,24 +55,28 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             setCurrentLayerIndex(0);
             
             // GlobalVariableManagerにも設定
-            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, psdData.layers || []);
-            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
+            if (globalVariableManager) {
+              globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, psdData.layers || []);
+              globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
+            }
             
           } catch (error) {
             console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
             // 読み込みに失敗した場合は初期化ツールを使用
             try {
-              await globalVariableManager.toolRegistry.executeTool('initialize_painter_data', { view });
+              await toolRegistry.executeTool('initialize_painter_data', { view });
               // 初期化されたデータを取得
-              const initLayers = globalVariableManager.getVariable(GLOBAL_VARIABLE_KEYS.LAYERS) || [];
-              setLayers(initLayers);
-              setCurrentLayerIndex(0);
+              if (globalVariableManager) {
+                const initLayers = globalVariableManager.getVariable(GLOBAL_VARIABLE_KEYS.LAYERS) || [];
+                setLayers(initLayers);
+                setCurrentLayerIndex(0);
+              }
             } catch (initError) {
               console.error('🔍 PainterPage: 初期化エラー:', initError);
             }
           }
         } else {
-          console.error('🔍 PainterPage: ファイルまたはtoolRegistryが見つかりません');
+          console.error('🔍 PainterPage: ファイルが見つかりません');
         }
       };
 
