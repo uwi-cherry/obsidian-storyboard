@@ -131,7 +131,7 @@ export default function ChatBox() {
                     <img
                       key={aIdx}
                       src={att.url}
-                      alt={`${att.type} attachment`}
+                      alt={t('ATTACHMENT', { type: att.type })}
                       className={`w-12 h-12 object-cover rounded border-2 ${border}`}
                     />
                   );
@@ -178,7 +178,7 @@ export default function ChatBox() {
                 <div key={idx} className="relative">
                   <img
                     src={att.url}
-                    alt={`${att.type} attachment`}
+                    alt={t('ATTACHMENT', { type: att.type })}
                     className={`w-12 h-12 object-cover rounded border-2 ${border}`}
                   />
                   <button

@@ -12,7 +12,7 @@ export function setAppInstance(appInstance: App): void {
 /**
  * Obsidian標準の翻訳機能を使用して翻訳を取得
  */
-export function t(key: string): string {
+export function t(key: string, vars: Record<string, string | number> = {}): string {
   if (!app) {
     console.warn('App instance not set for i18n');
     return key;
@@ -23,6 +23,8 @@ export function t(key: string): string {
   const locale = moment.locale();
   
   // 日本語の場合は日本語の翻訳を返す
+  let result: string;
+
   if (locale === 'ja') {
     const jaTranslations: Record<string, string> = {
       'STORYBOARD_TOGGLE': '絵コンテ切替',
@@ -50,6 +52,7 @@ export function t(key: string): string {
       'NEW_CHAPTER_PLACEHOLDER': '新しいBGMプロンプトを追加',
       'PROMPT_PLACEHOLDER': 'プロンプト',
       'IMAGE_PROMPT_PLACEHOLDER': '画像生成プロンプト(任意)',
+      'ATTACHMENT': '{type}添付',
       'CLEAR_PATH': 'クリア',
       'TOOL_BRUSH': 'ブラシ',
       'TOOL_ERASER': '消しゴム',
@@ -70,9 +73,9 @@ export function t(key: string): string {
       , 'ENTER_LAYER_NAME': 'レイヤー名を入力'
       , 'BACKGROUND': '背景'
     };
-    return jaTranslations[key] || key;
+    result = jaTranslations[key] || key;
   }
-  
+
   // 英語の場合は英語の翻訳を返す
   const enTranslations: Record<string, string> = {
     'STORYBOARD_TOGGLE': 'Toggle storyboard',
@@ -100,6 +103,7 @@ export function t(key: string): string {
     'NEW_CHAPTER_PLACEHOLDER': 'Add new BGM prompt',
     'PROMPT_PLACEHOLDER': 'Prompt',
     'IMAGE_PROMPT_PLACEHOLDER': 'Image generation prompt (optional)',
+    'ATTACHMENT': '{type} attachment',
     'CLEAR_PATH': 'Clear',
     'TOOL_BRUSH': 'Brush',
     'TOOL_ERASER': 'Eraser',
@@ -120,5 +124,12 @@ export function t(key: string): string {
     'ENTER_LAYER_NAME': 'Enter layer name',
     'BACKGROUND': 'Background'
   };
-  return enTranslations[key] || key;
-} 
+  if (result === undefined) {
+    result = enTranslations[key] || key;
+  }
+
+  for (const [k, v] of Object.entries(vars)) {
+    result = result.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
+  }
+  return result;
+}
