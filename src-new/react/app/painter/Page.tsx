@@ -32,25 +32,60 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       const globalVariableManager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
       console.log('🔍 PainterPage: globalVariableManager:', globalVariableManager);
 
+      // ファイルからPSDデータを読み込む
+      const loadPainterData = async () => {
+        if (view.file && globalVariableManager?.toolRegistry) {
+          try {
+            console.log('🔍 PainterPage: PSDファイルを読み込み中...', view.file.path);
+            const result = await globalVariableManager.toolRegistry.executeTool('load_painter_file', {
+              app,
+              file: view.file
+            });
+            const psdData = JSON.parse(result);
+            
+            console.log('🔍 PainterPage: PSDデータ読み込み完了:', psdData);
+            
+            // ビューにレイヤーデータを設定
+            view.layers = psdData.layers || [];
+            view.currentLayerIndex = 0;
+            
+            // GlobalVariableManagerにも設定
+            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, view.layers);
+            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, view.currentLayerIndex);
+            
+          } catch (error) {
+            console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
+            // 読み込みに失敗した場合は初期化ツールを使用
+            await globalVariableManager.toolRegistry.executeTool('initialize_painter_data', { view });
+          }
+        } else if (globalVariableManager?.toolRegistry) {
+          // ファイルがない場合は初期化
+          await globalVariableManager.toolRegistry.executeTool('initialize_painter_data', { view });
+        }
+      };
+
       if (globalVariableManager) {
         console.log('🔍 PainterPage: GlobalVariableManagerに情報を設定中...');
 
-        // ペインタービューをGlobalVariableManagerに登録
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, view);
+        // まずファイルデータを読み込む
+        loadPainterData().then(() => {
+          // ペインタービューをGlobalVariableManagerに登録
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, view);
 
-        // 現在のレイヤー情報もGlobalVariableManagerに登録
-        const currentLayers = view.layers || [];
-        const currentLayerIndex = view.currentLayerIndex || 0;
+          // 現在のレイヤー情報もGlobalVariableManagerに登録
+          const currentLayers = view.layers || [];
+          const currentLayerIndex = view.currentLayerIndex || 0;
 
-        console.log('🔍 PainterPage: view.layers:', view.layers);
-        console.log('🔍 PainterPage: view.currentLayerIndex:', view.currentLayerIndex);
+          console.log('🔍 PainterPage: view.layers:', view.layers);
+          console.log('🔍 PainterPage: view.currentLayerIndex:', view.currentLayerIndex);
 
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
 
-        console.log('🔍 PainterPage: GlobalVariableManager設定完了:', {
-          layersCount: currentLayers.length,
-          currentIndex: currentLayerIndex
+          console.log('🔍 PainterPage: GlobalVariableManager設定完了:', {
+            layersCount: currentLayers.length,
+            currentIndex: currentLayerIndex
+          });
         });
 
         // レイヤー変更の監視を設定
