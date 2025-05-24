@@ -42,7 +42,7 @@ export default function CanvasContainer({ pointer }: Props) {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center overflow-auto bg-secondary relative">
+    <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative">
       <Canvas
         pointer={pointer}
         selectionRect={selectionRect}
