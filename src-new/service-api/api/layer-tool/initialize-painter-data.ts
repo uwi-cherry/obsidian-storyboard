@@ -34,9 +34,12 @@ namespace Internal {
       return 'existing_data_loaded';
     }
     
+    // ファイル名がある場合はそれを使用、なければデフォルト名
+    const layerName = view.file?.basename || '背景';
+    
     // 新しいデフォルトレイヤーを作成
     const defaultLayer: Layer = {
-      name: '背景',
+      name: layerName,
       visible: true,
       opacity: 1,
       blendMode: 'normal',
