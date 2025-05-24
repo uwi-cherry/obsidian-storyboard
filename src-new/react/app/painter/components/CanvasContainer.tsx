@@ -12,9 +12,19 @@ interface SelectionRect {
 
 interface Props {
   pointer: PainterPointer;
+  layers: any[];
+  currentLayerIndex: number;
+  setLayers: (layers: any[]) => void;
+  view?: any;
 }
 
-export default function CanvasContainer({ pointer }: Props) {
+export default function CanvasContainer({
+  pointer,
+  layers,
+  currentLayerIndex,
+  setLayers,
+  view
+}: Props) {
   const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
@@ -44,6 +54,10 @@ export default function CanvasContainer({ pointer }: Props) {
   return (
     <div className="flex-1 flex items-center justify-center overflow-auto bg-secondary relative">
       <Canvas
+        layers={layers}
+        currentLayerIndex={currentLayerIndex}
+        setLayers={setLayers}
+        view={view}
         pointer={pointer}
         selectionRect={selectionRect}
         onSelectionStart={handleSelectionStart}
