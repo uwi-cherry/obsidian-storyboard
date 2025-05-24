@@ -1,5 +1,4 @@
 import { Tool } from '../../core/tool';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 namespace Internal {

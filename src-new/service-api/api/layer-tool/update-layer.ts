@@ -1,6 +1,5 @@
 import { Tool } from '../../core/tool';
 import { Layer } from '../../../types/painter-types';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 
 namespace Internal {

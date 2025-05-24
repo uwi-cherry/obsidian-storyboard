@@ -3,7 +3,6 @@ import { PainterFactory } from './painter-factory';
 import { PAINTER_ICON_SVG } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { PainterView } from './painter-view';
-import { GLOBAL_VARIABLE_KEYS } from '../../constants/constants';
 
 /**
  * Painter Plugin - Obsidian Plugin Integration

@@ -5,7 +5,6 @@ import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';

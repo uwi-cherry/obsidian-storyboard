@@ -1,10 +1,9 @@
 import { App, TFile, Notice } from 'obsidian';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FOLD_ICON_SVG, TABLE_ICONS } from 'src-new/constants/icons';
+import { FOLD_ICON_SVG } from 'src-new/constants/icons';
 import EditableTable, { ColumnDef } from 'src-new/react/components/EditableTable';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import useStoryboardData from '../../hooks/useStoryboardData';
 import { StoryboardData, StoryboardFrame } from '../../../types/storyboard';
 import BGMCreationInput from './BGMCreationInput';
@@ -155,8 +154,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
           });
           const parsed = JSON.parse(loadResult);
           if (parsed.layers && parsed.layers.length > 0) {
-            useLayersStore.getState().setLayers(parsed.layers);
-            useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
           }
         } catch (err) {
           console.error('レイヤーストアの初期化に失敗しました:', err);

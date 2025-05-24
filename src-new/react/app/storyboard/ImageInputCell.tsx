@@ -2,7 +2,6 @@ import { App, normalizePath, Notice, TFile } from 'obsidian';
 import React, { useEffect, useRef, useState } from 'react';
 import { BUTTON_ICONS } from '../../../constants/icons';
 import { t } from '../../../constants/obsidian-i18n';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import IconButtonGroup from '../../components/IconButtonGroup';
 import TextAreaField from '../../components/TextAreaField';
 import ThumbnailViewer from '../../components/ThumbnailViewer';

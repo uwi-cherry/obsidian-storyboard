@@ -24,63 +24,26 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const pointer = usePainterPointer();
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
+  
+  // zustandストアからレイヤー情報を取得
+  const storeLayersRaw = useLayersStore((state) => state.layers);
+  const storeCurrentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
+  
   const [layers, setLayers] = useState<any[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
 
-  // ビューを開いた際の初期ロード処理
+  // zustandストアからレイヤー情報を同期
   useEffect(() => {
-    if (!view || !app) return;
+    console.log('🔍 PainterPage: zustandストアからレイヤー情報を同期中...', storeLayersRaw);
+    setLayers(storeLayersRaw || []);
+    setCurrentLayerIndex(storeCurrentLayerIndex || 0);
+  }, [storeLayersRaw, storeCurrentLayerIndex]);
 
-    console.log('🔍 PainterPage: useEffect実行 - view:', view, 'app:', app);
-
-    const loadPainterData = async () => {
-      console.log('🔍 PainterPage: loadPainterData開始');
-      console.log('🔍 PainterPage: view.file:', view.file);
-      console.log('🔍 PainterPage: toolRegistry:', toolRegistry);
-
-      if (view.file) {
-        try {
-          console.log('🔍 PainterPage: PSDファイルを読み込み中...', view.file.path);
-          const result = await toolRegistry.executeTool('load_painter_file', {
-            app,
-            file: view.file
-          });
-          const psdData = JSON.parse(result);
-
-          console.log('🔍 PainterPage: PSDデータ読み込み完了:', psdData);
-
-          setLayers(psdData.layers || []);
-          setCurrentLayerIndex(0);
-          useLayersStore.getState().setLayers(psdData.layers || []);
-          useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
-        } catch (error) {
-          console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
-          try {
-            await toolRegistry.executeTool('initialize_painter_data', { view });
-            const initLayers = useLayersStore.getState().layers || [];
-            setLayers(initLayers);
-            setCurrentLayerIndex(0);
-          } catch (initError) {
-            console.error('🔍 PainterPage: 初期化エラー:', initError);
-          }
-        }
-      } else {
-        console.error('🔍 PainterPage: ファイルが見つかりません');
-      }
-    };
-
-    // ファイルは常に読み込む
-    loadPainterData();
-  }, [view, app]);
-
-  // レイヤー変更時にzustandストアを更新
+  // ローカル状態とストアの同期
   useEffect(() => {
     if (!app) return;
     useLayersStore.getState().setLayers(layers);
-    useCurrentLayerIndexStore
-      .getState()
-      .setCurrentLayerIndex(currentLayerIndex);
-
+    useCurrentLayerIndexStore.getState().setCurrentLayerIndex(currentLayerIndex);
   }, [layers, currentLayerIndex, app]);
 
   return (

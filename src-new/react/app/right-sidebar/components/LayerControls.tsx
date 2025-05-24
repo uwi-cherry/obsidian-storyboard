@@ -1,8 +1,6 @@
 import React from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
 import { LAYER_ICONS } from '../../../../constants/icons';
-import { GLOBAL_VARIABLE_KEYS } from '../../../../constants/constants';
-import { toolRegistry } from '../../../../service-api/core/tool-registry';
 import { useLayersStore } from '../../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 
