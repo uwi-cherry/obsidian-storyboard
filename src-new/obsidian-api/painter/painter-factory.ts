@@ -14,8 +14,8 @@ export class PainterFactory {
   }
 
   private renderReactComponent(view: PainterView): void {
-    view.containerEl.empty();
-    view.reactRoot = createRoot(view.containerEl);
+    view.contentEl.empty();
+    view.reactRoot = createRoot(view.contentEl);
     view.reactRoot.render(
       React.createElement(PainterPage, { view, app: view.app })
     );
