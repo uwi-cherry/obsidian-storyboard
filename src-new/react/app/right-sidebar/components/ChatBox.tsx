@@ -18,7 +18,7 @@ interface Attachment {
   type: 'image' | 'mask' | 'reference';
 }
 
-export default function ChatBox({ plugin }: ChatBoxProps) {
+export default function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -82,7 +82,6 @@ export default function ChatBox({ plugin }: ChatBoxProps) {
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
     
     setInput('');
-    const sendAttachments = attachments;
     setAttachments([]);
     setLoading(true);
     
