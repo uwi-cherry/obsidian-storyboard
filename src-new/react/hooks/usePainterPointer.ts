@@ -1,13 +1,15 @@
 import { useState } from 'react';
 
+export type PainterTool = 'brush' | 'eraser' | 'selection' | 'hand';
+
 export interface PainterPointer {
-  tool: string;
+  tool: PainterTool;
   lineWidth: number;
   color: string;
 }
 
 export default function usePainterPointer() {
-  const [tool, setTool] = useState<string>('brush');
+  const [tool, setTool] = useState<PainterTool>('brush');
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [color, setColor] = useState<string>('#000000');
 

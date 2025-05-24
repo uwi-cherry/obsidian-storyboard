@@ -1,13 +1,64 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Canvas from './Canvas';
+import ActionMenu from './ActionMenu';
+import type { PainterPointer } from '../../hooks/usePainterPointer';
 
-interface Props {
-  children: React.ReactNode;
+interface SelectionRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
-export default function CanvasContainer({ children }: Props) {
+interface Props {
+  pointer: PainterPointer;
+}
+
+export default function CanvasContainer({ pointer }: Props) {
+  const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
+  const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
+  const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
+
+  const handleSelectionStart = () => {
+    setMenuMode('hidden');
+  };
+
+  const handleSelectionUpdate = (rect: SelectionRect | undefined) => {
+    setSelectionRect(rect);
+  };
+
+  const handleSelectionEnd = (rect?: SelectionRect) => {
+    if (rect) {
+      setMenuPos({ x: rect.x, y: rect.y - 28 });
+      setMenuMode('selection');
+    } else {
+      setMenuMode('global');
+    }
+  };
+
+  const cancelSelection = () => {
+    setSelectionRect(undefined);
+    setMenuMode('global');
+  };
+
   return (
-    <div className="flex-1 flex items-center justify-center overflow-auto bg-secondary">
-      {children}
+    <div className="flex-1 flex items-center justify-center overflow-auto bg-secondary relative">
+      <Canvas
+        pointer={pointer}
+        selectionRect={selectionRect}
+        onSelectionStart={handleSelectionStart}
+        onSelectionUpdate={handleSelectionUpdate}
+        onSelectionEnd={handleSelectionEnd}
+      />
+      <ActionMenu
+        handlers={{
+          fill: () => {},
+          clear: () => {},
+          cancel: cancelSelection
+        }}
+        mode={menuMode}
+        position={menuPos}
+      />
     </div>
   );
 }

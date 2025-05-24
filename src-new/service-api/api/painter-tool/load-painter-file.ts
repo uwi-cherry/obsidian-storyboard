@@ -37,28 +37,12 @@ namespace Internal {
   } as const;
 
   function convertPsdLayerToCanvas(psdLayer: any): HTMLCanvasElement {
-    const canvas = document.createElement('canvas');
-    canvas.width = psdLayer.canvas?.width || 800;
-    canvas.height = psdLayer.canvas?.height || 600;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) throw new Error('Failed to get 2D context');
-    
-    // psdLayerにcanvasプロパティがある場合、それをHTMLCanvasElementとして扱う
-    if (psdLayer.canvas && typeof psdLayer.canvas.getContext === 'function') {
-      // 既にHTMLCanvasElementの場合
-      ctx.drawImage(psdLayer.canvas, 0, 0);
-    } else if (psdLayer.canvas && psdLayer.canvas.data) {
-      // ImageDataの場合
-      const imageData = ctx.createImageData(canvas.width, canvas.height);
-      imageData.data.set(psdLayer.canvas.data);
-      ctx.putImageData(imageData, 0, 0);
-    } else {
-      // その他の場合は空のcanvasを作成
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    
-    return canvas;
+    // DOM が存在しない環境では toCanvas がそのままオブジェクトを返す
+    return toCanvas(
+      psdLayer.canvas ?? {},
+      psdLayer.canvas?.width || 800,
+      psdLayer.canvas?.height || 600
+    );
   }
 
   export async function executeLoadPainterFile(args: LoadPainterFileInput): Promise<string> {
