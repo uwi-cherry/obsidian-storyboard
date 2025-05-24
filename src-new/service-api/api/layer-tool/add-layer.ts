@@ -1,7 +1,8 @@
 import { Layer } from 'src-new/types/painter-types';
 import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 namespace Internal {
   export interface AddLayerInput {
@@ -77,14 +78,9 @@ namespace Internal {
     view.setCurrentLayerIndex?.(0);
     view.saveHistory?.();
 
-    // GlobalVariableManagerを更新
-    if (view.app && typeof window !== 'undefined') {
-      const globalVariableManager = view.app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-      if (globalVariableManager) {
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, newLayers);
-        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
-      }
-    }
+    // Zustand ストアを更新
+    useLayersStore.getState().setLayers(newLayers);
+    useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
 
     return 'layer_added';
   }

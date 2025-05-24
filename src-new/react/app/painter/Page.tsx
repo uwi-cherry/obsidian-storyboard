@@ -3,7 +3,8 @@ import Toolbar from './components/Toolbar';
 import ToolProperties from './components/ToolProperties';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 
 interface PainterPageProps {
@@ -30,15 +31,11 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     if (view && app) {
       console.log('🔍 PainterPage: useEffect実行 - view:', view, 'app:', app);
 
-      const globalVariableManager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-      console.log('🔍 PainterPage: globalVariableManager:', globalVariableManager);
-
-      // ファイルからPSDデータを読み込む
       const loadPainterData = async () => {
         console.log('🔍 PainterPage: loadPainterData開始');
         console.log('🔍 PainterPage: view.file:', view.file);
         console.log('🔍 PainterPage: toolRegistry:', toolRegistry);
-        
+
         if (view.file) {
           try {
             console.log('🔍 PainterPage: PSDファイルを読み込み中...', view.file.path);
@@ -47,30 +44,23 @@ export default function PainterPage({ view, app }: PainterPageProps) {
               file: view.file
             });
             const psdData = JSON.parse(result);
-            
+
             console.log('🔍 PainterPage: PSDデータ読み込み完了:', psdData);
-            
+
             // Reactのstateにレイヤーデータを設定
             setLayers(psdData.layers || []);
             setCurrentLayerIndex(0);
-            
-            // GlobalVariableManagerにも設定
-            if (globalVariableManager) {
-              globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, psdData.layers || []);
-              globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
-            }
-            
+
+            // Zustand ストアにも設定
+            useLayersStore.getState().setLayers(psdData.layers || []);
+            useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
           } catch (error) {
             console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
-            // 読み込みに失敗した場合は初期化ツールを使用
             try {
               await toolRegistry.executeTool('initialize_painter_data', { view });
-              // 初期化されたデータを取得
-              if (globalVariableManager) {
-                const initLayers = globalVariableManager.getVariable(GLOBAL_VARIABLE_KEYS.LAYERS) || [];
-                setLayers(initLayers);
-                setCurrentLayerIndex(0);
-              }
+              const initLayers = useLayersStore.getState().layers || [];
+              setLayers(initLayers);
+              setCurrentLayerIndex(0);
             } catch (initError) {
               console.error('🔍 PainterPage: 初期化エラー:', initError);
             }
@@ -80,38 +70,18 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         }
       };
 
-      if (globalVariableManager) {
-        console.log('🔍 PainterPage: GlobalVariableManagerに情報を設定中...');
-
-        // まずファイルデータを読み込む
-        loadPainterData().then(() => {
-          // ペインタービューをGlobalVariableManagerに登録
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, view);
-
-          console.log('🔍 PainterPage: レイヤー設定完了:', {
-            layersCount: layers.length,
-            currentIndex: currentLayerIndex
-          });
-        });
-
-        // レイヤー変更の監視を設定
-        const updateGlobalLayers = () => {
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, layers);
-          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
-
-          console.log('🔍 PainterPage: レイヤー情報更新:', {
-            layersCount: layers.length,
-            currentIndex: currentLayerIndex
-          });
-        };
-
-        // レイヤーが変更されたらGlobalVariableManagerも更新
-        updateGlobalLayers();
-      } else {
-        console.log('🔍 PainterPage: GlobalVariableManagerが見つかりません');
-      }
+      loadPainterData();
     }
-  }, [view, app, layers, currentLayerIndex]);
+  }, [view, app]);
+
+  // ローカル状態が変化したらZustandストアへ反映
+  useEffect(() => {
+    useLayersStore.getState().setLayers(layers);
+  }, [layers]);
+
+  useEffect(() => {
+    useCurrentLayerIndexStore.getState().setCurrentLayerIndex(currentLayerIndex);
+  }, [currentLayerIndex]);
 
   return (
   <div className="flex flex-1 overflow-hidden">

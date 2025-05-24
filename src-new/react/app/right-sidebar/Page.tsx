@@ -5,7 +5,9 @@ import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
+import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 interface RightSidebarReactViewProps {
   view?: any;
@@ -14,35 +16,14 @@ interface RightSidebarReactViewProps {
 
 export default function RightSidebarReactView({ view, app }: RightSidebarReactViewProps) {
   const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
-  const [selectedFrame, setSelectedFrame] = useState<any>(null);
-  const [layers, setLayers] = useState<any[]>([]);
   const [currentFile, setCurrentFile] = useState<TFile | null>(null);
 
-  // GlobalVariableManagerから選択されたフレームを監視
-  useEffect(() => {
-    if (!app) return;
-    
-    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-    if (!globalVariableManager) return;
+  const selectedFrame = useSelectedFrameStore(state => state.selectedFrame);
+  const layers = useLayersStore(state => state.layers);
+  const setLayersStore = useLayersStore(state => state.setLayers);
+  const setCurrentLayerIndexStore = useCurrentLayerIndexStore(state => state.setCurrentLayerIndex);
 
-    const unsubscribeFrame = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, (frame: any) => {
-      setSelectedFrame(frame);
-    });
-
-    const unsubscribeLayers = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.LAYERS, (layersData: any[]) => {
-      setLayers(layersData || []);
-    });
-
-    const unsubscribeCurrentFile = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, (file: TFile | null) => {
-      setCurrentFile(file);
-    });
-
-    return () => {
-      unsubscribeFrame();
-      unsubscribeLayers();
-      unsubscribeCurrentFile();
-    };
-  }, [app]);
+  // zustand ストアの変化を監視する必要はない
 
   useEffect(() => {
     if (!view?.app) return;
@@ -74,12 +55,9 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
             });
             const psdData = JSON.parse(result);
             if (psdData.layers && psdData.layers.length > 0) {
-              const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-              if (globalVariableManager) {
-                globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, psdData.layers);
-                globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
-                globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, file);
-              }
+              setLayersStore(psdData.layers);
+              setCurrentLayerIndexStore(0);
+              setCurrentFile(file);
               console.log('ストーリーボード行選択により、PSDレイヤーを自動ロードしました:', file.name);
             }
           }
@@ -106,12 +84,9 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         });
         const psdData = JSON.parse(result);
         if (psdData.layers && psdData.layers.length > 0) {
-          const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
-          if (globalVariableManager) {
-            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, psdData.layers);
-            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, 0);
-            globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, file);
-          }
+          setLayersStore(psdData.layers);
+          setCurrentLayerIndexStore(0);
+          setCurrentFile(file);
           console.log('PSDファイルのレイヤーを同期しました:', file.name);
         }
       } catch (error) {
