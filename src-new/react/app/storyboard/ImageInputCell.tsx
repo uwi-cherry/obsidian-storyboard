@@ -241,7 +241,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       {thumbnail ? (
         <ThumbnailViewer
           src={thumbnail}
-          alt="PSD thumbnail"
+          alt={t('PSD_THUMBNAIL')}
           title={imageUrl || ''}
           onDoubleClick={handleThumbnailDoubleClick}
           onClear={handleClearPath}
