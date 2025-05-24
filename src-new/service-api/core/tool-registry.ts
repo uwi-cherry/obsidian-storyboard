@@ -1,7 +1,7 @@
 import { Tool } from './tool';
 import { ToolsConfiguration, ToolConfig } from './tool-config-types';
 import { ToolExecutor } from './tool-executor';
-import toolsConfig from './tools-config.json';
+import { TOOLS_CONFIG } from '../../constants/tools-config';
 
 // 静的インポート - 動的インポートの問題を回避
 import { createStoryboardFileTool } from '../api/storyboard-tool/create-storyboard-file';
@@ -28,7 +28,7 @@ import { setCurrentLayerTool } from '../api/layer-tool/set-current-layer';
 namespace Internal {
   export const tools = new Map<string, Tool<any>>();
   export const aiEnabledTools = new Set<string>();
-  export const config: ToolsConfiguration = toolsConfig as ToolsConfiguration;
+  export const config: ToolsConfiguration = TOOLS_CONFIG as ToolsConfiguration;
 
   // 静的ツールマッピング
   export const staticTools: Record<string, Tool<any>> = {

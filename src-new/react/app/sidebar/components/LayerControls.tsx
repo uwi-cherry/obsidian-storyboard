@@ -2,8 +2,8 @@ import React, { useRef } from 'react';
 import { normalizePath, TFile } from 'obsidian';
 import { useLayerContext } from '../../../context/LayerContext';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
-import { t } from '../../../../obsidian-i18n';
-import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from '../../../../icons';
+import { t } from '../../../../constants/obsidian-i18n';
+import { ADD_ICON_SVG, BUTTON_ICONS, TABLE_ICONS } from '../../../../constants/icons';
 
 export default function LayerControls() {
   const { view, layers, currentLayerIndex, setLayers, setCurrentLayerIndex } = useLayerContext();

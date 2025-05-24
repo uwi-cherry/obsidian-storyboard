@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { t } from '../../../../obsidian-i18n';
-import { ADD_ICON_SVG, TABLE_ICONS } from '../../../../icons';
+import { t } from '../../../../constants/obsidian-i18n';
+import { ADD_ICON_SVG, TABLE_ICONS } from '../../../../constants/icons';
 
 interface ChatBoxProps {
   plugin?: any;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { t } from '../../../obsidian-i18n';
+import { t } from '../../../constants/obsidian-i18n';
 
 interface BGMCreationInputProps {
   value: string;

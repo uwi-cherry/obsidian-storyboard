@@ -1,6 +1,6 @@
 import React from 'react';
-import { TOOL_ICONS } from '../../../../icons';
-import { t } from '../../../../obsidian-i18n';
+import { TOOL_ICONS } from '../../../../constants/icons';
+import { t } from '../../../../constants/obsidian-i18n';
 
 interface ToolbarProps {
   tool: string;

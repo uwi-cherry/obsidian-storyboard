@@ -1,10 +1,10 @@
 import { App, TFile, Notice } from 'obsidian';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { FOLD_ICON_SVG, TABLE_ICONS } from 'src-new/icons';
+import { FOLD_ICON_SVG, TABLE_ICONS } from 'src-new/constants/icons';
 import EditableTable, { ColumnDef } from 'src-new/react/components/EditableTable';
-import { t } from '../../../obsidian-i18n';
+import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import { useStoryboardContext } from '../../context/StoryboardContext';
+import { GLOBAL_VARIABLE_KEYS } from '../../../constants/constants';
 import useStoryboardData from '../../hooks/useStoryboardData';
 import { StoryboardData, StoryboardFrame } from '../../../types/storyboard';
 import BGMCreationInput from './BGMCreationInput';
@@ -234,10 +234,13 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   ];
 
   const handleRowSelect = useCallback((row: StoryboardFrame, index: number) => {
-    // StoryboardContextに選択行を通知
-    const storyboardContext = useStoryboardContext();
-    storyboardContext.setSelectedRow(index, row);
-  }, []);
+    // GlobalVariableManagerに選択行を通知
+    const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+    if (globalVariableManager) {
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, index);
+      globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
+    }
+  }, [app]);
 
   // サイドバーからの画像・プロンプト更新を受信
   useEffect(() => {

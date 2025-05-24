@@ -1,6 +1,6 @@
 import { Plugin, addIcon } from 'obsidian';
 import { TimelineFactory } from './timeline-factory';
-import { TIMELINE_ICON_SVG } from '../../icons';
+import { TIMELINE_ICON_SVG } from '../../constants/icons';
 
 /**
  * Timeline Plugin - Obsidian Plugin Integration

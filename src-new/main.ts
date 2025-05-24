@@ -5,6 +5,7 @@ import { TimelinePlugin } from './obsidian-api/timeline/timeline-plugin';
 import { StoryboardPlugin } from './obsidian-api/storyboard/storyboard-plugin';
 import { SettingsPlugin } from './obsidian-api/settings/settings-plugin';
 import { toolRegistry } from './service-api/core/tool-registry';
+import { GlobalVariableManager } from './obsidian-api/core/global-variable-manager';
 
 /**
  * メインプラグインクラス
@@ -15,9 +16,13 @@ export default class MyPlugin extends Plugin {
   private timelinePlugin: TimelinePlugin;
   private storyboardPlugin: StoryboardPlugin;
   private settingsPlugin: SettingsPlugin;
+  public globalVariableManager: GlobalVariableManager;
 
   async onload() {
     console.log('🚀 Loading plugin...');
+
+    // GlobalVariableManagerを初期化
+    this.globalVariableManager = new GlobalVariableManager(this);
 
     // Service API層の初期化（最初に実行）
     try {
@@ -58,7 +63,10 @@ export default class MyPlugin extends Plugin {
 
   onunload() {
     console.log('🔄 Unloading plugin...');
-    // 必要に応じてクリーンアップ処理
+    // グローバル変数をクリーンアップ
+    if (this.globalVariableManager) {
+      // 必要に応じてクリーンアップ処理を追加
+    }
     console.log('✅ Plugin unloaded');
   }
 } 

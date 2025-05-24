@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { TABLE_ICONS, ADD_ICON_SVG } from '../../icons';
+import { TABLE_ICONS, ADD_ICON_SVG } from '../../constants/icons';
 import IconButtonGroup from './IconButtonGroup';
 
 export interface ColumnDef<T> {
