@@ -21,7 +21,6 @@ export default function LayerControls() {
       currentLayers.push(newLayer);
       useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
-      console.error('レイヤー追加に失敗しました:', error);
     }
   };
 
@@ -34,11 +33,10 @@ export default function LayerControls() {
       
       useLayersStore.getState().setLayers(currentLayers);
 
-      // 削除後のインデックス調整
+      
       const newIndex = Math.min(currentLayerIndex, currentLayers.length - 1);
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(newIndex);
     } catch (error) {
-      console.error('レイヤー削除に失敗しました:', error);
     }
   };
 
@@ -46,7 +44,6 @@ export default function LayerControls() {
     try {
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(index);
     } catch (error) {
-      console.error('レイヤー選択に失敗しました:', error);
     }
   };
 
@@ -63,7 +60,6 @@ export default function LayerControls() {
       
       useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
-      console.error('レイヤー表示切り替えに失敗しました:', error);
     }
   };
 
@@ -82,7 +78,6 @@ export default function LayerControls() {
         
         useLayersStore.getState().setLayers(currentLayers);
       } catch (error) {
-        console.error('レイヤー名変更に失敗しました:', error);
       }
     }
   };
@@ -100,7 +95,6 @@ export default function LayerControls() {
       
       useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
-      console.error('不透明度変更に失敗しました:', error);
     }
   };
 
@@ -117,7 +111,6 @@ export default function LayerControls() {
       
       useLayersStore.getState().setLayers(currentLayers);
     } catch (error) {
-      console.error('ブレンドモード変更に失敗しました:', error);
     }
   };
 
@@ -141,7 +134,7 @@ export default function LayerControls() {
         {t('LAYERS') || 'レイヤー'}
       </div>
 
-      {/* レイヤー操作ボタン */}
+      
       <div className="flex items-center gap-2 mb-2">
         <button
           className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
@@ -157,7 +150,7 @@ export default function LayerControls() {
         />
       </div>
 
-      {/* 不透明度とブレンドモード */}
+      
       {layers[currentLayerIndex] && (
         <div className="flex items-center gap-2 mb-2">
           <input
@@ -193,7 +186,7 @@ export default function LayerControls() {
         </div>
       )}
 
-      {/* レイヤーリスト */}
+      
       <div className="space-y-1">
         {layers.map((layer, idx) => (
           <div

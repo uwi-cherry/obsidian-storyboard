@@ -18,7 +18,6 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
   
   const ctx = canvas.getContext('2d', { willReadFrequently: true });
   if (!ctx) {
-    console.error('Failed to get 2D context for layer:', layer.name);
     layer.canvas = canvas;
     return canvas;
   }
@@ -30,7 +29,6 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
       const imageData = new ImageData(src.data, canvas.width, canvas.height);
       ctx.putImageData(imageData, 0, 0);
     } catch (error) {
-      console.error('Failed to put image data for layer:', layer.name, error);
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -38,7 +36,6 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
     try {
       ctx.drawImage(src, 0, 0);
     } catch (error) {
-      console.error('Failed to draw existing canvas for layer:', layer.name, error);
     }
   } else {
     ctx.fillStyle = 'white';
@@ -97,10 +94,8 @@ namespace Internal {
           if (canvas instanceof HTMLCanvasElement) {
             ctx.drawImage(canvas, 0, 0);
           } else {
-            console.warn('Skipping invalid canvas element for layer:', layer.name);
           }
         } catch (error) {
-          console.error('Failed to draw layer canvas during save:', layer.name, error);
         }
       }
     }

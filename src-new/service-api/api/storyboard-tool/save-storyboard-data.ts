@@ -3,28 +3,21 @@ import { App, TFile } from 'obsidian';
 import { StoryboardData } from '../../../types/storyboard';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-/**
- * 内部実装 - サービスAPI内部でのみ使用
- */
+
 namespace Internal {
-  /**
-   * Save Storyboard Data の入力型
-   */
+  
   export interface SaveStoryboardDataInput {
-    /** アプリインスタンス */
+    
     app: App;
-    /** ファイル */
+    
     file: TFile;
-    /** StoryboardData（JSON文字列） */
+    
     data: string;
   }
 
-  /**
-   * StoryboardDataをマークダウンにフォーマット
-   */
+  
   function formatStoryboardToMarkdown(data: StoryboardData): string {
     let content = '';
-    // キャラクターセクション
     content += '### キャラクター\n\n';
     if (data.characters && data.characters.length > 0) {
       data.characters.forEach((char) => {
@@ -56,9 +49,7 @@ namespace Internal {
     return content.trimEnd() + (data.chapters.some(c => c.frames.length > 0) ? '\n' : '');
   }
 
-  /**
-   * Save Storyboard Data の実行関数
-   */
+  
   export async function executeSaveStoryboardData(args: SaveStoryboardDataInput): Promise<string> {
     const { app, file, data } = args;
     try {
@@ -67,15 +58,12 @@ namespace Internal {
       await app.vault.modify(file, newMarkdownContent);
       return `ストーリーボードファイル "${file.name}" を保存しました`;
     } catch (error) {
-      console.error('ストーリーボードファイル保存エラー:', error);
       return 'ストーリーボードファイルの保存に失敗しました';
     }
   }
 }
 
-/**
- * 外部公開用のツール定義
- */
+
 export const saveStoryboardDataTool: Tool<Internal.SaveStoryboardDataInput> = {
   name: TOOL_NAMES.SAVE_STORYBOARD_DATA,
   description: 'Save storyboard data to file',

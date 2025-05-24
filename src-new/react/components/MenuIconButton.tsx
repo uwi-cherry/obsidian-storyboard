@@ -47,7 +47,7 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
     return 'text-gray-700 hover:bg-gray-100';
   };
 
-  // メニューを開く/閉じる
+  
   const toggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!disabled) {
@@ -55,7 +55,7 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
     }
   };
 
-  // メニューオプションをクリック
+  
   const handleOptionClick = (option: MenuOption, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!option.disabled) {
@@ -64,7 +64,7 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
     }
   };
 
-  // 外側をクリックしたらメニューを閉じる
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node) &&

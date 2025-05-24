@@ -4,9 +4,6 @@ import { PAINTER_ICON_SVG } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { PainterView } from './painter-view';
 
-/**
- * Painter Plugin - Obsidian Plugin Integration
- */
 export class PainterPlugin {
   private plugin: Plugin;
   private factory: PainterFactory;

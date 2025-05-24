@@ -62,10 +62,10 @@ export default function Canvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // キャンバスをクリア
+    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // レイヤーを描画
+    
     if (layers && layers.length > 0) {
       layers.forEach((layer: any, index: number) => {
         if (layer.visible && layer.canvas) {
@@ -101,7 +101,7 @@ export default function Canvas({
       console.log('🎨 Canvas: 描画するレイヤーがありません');
     }
 
-    // 選択範囲描画
+    
     if (selectionRect) {
       ctx.save();
       ctx.setLineDash([6]);

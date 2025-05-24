@@ -62,14 +62,13 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
           console.log('PSDレイヤーを自動ロードしました:', currentPsdFile.name);
         }
       } catch (error) {
-        console.error('PSD レイヤー情報の読み込みに失敗しました:', error);
       }
     };
 
     loadLayers();
   }, [currentPsdFile, app]);
 
-  // PSDファイルを開いた時のレイヤー同期処理
+  
   useEffect(() => {
     const handlePsdFileOpened = async (e: Event) => {
       const custom = e as CustomEvent;
@@ -86,10 +85,8 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
           useLayersStore.getState().setLayers(psdData.layers);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
           setCurrentFile(file);
-          console.log('PSDファイルのレイヤーを同期しました:', file.name);
         }
       } catch (error) {
-        console.error('PSDファイルのレイヤー同期に失敗しました:', error);
       }
     };
 
@@ -110,8 +107,8 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
   }, [layers, currentPsdFile, isPsdPainterOpen]);
 
   const handleImageChange = (url: string | null) => {
-    // ストーリーボードコンテキストがある場合は更新
-    // （注：これは将来的にはストーリーボード側で管理すべき）
+    
+    
   };
 
   const handleOpenPsdPainter = async () => {
@@ -124,7 +121,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         await leaf.openFile(fileObj, { active: true });
       }
     } catch (error) {
-      console.error('PSDファイルを開けませんでした:', error);
     }
   };
 
@@ -147,15 +143,14 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         app.workspace.setActiveLeaf(storyboardLeaf);
       }
     } catch (error) {
-      console.error('ストーリーボードに戻れませんでした:', error);
     }
   };
 
   const handleExportImage = () => {
-    // エクスポート機能は後で実装
+    
   };
 
-  // 現在選択されているフレームの情報を取得
+  
   const currentImageUrl = selectedFrame?.imageUrl || null;
 
   console.log('🔍 RightSidebar: レンダリング時の状態:', {

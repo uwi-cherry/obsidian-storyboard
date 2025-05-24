@@ -3,9 +3,6 @@ import { Root } from 'react-dom/client';
 
 const TIMELINE_VIEW_TYPE = 'timeline-view';
 
-/**
- * Timeline View - Basic Obsidian View
- */
 export class TimelineView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;

@@ -27,7 +27,6 @@ namespace Internal {
     view.currentLayerIndex = index;
     view.setCurrentLayerIndex?.(index);
 
-    // zustand ストアを更新
     useCurrentLayerIndexStore.getState().setCurrentLayerIndex(index);
     
     return 'current_layer_set';

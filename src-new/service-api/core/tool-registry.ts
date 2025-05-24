@@ -3,9 +3,8 @@ import { ToolsConfiguration, ToolConfig } from './tool-config-types';
 import { ToolExecutor } from './tool-executor';
 import { TOOLS_CONFIG, TOOL_NAMES } from '../../constants/tools-config';
 
-// 静的インポート - 動的インポートの問題を回避
 import { createStoryboardFileTool } from '../api/storyboard-tool/create-storyboard-file';
-import { renameFileExtensionTool } from '../api/storyboard-tool/rename-file-extension';
+import { renameFileExtensionTool } from "../api/storyboard-tool/rename-file-extension";
 import { toggleStoryboardViewTool } from '../api/storyboard-tool/toggle-storyboard-view';
 import { loadStoryboardDataTool } from '../api/storyboard-tool/load-storyboard-data';
 import { saveStoryboardDataTool } from '../api/storyboard-tool/save-storyboard-data';
@@ -23,15 +22,12 @@ import { initializePainterDataTool } from '../api/layer-tool/initialize-painter-
 import { setCurrentLayerTool } from '../api/layer-tool/set-current-layer';
 import { refreshLayersTool } from '../api/layer-tool/refresh-layers';
 
-/**
- * 内部実装 - 外部からアクセス不可
- */
+
 namespace Internal {
   export const tools = new Map<string, Tool<any>>();
   export const aiEnabledTools = new Set<string>();
   export const config: ToolsConfiguration = TOOLS_CONFIG as ToolsConfiguration;
 
-  // 静的ツールマッピング
   export const staticTools: Record<string, Tool<any>> = {
     [TOOL_NAMES.CREATE_STORYBOARD_FILE]: createStoryboardFileTool,
     [TOOL_NAMES.RENAME_FILE_EXTENSION]: renameFileExtensionTool,
@@ -53,9 +49,7 @@ namespace Internal {
     [TOOL_NAMES.REFRESH_LAYERS]: refreshLayersTool
   };
 
-  /**
-   * オブジェクトがToolインターフェースを実装しているかチェック
-   */
+  
   export function isValidTool(obj: any): obj is Tool<any> {
     return obj && 
            typeof obj === 'object' && 
@@ -65,9 +59,7 @@ namespace Internal {
            typeof obj.execute === 'function';
   }
 
-  /**
-   * 設定からツールを静的にロード（動的インポートの問題を回避）
-   */
+  
   export function loadToolFromConfig(toolConfig: ToolConfig): void {
     try {
       const toolInstance = staticTools[toolConfig.name];
@@ -80,46 +72,36 @@ namespace Internal {
         throw new Error(`Invalid tool: ${toolConfig.exportName} for ${toolConfig.name}`);
       }
 
-      // ツール名の検証
       if (toolInstance.name !== toolConfig.name) {
-        console.warn(`Tool name mismatch: config="${toolConfig.name}", actual="${toolInstance.name}"`);
       }
 
       registerToolInternal(toolInstance);
       
-      // AI有効フラグの管理
       if (toolConfig.ai_enabled) {
         aiEnabledTools.add(toolInstance.name);
       }
 
       if (config.config.enableLogging) {
-        console.log(`Loaded tool: ${toolInstance.name} (AI: ${toolConfig.ai_enabled})`);
       }
     } catch (error) {
       throw new Error(`Failed to load ${toolConfig.name}: ${error}`);
     }
   }
 
-  /**
-   * ツールを内部登録
-   */
+  
   export function registerToolInternal(tool: Tool<any>): void {
     if (tools.has(tool.name)) {
       if (config.config.enableLogging) {
-        console.warn(`Tool ${tool.name} is already registered. Skipping.`);
       }
       return;
     }
     tools.set(tool.name, tool);
     if (config.config.enableLogging) {
-      console.log(`Successfully registered tool: ${tool.name}`);
     }
   }
 }
 
-/**
- * 公開API - ツールレジストリ
- */
+
 export class ToolRegistry {
   constructor() {
     if (Internal.config.config.autoRegister) {
@@ -127,12 +109,9 @@ export class ToolRegistry {
     }
   }
 
-  /**
-   * コンフィグファイルに基づいてツールを自動登録（静的ロード）
-   */
+  
   private autoRegisterTools(): void {
     if (Internal.config.config.enableLogging) {
-      console.log('Starting config-based tool registration...');
     }
     
     let successCount = 0;
@@ -145,7 +124,6 @@ export class ToolRegistry {
       } catch (error) {
         errorCount++;
         if (Internal.config.config.enableLogging) {
-          console.error(`Failed to load tool ${toolConfig.name}:`, error);
         }
         
         if (Internal.config.config.failOnError) {
@@ -154,13 +132,9 @@ export class ToolRegistry {
       }
     }
 
-    // ToolExecutorを初期化
     ToolExecutor.initialize(Internal.tools, Internal.aiEnabledTools, Internal.config);
 
     if (Internal.config.config.enableLogging) {
-      console.log(`Tool registration completed. Success: ${successCount}, Errors: ${errorCount}`);
-      console.log('Available tools:', this.getRegisteredToolNames().join(', '));
-      console.log('AI-enabled tools:', Array.from(Internal.aiEnabledTools).join(', '));
     }
   }
 
@@ -172,9 +146,7 @@ export class ToolRegistry {
     return Array.from(Internal.tools.values());
   }
 
-  /**
-   * AI有効なツールのみを取得
-   */
+  
   getAiEnabledTools(): Tool<any>[] {
     return this.getAllTools().filter(tool => Internal.aiEnabledTools.has(tool.name));
   }
@@ -199,23 +171,13 @@ export class ToolRegistry {
     return ToolExecutor.executeTool(name, args);
   }
 
-  /**
-   * デバッグ用：登録されたツールの詳細情報を表示
-   */
+  
   printToolInfo(): void {
-    console.log('\n=== Tool Registry Information ===');
-    console.log(`Total registered tools: ${Internal.tools.size}`);
-    console.log(`AI-enabled tools: ${Internal.aiEnabledTools.size}`);
     
     Internal.tools.forEach((tool, name) => {
       const aiEnabled = Internal.aiEnabledTools.has(name);
-      console.log(`\n- Tool: ${name} ${aiEnabled ? '[AI]' : '[Manual]'}`);
-      console.log(`  Description: ${tool.description}`);
-      console.log(`  Parameters:`, tool.parameters);
     });
-    console.log('==================================\n');
   }
 }
 
-// 公開インスタンス
 export const toolRegistry = new ToolRegistry(); 

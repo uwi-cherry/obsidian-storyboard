@@ -1,9 +1,6 @@
 import { FileView, TFile } from 'obsidian';
 import { Root } from 'react-dom/client';
 
-/**
- * Painter View - Basic Obsidian View
- */
 export class PainterView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;

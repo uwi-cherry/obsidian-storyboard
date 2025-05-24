@@ -11,7 +11,7 @@ import { toolRegistry } from '../../../service-api/core/tool-registry';
 interface ImageInputCellProps {
   imageUrl?: string;
   imagePrompt?: string;
-  /** 画像ファイルの変更を親へ通知する */
+  
   onImageUrlChange: (newUrl: string | null) => void;
   onImagePromptChange: (newPrompt: string) => void;
   className?: string;
@@ -72,7 +72,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           const currentModified = file.stat.mtime;
           if (lastModifiedRef.current === null || currentModified > lastModifiedRef.current) {
             try {
-              // toolRegistryを使用してサムネイルを生成
+              
               const result = await toolRegistry.executeTool('generate_thumbnail', { 
                 app, 
                 file 
@@ -84,7 +84,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
                 lastModifiedRef.current = currentModified;
               }
             } catch (error) {
-              console.error('サムネイル生成に失敗しました:', error);
               if (!cancelled) {
                 setThumbnail(null);
                 lastModifiedRef.current = null;
@@ -94,7 +93,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
         }
       } catch (error) {
         if (!cancelled) {
-          console.error('サムネイルの読み込みに失敗しました:', error);
           setThumbnail(null);
           lastModifiedRef.current = null;
         }
@@ -117,7 +115,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onArrowDown: focusNextCellPrompt,
   });
 
-  // サムネイルダブルクリックでPSDを開く
+  
   const handleThumbnailDoubleClick = async () => {
     if (!imageUrl?.endsWith('.psd')) return;
     const file = app.vault.getAbstractFileByPath(imageUrl);
@@ -128,7 +126,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     }
   };
 
-  // ファイル選択
+  
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -148,20 +146,19 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           await app.vault.createFolder(assetsDir);
         }
       } catch (err) {
-        console.error('Failed to create assets folder:', err);
       }
       path = normalizePath(`${assetsDir}/${file.name}`);
       const newFile = await app.vault.createBinary(path, arrayBuffer);
       path = newFile.path;
     }
 
-    // 画像ファイルの場合、PSDファイルを生成
+    
     const ext = path.toLowerCase().split('.').pop();
     if (ext && ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
       const imageFile = app.vault.getAbstractFileByPath(path);
       if (imageFile instanceof TFile) {
         try {
-          // toolRegistryを使用してPSDファイルを作成
+          
           const result = await toolRegistry.executeTool('create_painter_file', { 
             app, 
             imageFile 
@@ -169,8 +166,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           const parsedResult = JSON.parse(result);
           path = parsedResult.filePath;
         } catch (error) {
-          console.error('PSD作成に失敗しました:', error);
-          // エラーの場合は元の画像パスを使用
+          
         }
       }
     }
@@ -178,25 +174,25 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onImageUrlChange(path);
   };
 
-  // パスをクリア
+  
   const handleClearPath = () => {
-    // サムネイル即時非表示
+    
     setThumbnail(null);
     lastModifiedRef.current = null;
-    // 親へ空文字列を渡して imageUrl 自体をクリア
+    
     onImageUrlChange('');
   };
 
-  // AI生成は一旦コメントアウトして基本機能を実装
+  
   const handleAiGenerate = async () => {
-    if (isGenerating) return; // 連打防止
+    if (isGenerating) return; 
 
     if (!imagePrompt || imagePrompt.trim() === '') {
       new Notice(t('PROMPT_REQUIRED'));
       return;
     }
 
-    // AI生成機能は後で実装
+    
     new Notice('AI生成機能は実装予定です');
   };
 

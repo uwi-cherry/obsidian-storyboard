@@ -2,9 +2,6 @@ import { Plugin, addIcon } from 'obsidian';
 import { TimelineFactory } from './timeline-factory';
 import { TIMELINE_ICON_SVG } from '../../constants/icons';
 
-/**
- * Timeline Plugin - Obsidian Plugin Integration
- */
 export class TimelinePlugin {
   private plugin: Plugin;
   private factory: TimelineFactory;
@@ -25,5 +22,5 @@ export class TimelinePlugin {
     });
   }
 
-  // アイコンは共通定義から読み込み
+
 } 

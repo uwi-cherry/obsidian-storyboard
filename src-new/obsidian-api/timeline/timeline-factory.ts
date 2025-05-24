@@ -3,9 +3,6 @@ import React from 'react';
 import TimelineReactView from '../../react/app/timeline/Page';
 import { TimelineView } from './timeline-view';
 
-/**
- * Timeline Factory - React Injection and View Creation
- */
 export class TimelineFactory {
   
   createTimelineView(leaf: any): TimelineView {

@@ -3,23 +3,17 @@ import { App, TFile } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo, StoryboardChapter } from '../../../types/storyboard';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-/**
- * 内部実装 - サービスAPI内部でのみ使用
- */
+
 namespace Internal {
-  /**
-   * Load Storyboard Data の入力型
-   */
+  
   export interface LoadStoryboardDataInput {
-    /** アプリインスタンス */
+    
     app: App;
-    /** ファイル */
+    
     file: TFile;
   }
 
-  /**
-   * マークダウンをStoryboardDataにパース
-   */
+  
   function parseMarkdownToStoryboard(markdown: string): StoryboardData {
     const lines = markdown.split('\n');
     const data: StoryboardData = { title: '', chapters: [], characters: [] };
@@ -63,7 +57,6 @@ namespace Internal {
       if (line.startsWith('### ')) {
         const bgmPrompt = line.replace(/^###\s*/, '');
         if (inCharacterSection) {
-          // ignore; shouldn't occur
         }
         if (currentChapter) {
           saveCurrentFrameIfValid();
@@ -137,21 +130,17 @@ namespace Internal {
     return data;
   }
 
-  /**
-   * Load Storyboard Data の実行関数
-   */
+  
   export async function executeLoadStoryboardData(args: LoadStoryboardDataInput): Promise<string> {
     const { app, file } = args;
     const markdownContent = await app.vault.read(file);
     
-    // 新規ファイル判定（空またはサンプル内容）
     const isNewFile = markdownContent.trim() === '' || 
                      markdownContent.includes('無題のファイル') || 
                      markdownContent.includes('山田太郎') || 
                      markdownContent.includes('田中花子');
     
     if (isNewFile) {
-      // 新規ファイルの場合は空のデータを返す
       const emptyData: StoryboardData = {
         title: '',
         chapters: [{ 
@@ -170,15 +159,12 @@ namespace Internal {
       return JSON.stringify(emptyData);
     }
     
-    // 既存ファイルの場合は内容をパース
     const storyboardData = parseMarkdownToStoryboard(markdownContent);
     return JSON.stringify(storyboardData);
   }
 }
 
-/**
- * 外部公開用のツール定義
- */
+
 export const loadStoryboardDataTool: Tool<Internal.LoadStoryboardDataInput> = {
   name: TOOL_NAMES.LOAD_STORYBOARD_DATA,
   description: 'Load storyboard data from file',
