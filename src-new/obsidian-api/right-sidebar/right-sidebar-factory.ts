@@ -4,9 +4,6 @@ import { RightSidebarView } from './right-sidebar-view';
 import RightSidebarReactView from '../../react/app/right-sidebar/Page';
 import { PainterView } from '../painter/painter-view';
 
-/**
- * Right Sidebar Factory - React Injection and View Creation
- */
 export class RightSidebarFactory {
   
   createRightSidebarView(leaf: any): RightSidebarView {

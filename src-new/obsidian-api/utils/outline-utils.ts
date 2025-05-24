@@ -1,8 +1,5 @@
 import { App } from 'obsidian';
 
-/**
- * コアプラグイン「アウトライン」を強制的に更新する
- */
 export function refreshOutline(app: App): void {
   const outlinePlugin = (app as any).internalPlugins?.plugins?.["outline"];
   if (outlinePlugin?.enabled) {

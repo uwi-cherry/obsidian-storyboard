@@ -1,9 +1,6 @@
 import { Plugin } from 'obsidian';
 import { StateStorage } from 'zustand/middleware';
 
-/**
- * Zustand用のObsidianストレージアダプター
- */
 export class ObsidianStorage implements StateStorage {
   private plugin: Plugin;
 
@@ -17,7 +14,6 @@ export class ObsidianStorage implements StateStorage {
       const value = data.zustandStores?.[name];
       return value ? JSON.stringify(value) : null;
     } catch (error) {
-      console.error('ObsidianStorage getItem error:', error);
       return null;
     }
   }
@@ -31,7 +27,6 @@ export class ObsidianStorage implements StateStorage {
       data.zustandStores[name] = JSON.parse(value);
       await this.plugin.saveData(data);
     } catch (error) {
-      console.error('ObsidianStorage setItem error:', error);
     }
   }
 
@@ -43,14 +38,10 @@ export class ObsidianStorage implements StateStorage {
         await this.plugin.saveData(data);
       }
     } catch (error) {
-      console.error('ObsidianStorage removeItem error:', error);
     }
   }
 }
 
-/**
- * Zustandストア用のObsidianストレージファクトリー
- */
 export const createObsidianStorage = (plugin: Plugin): StateStorage => {
   return new ObsidianStorage(plugin);
 }; 

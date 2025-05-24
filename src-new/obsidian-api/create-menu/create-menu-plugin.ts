@@ -3,9 +3,6 @@ import { ADD_ICON_SVG } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { TOOL_NAMES } from '../../constants/tools-config';
 
-/**
- * Create Menu Plugin - provides a single ribbon icon to create various items
- */
 export class CreateMenuPlugin {
   private plugin: Plugin;
 
@@ -14,13 +11,9 @@ export class CreateMenuPlugin {
   }
 
   initialize(): void {
-    console.log('📋 CreateMenuPlugin: Initializing...');
     addIcon('create-menu', ADD_ICON_SVG);
-    console.log('📋 CreateMenuPlugin: Icon added');
-    console.log('📋 CreateMenuPlugin: ADD_ICON_SVG content:', ADD_ICON_SVG);
     
     const ribbonIcon = this.plugin.addRibbonIcon('create-menu', '新規作成', async (evt: MouseEvent) => {
-      console.log('📋 CreateMenuPlugin: Ribbon icon clicked');
       const menu = new Menu();
       menu.addItem(item =>
         item
@@ -58,7 +51,7 @@ export class CreateMenuPlugin {
                   }
                 }
               } catch {
-                // ignore parse error and fall back
+
               }
               const activeLeaf = this.plugin.app.workspace.getLeaf(true);
               const storyboardFiles = this.plugin.app.vault.getFiles().filter(f => f.extension === 'storyboard');
@@ -67,13 +60,10 @@ export class CreateMenuPlugin {
                 await activeLeaf.openFile(latestFile);
               }
             } catch (error) {
-              console.error('ストーリーボードファイル作成エラー:', error);
             }
           })
       );
       menu.showAtMouseEvent(evt);
     });
-    console.log('📋 CreateMenuPlugin: Ribbon icon created:', ribbonIcon);
-    console.log('📋 CreateMenuPlugin: Initialization complete');
   }
 }
