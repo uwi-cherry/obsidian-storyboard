@@ -144,13 +144,18 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
       
       // ファイルを開く場合
       if (isOpen) {
+        console.log('🔍 Page: PSDファイルを開いています...');
         const leaf = app.workspace.getLeaf(true);
         await leaf.openFile(psdFile, { active: true });
         
         // global-variable-managerに現在のファイルを通知してレイヤー表示をリフレッシュ
         const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
         if (globalVariableManager) {
+          console.log('🔍 Page: CURRENT_FILEをglobalVariableManagerに設定中...');
           globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, psdFile);
+          console.log('🔍 Page: CURRENT_FILE設定完了');
+        } else {
+          console.log('🔍 Page: createPsd - GlobalVariableManagerが見つかりません');
         }
       }
       
@@ -240,11 +245,47 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({
   ];
 
   const handleRowSelect = useCallback((row: StoryboardFrame, index: number) => {
+    console.log('🔍 Page: 行選択イベント:', { index, row });
+    
+    // デバッグ: appオブジェクトの構造を確認
+    console.log('🔍 Page: app:', app);
+    console.log('🔍 Page: app.plugins:', (app as any).plugins);
+    console.log('🔍 Page: app.plugins.plugins:', (app as any).plugins?.plugins);
+    console.log('🔍 Page: obsidian-storyboard plugin:', (app as any).plugins?.plugins?.['obsidian-storyboard']);
+    
+    // プラグインインスタンスのプロパティを確認
+    const pluginInstance = (app as any).plugins?.plugins?.['obsidian-storyboard'];
+    if (pluginInstance) {
+      console.log('🔍 Page: プラグインのプロパティ一覧:', Object.keys(pluginInstance));
+      console.log('🔍 Page: プラグインインスタンス詳細:', pluginInstance);
+    }
+    
     // GlobalVariableManagerに選択行を通知
     const globalVariableManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+    console.log('🔍 Page: globalVariableManager:', globalVariableManager);
+    
     if (globalVariableManager) {
+      console.log('🔍 Page: グローバル変数を更新中...');
       globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, index);
       globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
+      console.log('🔍 Page: グローバル変数更新完了');
+    } else {
+      console.log('🔍 Page: GlobalVariableManagerが見つかりません - リトライを試行');
+      
+      // 少し待ってからリトライ
+      setTimeout(() => {
+        const retryManager = (app as any).plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+        console.log('🔍 Page: リトライ後のglobalVariableManager:', retryManager);
+        
+        if (retryManager) {
+          console.log('🔍 Page: リトライ成功 - グローバル変数を更新中...');
+          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, index);
+          retryManager.setVariable(GLOBAL_VARIABLE_KEYS.SELECTED_FRAME, row);
+          console.log('🔍 Page: リトライでグローバル変数更新完了');
+        } else {
+          console.log('🔍 Page: リトライでもGlobalVariableManagerが見つかりませんでした');
+        }
+      }, 1000);
     }
   }, [app]);
 

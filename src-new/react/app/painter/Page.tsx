@@ -25,10 +25,67 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
   useEffect(() => {
     if (view && app) {
+      console.log('🔍 PainterPage: useEffect実行 - view:', view, 'app:', app);
+      console.log('🔍 PainterPage: app.plugins:', app.plugins);
+      console.log('🔍 PainterPage: app.plugins.plugins:', app.plugins?.plugins);
+      console.log('🔍 PainterPage: obsidian-storyboard plugin:', app.plugins?.plugins?.['obsidian-storyboard']);
+      
       const globalVariableManager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      console.log('🔍 PainterPage: globalVariableManager:', globalVariableManager);
+      
       if (globalVariableManager) {
+        console.log('🔍 PainterPage: GlobalVariableManagerに情報を設定中...');
+        
         // ペインタービューをGlobalVariableManagerに登録
         globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, view);
+        
+        // 現在のレイヤー情報もGlobalVariableManagerに登録
+        const currentLayers = view.layers || [];
+        const currentLayerIndex = view.currentLayerIndex || 0;
+        
+        console.log('🔍 PainterPage: view.layers:', view.layers);
+        console.log('🔍 PainterPage: view.currentLayerIndex:', view.currentLayerIndex);
+        
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, currentLayers);
+        globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, currentLayerIndex);
+        
+        console.log('🔍 PainterPage: GlobalVariableManager設定完了:', {
+          layersCount: currentLayers.length,
+          currentIndex: currentLayerIndex
+        });
+        
+        // レイヤー変更の監視を設定
+        const updateGlobalLayers = () => {
+          const updatedLayers = view.layers || [];
+          const updatedLayerIndex = view.currentLayerIndex || 0;
+          
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.LAYERS, updatedLayers);
+          globalVariableManager.setVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, updatedLayerIndex);
+          
+          console.log('🔍 PainterPage: レイヤー情報更新:', {
+            layersCount: updatedLayers.length,
+            currentIndex: updatedLayerIndex
+          });
+        };
+        
+        // ビューにレイヤー変更のコールバックを設定
+        if (view.setLayers) {
+          const originalSetLayers = view.setLayers;
+          view.setLayers = (layers: any) => {
+            originalSetLayers(layers);
+            setTimeout(updateGlobalLayers, 0); // 次のティックで実行
+          };
+        }
+        
+        if (view.setCurrentLayerIndex) {
+          const originalSetCurrentLayerIndex = view.setCurrentLayerIndex;
+          view.setCurrentLayerIndex = (index: number) => {
+            originalSetCurrentLayerIndex(index);
+            setTimeout(updateGlobalLayers, 0); // 次のティックで実行
+          };
+        }
+      } else {
+        console.log('🔍 PainterPage: GlobalVariableManagerが見つかりません');
       }
     }
   }, [view, app]);

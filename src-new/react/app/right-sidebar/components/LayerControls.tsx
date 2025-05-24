@@ -14,7 +14,28 @@ export default function LayerControls() {
   useEffect(() => {
     if (typeof window !== 'undefined' && (window as any).app) {
       const app = (window as any).app;
+      console.log('🔍 LayerControls: app:', app);
+      console.log('🔍 LayerControls: app.plugins:', app.plugins);
+      console.log('🔍 LayerControls: app.plugins.plugins:', app.plugins?.plugins);
+      console.log('🔍 LayerControls: obsidian-storyboard plugin:', app.plugins?.plugins?.['obsidian-storyboard']);
+      
       const manager = app.plugins?.plugins?.['obsidian-storyboard']?.globalVariableManager;
+      console.log('🔍 LayerControls: GlobalVariableManager取得:', manager ? '成功' : '失敗');
+      console.log('🔍 LayerControls: manager object:', manager);
+      
+      // 現在のglobal variableの値をチェック
+      if (manager) {
+        const currentLayers = manager.getVariable(GLOBAL_VARIABLE_KEYS.LAYERS);
+        const currentLayerIndex = manager.getVariable(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX);
+        const currentPainterView = manager.getVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW);
+        
+        console.log('🔍 LayerControls: 現在のグローバル変数:', {
+          layers: currentLayers,
+          layerIndex: currentLayerIndex,
+          painterView: currentPainterView ? 'あり' : 'なし'
+        });
+      }
+      
       setGlobalVariableManager(manager);
     }
   }, []);
@@ -23,15 +44,20 @@ export default function LayerControls() {
   useEffect(() => {
     if (!globalVariableManager) return;
 
+    console.log('🔍 LayerControls: グローバル変数監視を開始');
+
     const unsubscribeLayers = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.LAYERS, (layersData: any[]) => {
+      console.log('🔍 LayerControls: レイヤーデータ更新:', layersData);
       setLayers(layersData || []);
     });
 
     const unsubscribeIndex = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.CURRENT_LAYER_INDEX, (index: number) => {
+      console.log('🔍 LayerControls: 現在のレイヤーインデックス更新:', index);
       setCurrentLayerIndex(index || 0);
     });
 
     const unsubscribeView = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW, (view: any) => {
+      console.log('🔍 LayerControls: ペインタービュー更新:', view ? 'あり' : 'なし');
       setPainterView(view);
     });
 
@@ -46,14 +72,19 @@ export default function LayerControls() {
   useEffect(() => {
     if (!globalVariableManager) return;
 
+    console.log('🔍 LayerControls: リフレッシュ監視を開始');
+
     // ストーリーボード行選択時のリフレッシュ
-    const unsubscribeSelectedRow = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, () => {
+    const unsubscribeSelectedRow = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.SELECTED_ROW_INDEX, (index: any) => {
+      console.log('🔍 LayerControls: 行選択通知受信:', index);
       refreshLayerDisplay();
     });
 
     // PSDファイルを開いた時のリフレッシュ
     const unsubscribeCurrentFile = globalVariableManager.subscribe(GLOBAL_VARIABLE_KEYS.CURRENT_FILE, (file: any) => {
+      console.log('🔍 LayerControls: ファイル変更通知受信:', file);
       if (file && file.path && file.path.endsWith('.psd')) {
+        console.log('🔍 LayerControls: PSDファイルが開かれました、リフレッシュ実行');
         refreshLayerDisplay();
       }
     });
@@ -66,27 +97,30 @@ export default function LayerControls() {
 
   // レイヤー表示のリフレッシュ処理
   const refreshLayerDisplay = async () => {
+    console.log('🔍 LayerControls: refreshLayerDisplay実行開始');
     let currentView = painterView;
     
     // painterViewがない場合はglobal-variable-managerから取得を試行
     if (!currentView && globalVariableManager) {
       currentView = globalVariableManager.getVariable(GLOBAL_VARIABLE_KEYS.PAINTER_VIEW);
+      console.log('🔍 LayerControls: GlobalVariableManagerからビュー取得:', currentView ? 'あり' : 'なし');
     }
     
     if (!currentView) {
-      console.log('ペインタービューが見つからないため、レイヤーリフレッシュをスキップします');
+      console.log('🔍 LayerControls: ペインタービューが見つからないため、レイヤーリフレッシュをスキップします');
       return;
     }
 
     try {
+      console.log('🔍 LayerControls: refresh_layersツール実行中...');
       // サービスAPIからレイヤー情報を再取得
       await toolRegistry.executeTool('refresh_layers', {
         view: currentView
       });
       
-      console.log('レイヤー表示のリフレッシュが完了しました');
+      console.log('🔍 LayerControls: レイヤー表示のリフレッシュが完了しました');
     } catch (error) {
-      console.error('レイヤー表示のリフレッシュに失敗しました:', error);
+      console.error('🔍 LayerControls: レイヤー表示のリフレッシュに失敗しました:', error);
     }
   };
 
@@ -197,6 +231,12 @@ export default function LayerControls() {
       <div className="p-2 border-b border-modifier-border">
         <div className="text-text-muted text-sm">
           レイヤーがありません
+        </div>
+        <div className="text-text-muted text-xs mt-1">
+          デバッグ情報:
+          <br />• GlobalVariableManager: {globalVariableManager ? '利用可能' : '利用不可'}
+          <br />• PainterView: {painterView ? '利用可能' : '利用不可'}
+          <br />• Layers配列: {JSON.stringify(layers)}
         </div>
       </div>
     );
