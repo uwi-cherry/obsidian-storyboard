@@ -70,6 +70,17 @@ export function t(key: string): string {
       , 'DELETE_LAYER': 'レイヤー削除'
       , 'ENTER_LAYER_NAME': 'レイヤー名を入力'
       , 'BACKGROUND': '背景'
+      , 'AI_RESPONSE_ERROR': 'AI応答エラー'
+      , 'BACK_TO_STORYBOARD': 'ストーリーボードに戻る'
+      , 'BGM_LABEL': 'BGM'
+      , 'BGM_PROMPT_PLACEHOLDER': 'BGM生成プロンプト(任意)'
+      , 'CHAT_INPUT_PLACEHOLDER': 'メッセージを入力...'
+      , 'CREATE_PSD': 'PSDペインターを新規作成'
+      , 'EXPORT_IMAGE': '画像出力'
+      , 'EXPORT_VIDEO': '動画出力'
+      , 'NEW_CHAPTER_BGM_LABEL': 'BGM'
+      , 'NEW_CHAPTER_BGM_PLACEHOLDER': '新しいBGMプロンプトを追加'
+      , 'OPEN_PSD': 'PSDペインターを開く'
     };
     return jaTranslations[key] || key;
   }
@@ -120,6 +131,17 @@ export function t(key: string): string {
     'IMAGE_LAYER': 'Image Layer',
     'DELETE_LAYER': 'Delete Layer',
     'ENTER_LAYER_NAME': 'Enter layer name',
+    'AI_RESPONSE_ERROR': 'AI response error',
+    'BACK_TO_STORYBOARD': 'Back to storyboard',
+    'BGM_LABEL': 'BGM',
+    'BGM_PROMPT_PLACEHOLDER': 'BGM prompt (optional)',
+    'CHAT_INPUT_PLACEHOLDER': 'Enter message...',
+    'CREATE_PSD': 'Create PSD Painter',
+    'EXPORT_IMAGE': 'Export image',
+    'EXPORT_VIDEO': 'Export video',
+    'NEW_CHAPTER_BGM_LABEL': 'BGM',
+    'NEW_CHAPTER_BGM_PLACEHOLDER': 'Add new BGM prompt',
+    'OPEN_PSD': 'Open PSD Painter',
     'BACKGROUND': 'Background'
   };
   return enTranslations[key] || key;
