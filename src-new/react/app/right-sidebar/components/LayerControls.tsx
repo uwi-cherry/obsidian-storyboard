@@ -3,26 +3,19 @@ import { t } from '../../../../constants/obsidian-i18n';
 import { LAYER_ICONS } from '../../../../constants/icons';
 import { useLayersStore } from '../../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
+import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
 export default function LayerControls() {
   const layers = useLayersStore((state) => state.layers);
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
 
-
   const addBlankLayer = async () => {
     try {
-      const currentLayers = [...layers];
-      const newCanvas = document.createElement('canvas');
-      const newLayer = {
-        name: `${t('LAYER')} ${currentLayers.length + 1}`,
-        visible: true,
-        opacity: 1.0,
-        blendMode: 'normal',
-        canvas: newCanvas
-      };
-      currentLayers.push(newLayer);
-      useLayersStore.getState().setLayers(currentLayers);
+      await toolRegistry.executeTool('add_layer', {
+        name: `レイヤー ${layers.length + 1}`
+      });
     } catch (error) {
+      console.error('Failed to add layer:', error);
     }
   };
 
@@ -30,15 +23,11 @@ export default function LayerControls() {
     if (layers.length <= 1) return;
     
     try {
-      const currentLayers = [...layers];
-      currentLayers.splice(currentLayerIndex, 1);
-      
-      useLayersStore.getState().setLayers(currentLayers);
-
-      
-      const newIndex = Math.min(currentLayerIndex, currentLayers.length - 1);
-      useCurrentLayerIndexStore.getState().setCurrentLayerIndex(newIndex);
+      await toolRegistry.executeTool('remove_layer', {
+        index: currentLayerIndex
+      });
     } catch (error) {
+      console.error('Failed to remove layer:', error);
     }
   };
 
@@ -46,22 +35,17 @@ export default function LayerControls() {
     try {
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(index);
     } catch (error) {
+      console.error('Failed to set current layer:', error);
     }
   };
 
   const toggleVisibility = async (index: number) => {
-    
     try {
-      const currentLayers = [...layers];
-      if (index < 0 || index >= currentLayers.length) return;
-      
-      currentLayers[index] = {
-        ...currentLayers[index],
-        visible: !currentLayers[index].visible
-      };
-      
-      useLayersStore.getState().setLayers(currentLayers);
+      await toolRegistry.executeTool('toggle_layer_visibility', {
+        index
+      });
     } catch (error) {
+      console.error('Failed to toggle layer visibility:', error);
     }
   };
 
@@ -70,49 +54,35 @@ export default function LayerControls() {
     const newName = prompt(t('ENTER_LAYER_NAME'), layers[index].name);
     if (newName && newName !== layers[index].name) {
       try {
-        const currentLayers = [...layers];
-        if (index < 0 || index >= currentLayers.length) return;
-        
-        currentLayers[index] = {
-          ...currentLayers[index],
+        await toolRegistry.executeTool('rename_layer', {
+          index,
           name: newName
-        };
-        
-        useLayersStore.getState().setLayers(currentLayers);
+        });
       } catch (error) {
+        console.error('Failed to rename layer:', error);
       }
     }
   };
 
   const changeOpacity = async (opacity: number) => {
-    
     try {
-      const currentLayers = [...layers];
-      if (currentLayerIndex < 0 || currentLayerIndex >= currentLayers.length) return;
-      
-      currentLayers[currentLayerIndex] = {
-        ...currentLayers[currentLayerIndex],
+      await toolRegistry.executeTool('set_layer_opacity', {
+        index: currentLayerIndex,
         opacity: opacity / 100
-      };
-      
-      useLayersStore.getState().setLayers(currentLayers);
+      });
     } catch (error) {
+      console.error('Failed to change layer opacity:', error);
     }
   };
 
   const changeBlendMode = async (blendMode: string) => {
-    
     try {
-      const currentLayers = [...layers];
-      if (currentLayerIndex < 0 || currentLayerIndex >= currentLayers.length) return;
-      
-      currentLayers[currentLayerIndex] = {
-        ...currentLayers[currentLayerIndex],
+      await toolRegistry.executeTool('set_layer_blend_mode', {
+        index: currentLayerIndex,
         blendMode
-      };
-      
-      useLayersStore.getState().setLayers(currentLayers);
+      });
     } catch (error) {
+      console.error('Failed to change layer blend mode:', error);
     }
   };
 

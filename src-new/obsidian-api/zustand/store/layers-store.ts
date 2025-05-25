@@ -7,7 +7,9 @@ interface LayersState {
   addLayer: (layer: Layer) => void;
   removeLayer: (index: number) => void;
   toggleLayerVisibility: (index: number) => void;
-  updateLayer: (index: number, updates: Partial<Layer>) => void;
+  setLayerOpacity: (index: number, opacity: number) => void;
+  setLayerBlendMode: (index: number, blendMode: string) => void;
+  renameLayer: (index: number, name: string) => void;
   clearLayers: () => void;
 }
 
@@ -30,9 +32,21 @@ export const useLayersStore = create<LayersState>((set) => ({
     )
   })),
   
-  updateLayer: (index, updates) => set((state) => ({
+  setLayerOpacity: (index, opacity) => set((state) => ({
     layers: state.layers.map((layer, i) => 
-      i === index ? { ...layer, ...updates } : layer
+      i === index ? { ...layer, opacity } : layer
+    )
+  })),
+  
+  setLayerBlendMode: (index, blendMode) => set((state) => ({
+    layers: state.layers.map((layer, i) => 
+      i === index ? { ...layer, blendMode } : layer
+    )
+  })),
+  
+  renameLayer: (index, name) => set((state) => ({
+    layers: state.layers.map((layer, i) => 
+      i === index ? { ...layer, name } : layer
     )
   })),
   

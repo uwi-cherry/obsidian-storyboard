@@ -4,6 +4,8 @@ import ToolProperties from './components/ToolProperties';
 import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
 import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 
 interface PainterPageProps {
@@ -27,6 +29,29 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   // ペインター内で直接管理するレイヤーデータ
   const [layers, setLayers] = useState<any[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
+
+  // zustandストアからの値を監視
+  const zustandLayers = useLayersStore((state) => state.layers);
+  const zustandCurrentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
+
+  // zustandからの変更をローカルstateとviewに反映
+  useEffect(() => {
+    console.log('🔄 PainterPage: zustandレイヤー変更検知:', zustandLayers.length, 'レイヤー');
+    if (zustandLayers.length > 0) {
+      setLayers(zustandLayers);
+      if (view) {
+        view.layers = zustandLayers;
+      }
+    }
+  }, [zustandLayers, view]);
+
+  useEffect(() => {
+    console.log('🔄 PainterPage: zustand現在レイヤー変更検知:', zustandCurrentLayerIndex);
+    setCurrentLayerIndex(zustandCurrentLayerIndex);
+    if (view) {
+      view.currentLayerIndex = zustandCurrentLayerIndex;
+    }
+  }, [zustandCurrentLayerIndex, view]);
 
   // PSDファイルが開かれた時に適切なツールを実行
   useEffect(() => {
@@ -114,9 +139,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             canvasHeight: psdData.height
           };
           
-          // ペインター内のstateを直接更新
-          setLayers(layersWithCanvas);
-          setCurrentLayerIndex(0);
+          // zustandストアのみを更新（useEffectでローカルstateに反映される）
+          useLayersStore.getState().setLayers(layersWithCanvas);
+          useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
           
           console.log('🔍 PainterPage: レイヤーデータを設定しました:', layersWithCanvas.length, 'レイヤー');
           
@@ -128,8 +153,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             await toolRegistry.executeTool('initialize_painter_data', { view });
             // 初期化されたデータを取得
             if (view.layers) {
-              setLayers(view.layers);
-              setCurrentLayerIndex(view.currentLayerIndex || 0);
+              // zustandストアのみを更新
+              useLayersStore.getState().setLayers(view.layers);
+              useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
             }
           } catch (initError) {
             console.error('🔍 PainterPage: 初期化エラー:', initError);
@@ -149,8 +175,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           await toolRegistry.executeTool('initialize_painter_data', { view });
           // 初期化されたデータを取得
           if (view.layers) {
-            setLayers(view.layers);
-            setCurrentLayerIndex(view.currentLayerIndex || 0);
+            // zustandストアのみを更新
+            useLayersStore.getState().setLayers(view.layers);
+            useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
           }
         } catch (error) {
           console.error('🔍 PainterPage: 初期化エラー:', error);

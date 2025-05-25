@@ -14,13 +14,12 @@ import { redoPainterTool } from '../api/painter-tool/redo-painter';
 import { loadPainterFileTool } from '../api/painter-tool/load-painter-file';
 import { savePainterFileTool } from '../api/painter-tool/save-painter-file';
 import { generateThumbnailTool } from '../api/painter-tool/generate-thumbnail';
+import { removeLayerTool } from '../api/layer-tool/remove-layer';
+import { setLayerOpacityTool } from '../api/layer-tool/set-layer-opacity';
+import { setLayerBlendModeTool } from '../api/layer-tool/set-layer-blend-mode';
+import { renameLayerTool } from '../api/layer-tool/rename-layer';
+import { toggleLayerVisibilityTool } from '../api/layer-tool/toggle-layer-visibility';
 import { addLayerTool } from '../api/layer-tool/add-layer';
-import { deleteLayerTool } from '../api/layer-tool/delete-layer';
-import { updateLayerTool } from '../api/layer-tool/update-layer';
-import { duplicateLayerTool } from '../api/layer-tool/duplicate-layer';
-import { initializePainterDataTool } from '../api/layer-tool/initialize-painter-data';
-import { setCurrentLayerTool } from '../api/layer-tool/set-current-layer';
-import { refreshLayersTool } from '../api/layer-tool/refresh-layers';
 
 
 namespace Internal {
@@ -41,12 +40,11 @@ namespace Internal {
     [TOOL_NAMES.UNDO_PAINTER]: undoPainterTool,
     [TOOL_NAMES.REDO_PAINTER]: redoPainterTool,
     [TOOL_NAMES.ADD_LAYER]: addLayerTool,
-    [TOOL_NAMES.DELETE_LAYER]: deleteLayerTool,
-    [TOOL_NAMES.UPDATE_LAYER]: updateLayerTool,
-    [TOOL_NAMES.DUPLICATE_LAYER]: duplicateLayerTool,
-    [TOOL_NAMES.INITIALIZE_PAINTER_DATA]: initializePainterDataTool,
-    [TOOL_NAMES.SET_CURRENT_LAYER]: setCurrentLayerTool,
-    [TOOL_NAMES.REFRESH_LAYERS]: refreshLayersTool
+    [TOOL_NAMES.REMOVE_LAYER]: removeLayerTool,
+    [TOOL_NAMES.SET_LAYER_OPACITY]: setLayerOpacityTool,
+    [TOOL_NAMES.SET_LAYER_BLEND_MODE]: setLayerBlendModeTool,
+    [TOOL_NAMES.RENAME_LAYER]: renameLayerTool,
+    [TOOL_NAMES.TOGGLE_LAYER_VISIBILITY]: toggleLayerVisibilityTool
   };
 
   

@@ -2,26 +2,29 @@ import { Layer } from 'src-new/types/painter-types';
 import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
-import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 namespace Internal {
   export interface AddLayerInput {
-    view: any;
     name?: string;
     imageFile?: TFile;
+    width?: number;
+    height?: number;
+    app?: any;
   }
 
   export const ADD_LAYER_METADATA = {
     name: 'add_layer',
-    description: 'Add new layer to painter view',
+    description: 'Create and add new layer',
     parameters: {
       type: 'object',
       properties: {
-        view: { type: 'object', description: 'Painter view instance' },
         name: { type: 'string', description: 'Layer name', nullable: true },
-        imageFile: { type: 'object', description: 'Image file', nullable: true }
+        imageFile: { type: 'object', description: 'Image file', nullable: true },
+        width: { type: 'number', description: 'Canvas width', default: 800 },
+        height: { type: 'number', description: 'Canvas height', default: 600 },
+        app: { type: 'object', description: 'Obsidian app instance', nullable: true }
       },
-      required: ['view']
+      required: []
     }
   } as const;
 
@@ -29,15 +32,24 @@ namespace Internal {
   const DEFAULT_CANVAS_HEIGHT = 600;
 
   export async function executeAddLayer(args: AddLayerInput): Promise<string> {
-    const { view, name = 'New Layer', imageFile } = args;
-    const baseWidth = view.layers[0]?.canvas?.width ?? DEFAULT_CANVAS_WIDTH;
-    const baseHeight = view.layers[0]?.canvas?.height ?? DEFAULT_CANVAS_HEIGHT;
+    const { 
+      name = 'New Layer', 
+      imageFile, 
+      width = DEFAULT_CANVAS_WIDTH, 
+      height = DEFAULT_CANVAS_HEIGHT,
+      app 
+    } = args;
 
     const canvas = document.createElement('canvas');
-    let ctx: CanvasRenderingContext2D | null = null;
+    canvas.width = width;
+    canvas.height = height;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
 
-    if (imageFile) {
-      const data = await view.app.vault.readBinary(imageFile);
+    if (imageFile && app) {
+      // 画像ファイルからレイヤーを作成
+      const data = await app.vault.readBinary(imageFile);
       const blob = new Blob([data]);
       const url = URL.createObjectURL(blob);
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
@@ -46,19 +58,13 @@ namespace Internal {
         im.onerror = reject;
         im.src = url;
       });
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-      ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+      
       const x = (canvas.width - img.width) / 2;
       const y = (canvas.height - img.height) / 2;
       ctx.drawImage(img, x, y);
       URL.revokeObjectURL(url);
     } else {
-      canvas.width = baseWidth;
-      canvas.height = baseHeight;
-      ctx = canvas.getContext('2d');
-      if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
+      // 空のレイヤーを作成
       ctx.fillStyle = 'transparent';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -71,15 +77,8 @@ namespace Internal {
       canvas
     };
 
-    const newLayers = [layer, ...(view.layers ?? [])];
-    view.layers = newLayers;
-    view.currentLayerIndex = 0;
-    view.setLayers?.(newLayers);
-    view.setCurrentLayerIndex?.(0);
-    view.saveHistory?.();
-
-    useLayersStore.getState().setLayers(newLayers);
-    useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
+    // zustandストアに追加
+    useLayersStore.getState().addLayer(layer);
 
     return 'layer_added';
   }
@@ -87,7 +86,7 @@ namespace Internal {
 
 export const addLayerTool: Tool<Internal.AddLayerInput> = {
   name: 'add_layer',
-  description: 'Add new layer to painter view',
+  description: 'Create and add new layer',
   parameters: Internal.ADD_LAYER_METADATA.parameters,
   execute: Internal.executeAddLayer
-};
+}; 
