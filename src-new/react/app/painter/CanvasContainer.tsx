@@ -5,6 +5,7 @@ import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
 import useSelectionState, { SelectionState } from 'src-new/react/hooks/useSelectionState';
 import ActionProperties from './features/ActionProperties';
 import Canvas from './features/Canvas';
+import { useRef } from 'react';
 import ColorProperties from './features/ColorProperties';
 import ToolProperties from './features/ToolProperties';
 
@@ -29,14 +30,15 @@ interface Props {
   setRotation: (rotation: number) => void;
 }
 
-export default function CanvasContainer({ 
-  pointer, 
+export default function CanvasContainer({
+  pointer,
   view,
   zoom,
   rotation,
   setZoom,
   setRotation
 }: Props) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const selectionState: SelectionState = useSelectionState();
   const [, setSelectionVersion] = useState(0);
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
@@ -234,10 +236,13 @@ export default function CanvasContainer({
         />
       </div>
       
-      <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative">
+      <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative" ref={containerRef}>
         <Canvas
           pointer={pointer}
           view={view}
+          zoom={zoom}
+          rotation={rotation}
+          containerRef={containerRef}
           selectionState={selectionState}
           onSelectionStart={handleSelectionStart}
           onSelectionUpdate={handleSelectionUpdate}
