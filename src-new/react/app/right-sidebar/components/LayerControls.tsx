@@ -222,30 +222,50 @@ export default function LayerControls() {
                   toggleVisibility(idx);
                 }}
               />
-              {editingLayerIndex === idx ? (
-                <input
-                  type="text"
-                  value={editingLayerName}
-                  onChange={(e) => setEditingLayerName(e.target.value)}
-                  onBlur={finishRenaming}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                      finishRenaming();
-                    } else if (e.key === 'Escape') {
-                      cancelRenaming();
-                    }
-                  }}
-                  className="text-text-normal text-sm flex-1 bg-primary border border-modifier-border rounded px-1"
-                  autoFocus
-                />
-              ) : (
-                <div
-                  className="text-text-normal text-sm flex-1"
-                  onDoubleClick={() => startRenaming(idx)}
-                >
-                  {layer.name}
+              <div className="flex-1">
+                {editingLayerIndex === idx ? (
+                  <input
+                    type="text"
+                    value={editingLayerName}
+                    onChange={(e) => setEditingLayerName(e.target.value)}
+                    onBlur={finishRenaming}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        finishRenaming();
+                      } else if (e.key === 'Escape') {
+                        cancelRenaming();
+                      }
+                    }}
+                    className="text-text-normal text-sm w-full bg-primary border border-modifier-border rounded px-1"
+                    autoFocus
+                  />
+                ) : (
+                  <div
+                    className="text-text-normal text-sm cursor-pointer"
+                    onDoubleClick={() => startRenaming(idx)}
+                  >
+                    {layer.name}
+                  </div>
+                )}
+                <div className="text-text-muted text-xs mt-1 flex gap-2">
+                  <span>不透明度: {Math.round((layer.opacity || 1) * 100)}%</span>
+                  <span>
+                    {layer.blendMode === 'normal' ? '通常' :
+                     layer.blendMode === 'multiply' ? '乗算' :
+                     layer.blendMode === 'screen' ? 'スクリーン' :
+                     layer.blendMode === 'overlay' ? 'オーバーレイ' :
+                     layer.blendMode === 'darken' ? '比較(暗)' :
+                     layer.blendMode === 'lighten' ? '比較(明)' :
+                     layer.blendMode === 'color-dodge' ? '覆い焼き' :
+                     layer.blendMode === 'color-burn' ? '焼き込み' :
+                     layer.blendMode === 'hard-light' ? 'ハードライト' :
+                     layer.blendMode === 'soft-light' ? 'ソフトライト' :
+                     layer.blendMode === 'difference' ? '差の絶対値' :
+                     layer.blendMode === 'exclusion' ? '除外' :
+                     layer.blendMode || '通常'}
+                  </span>
                 </div>
-              )}
+              </div>
             </div>
           );
         })}
