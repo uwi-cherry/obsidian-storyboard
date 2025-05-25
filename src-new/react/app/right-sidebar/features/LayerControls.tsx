@@ -34,7 +34,7 @@ export default function LayerControls() {
   const addBlankLayer = async () => {
     try {
       await toolRegistry.executeTool('add_layer', {
-        name: `レイヤー ${layers.length + 1}`
+        name: `${t('LAYER')} ${layers.length + 1}`
       });
     } catch (error) {
       console.error(error);

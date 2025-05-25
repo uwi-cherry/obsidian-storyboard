@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { App } from 'obsidian';
+import { t } from 'src-new/constants/obsidian-i18n';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
 import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
@@ -19,7 +20,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   if (!view) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-primary text-text-normal">
-        Painter ビューが見つかりません
+        {t('PAINTER_VIEW_NOT_FOUND')}
       </div>
     );
   }
