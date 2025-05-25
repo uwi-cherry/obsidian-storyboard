@@ -34,7 +34,6 @@ namespace Internal {
       return 'no-op';
     }
     
-    // 操作前の状態を履歴に保存
     historyStore.saveHistory(layers, currentLayerIndexStore.currentLayerIndex);
     
     layersStore.renameLayer(index, name);

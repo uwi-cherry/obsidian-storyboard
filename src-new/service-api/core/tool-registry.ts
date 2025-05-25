@@ -21,7 +21,6 @@ import { renameLayerTool } from '../api/layer-tool/rename-layer';
 import { toggleLayerVisibilityTool } from '../api/layer-tool/toggle-layer-visibility';
 import { addLayerTool } from '../api/layer-tool/add-layer';
 
-
 namespace Internal {
   export const tools = new Map<string, Tool<any>>();
   export const aiEnabledTools = new Set<string>();
@@ -47,7 +46,6 @@ namespace Internal {
     [TOOL_NAMES.TOGGLE_LAYER_VISIBILITY]: toggleLayerVisibilityTool
   };
 
-  
   export function isValidTool(obj: any): obj is Tool<any> {
     return obj && 
            typeof obj === 'object' && 
@@ -57,7 +55,6 @@ namespace Internal {
            typeof obj.execute === 'function';
   }
 
-  
   export function loadToolFromConfig(toolConfig: ToolConfig): void {
     try {
       const toolInstance = staticTools[toolConfig.name];
@@ -86,7 +83,6 @@ namespace Internal {
     }
   }
 
-  
   export function registerToolInternal(tool: Tool<any>): void {
     if (tools.has(tool.name)) {
       if (config.config.enableLogging) {
@@ -99,7 +95,6 @@ namespace Internal {
   }
 }
 
-
 export class ToolRegistry {
   constructor() {
     if (Internal.config.config.autoRegister) {
@@ -107,7 +102,6 @@ export class ToolRegistry {
     }
   }
 
-  
   private autoRegisterTools(): void {
     if (Internal.config.config.enableLogging) {
     }
@@ -144,7 +138,6 @@ export class ToolRegistry {
     return Array.from(Internal.tools.values());
   }
 
-  
   getAiEnabledTools(): Tool<any>[] {
     return this.getAllTools().filter(tool => Internal.aiEnabledTools.has(tool.name));
   }
@@ -169,7 +162,6 @@ export class ToolRegistry {
     return ToolExecutor.executeTool(name, args);
   }
 
-  
   printToolInfo(): void {
     
     Internal.tools.forEach((tool, name) => {

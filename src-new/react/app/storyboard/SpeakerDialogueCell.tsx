@@ -31,7 +31,6 @@ const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
 }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-
   useEffect(() => {
     if (refCallback) {
       refCallback(textareaRef.current);

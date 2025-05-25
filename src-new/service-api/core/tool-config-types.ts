@@ -8,13 +8,11 @@ export interface ToolConfig {
   category: string;
 }
 
-
 export interface RegistryConfig {
   autoRegister: boolean;
   enableLogging: boolean;
   failOnError: boolean;
 }
-
 
 export interface ToolsConfiguration {
   tools: ToolConfig[];

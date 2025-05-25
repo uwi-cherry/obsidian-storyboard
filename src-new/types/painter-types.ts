@@ -22,20 +22,16 @@ export interface PainterView {
   _canvas?: HTMLCanvasElement | null;
   _painterData?: PainterData;
   
-  // 履歴機能
   saveHistory?: () => void;
   undo?: () => void;
   redo?: () => void;
   
-  // 描画機能
   renderCanvas?: () => void;
   
-  // イベント処理
   onPointerDown?: (event: PointerEvent) => void;
   onPointerMove?: (event: PointerEvent) => void;
   onPointerUp?: (event: PointerEvent) => void;
   
-  // その他のプロパティ
   app?: any;
   containerEl?: HTMLElement;
 }

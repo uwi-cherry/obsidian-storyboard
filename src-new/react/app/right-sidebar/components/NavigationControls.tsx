@@ -36,7 +36,6 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
       
       const storyboardPath = app.workspace.getActiveFile()?.parent?.path || '';
       
-      
       const result = await toolRegistry.executeTool('create_painter_file', { 
         app 
       });

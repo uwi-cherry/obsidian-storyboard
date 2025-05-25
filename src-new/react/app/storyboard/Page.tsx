@@ -28,7 +28,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   });
   const [isLoading, setIsLoading] = useState(true);
 
-  
   useEffect(() => {
     const loadData = async () => {
       if (!file) return;
@@ -49,7 +48,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     loadData();
   }, [app, file]);
 
-  
   const handleDataChange = async (updatedData: StoryboardData) => {
     if (!file) return;
     
@@ -85,14 +83,11 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   );
   const [newChapterBgm, setNewChapterBgm] = useState('');
   
-  
   const [selectedRowPositions, setSelectedRowPositions] = useState<{chapterIndex: number, rowIndex: number}[]>([]);
 
-  
   const bgmRefs = useRef<(HTMLInputElement | null)[]>([]);
   const prevChapterCount = useRef(initialData.chapters.length);
 
-  
   const dialogueRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   
   const promptRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
@@ -101,7 +96,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     setOpenChapters(initialData.chapters.map(() => true));
   }, [initialData]);
 
-  
   const generateThumbnail = async (app: App, file: TFile): Promise<string | null> => {
     try {
       
@@ -131,17 +125,14 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
       });
       const parsedResult = JSON.parse(result);
       
-      
       const psdFile = app.vault.getAbstractFileByPath(parsedResult.filePath);
       if (!(psdFile instanceof TFile)) {
         throw new Error('作成されたPSDファイルが見つかりません');
       }
       
-      
       if (isOpen) {
         const leaf = app.workspace.getLeaf(true);
         await leaf.openFile(psdFile, { active: true });
-        
         
         try {
           const loadResult = await toolRegistry.executeTool('load_painter_file', {
@@ -250,7 +241,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     useSelectedRowIndexStore.getState().setSelectedRowIndex(globalIndex);
     useSelectedFrameStore.getState().setSelectedFrame(row);
     
-    // PSDファイルの場合はcurrent-psd-file-storeも更新
     if (row.imageUrl?.endsWith('.psd')) {
       const file = app.vault.getAbstractFileByPath(row.imageUrl);
       if (file instanceof TFile) {
@@ -261,7 +251,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [app, storyboard]);
 
-  
   useEffect(() => {
     const handler = (e: Event) => {
       const custom = e as CustomEvent;
@@ -287,7 +276,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     return () => window.removeEventListener('psd-sidebar-update-image', handler);
   }, [handleCellChange, storyboard]);
 
-  
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {
       const idx = storyboard.chapters.length - 1;
@@ -298,7 +286,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [storyboard.chapters.length]);
 
-  
   const handleMoveRowTo = useCallback((chapterIndex: number, fromRowIndex: number, toRowIndex: number) => {
     const newStoryboard = { ...storyboard };
     const chapter = newStoryboard.chapters[chapterIndex];
@@ -314,11 +301,9 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         
         const selectedFrames = selectedInThisChapter.map(index => chapter.frames[index]);
         
-        
         selectedInThisChapter.reverse().forEach(index => {
           chapter.frames.splice(index, 1);
         });
-        
         
         let adjustedToIndex = toRowIndex;
         selectedInThisChapter.forEach(deletedIndex => {
@@ -326,7 +311,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
             adjustedToIndex--;
           }
         });
-        
         
         chapter.frames.splice(adjustedToIndex, 0, ...selectedFrames);
       } else {
@@ -340,7 +324,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [storyboard, setStoryboard, handleDataChange, selectedRowPositions]);
   
-  
   const handleSelectRow = useCallback((chapterIndex: number, rowIndex: number, isSelected: boolean) => {
     if (isSelected) {
       
@@ -352,7 +335,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
       );
     }
   }, []);
-  
   
   const handleClearSelection = useCallback((chapterIndex: number) => {
     setSelectedRowPositions(prev => prev.filter(pos => pos.chapterIndex !== chapterIndex));

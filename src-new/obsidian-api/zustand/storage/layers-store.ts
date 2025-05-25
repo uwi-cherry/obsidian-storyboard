@@ -4,7 +4,6 @@ import { Layer } from '../../../types/painter-types';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { TFile } from 'obsidian';
 
-// シンプルなdebounce関数
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
   let timeout: NodeJS.Timeout | null = null;
   return ((...args: any[]) => {
@@ -79,9 +78,7 @@ export const useLayersStore = create<LayersState>()(
   }))
 );
 
-// 自動保存機能
 const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
-  // 初期読み込み中は自動保存しない
   if (isInitialLoad) {
     return;
   }
@@ -90,7 +87,6 @@ const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
     const currentPsdFileStore = useLayersStore.getState().currentPsdFile;
     const currentFile = currentPsdFileStore;
     
-    // Obsidianのappインスタンスを取得
     const app = (window as any).app;
     
     if (layers.length > 0 && currentFile && app && currentFile.extension === 'psd') {
@@ -104,22 +100,18 @@ const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
     }
   } catch (error) {
   }
-}, 5000); // デバウンス時間を5秒に延長
+}, 5000);
 
-// レイヤーの変更を監視して自動保存
 useLayersStore.subscribe(
   (state) => {
-    // 空のレイヤー配列の場合は保存しない
     if (state.layers.length > 0) {
       autoSave(state.layers, state.isInitialLoad);
     }
   }
 );
 
-// PSDファイル切り替え時の処理
 useLayersStore.subscribe(
   (state, prevState) => {
-    // PSDファイルが変更された場合（PSDファイル→別PSDファイル、またはPSDファイル→null）
     if (prevState.currentPsdFile && 
         (state.currentPsdFile?.path !== prevState.currentPsdFile?.path || state.currentPsdFile === null)) {
       
@@ -138,7 +130,6 @@ useLayersStore.subscribe(
   }
 );
 
-// 手動保存機能（必要に応じて使用）
 export async function manualSavePainter() {
   const layersStore = useLayersStore.getState();
   const currentPsdFileStore = layersStore.currentPsdFile;

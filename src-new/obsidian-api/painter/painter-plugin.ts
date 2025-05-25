@@ -18,7 +18,6 @@ export class PainterPlugin {
     this.plugin.registerView('psd-view', (leaf) => this.factory.createPainterView(leaf));
     this.plugin.registerExtensions(['psd', 'painter'], 'psd-view');
     
-
     this.plugin.app.workspace.on('file-menu', (menu, file) => {
       if (file instanceof TFile && file.extension.toLowerCase().match(/^(png|jpe?g|gif|webp)$/)) {
         menu.addItem((item) => {

@@ -39,7 +39,6 @@ export const usePainterLayoutStore = create<PainterLayoutState>()(
               await plugin.saveData(data);
             }
           } catch (error) {
-            // エラーは無視
           }
         },
         removeItem: async (name: string) => {
@@ -51,7 +50,6 @@ export const usePainterLayoutStore = create<PainterLayoutState>()(
               await plugin.saveData(data);
             }
           } catch (error) {
-            // エラーは無視
           }
         },
       },

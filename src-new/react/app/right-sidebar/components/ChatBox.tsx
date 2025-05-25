@@ -78,7 +78,6 @@ export default function ChatBox() {
       { role: 'user', content: userMessage, attachments },
     ]);
     
-    
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
     
     setInput('');
@@ -155,7 +154,6 @@ export default function ChatBox() {
         <div ref={messagesEndRef} />
       </div>
 
-      
       <form onSubmit={handleSend} className="flex flex-col p-2 border-t border-modifier-border w-full gap-2 relative">
         <input
           ref={fileInputRef}
@@ -165,7 +163,6 @@ export default function ChatBox() {
           onChange={handleFileSelect}
         />
 
-        
         {attachments.length > 0 && (
           <div className="flex gap-2">
             {attachments.map((att, idx) => {
@@ -193,7 +190,6 @@ export default function ChatBox() {
           </div>
         )}
 
-        
         <div className="flex gap-2">
           <div className="relative">
             <button

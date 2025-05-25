@@ -2,7 +2,6 @@ import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-
 namespace Internal {
   
   export interface RenameFileExtensionInput {
@@ -14,7 +13,6 @@ namespace Internal {
     newExt: string;
   }
 
-  
   export const RENAME_FILE_EXTENSION_METADATA = {
     name: TOOL_NAMES.RENAME_FILE_EXTENSION,
     description: 'Rename file extension with collision avoidance',
@@ -38,7 +36,6 @@ namespace Internal {
     }
   } as const;
 
-  
   export async function executeRenameFileExtension(args: RenameFileExtensionInput): Promise<string> {
     const { app, file, newExt } = args;
     
@@ -60,7 +57,6 @@ namespace Internal {
     }
   }
 }
-
 
 export const renameFileExtensionTool: Tool<Internal.RenameFileExtensionInput> = {
   name: TOOL_NAMES.RENAME_FILE_EXTENSION,

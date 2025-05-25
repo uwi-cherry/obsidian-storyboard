@@ -3,7 +3,6 @@ import { App, TFile } from 'obsidian';
 import { StoryboardData, StoryboardFrame, CharacterInfo, StoryboardChapter } from '../../../types/storyboard';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-
 namespace Internal {
   
   export interface LoadStoryboardDataInput {
@@ -13,7 +12,6 @@ namespace Internal {
     file: TFile;
   }
 
-  
   function parseMarkdownToStoryboard(markdown: string): StoryboardData {
     const lines = markdown.split('\n');
     const data: StoryboardData = { title: '', chapters: [], characters: [] };
@@ -130,7 +128,6 @@ namespace Internal {
     return data;
   }
 
-  
   export async function executeLoadStoryboardData(args: LoadStoryboardDataInput): Promise<string> {
     const { app, file } = args;
     const markdownContent = await app.vault.read(file);
@@ -163,7 +160,6 @@ namespace Internal {
     return JSON.stringify(storyboardData);
   }
 }
-
 
 export const loadStoryboardDataTool: Tool<Internal.LoadStoryboardDataInput> = {
   name: TOOL_NAMES.LOAD_STORYBOARD_DATA,
