@@ -120,13 +120,6 @@ export default function ToolProperties({
               onChange={e => setBlendStrength(parseInt(e.currentTarget.value, 10))}
             />
           </div>
-          
-          <div className="text-text-muted text-xs">
-            {brushHasColor 
-              ? `${blendMode === 'spectral' ? 'スペクトラル' : '通常'}混色で既存色とペンの色を混ぜます`
-              : `ペンエリア内の色を${blendMode === 'spectral' ? 'スペクトラル' : '通常'}混色でにじませます`
-            }
-          </div>
         </div>
       )}
 
