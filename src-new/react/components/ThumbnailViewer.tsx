@@ -1,4 +1,5 @@
 import React from 'react';
+import { t } from 'src-new/constants/obsidian-i18n';
 
 interface ThumbnailViewerProps {
   src: string | null;
@@ -19,7 +20,7 @@ const ThumbnailViewer: React.FC<ThumbnailViewerProps> = ({
   onClear,
   className = '',
   clearButtonIcon = '×',
-  clearButtonTitle = 'クリア',
+  clearButtonTitle = t('CLEAR_PATH'),
 }) => {
   if (!src) return null;
 

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-store';
 import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/painter-history-store';
 import type { Layer } from 'src-new/types/painter-types';
+import { t } from '../../../../constants/obsidian-i18n';
 
 interface SelectionRect {
   x: number;
@@ -193,8 +194,8 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
         style={{ pointerEvents: 'none', border: '1px dashed var(--color-accent)' }}
       />
       <div className="absolute left-0 -top-7 flex gap-1 bg-secondary border border-modifier-border p-1 rounded">
-        <button className="px-2 py-1 text-xs" onClick={confirm}>確定</button>
-        <button className="px-2 py-1 text-xs" onClick={cancel}>キャンセル</button>
+        <button className="px-2 py-1 text-xs" onClick={confirm}>{t('CONFIRM')}</button>
+        <button className="px-2 py-1 text-xs" onClick={cancel}>{t('CANCEL')}</button>
       </div>
       <div
         className="absolute w-4 h-4 bg-background border-2 border-accent rounded-full cursor-grab"
