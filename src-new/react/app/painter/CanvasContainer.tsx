@@ -108,12 +108,47 @@ export default function CanvasContainer({
       const ctx = layer.canvas.getContext('2d');
       if (!ctx) return;
 
-      const boundingRect = selectionState.getBoundingRect();
-      const rect = boundingRect || { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+      ctx.save();
 
-      ctx.fillStyle = pointer.color;
-      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+      // 選択モードに応じてクリップパスを設定
+      if (selectionState.mode === 'rect' && selectionState.selectionRect) {
+        const rect = selectionState.selectionRect;
+        ctx.fillStyle = pointer.color;
+        ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+      } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
+        // 投げ縄選択用のクリップパス作成
+        ctx.beginPath();
+        ctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
+        for (let i = 1; i < selectionState.lassoPoints.length; i++) {
+          const p = selectionState.lassoPoints[i];
+          ctx.lineTo(p.x, p.y);
+        }
+        ctx.closePath();
+        ctx.clip();
+        
+        // 境界ボックス内を塗りつぶし
+        const boundingRect = selectionState.getBoundingRect();
+        if (boundingRect) {
+          ctx.fillStyle = pointer.color;
+          ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+        }
+      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
+        // マジックワンド選択用のクリップパス使用
+        ctx.clip(selectionState.magicClipPath);
+        
+        // 境界ボックス内を塗りつぶし
+        const boundingRect = selectionState.magicBounding;
+        if (boundingRect) {
+          ctx.fillStyle = pointer.color;
+          ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+        }
+      } else {
+        // 選択がない場合は全体を塗りつぶし
+        ctx.fillStyle = pointer.color;
+        ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
+      }
 
+      ctx.restore();
       layersStore.setLayers([...layers]);
     },
     clear: () => {
@@ -132,11 +167,43 @@ export default function CanvasContainer({
       const ctx = layer.canvas.getContext('2d');
       if (!ctx) return;
 
-      const boundingRect = selectionState.getBoundingRect();
-      const rect = boundingRect || { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+      ctx.save();
 
-      ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
+      // 選択モードに応じてクリップパスを設定
+      if (selectionState.mode === 'rect' && selectionState.selectionRect) {
+        const rect = selectionState.selectionRect;
+        ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
+      } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
+        // 投げ縄選択用のクリップパス作成
+        ctx.beginPath();
+        ctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
+        for (let i = 1; i < selectionState.lassoPoints.length; i++) {
+          const p = selectionState.lassoPoints[i];
+          ctx.lineTo(p.x, p.y);
+        }
+        ctx.closePath();
+        ctx.clip();
+        
+        // 境界ボックス内をクリア
+        const boundingRect = selectionState.getBoundingRect();
+        if (boundingRect) {
+          ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+        }
+      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
+        // マジックワンド選択用のクリップパス使用
+        ctx.clip(selectionState.magicClipPath);
+        
+        // 境界ボックス内をクリア
+        const boundingRect = selectionState.magicBounding;
+        if (boundingRect) {
+          ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+        }
+      } else {
+        // 選択がない場合は全体をクリア
+        ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
+      }
 
+      ctx.restore();
       layersStore.setLayers([...layers]);
     },
     cancel: cancelSelection
