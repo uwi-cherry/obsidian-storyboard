@@ -9,6 +9,15 @@ interface ColorWheelProps {
   size?: number;
 }
 
+function lightnessFromPosition(s: number, v: number): number {
+  return (1 - s) * v * 100 + s * 50;
+}
+
+function verticalFromLightness(s: number, l: number): number {
+  if (s >= 1) return 0.5;
+  return (l - s * 50) / ((1 - s) * 100);
+}
+
 export default function ColorWheel({ hue, saturation, lightness, onChange, size = 100 }: ColorWheelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const activeRef = useRef<'hue' | 'sl' | null>(null);
@@ -50,8 +59,9 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
           data[idx + 3] = 255;
         } else if (Math.abs(dx) <= halfSquare && Math.abs(dy) <= halfSquare) {
           const sat = (dx + halfSquare) / squareSize;
-          const light = 1 - (dy + halfSquare) / squareSize;
-          const { r, g, b } = hslToRgb(hue, sat * 100, light * 100);
+          const v = 1 - (dy + halfSquare) / squareSize;
+          const light = lightnessFromPosition(sat, v);
+          const { r, g, b } = hslToRgb(hue, sat * 100, light);
           data[idx] = r;
           data[idx + 1] = g;
           data[idx + 2] = b;
@@ -76,7 +86,8 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     ctx.stroke();
 
     const sx = radius - halfSquare + saturation * squareSize;
-    const sy = radius - halfSquare + (1 - lightness / 100) * squareSize;
+    const vPos = verticalFromLightness(saturation, lightness);
+    const sy = radius - halfSquare + (1 - vPos) * squareSize;
     ctx.strokeRect(sx - 3, sy - 3, 6, 6);
   }, [hue, saturation, lightness, size]);
 
@@ -108,8 +119,9 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
       const clampedX = Math.max(-halfSquare, Math.min(halfSquare, x));
       const clampedY = Math.max(-halfSquare, Math.min(halfSquare, y));
       const sat = (clampedX + halfSquare) / squareSize;
-      const light = 1 - (clampedY + halfSquare) / squareSize;
-      onChange(hue, sat, light * 100);
+      const v = 1 - (clampedY + halfSquare) / squareSize;
+      const light = lightnessFromPosition(sat, v);
+      onChange(hue, sat, light);
     }
   }
 
