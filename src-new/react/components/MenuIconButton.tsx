@@ -96,7 +96,7 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
       {isOpen && (
         <div
           ref={menuRef}
-          className="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-xl py-2 z-50 whitespace-nowrap"
+          className="absolute top-full right-0 mt-1 bg-white border rounded-lg shadow-xl py-2 z-[9999] whitespace-nowrap"
         >
           {options.map((option, index) => (
             <button

@@ -2,6 +2,7 @@ import React from 'react';
 import { TOOL_ICONS } from 'src-new/constants/icons';
 import { t } from 'src-new/constants/obsidian-i18n';
 import { usePainterLayoutStore } from 'src-new/obsidian-api/zustand/storage/painter-layout-store';
+import MenuIconButton from 'src-new/react/components/MenuIconButton';
 
 interface ToolbarProps {
   tool: string;
@@ -18,13 +19,20 @@ const TOOLS = [
 export default function Toolbar({ tool, onChange }: ToolbarProps) {
   const { layoutDirection, setLayoutDirection } = usePainterLayoutStore();
 
-  const toggleLayout = () => {
-    setLayoutDirection(layoutDirection === 'horizontal' ? 'vertical' : 'horizontal');
-  };
+  const layoutMenuOptions = [
+    {
+      label: '横並び',
+      icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="4" height="12"/><rect x="7" y="2" width="7" height="12"/></svg>',
+      onClick: () => setLayoutDirection('horizontal')
+    },
+    {
+      label: '縦並び',
+      icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="12" height="4"/><rect x="2" y="7" width="12" height="7"/></svg>',
+      onClick: () => setLayoutDirection('vertical')
+    }
+  ];
 
-  const layoutIcon = layoutDirection === 'horizontal' 
-    ? '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="4" height="12"/><rect x="7" y="2" width="7" height="12"/></svg>'
-    : '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="12" height="4"/><rect x="2" y="7" width="12" height="7"/></svg>';
+  const layoutIcon = '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></svg>';
 
   const containerClass = layoutDirection === 'horizontal' 
     ? "w-[60px] bg-secondary border-r border-modifier-border flex flex-col gap-1 p-1"
@@ -36,17 +44,22 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
 
   return (
     <div className={containerClass}>
-      <button
-        className="w-10 h-10 border-none bg-primary text-text-normal rounded cursor-pointer flex items-center justify-center hover:bg-modifier-hover"
-        title={`レイアウト: ${layoutDirection === 'horizontal' ? '横並び' : '縦並び'}`}
-        onClick={toggleLayout}
-        dangerouslySetInnerHTML={{ __html: layoutIcon }}
+      <MenuIconButton
+        icon={layoutIcon}
+        title="レイアウト設定"
+        options={layoutMenuOptions}
+        className="w-10 h-10"
+        variant="primary"
       />
       <div className={toolContainerClass}>
         {TOOLS.map(btn => (
           <button
             key={btn.id}
-            className={`w-10 h-10 border-none bg-primary text-text-normal rounded cursor-pointer flex items-center justify-center hover:bg-modifier-hover ${tool === btn.id ? 'bg-accent text-on-accent' : ''}`}
+            className={`w-10 h-10 border-none rounded cursor-pointer flex items-center justify-center transition-colors ${
+              tool === btn.id 
+                ? 'bg-accent text-on-accent shadow-md border-2 border-accent-hover' 
+                : 'bg-primary text-text-normal hover:bg-modifier-hover'
+            }`}
             title={btn.title}
             onClick={() => onChange(btn.id)}
             dangerouslySetInnerHTML={{ __html: btn.icon }}
