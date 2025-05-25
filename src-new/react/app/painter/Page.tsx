@@ -88,7 +88,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
     const processFile = async () => {
       try {
-        if (view.file.extension === 'psd') {
+        if (view.file?.extension === 'psd') {
           // current-psd-file-storeを更新
           useLayersStore.getState().setCurrentPsdFile(view.file);
           
@@ -110,7 +110,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
                 await new Promise((resolve, reject) => {
                   img.onload = resolve;
                   img.onerror = reject;
-                  img.src = layer.canvasDataUrl;
+                  img.src = layer.canvasDataUrl!;
                 });
                 
                 const ctx = canvas.getContext('2d');
@@ -152,7 +152,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         } else {
           useLayersStore.getState().clearCurrentPsdFile();
           
-          console.log('📄 非PSDファイル:', view.file.path);
+          console.log('📄 非PSDファイル:', view.file?.path);
         }
       } catch (error) {
         console.error('❌ ファイル処理エラー:', error);

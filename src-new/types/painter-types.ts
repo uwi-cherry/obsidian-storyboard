@@ -1,4 +1,4 @@
-import type { App } from 'obsidian';
+import type { App, TFile } from 'obsidian';
 
 export interface Layer {
   name: string;
@@ -6,6 +6,9 @@ export interface Layer {
   opacity: number;
   blendMode: string;
   canvas: HTMLCanvasElement;
+  width?: number;
+  height?: number;
+  canvasDataUrl?: string;
 }
 
 export interface PsdLayerData {
@@ -31,8 +34,6 @@ export interface PainterData {
   historyIndex?: number;
 }
 
-import type { App } from 'obsidian';
-
 export interface PainterView {
   _canvas?: HTMLCanvasElement | null;
   _painterData?: PainterData;
@@ -49,6 +50,13 @@ export interface PainterView {
   
   app?: App;
   containerEl?: HTMLElement;
+  
+  // FileViewから継承されるプロパティ
+  file?: TFile;
+  
+  // Painterビュー固有のプロパティ
+  layers?: Layer[];
+  currentLayerIndex?: number;
 }
 
 export interface PainterViewData {
