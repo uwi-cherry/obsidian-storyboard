@@ -53,37 +53,22 @@ export default function ToolProperties({
 
   return (
     <div className={containerClass}>
-      {['brush', 'eraser'].includes(tool) && (
-        <div className="flex flex-col gap-1">
-          <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}:</div>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={Math.log10(lineWidth) * 33.33}
-            onChange={e => {
-              const logValue = parseInt(e.currentTarget.value, 10) / 33.33;
-              const actualValue = Math.round(Math.pow(10, logValue));
-              setLineWidth(Math.max(1, Math.min(1000, actualValue)));
-            }}
-          />
-          <div className="text-text-muted text-xs text-center">{lineWidth}px</div>
-        </div>
-      )}
-
-      {tool === 'brush' && (
+      {['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(tool) && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">描画モード:</div>
-            <select
-              className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
-              value={drawingMode}
-              onChange={e => setDrawingMode(e.target.value as 'normal' | 'spectral' | 'erase-soft')}
-            >
-              <option value="normal">通常描画</option>
-              <option value="spectral">スペクトラル混色</option>
-              <option value="erase-soft">消しゴム</option>
-            </select>
+            <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}:</div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={Math.log10(lineWidth) * 33.33}
+              onChange={e => {
+                const logValue = parseInt(e.currentTarget.value, 10) / 33.33;
+                const actualValue = Math.round(Math.pow(10, logValue));
+                setLineWidth(Math.max(1, Math.min(1000, actualValue)));
+              }}
+            />
+            <div className="text-text-muted text-xs text-center">{lineWidth}px</div>
           </div>
           
           <div className="flex flex-col gap-1">
@@ -122,6 +107,19 @@ export default function ToolProperties({
               value={blendStrength}
               onChange={e => setBlendStrength(parseInt(e.currentTarget.value, 10))}
             />
+          </div>
+          
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">描画モード:</div>
+            <select
+              className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
+              value={drawingMode}
+              onChange={e => setDrawingMode(e.target.value as 'normal' | 'spectral' | 'erase-soft')}
+            >
+              <option value="normal">通常描画</option>
+              <option value="spectral">スペクトラル混色</option>
+              <option value="erase-soft">消しゴム</option>
+            </select>
           </div>
         </div>
       )}
