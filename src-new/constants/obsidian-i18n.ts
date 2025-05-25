@@ -75,12 +75,18 @@ export function t(key: string): string {
       , 'BGM_LABEL': 'BGM'
       , 'BGM_PROMPT_PLACEHOLDER': 'BGM生成プロンプト(任意)'
       , 'CHAT_INPUT_PLACEHOLDER': 'メッセージを入力...'
+      , 'NO_LAYERS': 'レイヤーがありません'
+      , 'ATTACH_IMAGE': '画像'
+      , 'ATTACH_MASK': 'マスク'
+      , 'ATTACH_REFERENCE': '参考'
+      , 'SEND': '送信'
       , 'CREATE_PSD': 'PSDペインターを新規作成'
       , 'EXPORT_IMAGE': '画像出力'
       , 'EXPORT_VIDEO': '動画出力'
       , 'NEW_CHAPTER_BGM_LABEL': 'BGM'
       , 'NEW_CHAPTER_BGM_PLACEHOLDER': '新しいBGMプロンプトを追加'
       , 'OPEN_PSD': 'PSDペインターを開く'
+      , 'LAYER': 'レイヤー'
     };
     return jaTranslations[key] || key;
   }
@@ -136,13 +142,19 @@ export function t(key: string): string {
     'BGM_LABEL': 'BGM',
     'BGM_PROMPT_PLACEHOLDER': 'BGM prompt (optional)',
     'CHAT_INPUT_PLACEHOLDER': 'Enter message...',
+    'NO_LAYERS': 'No layers',
+    'ATTACH_IMAGE': 'Image',
+    'ATTACH_MASK': 'Mask',
+    'ATTACH_REFERENCE': 'Reference',
+    'SEND': 'Send',
     'CREATE_PSD': 'Create PSD Painter',
     'EXPORT_IMAGE': 'Export image',
     'EXPORT_VIDEO': 'Export video',
     'NEW_CHAPTER_BGM_LABEL': 'BGM',
     'NEW_CHAPTER_BGM_PLACEHOLDER': 'Add new BGM prompt',
     'OPEN_PSD': 'Open PSD Painter',
-    'BACKGROUND': 'Background'
+    'BACKGROUND': 'Background',
+    'LAYER': 'Layer'
   };
   return enTranslations[key] || key;
 } 
