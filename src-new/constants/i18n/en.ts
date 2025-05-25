@@ -78,6 +78,22 @@ const en: I18nStrings = {
   DRAWING_MODE_NORMAL: 'Normal',
   DRAWING_MODE_SPECTRAL: 'Spectral mixing',
   DRAWING_MODE_ERASE_SOFT: 'Soft eraser',
+  BLEND_MODE_NORMAL: 'Normal',
+  BLEND_MODE_MULTIPLY: 'Multiply',
+  BLEND_MODE_SCREEN: 'Screen',
+  BLEND_MODE_OVERLAY: 'Overlay',
+  BLEND_MODE_DARKEN: 'Darken',
+  BLEND_MODE_LIGHTEN: 'Lighten',
+  BLEND_MODE_COLOR_DODGE: 'Color Dodge',
+  BLEND_MODE_COLOR_BURN: 'Color Burn',
+  BLEND_MODE_HARD_LIGHT: 'Hard Light',
+  BLEND_MODE_SOFT_LIGHT: 'Soft Light',
+  BLEND_MODE_DIFFERENCE: 'Difference',
+  BLEND_MODE_EXCLUSION: 'Exclusion',
+  BLEND_MODE_HUE: 'Hue',
+  BLEND_MODE_SATURATION: 'Saturation',
+  BLEND_MODE_COLOR: 'Color',
+  BLEND_MODE_LUMINOSITY: 'Luminosity',
 };
 
 export default en;

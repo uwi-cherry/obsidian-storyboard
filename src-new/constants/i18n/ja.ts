@@ -78,6 +78,22 @@ const ja: I18nStrings = {
   DRAWING_MODE_NORMAL: '通常描画',
   DRAWING_MODE_SPECTRAL: 'スペクトラル混色',
   DRAWING_MODE_ERASE_SOFT: '消しゴム',
+  BLEND_MODE_NORMAL: '通常',
+  BLEND_MODE_MULTIPLY: '乗算',
+  BLEND_MODE_SCREEN: 'スクリーン',
+  BLEND_MODE_OVERLAY: 'オーバーレイ',
+  BLEND_MODE_DARKEN: '比較（暗）',
+  BLEND_MODE_LIGHTEN: '比較（明）',
+  BLEND_MODE_COLOR_DODGE: '覆い焼き',
+  BLEND_MODE_COLOR_BURN: '焼き込み',
+  BLEND_MODE_HARD_LIGHT: 'ハードライト',
+  BLEND_MODE_SOFT_LIGHT: 'ソフトライト',
+  BLEND_MODE_DIFFERENCE: '差の絶対値',
+  BLEND_MODE_EXCLUSION: '除外',
+  BLEND_MODE_HUE: '色相',
+  BLEND_MODE_SATURATION: '彩度',
+  BLEND_MODE_COLOR: 'カラー',
+  BLEND_MODE_LUMINOSITY: '輝度',
 };
 
 export default ja;
