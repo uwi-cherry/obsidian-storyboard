@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-store';
 import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/painter-history-store';
+import type { Layer } from 'src-new/types/painter-types';
 
 interface SelectionRect {
   x: number;
@@ -11,7 +12,7 @@ interface SelectionRect {
 
 interface TransformEditOverlayProps {
   rect: SelectionRect;
-  layers: any[];
+  layers: Layer[];
   currentLayerIndex: number;
   onFinish: () => void;
 }

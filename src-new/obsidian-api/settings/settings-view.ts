@@ -1,9 +1,9 @@
-import { Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
 
 export class StoryboardSettingTab extends PluginSettingTab {
   plugin: Plugin;
 
-  constructor(app: any, plugin: Plugin) {
+  constructor(app: App, plugin: Plugin) {
     super(app, plugin);
     this.plugin = plugin;
   }

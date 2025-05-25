@@ -1,16 +1,17 @@
 import { Tool } from '../../core/tool';
-import { WorkspaceLeaf, MarkdownView } from 'obsidian';
+import { App, WorkspaceLeaf, MarkdownView } from 'obsidian';
+import type { StoryboardFactory } from '../../../obsidian-api/storyboard/storyboard-factory';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
 namespace Internal {
   
   export interface ToggleStoryboardViewInput {
     
-    app: any;
+    app: App;
     
     leaf: WorkspaceLeaf;
     
-    factory: any;
+    factory: StoryboardFactory;
   }
 
   export const TOGGLE_STORYBOARD_VIEW_METADATA = {

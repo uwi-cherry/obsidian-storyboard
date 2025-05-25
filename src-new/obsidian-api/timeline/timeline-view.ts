@@ -1,4 +1,4 @@
-import { FileView, TFile } from 'obsidian';
+import { FileView, TFile, WorkspaceLeaf } from 'obsidian';
 import { Root } from 'react-dom/client';
 
 const TIMELINE_VIEW_TYPE = 'timeline-view';
@@ -7,7 +7,7 @@ export class TimelineView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;
 
-  constructor(leaf: any, renderReact: () => void) {
+  constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
     super(leaf);
     this.renderReact = renderReact;
   }

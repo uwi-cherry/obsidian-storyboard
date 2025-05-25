@@ -9,7 +9,7 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
   }
   
   if (typeof document === 'undefined' || typeof HTMLCanvasElement === 'undefined') {
-    return layer.canvas as any;
+    return layer.canvas as HTMLCanvasElement;
   }
   
   const canvas = document.createElement('canvas');
@@ -22,7 +22,7 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
     return canvas;
   }
   
-  const src = layer.canvas as any;
+  const src = layer.canvas as HTMLCanvasElement | { data?: Uint8ClampedArray };
   
   if (src?.data && src.data instanceof Uint8ClampedArray) {
     try {

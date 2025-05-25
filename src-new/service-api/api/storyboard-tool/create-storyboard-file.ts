@@ -1,12 +1,12 @@
 import { Tool } from '../../core/tool';
-import { TFile } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
 namespace Internal {
   
   export interface CreateStoryboardFileInput {
-    
-    app: any;
+
+    app: App;
   }
 
   export interface CreateStoryboardFileOutput {

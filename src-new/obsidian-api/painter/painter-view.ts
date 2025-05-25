@@ -1,4 +1,4 @@
-import { FileView, TFile } from 'obsidian';
+import { FileView, TFile, WorkspaceLeaf } from 'obsidian';
 import { Root } from 'react-dom/client';
 import { t } from '../../constants/obsidian-i18n';
 import { toolRegistry } from '../../service-api/core/tool-registry';
@@ -7,7 +7,7 @@ export class PainterView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;
 
-  constructor(leaf: any, renderReact: () => void) {
+  constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
     super(leaf);
     this.renderReact = renderReact;
   }

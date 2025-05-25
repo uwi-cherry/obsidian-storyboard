@@ -3,10 +3,11 @@ import React from 'react';
 import { RightSidebarView } from './right-sidebar-view';
 import RightSidebarReactView from '../../react/app/right-sidebar/Page';
 import { PainterView } from '../painter/painter-view';
+import type { WorkspaceLeaf } from 'obsidian';
 
 export class RightSidebarFactory {
   
-  createRightSidebarView(leaf: any): RightSidebarView {
+  createRightSidebarView(leaf: WorkspaceLeaf): RightSidebarView {
     const view = new RightSidebarView(leaf, () => this.renderReactComponent(view));
     return view;
   }

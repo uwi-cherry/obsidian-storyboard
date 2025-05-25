@@ -22,11 +22,11 @@ import { toggleLayerVisibilityTool } from '../api/layer-tool/toggle-layer-visibi
 import { addLayerTool } from '../api/layer-tool/add-layer';
 
 namespace Internal {
-  export const tools = new Map<string, Tool<any>>();
+  export const tools = new Map<string, Tool>();
   export const aiEnabledTools = new Set<string>();
   export const config: ToolsConfiguration = TOOLS_CONFIG as ToolsConfiguration;
 
-  export const staticTools: Record<string, Tool<any>> = {
+  export const staticTools: Record<string, Tool> = {
     [TOOL_NAMES.CREATE_STORYBOARD_FILE]: createStoryboardFileTool,
     [TOOL_NAMES.RENAME_FILE_EXTENSION]: renameFileExtensionTool,
     [TOOL_NAMES.TOGGLE_STORYBOARD_VIEW]: toggleStoryboardViewTool,
@@ -46,7 +46,7 @@ namespace Internal {
     [TOOL_NAMES.TOGGLE_LAYER_VISIBILITY]: toggleLayerVisibilityTool
   };
 
-  export function isValidTool(obj: any): obj is Tool<any> {
+  export function isValidTool(obj: unknown): obj is Tool {
     return obj && 
            typeof obj === 'object' && 
            typeof obj.name === 'string' && 
@@ -83,7 +83,7 @@ namespace Internal {
     }
   }
 
-  export function registerToolInternal(tool: Tool<any>): void {
+  export function registerToolInternal(tool: Tool): void {
     if (tools.has(tool.name)) {
       if (config.config.enableLogging) {
       }
@@ -130,15 +130,15 @@ export class ToolRegistry {
     }
   }
 
-  getTool(name: string): Tool<any> | undefined {
+  getTool(name: string): Tool | undefined {
     return ToolExecutor.getTool(name);
   }
 
-  getAllTools(): Tool<any>[] {
+  getAllTools(): Tool[] {
     return Array.from(Internal.tools.values());
   }
 
-  getAiEnabledTools(): Tool<any>[] {
+  getAiEnabledTools(): Tool[] {
     return this.getAllTools().filter(tool => Internal.aiEnabledTools.has(tool.name));
   }
 
@@ -158,7 +158,7 @@ export class ToolRegistry {
     return ToolExecutor.isAiEnabled(name);
   }
 
-  async executeTool(name: string, args: any): Promise<string> {
+  async executeTool(name: string, args: Record<string, unknown>): Promise<string> {
     return ToolExecutor.executeTool(name, args);
   }
 

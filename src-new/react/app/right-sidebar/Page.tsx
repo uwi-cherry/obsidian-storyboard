@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { App, TFile } from 'obsidian';
+import { App, TFile, ItemView } from 'obsidian';
+import type { RightSidebarView } from '../../obsidian-api/right-sidebar/right-sidebar-view';
 import { NavigationControls } from './components/NavigationControls';
 import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
@@ -10,7 +11,7 @@ import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-sto
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 interface RightSidebarReactViewProps {
-  view?: any;
+  view?: RightSidebarView;
   app?: App;
 }
 
@@ -85,7 +86,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
       const storyboardLeaf = app.workspace
         .getLeavesOfType('markdown')
         .find((l) => {
-          const v = l.view as any;
+          const v = l.view as ItemView;
           return (
             v &&
             v.contentEl &&

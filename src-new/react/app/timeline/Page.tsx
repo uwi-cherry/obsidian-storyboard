@@ -1,8 +1,9 @@
 import React from 'react';
+import type { TimelineProject } from 'src-new/types/timeline';
 
 interface TimelineReactViewProps {
-  project: any;
-  onProjectChange: (project: any) => void;
+  project: TimelineProject;
+  onProjectChange: (project: TimelineProject) => void;
 }
 
 export default function TimelineReactView({ project, onProjectChange }: TimelineReactViewProps) {

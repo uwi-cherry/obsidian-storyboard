@@ -4,7 +4,7 @@ export interface Tool<TInput = Record<string, unknown>> {
   
   description: string;
   
-  parameters: any;
+  parameters: Record<string, unknown>;
   
   execute: (args: TInput) => Promise<string>;
 }
