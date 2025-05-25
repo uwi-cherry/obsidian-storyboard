@@ -22,6 +22,7 @@
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
 		"replicate": "^0.25.0",
+		"spectral.js": "^3.0.0",
 		"zustand": "^5.0.5"
 	},
 	"devDependencies": {
