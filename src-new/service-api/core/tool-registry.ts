@@ -11,6 +11,8 @@ import { saveStoryboardDataTool } from '../api/storyboard-tool/save-storyboard-d
 import { createOtioFileTool } from '../api/otio-tool/create-otio-file';
 import { loadOtioFileTool } from '../api/otio-tool/load-otio-file';
 import { saveOtioFileTool } from '../api/otio-tool/save-otio-file';
+import { convertMdToOtioTool } from '../api/otio-tool/convert-md-to-otio';
+import { convertOtioToMdTool } from '../api/otio-tool/convert-otio-to-md';
 import { createPainterFileTool } from '../api/painter-tool/create-painter-file';
 import { undoPainterTool } from '../api/painter-tool/undo-painter';
 import { redoPainterTool } from '../api/painter-tool/redo-painter';
@@ -38,6 +40,8 @@ namespace Internal {
     [TOOL_NAMES.CREATE_OTIO_FILE]: createOtioFileTool,
     [TOOL_NAMES.LOAD_OTIO_FILE]: loadOtioFileTool,
     [TOOL_NAMES.SAVE_OTIO_FILE]: saveOtioFileTool,
+    [TOOL_NAMES.CONVERT_MD_TO_OTIO]: convertMdToOtioTool,
+    [TOOL_NAMES.CONVERT_OTIO_TO_MD]: convertOtioToMdTool,
     [TOOL_NAMES.CREATE_PAINTER_FILE]: createPainterFileTool,
     [TOOL_NAMES.LOAD_PAINTER_FILE]: loadPainterFileTool,
     [TOOL_NAMES.SAVE_PAINTER_FILE]: savePainterFileTool,

@@ -19,24 +19,7 @@ export class StoryboardPlugin {
 
     this.plugin.registerExtensions(['storyboard'], 'markdown');
     
-    const ensureButtonsInAllMarkdownViews = () => {
-      this.plugin.app.workspace.getLeavesOfType('markdown').forEach((leaf: WorkspaceLeaf) => {
-        if (leaf.view instanceof MarkdownView) {
-          this.factory.ensureStoryboardToggleButtonForLeaf(leaf, this.plugin.app);
-        }
-      });
-    };
-
-    const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
-      if (leaf && leaf.view instanceof MarkdownView) {
-        this.factory.ensureStoryboardToggleButtonForLeaf(leaf, this.plugin.app);
-      }
-    };
-
-    this.plugin.registerEvent(this.plugin.app.workspace.on('layout-change', ensureButtonsInAllMarkdownViews));
-    this.plugin.registerEvent(this.plugin.app.workspace.on('active-leaf-change', handleActiveLeafChange));
-
-    ensureButtonsInAllMarkdownViews();
+    // 絵コンテ切替ボタンは削除（モード切替に統合）
 
     const handleFileOpen = async (file: TFile) => {
       const activeLeaf = this.plugin.app.workspace.activeLeaf;

@@ -43,15 +43,18 @@ namespace Internal {
     const baseName = file.basename;
 
     let counter = 0;
-    let newPath = `${parentPath ? parentPath + '/' : ''}${baseName}.${newExt}`;
+    let newPath = parentPath ? `${parentPath}/${baseName}.${newExt}` : `${baseName}.${newExt}`;
     while (app.vault.getAbstractFileByPath(newPath)) {
       counter += 1;
-      newPath = `${parentPath ? parentPath + '/' : ''}${baseName}-${counter}.${newExt}`;
+      newPath = parentPath ? `${parentPath}/${baseName}-${counter}.${newExt}` : `${baseName}-${counter}.${newExt}`;
     }
 
     try {
       await app.vault.rename(file, newPath);
-      return `ファイル拡張子を ${newExt} に変更しました`;
+      return JSON.stringify({
+        newPath: newPath,
+        message: `ファイル拡張子を ${newExt} に変更しました`
+      });
     } catch (error) {
       throw new Error('ファイル拡張子の変更に失敗しました');
     }

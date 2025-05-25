@@ -13,7 +13,11 @@ namespace Internal {
   }
 
   function parseMarkdownToStoryboard(markdown: string): StoryboardData {
-    const lines = markdown.split('\n');
+    // JSONブロックを除去してマークダウンのみを抽出
+    const jsonBlockStart = markdown.indexOf('\n```json\n');
+    const cleanMarkdown = jsonBlockStart !== -1 ? markdown.substring(0, jsonBlockStart) : markdown;
+    
+    const lines = cleanMarkdown.split('\n');
     const data: StoryboardData = { title: '', chapters: [], characters: [] };
     let currentFrame: StoryboardFrame | null = null;
     let currentChapter: StoryboardChapter | null = null;

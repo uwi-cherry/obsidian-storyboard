@@ -20,23 +20,7 @@ export class StoryboardFactory {
     }
   }
 
-  ensureStoryboardToggleButtonForLeaf(leaf: WorkspaceLeaf, app: App): void {
-    if (!(leaf.view instanceof MarkdownView)) {
-      return;
-    }
-    const view = leaf.view;
-    const buttonClass = 'storyboard-toggle-button-common';
-
-    const existingButton = view.containerEl.querySelector(`.clickable-icon.${buttonClass}`);
-
-    if (!existingButton) {
-      const newButton = view.addAction('storyboard-toggle', t('STORYBOARD_TOGGLE'), async () => {
-        await this.toggleStoryboardForLeaf(leaf, app);
-      }) as HTMLElement;
-      newButton.classList.add(buttonClass);
-    } else {
-    }
-  }
+  // 絵コンテ切替ボタンは削除（モード切替に統合）
 
   async toggleStoryboardForLeaf(leaf: WorkspaceLeaf, app: App): Promise<void> {
     const fileName = (leaf.view instanceof MarkdownView) ? leaf.view.file?.name : 'unknown';

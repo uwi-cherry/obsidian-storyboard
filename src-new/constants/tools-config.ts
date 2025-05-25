@@ -10,6 +10,8 @@ export const TOOL_NAMES = {
   CREATE_OTIO_FILE: 'create_otio_file',
   LOAD_OTIO_FILE: 'load_otio_file',
   SAVE_OTIO_FILE: 'save_otio_file',
+  CONVERT_MD_TO_OTIO: 'convert_md_to_otio',
+  CONVERT_OTIO_TO_MD: 'convert_otio_to_md',
   
   CREATE_PAINTER_FILE: 'create_painter_file',
   LOAD_PAINTER_FILE: 'load_painter_file',
@@ -100,6 +102,22 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "saveOtioFileTool",
       ai_enabled: false,
       description: "Save OTIO file",
+      category: TOOL_CATEGORIES.TIMELINE
+    },
+    {
+      name: TOOL_NAMES.CONVERT_MD_TO_OTIO,
+      modulePath: "../../src-new/service-api/api/otio-tool/convert-md-to-otio",
+      exportName: "convertMdToOtioTool",
+      ai_enabled: false,
+      description: "Convert Markdown storyboard to OTIO timeline",
+      category: TOOL_CATEGORIES.TIMELINE
+    },
+    {
+      name: TOOL_NAMES.CONVERT_OTIO_TO_MD,
+      modulePath: "../../src-new/service-api/api/otio-tool/convert-otio-to-md",
+      exportName: "convertOtioToMdTool",
+      ai_enabled: false,
+      description: "Convert OTIO timeline to Markdown storyboard",
       category: TOOL_CATEGORIES.TIMELINE
     },
     {
