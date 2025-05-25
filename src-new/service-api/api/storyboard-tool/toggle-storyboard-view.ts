@@ -39,11 +39,11 @@ namespace Internal {
 
   export async function executeToggleStoryboardView(args: ToggleStoryboardViewInput): Promise<string> {
     const { app, leaf, factory } = args;
-    
+
     if (!(leaf.view instanceof MarkdownView)) {
       return 'マークダウンビューではありません';
     }
-    
+
     const view = leaf.view;
     const file = view.file;
     if (!file) {
@@ -51,9 +51,8 @@ namespace Internal {
     }
 
     const currentMode = factory.getCurrentViewMode(leaf);
-    
-    try {
-      if (currentMode === 'markdown') {
+
+    if (currentMode === 'markdown') {
         if (file.extension !== 'storyboard') {
           const parentPath = file.parent?.path ?? '';
           const baseName = file.basename;
@@ -98,9 +97,6 @@ namespace Internal {
         factory.switchToMarkdownViewMode(leaf);
         return 'マークダウンビューに切り替えました';
       }
-    } catch (error) {
-      throw error; 
-    }
   }
 }
 

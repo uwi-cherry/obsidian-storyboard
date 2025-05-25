@@ -13,7 +13,7 @@ export class CreateMenuPlugin {
   initialize(): void {
     addIcon('create-menu', OBSIDIAN_ICONS.ADD_ICON_SVG);
     
-    const ribbonIcon = this.plugin.addRibbonIcon('create-menu', '新規作成', async (evt: MouseEvent) => {
+    this.plugin.addRibbonIcon('create-menu', '新規作成', async (evt: MouseEvent) => {
       const menu = new Menu();
       menu.addItem(item =>
         item
@@ -51,7 +51,7 @@ export class CreateMenuPlugin {
                   }
                 }
               } catch {
-
+                // JSON parse error is ignored
               }
               const activeLeaf = this.plugin.app.workspace.getLeaf(true);
               const storyboardFiles = this.plugin.app.vault.getFiles().filter(f => f.extension === 'storyboard');
