@@ -31,7 +31,8 @@ function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
       );
       ctx.putImageData(imageData, 0, 0);
     } catch (error) {
-          }
+      console.error(error);
+    }
   } else if (obj && obj.data) {
     try {
       const imageData = new ImageData(
@@ -41,7 +42,8 @@ function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
       );
       ctx.putImageData(imageData, 0, 0);
     } catch (error) {
-          }
+      console.error(error);
+    }
   } else {
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, width, height);
@@ -96,11 +98,12 @@ namespace Internal {
         const isDom = typeof HTMLCanvasElement !== 'undefined';
         
         let canvasDataUrl = '';
-        if (isDom && canvas instanceof HTMLCanvasElement) {
+          if (isDom && canvas instanceof HTMLCanvasElement) {
           try {
             canvasDataUrl = canvas.toDataURL('image/png');
-                      } catch (error) {
-                      }
+          } catch (error) {
+            console.error(error);
+          }
         }
 
         return {

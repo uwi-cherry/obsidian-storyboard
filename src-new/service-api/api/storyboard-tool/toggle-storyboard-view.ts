@@ -68,6 +68,7 @@ namespace Internal {
             try {
               await app.vault.rename(file, newPath);
             } catch (renameError) {
+              console.error(renameError);
             }
           }
         }
@@ -89,6 +90,7 @@ namespace Internal {
             try {
               await app.vault.rename(file, newPath);
             } catch (renameError) {
+              console.error(renameError);
             }
           }
         }

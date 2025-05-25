@@ -47,7 +47,7 @@ export class StoryboardFactory {
         factory: this
       });
     } catch (error) {
-
+      console.error(error);
     }
   }
 

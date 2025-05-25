@@ -105,12 +105,14 @@ export default function Canvas({
             try {
               ctx.globalCompositeOperation = layer.blendMode;
             } catch (e) {
+              console.error(e);
             }
           }
           
           try {
             ctx.drawImage(layer.canvas, 0, 0);
           } catch (error) {
+            console.error(error);
           }
           
           ctx.globalAlpha = originalAlpha;

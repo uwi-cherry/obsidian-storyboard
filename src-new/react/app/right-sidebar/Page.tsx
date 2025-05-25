@@ -73,6 +73,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         await leaf.openFile(fileObj, { active: true });
       }
     } catch (error) {
+      console.error(error);
     }
   };
 
@@ -95,6 +96,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         app.workspace.setActiveLeaf(storyboardLeaf);
       }
     } catch (error) {
+      console.error(error);
     }
   };
 

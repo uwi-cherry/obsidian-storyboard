@@ -36,6 +36,7 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
     try {
       ctx.drawImage(src, 0, 0);
     } catch (error) {
+      console.error(error);
     }
   } else {
     ctx.fillStyle = 'white';
@@ -91,12 +92,13 @@ namespace Internal {
           ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
           
           const canvas = ensureCanvas(layer, width, height);
-          if (canvas instanceof HTMLCanvasElement) {
-            ctx.drawImage(canvas, 0, 0);
-          } else {
-          }
-        } catch (error) {
+        if (canvas instanceof HTMLCanvasElement) {
+          ctx.drawImage(canvas, 0, 0);
+        } else {
         }
+      } catch (error) {
+        console.error(error);
+      }
       }
     }
     
