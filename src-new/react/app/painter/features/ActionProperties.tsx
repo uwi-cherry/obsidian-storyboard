@@ -44,39 +44,39 @@ const ActionProperties: React.FC<ActionPropertiesProps> = ({
         top: `${position.y}px`,
       } : undefined}
     >
-      <button
+      <button 
         className={buttonClasses}
         onClick={handlers.fill}
-        title={t('FILL')}
+        title="塗りつぶし"
       >
-        {t('FILL')}
+        塗りつぶし
       </button>
       
-      <button
+      <button 
         className={buttonClasses}
         onClick={handlers.clear}
-        title={t('CLEAR')}
+        title="クリア"
       >
-        {t('CLEAR')}
+        クリア
       </button>
       
       {handlers.edit && (
-        <button
+        <button 
           className={buttonClasses}
           onClick={handlers.edit}
-          title={t('EDIT')}
+          title="編集"
         >
-          {t('EDIT')}
+          編集
         </button>
       )}
       
       {mode === 'selection' && handlers.cancel && (
-        <button
+        <button 
           className={buttonClasses}
           onClick={handlers.cancel}
-          title={t('CANCEL')}
+          title="キャンセル"
         >
-          {t('CANCEL')}
+          キャンセル
         </button>
       )}
     </div>

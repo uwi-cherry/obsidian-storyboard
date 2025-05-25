@@ -3,7 +3,6 @@ import { PainterFactory } from './painter-factory';
 import { OBSIDIAN_ICONS } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { PainterView } from './painter-view';
-import { t } from '../../constants/obsidian-i18n';
 
 export class PainterPlugin {
   private plugin: Plugin;
@@ -23,7 +22,7 @@ export class PainterPlugin {
       if (file instanceof TFile && file.extension.toLowerCase().match(/^(png|jpe?g|gif|webp)$/)) {
         menu.addItem((item) => {
           item
-            .setTitle(t('OPEN_PSD'))
+            .setTitle('PSDで開く')
             .setIcon('image')
             .onClick(async () => {
               await toolRegistry.executeTool('create_painter_file', { app: this.plugin.app, imageFile: file });

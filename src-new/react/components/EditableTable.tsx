@@ -1,7 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { TABLE_ICONS, ADD_ICON_SVG } from '../../constants/icons';
 import IconButtonGroup from './IconButtonGroup';
-import { t } from '../../constants/obsidian-i18n';
 
 export interface ColumnDef<T> {
   key: keyof T;
@@ -220,11 +219,11 @@ const EditableTable = <T,>({
                 colSpan={columns.length + 1 }
                 className="border border-modifier-border px-4 py-2 text-center cursor-pointer text-text-muted hover:text-text-normal"
                 onClick={() => onAddRow()}
-                title={t('ADD_ROW')}
+                title="新しい行を追加"
               >
                 <div className="flex items-center justify-center gap-2">
                   <span dangerouslySetInnerHTML={{ __html: ADD_ICON_SVG }} />
-                  <span className="text-sm">{t('ADD_ROW')}</span>
+                  <span className="text-sm">新しい行を追加</span>
                 </div>
               </td>
             </tr>

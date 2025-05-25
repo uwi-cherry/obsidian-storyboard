@@ -188,7 +188,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       return;
     }
 
-    new Notice(t('AI_GENERATE_TODO'));
+    new Notice('AI生成機能は実装予定です');
   };
 
   return (

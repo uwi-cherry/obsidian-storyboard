@@ -65,17 +65,4 @@ export interface I18nStrings {
   LAYER: string;
   UNDO: string;
   REDO: string;
-  CONFIRM: string;
-  EDIT: string;
-  CLEAR: string;
-  FILL: string;
-  LAYOUT_SETTINGS: string;
-  HORIZONTAL_LAYOUT: string;
-  VERTICAL_LAYOUT: string;
-  EXPORT_VIDEO_TODO: string;
-  EXPORT_VIDEO_FAILED: string;
-  PSD_CREATE_FAILED: string;
-  PAINTER_VIEW_NOT_FOUND: string;
-  AI_GENERATE_TODO: string;
-  ADD_ROW: string;
 }

@@ -65,19 +65,6 @@ const ja: I18nStrings = {
   LAYER: 'レイヤー',
   UNDO: '元に戻す',
   REDO: 'やり直し',
-  CONFIRM: '確定',
-  EDIT: '編集',
-  CLEAR: 'クリア',
-  FILL: '塗りつぶし',
-  LAYOUT_SETTINGS: 'レイアウト設定',
-  HORIZONTAL_LAYOUT: '横並び',
-  VERTICAL_LAYOUT: '縦並び',
-  EXPORT_VIDEO_TODO: '動画エクスポート機能は実装予定です',
-  EXPORT_VIDEO_FAILED: '動画エクスポートに失敗しました',
-  PSD_CREATE_FAILED: 'PSD作成に失敗しました: ',
-  PAINTER_VIEW_NOT_FOUND: 'Painter ビューが見つかりません',
-  AI_GENERATE_TODO: 'AI生成機能は実装予定です',
-  ADD_ROW: '新しい行を追加',
 };
 
 export default ja;

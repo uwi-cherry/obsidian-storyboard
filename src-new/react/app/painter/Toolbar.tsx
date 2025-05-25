@@ -21,12 +21,12 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
 
   const layoutMenuOptions = [
     {
-      label: t('HORIZONTAL_LAYOUT'),
+      label: '横並び',
       icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="4" height="12"/><rect x="7" y="2" width="7" height="12"/></svg>',
       onClick: () => setLayoutDirection('horizontal')
     },
     {
-      label: t('VERTICAL_LAYOUT'),
+      label: '縦並び',
       icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="12" height="4"/><rect x="2" y="7" width="12" height="7"/></svg>',
       onClick: () => setLayoutDirection('vertical')
     }
@@ -46,7 +46,7 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
     <div className={containerClass}>
       <MenuIconButton
         icon={layoutIcon}
-        title={t('LAYOUT_SETTINGS')}
+        title="レイアウト設定"
         options={layoutMenuOptions}
         className="w-10 h-10"
         variant="primary"

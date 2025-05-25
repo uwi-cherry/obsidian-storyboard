@@ -65,19 +65,6 @@ const en: I18nStrings = {
   LAYER: 'Layer',
   UNDO: 'Undo',
   REDO: 'Redo',
-  CONFIRM: 'Confirm',
-  EDIT: 'Edit',
-  CLEAR: 'Clear',
-  FILL: 'Fill',
-  LAYOUT_SETTINGS: 'Layout settings',
-  HORIZONTAL_LAYOUT: 'Horizontal',
-  VERTICAL_LAYOUT: 'Vertical',
-  EXPORT_VIDEO_TODO: 'Video export feature is not implemented yet',
-  EXPORT_VIDEO_FAILED: 'Failed to export video',
-  PSD_CREATE_FAILED: 'Failed to create PSD: ',
-  PAINTER_VIEW_NOT_FOUND: 'Painter view not found',
-  AI_GENERATE_TODO: 'AI generation feature is not implemented yet',
-  ADD_ROW: 'Add new row',
 };
 
 export default en;
