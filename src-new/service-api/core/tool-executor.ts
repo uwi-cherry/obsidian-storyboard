@@ -27,7 +27,7 @@ export class ToolExecutor {
     Internal.initialize(tools, aiEnabledTools, config);
   }
 
-  static async executeTool(name: string, args: any): Promise<string> {
+  static async executeTool(name: string, args: Record<string, unknown>): Promise<string> {
     const tool = Internal.tools.get(name);
     if (!tool) {
       const availableTools = Array.from(Internal.tools.keys()).join(', ');

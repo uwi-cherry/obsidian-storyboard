@@ -1,12 +1,14 @@
 import React, { useRef, useEffect, useState } from 'react';
 import type { PainterPointer } from '../../../hooks/usePainterPointer';
 import type { SelectionState, SelectionRect } from '../../../hooks/useSelectionState';
+import type { PainterView } from 'src-new/types/painter-types';
+import type { Layer } from 'src-new/types/painter-types';
 import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/painter-history-store';
 
 interface CanvasProps {
-  view?: any;
+  view?: PainterView;
   pointer: PainterPointer;
   selectionState: SelectionState;
   onSelectionStart?: () => void;
@@ -94,7 +96,7 @@ export default function Canvas({
     }
 
     if (layers && layers.length > 0) {
-      layers.forEach((layer: any, index: number) => {
+      layers.forEach((layer: Layer, index: number) => {
         if (layer.visible && layer.canvas) {
           
           const originalAlpha = ctx.globalAlpha;

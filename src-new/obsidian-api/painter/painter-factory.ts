@@ -2,10 +2,11 @@ import { createRoot } from 'react-dom/client';
 import React from 'react';
 import { PainterView } from './painter-view';
 import PainterPage from '../../react/app/painter/Page';
+import type { WorkspaceLeaf } from 'obsidian';
 
 export class PainterFactory {
   
-  createPainterView(leaf: any): PainterView {
+  createPainterView(leaf: WorkspaceLeaf): PainterView {
     const view = new PainterView(leaf, () => this.renderReactComponent(view));
     return view;
   }

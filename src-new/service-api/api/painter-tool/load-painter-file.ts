@@ -1,9 +1,9 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
-import { Layer } from '../../../types/painter-types';
+import { Layer, PsdLayerData } from '../../../types/painter-types';
 
-function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
+function toCanvas(obj: agPsd.Layer | { canvas?: HTMLCanvasElement; data?: Uint8ClampedArray }, width: number, height: number): HTMLCanvasElement {
   if (typeof document === 'undefined' || typeof HTMLCanvasElement === 'undefined') {
     return obj as HTMLCanvasElement;
   }
@@ -70,7 +70,7 @@ namespace Internal {
   } as const;
 
   function convertPsdLayerToCanvas(
-    psdLayer: any,
+    psdLayer: agPsd.Layer,
     defaultWidth: number,
     defaultHeight: number
   ): { canvas: HTMLCanvasElement; width: number; height: number } {
@@ -89,7 +89,7 @@ namespace Internal {
       const psd = agPsd.readPsd(buffer);
       
             
-      const layers: any[] = (psd.children || []).map((layer: any, index: number) => {
+      const layers: PsdLayerData[] = (psd.children || []).map((layer: agPsd.Layer, index: number) => {
                 
         const converted = convertPsdLayerToCanvas(layer, psd.width, psd.height);
         const canvas = converted.canvas;

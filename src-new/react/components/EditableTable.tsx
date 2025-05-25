@@ -10,7 +10,7 @@ export interface ColumnDef<T> {
     row: T,
     onCellChangeForRow: (columnKey: keyof T, newValue: T[keyof T]) => void,
     rowIndex: number,
-    extra?: any
+    extra?: unknown
   ) => React.ReactNode;
 }
 

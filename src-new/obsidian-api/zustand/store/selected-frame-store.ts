@@ -1,8 +1,9 @@
 import { create } from 'zustand';
+import type { StoryboardFrame } from 'src-new/types/storyboard';
 
 interface SelectedFrameState {
-  selectedFrame: any | null;
-  setSelectedFrame: (frame: any | null) => void;
+  selectedFrame: StoryboardFrame | null;
+  setSelectedFrame: (frame: StoryboardFrame | null) => void;
   clearSelectedFrame: () => void;
 }
 

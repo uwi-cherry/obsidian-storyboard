@@ -1,10 +1,11 @@
 import React from 'react';
 import { Notice, App } from 'obsidian';
+import type { RightSidebarView } from '../../../obsidian-api/right-sidebar/right-sidebar-view';
 import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
 interface NavigationControlsProps {
-  view: any;
+  view: RightSidebarView;
   isPsdPainterOpen: boolean;
   currentImageUrl: string | null;
   onBackToStoryboard: () => void;

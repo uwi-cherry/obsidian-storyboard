@@ -2,10 +2,11 @@ import { createRoot } from 'react-dom/client';
 import React from 'react';
 import TimelineReactView from '../../react/app/timeline/Page';
 import { TimelineView } from './timeline-view';
+import type { WorkspaceLeaf } from 'obsidian';
 
 export class TimelineFactory {
   
-  createTimelineView(leaf: any): TimelineView {
+  createTimelineView(leaf: WorkspaceLeaf): TimelineView {
     const view = new TimelineView(leaf, () => this.renderReactComponent(view));
     return view;
   }
