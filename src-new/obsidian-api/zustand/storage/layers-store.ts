@@ -80,29 +80,36 @@ export const useLayersStore = create<LayersState>()(
 );
 
 // 自動保存機能
-const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
+const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean, currentPsdFile: TFile | null) => {
   // 初期読み込み中は自動保存しない
   if (isInitialLoad) {
     return;
   }
 
+  // レイヤーが空、ファイルがない、PSDファイルでない場合はスキップ
+  if (layers.length === 0 || !currentPsdFile || currentPsdFile.extension !== 'psd') {
+    return;
+  }
+
   try {
-    const currentPsdFileStore = useLayersStore.getState().currentPsdFile;
-    const currentFile = currentPsdFileStore;
-    
     // Obsidianのappインスタンスを取得
     const app = (window as any).app;
     
-    if (layers.length > 0 && currentFile && app && currentFile.extension === 'psd') {
+    if (app) {
+      console.log('💾 自動保存開始:', currentPsdFile.path);
       
       await toolRegistry.executeTool('save_painter_file', {
         app,
-        file: currentFile,
+        file: currentPsdFile,
         layers
       });
       
+      console.log('✅ 自動保存完了:', currentPsdFile.path);
+    } else {
+      console.warn('⚠️ Obsidian appインスタンスが見つかりません');
     }
   } catch (error) {
+    console.error('❌ 自動保存エラー:', error);
   }
 }, 5000); // デバウンス時間を5秒に延長
 
@@ -111,7 +118,7 @@ useLayersStore.subscribe(
   (state) => {
     // 空のレイヤー配列の場合は保存しない
     if (state.layers.length > 0) {
-      autoSave(state.layers, state.isInitialLoad);
+      autoSave(state.layers, state.isInitialLoad, state.currentPsdFile);
     }
   }
 );
@@ -122,6 +129,7 @@ useLayersStore.subscribe(
     // PSDファイルが変更された場合（PSDファイル→別PSDファイル、またはPSDファイル→null）
     if (prevState.currentPsdFile && 
         (state.currentPsdFile?.path !== prevState.currentPsdFile?.path || state.currentPsdFile === null)) {
+      console.log('🔄 PSDファイル切り替え検知:', prevState.currentPsdFile.path);
       
       const app = (window as any).app;
       
@@ -131,7 +139,9 @@ useLayersStore.subscribe(
           file: prevState.currentPsdFile,
           layers: prevState.layers
         }).then(() => {
+          console.log('✅ 前のPSDファイル保存完了:', prevState.currentPsdFile?.path);
         }).catch((error) => {
+          console.error('❌ 前のPSDファイル保存エラー:', error);
         });
       }
     }
