@@ -1,5 +1,5 @@
 import { Tool } from '../../core/tool';
-import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 

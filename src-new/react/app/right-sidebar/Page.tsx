@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { App, TFile } from 'obsidian';
-import { NavigationControls } from './features/NavigationControls';
-import LayerControls from './features/LayerControls';
-import ChatBox from './features/ChatBox';
+import { NavigationControls } from './components/NavigationControls';
+import LayerControls from './components/LayerControls';
+import ChatBox from './components/ChatBox';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
-import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 

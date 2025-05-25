@@ -1,5 +1,5 @@
 import { Tool } from '../../core/tool';
-import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 
 namespace Internal {
   export interface SetLayerOpacityInput {

@@ -8,7 +8,7 @@ import ColorProperties from './features/ColorProperties';
 import ToolProperties from './features/ToolProperties';
 
 import TransformEditOverlay from './features/TransformEditOverlay';
-import { useLayersStore } from 'src-new/obsidian-api/zustand/store/layers-store';
+import { useLayersStore } from 'src-new/obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from 'src-new/obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from 'src-new/obsidian-api/zustand/store/painter-history-store';
 
