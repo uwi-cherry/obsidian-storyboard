@@ -26,9 +26,9 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
 }) => {
   const handleExportVideo = async () => {
     try {
-      new Notice('動画エクスポート機能は実装予定です');
+      new Notice(t('EXPORT_VIDEO_TODO'));
     } catch (error) {
-      new Notice('動画エクスポートに失敗しました');
+      new Notice(t('EXPORT_VIDEO_FAILED'));
     }
   };
 
@@ -45,7 +45,7 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
       onImageUrlChange(parsedResult.filePath);
       onOpenPsdPainter();
     } catch (error) {
-      new Notice('PSD作成に失敗しました: ' + (error as Error).message);
+      new Notice(t('PSD_CREATE_FAILED') + (error as Error).message);
     }
   };
 
