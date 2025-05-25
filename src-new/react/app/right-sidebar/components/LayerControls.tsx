@@ -12,11 +12,13 @@ export default function LayerControls() {
   const addBlankLayer = async () => {
     try {
       const currentLayers = [...layers];
+      const newCanvas = document.createElement('canvas');
       const newLayer = {
         name: `レイヤー ${currentLayers.length + 1}`,
         visible: true,
         opacity: 1.0,
-        blendMode: 'normal'
+        blendMode: 'normal',
+        canvas: newCanvas
       };
       currentLayers.push(newLayer);
       useLayersStore.getState().setLayers(currentLayers);
