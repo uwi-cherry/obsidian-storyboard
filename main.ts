@@ -23,9 +23,9 @@ export default class MyPlugin extends Plugin {
 
     
     const availableTools = toolRegistry.getRegisteredToolNames();
-    
+
     if (availableTools.length === 0) {
-    } else {
+      console.warn('登録済みツールがありません');
     }
 
     this.painterPlugin = new PainterPlugin(this);
