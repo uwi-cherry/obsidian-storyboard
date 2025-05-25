@@ -6,6 +6,7 @@ import type { Layer } from 'src-new/types/painter-types';
 import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/painter-history-store';
+import { mixSpectralColors } from '../../../hooks/useSpectralColor';
 
 interface CanvasProps {
   view?: PainterView;
@@ -77,6 +78,8 @@ export default function Canvas({
       canvas.style.cursor = 'crosshair';
     } else if (pointer.tool === 'hand') {
       canvas.style.cursor = 'grab';
+    } else if (pointer.tool === 'color-mixer') {
+      canvas.style.cursor = 'crosshair';
     } else {
       canvas.style.cursor = 'default';
     }
@@ -320,6 +323,48 @@ export default function Canvas({
     };
   };
 
+  const mixColorsOnCurrentLayer = (x: number, y: number) => {
+    if (!layers[currentLayerIndex] || !layers[currentLayerIndex].canvas) return;
+
+    const layerCanvas = layers[currentLayerIndex].canvas;
+    const ctx = layerCanvas.getContext('2d');
+    if (!ctx) return;
+
+    // 現在の位置の色を取得
+    const imageData = ctx.getImageData(x - 1, y - 1, 3, 3);
+    const data = imageData.data;
+    
+    // 中心ピクセルの色を取得
+    const centerIndex = 4 * 4; // 3x3の中心
+    const currentR = data[centerIndex];
+    const currentG = data[centerIndex + 1];
+    const currentB = data[centerIndex + 2];
+    const currentA = data[centerIndex + 3];
+    
+    if (currentA === 0) {
+      // 透明な場所には新しい色を描画
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = pointer.color;
+      ctx.beginPath();
+      ctx.arc(x, y, pointer.lineWidth / 2, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      // 既存の色とスペクトラル混色
+      const currentHex = `#${currentR.toString(16).padStart(2, '0')}${currentG.toString(16).padStart(2, '0')}${currentB.toString(16).padStart(2, '0')}`;
+      const mixedColor = mixSpectralColors(currentHex, pointer.color, 0.5);
+      
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = mixedColor;
+      ctx.beginPath();
+      ctx.arc(x, y, pointer.lineWidth / 2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    const updatedLayers = [...layers];
+    updatedLayers[currentLayerIndex] = { ...layers[currentLayerIndex] };
+    setLayers(updatedLayers);
+  };
+
   const handlePointerDown = (e: React.PointerEvent) => {
     const { x, y } = getPointerPos(e);
 
@@ -362,6 +407,12 @@ export default function Canvas({
       drawingRef.current = true;
       lastPosRef.current = { x, y };
       drawOnCurrentLayer({ x, y }, { x, y });
+    } else if (pointer.tool === 'color-mixer') {
+      historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
+
+      drawingRef.current = true;
+      lastPosRef.current = { x, y };
+      mixColorsOnCurrentLayer(x, y);
     } else if (pointer.tool === 'hand') {
       panningRef.current = true;
       panLastRef.current = { x: e.clientX, y: e.clientY };
@@ -387,6 +438,9 @@ export default function Canvas({
       onSelectionUpdate?.();
     } else if ((pointer.tool === 'brush' || pointer.tool === 'eraser') && drawingRef.current && lastPosRef.current) {
       drawOnCurrentLayer(lastPosRef.current, { x, y });
+      lastPosRef.current = { x, y };
+    } else if (pointer.tool === 'color-mixer' && drawingRef.current && lastPosRef.current) {
+      mixColorsOnCurrentLayer(x, y);
       lastPosRef.current = { x, y };
     } else if (pointer.tool === 'hand' && panningRef.current) {
       const deltaX = e.clientX - panLastRef.current.x;
@@ -427,6 +481,9 @@ export default function Canvas({
         onSelectionEnd?.();
       }
     } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
+      drawingRef.current = false;
+      lastPosRef.current = null;
+    } else if (pointer.tool === 'color-mixer') {
       drawingRef.current = false;
       lastPosRef.current = null;
     } else if (pointer.tool === 'hand') {

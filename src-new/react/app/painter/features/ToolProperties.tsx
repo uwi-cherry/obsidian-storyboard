@@ -33,7 +33,7 @@ export default function ToolProperties({
 
   return (
     <div className={containerClass}>
-      {['brush', 'eraser'].includes(tool) && (
+      {['brush', 'eraser', 'color-mixer'].includes(tool) && (
         <div className="flex flex-col gap-1">
           <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}:</div>
           <input
@@ -44,6 +44,15 @@ export default function ToolProperties({
             onChange={e => setLineWidth(parseInt(e.currentTarget.value, 10))}
           />
           <div className="text-text-muted text-xs text-center">{lineWidth}px</div>
+        </div>
+      )}
+
+      {tool === 'color-mixer' && (
+        <div className="flex flex-col gap-1">
+          <div className="text-text-muted text-xs">色混ぜモード</div>
+          <div className="text-text-muted text-xs">
+            キャンバス上の色と選択した色をスペクトラル混色します
+          </div>
         </div>
       )}
 

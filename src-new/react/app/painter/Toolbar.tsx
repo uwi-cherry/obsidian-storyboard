@@ -12,6 +12,7 @@ interface ToolbarProps {
 const TOOLS = [
   { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
   { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
+  { id: 'color-mixer', title: '色混ぜ', icon: TOOL_ICONS['color-mixer'] },
   { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
   { id: 'hand', title: t('TOOL_HAND'), icon: TOOL_ICONS.hand }
 ];

@@ -58,7 +58,8 @@ const TOOL_ICON_PATHS = {
   brush: `<path d="M20 5l-2 2a2 2 0 0 1-2.5 0L5 17l-2 2a2 2 0 0 1-2.5-2.5L13 6a2 2 0 0 1 2.5 0L20 5z"/>`,
   eraser: `<path d="M18 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="14 3 20 3 20 9"/><line x1="10" y1="14" x2="20" y2="4"/>`,
   selection: `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="21" x2="10" y2="10"/>`,
-  hand: `<path d="M7 12V6a1 1 0 0 1 2 0v5"/><path d="M11 13V3a1 1 0 0 1 2 0v8"/><path d="M16 12V7a1 1 0 0 1 2 0v5"/><path d="M5 14s1 2 4 2 4-2 4-2 1 2 4 2 4-2 4-2"/>`
+  hand: `<path d="M7 12V6a1 1 0 0 1 2 0v5"/><path d="M11 13V3a1 1 0 0 1 2 0v8"/><path d="M16 12V7a1 1 0 0 1 2 0v5"/><path d="M5 14s1 2 4 2 4-2 4-2 1 2 4 2 4-2 4-2"/>`,
+  'color-mixer': `<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12l4 4" stroke="currentColor" stroke-width="2"/>`
 };
 
 const BUTTON_ICON_PATHS = {
@@ -103,7 +104,8 @@ export const TOOL_ICONS = {
   brush: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.brush}</svg>`,
   eraser: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.eraser}</svg>`,
   selection: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.selection}</svg>`,
-  hand: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.hand}</svg>`
+  hand: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.hand}</svg>`,
+  'color-mixer': `<svg ${REACT_SVG}>${TOOL_ICON_PATHS['color-mixer']}</svg>`
 };
 
 export const BUTTON_ICONS = {

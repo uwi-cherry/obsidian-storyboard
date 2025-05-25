@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export type PainterTool = 'brush' | 'eraser' | 'selection' | 'hand';
+export type PainterTool = 'brush' | 'eraser' | 'selection' | 'hand' | 'color-mixer';
 
 export type SelectionMode = 'rect' | 'lasso' | 'magic';
 
