@@ -21,8 +21,6 @@ interface SelectionRect {
 
 interface Props {
   pointer: PainterPointer;
-  layers?: any[];
-  currentLayerIndex?: number;
   view?: any;
   zoom: number;
   rotation: number;
@@ -32,8 +30,6 @@ interface Props {
 
 export default function CanvasContainer({ 
   pointer, 
-  layers = [], 
-  currentLayerIndex = 0, 
   view,
   zoom,
   rotation,
@@ -45,6 +41,10 @@ export default function CanvasContainer({
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
   const [editRect, setEditRect] = useState<SelectionRect | undefined>();
+  
+  // zustandストアから直接取得
+  const layers = useLayersStore((state) => state.layers);
+  const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
   
   const { layoutDirection } = usePainterLayoutStore();
 
@@ -250,8 +250,6 @@ export default function CanvasContainer({
       <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative">
         <Canvas
           pointer={pointer}
-          layers={layers}
-          currentLayerIndex={currentLayerIndex}
           view={view}
           selectionState={selectionState}
           onSelectionStart={handleSelectionStart}

@@ -104,7 +104,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             file: view.file
           });
           
-          console.log('🔍 PainterPage: PSDファイル読み込み結果:', result);
           const psdData = JSON.parse(result);
           
           // DataURLからCanvasに変換
@@ -220,8 +219,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     <Toolbar tool={pointer.tool} onChange={(tool) => pointer.setTool(tool as PainterTool)} />
     <CanvasContainer 
       pointer={pointer} 
-      layers={layers} 
-      currentLayerIndex={currentLayerIndex}
       view={view}
       zoom={zoom}
       rotation={rotation}

@@ -7,9 +7,6 @@ import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/p
 
 
 interface CanvasProps {
-  layers?: any[];
-  currentLayerIndex?: number;
-  setLayers?: (layers: any[]) => void;
   view?: any;
   pointer: PainterPointer;
   selectionState: SelectionState;
@@ -19,9 +16,6 @@ interface CanvasProps {
 }
 
 export default function Canvas({
-  layers = [],
-  currentLayerIndex = 0,
-  setLayers,
   view,
   pointer,
   selectionState,
@@ -31,6 +25,11 @@ export default function Canvas({
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+
+  // zustandストアから直接取得
+  const layers = useLayersStore((state) => state.layers);
+  const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
+  const { setLayers } = useLayersStore();
 
   const dashOffsetRef = useRef(0);
   const animIdRef = useRef<number>();
@@ -195,22 +194,10 @@ export default function Canvas({
     ctx.lineTo(toPos.x, toPos.y);
     ctx.stroke();
 
-    // メインキャンバスを再描画
-    const mainCanvas = canvasRef.current;
-    if (mainCanvas) {
-      const mainCtx = mainCanvas.getContext('2d');
-      if (mainCtx) {
-        mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-        layers.forEach((layer: any) => {
-          if (layer.visible && layer.canvas) {
-            const originalAlpha = mainCtx.globalAlpha;
-            mainCtx.globalAlpha = layer.opacity || 1;
-            mainCtx.drawImage(layer.canvas, 0, 0);
-            mainCtx.globalAlpha = originalAlpha;
-          }
-        });
-      }
-    }
+    // 描画後にzustandストアを更新（新しい配列を作成して参照を変更）
+    const updatedLayers = [...layers];
+    updatedLayers[currentLayerIndex] = { ...layers[currentLayerIndex] };
+    setLayers(updatedLayers);
   };
 
   const computeMagicSelection = (px: number, py: number) => {
@@ -419,9 +406,7 @@ export default function Canvas({
     } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
       drawingRef.current = false;
       lastPosRef.current = null;
-      // 描画結果をzustandストアに反映
-      const layersStore = useLayersStore.getState();
-      layersStore.setLayers([...layers]);
+      // 描画の状態更新はdrawOnCurrentLayerで既に行われている
     }
   };
 
