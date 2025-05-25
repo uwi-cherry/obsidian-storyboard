@@ -102,7 +102,6 @@ export default function Canvas({
     if (layers && layers.length > 0) {
       layers.forEach((layer: any, index: number) => {
         if (layer.visible && layer.canvas) {
-          console.log('🎨 Canvas: レイヤーを描画中:', layer.name, index);
           
           // レイヤーの不透明度を設定
           const originalAlpha = ctx.globalAlpha;
@@ -114,7 +113,6 @@ export default function Canvas({
             try {
               ctx.globalCompositeOperation = layer.blendMode;
             } catch (e) {
-              console.warn('サポートされていないブレンドモード:', layer.blendMode);
             }
           }
           
@@ -122,7 +120,6 @@ export default function Canvas({
           try {
             ctx.drawImage(layer.canvas, 0, 0);
           } catch (error) {
-            console.error('レイヤー描画エラー:', error, layer);
           }
           
           // 設定を元に戻す
@@ -131,7 +128,6 @@ export default function Canvas({
         }
       });
     } else {
-      console.log('🎨 Canvas: 描画するレイヤーがありません');
     }
 
     
