@@ -55,11 +55,13 @@ const TABLE_ICON_PATHS = {
 };
 
 const TOOL_ICON_PATHS = {
+  pen: `<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>`,
   brush: `<path d="M20 5l-2 2a2 2 0 0 1-2.5 0L5 17l-2 2a2 2 0 0 1-2.5-2.5L13 6a2 2 0 0 1 2.5 0L20 5z"/>`,
+  'paint-brush': `<path d="M18.37 2.63l3 3a1 1 0 0 1 0 1.41L8.5 19.91a2 2 0 0 1-1.41.59H3a1 1 0 0 1-1-1v-4.09a2 2 0 0 1 .59-1.41L15.46 1.22a1 1 0 0 1 1.41 0l1.5 1.41z"/><circle cx="6" cy="18" r="3"/>`,
+  'color-mixer': `<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12l4 4" stroke="currentColor" stroke-width="2"/>`,
   eraser: `<path d="M18 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="14 3 20 3 20 9"/><line x1="10" y1="14" x2="20" y2="4"/>`,
   selection: `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="21" x2="10" y2="10"/>`,
-  hand: `<path d="M7 12V6a1 1 0 0 1 2 0v5"/><path d="M11 13V3a1 1 0 0 1 2 0v8"/><path d="M16 12V7a1 1 0 0 1 2 0v5"/><path d="M5 14s1 2 4 2 4-2 4-2 1 2 4 2 4-2 4-2"/>`,
-  'color-mixer': `<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12l4 4" stroke="currentColor" stroke-width="2"/>`
+  hand: `<path d="M7 12V6a1 1 0 0 1 2 0v5"/><path d="M11 13V3a1 1 0 0 1 2 0v8"/><path d="M16 12V7a1 1 0 0 1 2 0v5"/><path d="M5 14s1 2 4 2 4-2 4-2 1 2 4 2 4-2 4-2"/>`
 };
 
 const BUTTON_ICON_PATHS = {
@@ -101,11 +103,13 @@ export const LAYER_ICONS = {
 };
 
 export const TOOL_ICONS = {
+  pen: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.pen}</svg>`,
   brush: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.brush}</svg>`,
+  'paint-brush': `<svg ${REACT_SVG}>${TOOL_ICON_PATHS['paint-brush']}</svg>`,
+  'color-mixer': `<svg ${REACT_SVG}>${TOOL_ICON_PATHS['color-mixer']}</svg>`,
   eraser: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.eraser}</svg>`,
   selection: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.selection}</svg>`,
-  hand: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.hand}</svg>`,
-  'color-mixer': `<svg ${REACT_SVG}>${TOOL_ICON_PATHS['color-mixer']}</svg>`
+  hand: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.hand}</svg>`
 };
 
 export const BUTTON_ICONS = {

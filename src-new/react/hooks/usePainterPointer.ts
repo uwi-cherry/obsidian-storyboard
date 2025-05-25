@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export type PainterTool = 'brush' | 'eraser' | 'selection' | 'hand';
+export type PainterTool = 'pen' | 'brush' | 'paint-brush' | 'color-mixer' | 'eraser' | 'selection' | 'hand';
 
 export type SelectionMode = 'rect' | 'lasso' | 'magic';
 
@@ -40,6 +40,52 @@ export default function usePainterPointer() {
   const [blendStrength, setBlendStrength] = useState<number>(50);
   const [mixRatio, setMixRatio] = useState<number>(100);
 
+  const setToolWithPresets = (newTool: PainterTool) => {
+    setTool(newTool);
+    
+    // ツールに応じた初期値を設定
+    switch (newTool) {
+      case 'pen':
+        setBrushOpacity(100);
+        setDrawingMode('normal');
+        setMixRatio(100);
+        setBlendStrength(0);
+        setBrushHasColor(true);
+        break;
+      case 'brush':
+        setBrushOpacity(10);
+        setDrawingMode('normal');
+        setMixRatio(100);
+        setBlendStrength(0);
+        setBrushHasColor(true);
+        break;
+      case 'paint-brush':
+        setBrushOpacity(10);
+        setDrawingMode('spectral');
+        setMixRatio(50);
+        setBlendStrength(50);
+        setBrushHasColor(true);
+        break;
+      case 'color-mixer':
+        setBrushOpacity(0);
+        setDrawingMode('spectral');
+        setMixRatio(0);
+        setBlendStrength(100);
+        setBrushHasColor(false);
+        break;
+      case 'eraser':
+        setBrushOpacity(100);
+        setDrawingMode('erase-soft');
+        setMixRatio(100);
+        setBlendStrength(0);
+        setBrushHasColor(true);
+        break;
+      default:
+        // selection, handは設定変更なし
+        break;
+    }
+  };
+
   return {
     tool,
     drawingMode,
@@ -50,7 +96,7 @@ export default function usePainterPointer() {
     brushOpacity,
     blendStrength,
     mixRatio,
-    setTool,
+    setTool: setToolWithPresets,
     setDrawingMode,
     setLineWidth,
     setColor,

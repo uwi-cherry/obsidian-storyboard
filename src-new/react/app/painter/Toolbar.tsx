@@ -10,8 +10,11 @@ interface ToolbarProps {
 }
 
 const TOOLS = [
-  { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
-  { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
+  { id: 'pen', title: 'ペン', icon: TOOL_ICONS.pen },
+  { id: 'brush', title: 'ブラシ', icon: TOOL_ICONS.brush },
+  { id: 'paint-brush', title: '筆', icon: TOOL_ICONS['paint-brush'] },
+  { id: 'color-mixer', title: '色混ぜ', icon: TOOL_ICONS['color-mixer'] },
+  { id: 'eraser', title: '消しゴム', icon: TOOL_ICONS.eraser },
   { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
   { id: 'hand', title: t('TOOL_HAND'), icon: TOOL_ICONS.hand }
 ];

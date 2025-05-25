@@ -74,7 +74,7 @@ export default function Canvas({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    if (['brush', 'eraser', 'selection'].includes(pointer.tool)) {
+    if (['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser', 'selection'].includes(pointer.tool)) {
       canvas.style.cursor = 'crosshair';
     } else if (pointer.tool === 'hand') {
       canvas.style.cursor = 'grab';
@@ -189,7 +189,7 @@ export default function Canvas({
     const ctx = layerCanvas.getContext('2d');
     if (!ctx) return;
 
-    if (pointer.tool === 'eraser') {
+    if (pointer.tool === 'eraser' && pointer.drawingMode !== 'erase-soft') {
       ctx.globalCompositeOperation = 'destination-out';
       ctx.strokeStyle = 'rgba(0,0,0,1)';
       ctx.lineWidth = pointer.lineWidth;
@@ -200,7 +200,7 @@ export default function Canvas({
       ctx.moveTo(fromPos.x, fromPos.y);
       ctx.lineTo(toPos.x, toPos.y);
       ctx.stroke();
-    } else if (pointer.tool === 'brush') {
+    } else if (['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(pointer.tool)) {
       if (pointer.drawingMode === 'erase-soft') {
         // ソフト消しゴムモード
         drawWithEraseSoft(ctx, fromPos, toPos);
@@ -729,7 +729,7 @@ export default function Canvas({
       onSelectionUpdate?.();
       onSelectionStart?.();
       startAnimation();
-    } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
+    } else if (['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(pointer.tool)) {
       historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
 
       drawingRef.current = true;
@@ -758,7 +758,7 @@ export default function Canvas({
         selectionState.lassoPoints.push({ x, y });
       }
       onSelectionUpdate?.();
-    } else if ((pointer.tool === 'brush' || pointer.tool === 'eraser') && drawingRef.current && lastPosRef.current) {
+    } else if (['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(pointer.tool) && drawingRef.current && lastPosRef.current) {
       drawOnCurrentLayer(lastPosRef.current, { x, y });
       lastPosRef.current = { x, y };
     } else if (pointer.tool === 'hand' && panningRef.current) {
@@ -799,7 +799,7 @@ export default function Canvas({
       } else {
         onSelectionEnd?.();
       }
-    } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
+    } else if (['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(pointer.tool)) {
       drawingRef.current = false;
       lastPosRef.current = null;
     } else if (pointer.tool === 'hand') {
