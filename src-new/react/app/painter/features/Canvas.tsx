@@ -10,6 +10,9 @@ import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/p
 interface CanvasProps {
   view?: PainterView;
   pointer: PainterPointer;
+  zoom: number;
+  rotation: number;
+  containerRef: React.RefObject<HTMLDivElement>;
   selectionState: SelectionState;
   onSelectionStart?: () => void;
   onSelectionUpdate?: () => void;
@@ -19,6 +22,9 @@ interface CanvasProps {
 export default function Canvas({
   view,
   pointer,
+  zoom,
+  rotation,
+  containerRef,
   selectionState,
   onSelectionStart,
   onSelectionUpdate,
@@ -60,6 +66,20 @@ export default function Canvas({
   const startYRef = useRef(0);
   const drawingRef = useRef(false);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
+  const panningRef = useRef(false);
+  const panLastRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    if (['brush', 'eraser', 'selection'].includes(pointer.tool)) {
+      canvas.style.cursor = 'crosshair';
+    } else if (pointer.tool === 'hand') {
+      canvas.style.cursor = 'grab';
+    } else {
+      canvas.style.cursor = 'default';
+    }
+  }, [pointer.tool]);
 
   useEffect(() => {
     if (view?._painterData?.canvasWidth && view?._painterData?.canvasHeight) {
@@ -341,6 +361,12 @@ export default function Canvas({
       drawingRef.current = true;
       lastPosRef.current = { x, y };
       drawOnCurrentLayer({ x, y }, { x, y });
+    } else if (pointer.tool === 'hand') {
+      panningRef.current = true;
+      panLastRef.current = { x: e.clientX, y: e.clientY };
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = 'grabbing';
+      }
     }
   };
 
@@ -361,6 +387,10 @@ export default function Canvas({
     } else if ((pointer.tool === 'brush' || pointer.tool === 'eraser') && drawingRef.current && lastPosRef.current) {
       drawOnCurrentLayer(lastPosRef.current, { x, y });
       lastPosRef.current = { x, y };
+    } else if (pointer.tool === 'hand' && panningRef.current && containerRef.current) {
+      containerRef.current.scrollLeft -= e.clientX - panLastRef.current.x;
+      containerRef.current.scrollTop -= e.clientY - panLastRef.current.y;
+      panLastRef.current = { x: e.clientX, y: e.clientY };
     }
   };
 
@@ -392,6 +422,11 @@ export default function Canvas({
     } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
       drawingRef.current = false;
       lastPosRef.current = null;
+    } else if (pointer.tool === 'hand') {
+      panningRef.current = false;
+      if (canvasRef.current) {
+        canvasRef.current.style.cursor = 'grab';
+      }
     }
   };
 
@@ -403,9 +438,10 @@ export default function Canvas({
           width={canvasSize.width}
           height={canvasSize.height}
           className="border border-modifier-border max-w-full max-h-full"
-          style={{ 
+          style={{
             display: 'block',
-            objectFit: 'contain'
+            objectFit: 'contain',
+            transform: `scale(${zoom / 100}) rotate(${rotation}deg)`
           }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
