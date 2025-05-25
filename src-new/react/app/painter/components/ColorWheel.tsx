@@ -106,6 +106,7 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
       const sat = (clampedX + halfSquare) / squareSize;
       const light = 1 - (clampedY + halfSquare) / squareSize;
       onChange(hue, sat, light * 100);
+    }
   }
 
   return (
