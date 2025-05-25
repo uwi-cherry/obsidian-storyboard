@@ -69,17 +69,8 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         
         // ストーリーボードデータを取得（source_markdownから）
         const sourceMarkdown = projectData.timeline.metadata?.source_markdown;
-        if (sourceMarkdown) {
-          try {
-            const storyboardResult = await toolRegistry.executeTool('load_storyboard_data', {
-              app,
-              markdown: sourceMarkdown
-            });
-            setStoryboardData(JSON.parse(storyboardResult));
-          } catch (error) {
-            console.error('Failed to parse storyboard data:', error);
-          }
-        }
+        console.log('Source markdown:', sourceMarkdown);
+        console.log('Storyboard data loading temporarily disabled for debugging');
       } catch (error) {
         console.error(error);
       }
@@ -173,11 +164,11 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
       </div>
       
       {/* ストーリーボードトラック */}
-      {storyboardData && (
-        <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
-          <div className="font-semibold text-sm text-purple-400">ストーリーボード</div>
-          <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
-            {storyboardData.chapters.flatMap(chapter => 
+      <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
+        <div className="font-semibold text-sm text-purple-400">ストーリーボード</div>
+        <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
+          {storyboardData ? (
+            storyboardData.chapters.flatMap(chapter => 
               chapter.frames.filter(frame => frame.startTime !== undefined && frame.duration !== undefined)
             ).map((frame, idx) => (
               <div
@@ -191,10 +182,14 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
               >
                 {frame.speaker}
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <div className="flex items-center justify-center h-full text-xs text-text-muted">
+              ストーリーボードデータなし
+            </div>
+          )}
         </div>
-      )}
+      </div>
       
       {project.timeline.tracks.map((track, tIdx) => (
         <div
