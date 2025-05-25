@@ -77,7 +77,11 @@ namespace Internal {
     }
   } as const;
 
-  function convertPsdLayerToCanvas(psdLayer: any, defaultWidth: number, defaultHeight: number): HTMLCanvasElement {
+  function convertPsdLayerToCanvas(
+    psdLayer: any,
+    defaultWidth: number,
+    defaultHeight: number
+  ): { canvas: HTMLCanvasElement; width: number; height: number } {
     const layerWidth = psdLayer.canvas?.width || psdLayer.width || defaultWidth;
     const layerHeight = psdLayer.canvas?.height || psdLayer.height || defaultHeight;
     
@@ -89,7 +93,7 @@ namespace Internal {
       height: layerHeight
     });
     
-    return toCanvas(psdLayer, layerWidth, layerHeight);
+    return { canvas: toCanvas(psdLayer, layerWidth, layerHeight), width: layerWidth, height: layerHeight };
   }
 
   export async function executeLoadPainterFile(args: LoadPainterFileInput): Promise<string> {
@@ -115,7 +119,8 @@ namespace Internal {
           canvasType: typeof layer.canvas
         });
         
-        const canvas = convertPsdLayerToCanvas(layer, psd.width, psd.height);
+        const converted = convertPsdLayerToCanvas(layer, psd.width, psd.height);
+        const canvas = converted.canvas;
         const isDom = typeof HTMLCanvasElement !== 'undefined';
         console.log(
           '🔍 作成されたCanvas:',

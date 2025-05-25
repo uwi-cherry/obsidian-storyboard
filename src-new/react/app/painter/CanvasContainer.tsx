@@ -7,6 +7,18 @@ import Canvas from './features/Canvas';
 import ColorProperties from './features/ColorProperties';
 import ToolProperties from './features/ToolProperties';
 
+import TransformEditOverlay from './features/TransformEditOverlay';
+import { useLayersStore } from 'src-new/obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from 'src-new/obsidian-api/zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from 'src-new/obsidian-api/zustand/store/painter-history-store';
+
+interface SelectionRect {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 interface Props {
   pointer: PainterPointer;
   layers?: any[];
@@ -32,6 +44,7 @@ export default function CanvasContainer({
   const [, setSelectionVersion] = useState(0);
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
+  const [editRect, setEditRect] = useState<SelectionRect | undefined>();
   
   const { layoutDirection } = usePainterLayoutStore();
 
@@ -59,9 +72,74 @@ export default function CanvasContainer({
     setMenuMode('global');
   };
 
+  const startEdit = () => {
+    let rect = selectionRect;
+    if (!rect) {
+      if (view?._canvas) {
+        rect = { x: 0, y: 0, width: view._canvas.width, height: view._canvas.height };
+      }
+    }
+    if (!rect) return;
+    setEditRect(rect);
+    setSelectionRect(undefined);
+    setMenuMode('hidden');
+  };
+
+  const finishEdit = () => {
+    setEditRect(undefined);
+    setMenuMode('global');
+  };
+
   const actionHandlers = {
-    fill: () => {},
-    clear: () => {},
+    fill: () => {
+      const layersStore = useLayersStore.getState();
+      const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
+      const historyStore = usePainterHistoryStore.getState();
+
+      const layers = layersStore.layers;
+      const index = currentLayerIndexStore.currentLayerIndex;
+      const layer = layers[index];
+      if (!layer || !layer.canvas) return;
+
+      // 履歴に現在の状態を保存
+      historyStore.saveHistory(layers, index);
+
+      const ctx = layer.canvas.getContext('2d');
+      if (!ctx) return;
+
+      const rect = selectionRect
+        ? selectionRect
+        : { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+
+      ctx.fillStyle = pointer.color;
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+
+      layersStore.setLayers([...layers]);
+    },
+    clear: () => {
+      const layersStore = useLayersStore.getState();
+      const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
+      const historyStore = usePainterHistoryStore.getState();
+
+      const layers = layersStore.layers;
+      const index = currentLayerIndexStore.currentLayerIndex;
+      const layer = layers[index];
+      if (!layer || !layer.canvas) return;
+
+      // 履歴に現在の状態を保存
+      historyStore.saveHistory(layers, index);
+
+      const ctx = layer.canvas.getContext('2d');
+      if (!ctx) return;
+
+      const rect = selectionRect
+        ? selectionRect
+        : { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+
+      ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
+
+      layersStore.setLayers([...layers]);
+    },
     cancel: cancelSelection
   };
 
@@ -121,6 +199,15 @@ export default function CanvasContainer({
             mode={menuMode}
             position={menuPos}
             isFloating={true}
+          />
+        )}
+
+        {editRect && (
+          <TransformEditOverlay
+            rect={editRect}
+            layers={layers}
+            currentLayerIndex={currentLayerIndex}
+            onFinish={finishEdit}
           />
         )}
       </div>
