@@ -165,7 +165,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     };
 
     processFile();
-  }, []); // 依存配列を空にして一度だけ実行
+  }, [view?.file?.path, app]); // ファイルパスとappが変更された時に実行
 
   const containerClass = layoutDirection === 'horizontal' 
     ? "flex w-full h-full overflow-hidden"

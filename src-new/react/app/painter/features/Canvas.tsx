@@ -105,7 +105,7 @@ export default function Canvas({
           const originalCompositeOperation = ctx.globalCompositeOperation;
           if (layer.blendMode && layer.blendMode !== 'normal') {
             try {
-              ctx.globalCompositeOperation = layer.blendMode;
+              ctx.globalCompositeOperation = layer.blendMode as GlobalCompositeOperation;
             } catch (e) {
               console.error(e);
             }
@@ -147,7 +147,7 @@ export default function Canvas({
       }
       ctx.restore();
     }
-  }, [layers, currentLayerIndex, selectionState, animationTick]);
+  }, [layers, currentLayerIndex, selectionState, animationTick, canvasSize]);
 
   const getPointerPos = (e: React.PointerEvent) => {
     const canvas = canvasRef.current;
