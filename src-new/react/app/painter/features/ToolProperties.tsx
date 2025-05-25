@@ -6,10 +6,14 @@ interface ToolProps {
   tool: string;
   lineWidth: number;
   selectionMode: 'rect' | 'lasso' | 'magic';
+  colorMixMode: 'normal' | 'spectral';
+  colorMixerHasColor: boolean;
   zoom: number;
   rotation: number;
   setLineWidth: (w: number) => void;
   setSelectionMode: (m: 'rect' | 'lasso' | 'magic') => void;
+  setColorMixMode: (m: 'normal' | 'spectral') => void;
+  setColorMixerHasColor: (hasColor: boolean) => void;
   setZoom: (z: number) => void;
   setRotation: (r: number) => void;
   layoutDirection: LayoutDirection;
@@ -19,10 +23,14 @@ export default function ToolProperties({
   tool,
   lineWidth,
   selectionMode,
+  colorMixMode,
+  colorMixerHasColor,
   zoom,
   rotation,
   setLineWidth,
   setSelectionMode,
+  setColorMixMode,
+  setColorMixerHasColor,
   setZoom,
   setRotation,
   layoutDirection
@@ -48,10 +56,37 @@ export default function ToolProperties({
       )}
 
       {tool === 'color-mixer' && (
-        <div className="flex flex-col gap-1">
-          <div className="text-text-muted text-xs">色混ぜモード</div>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">混色モード:</div>
+            <select
+              className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
+              value={colorMixMode}
+              onChange={e => setColorMixMode(e.target.value as 'normal' | 'spectral')}
+            >
+              <option value="normal">通常混色</option>
+              <option value="spectral">スペクトラル混色</option>
+            </select>
+          </div>
+          
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="colorMixerHasColor"
+              checked={colorMixerHasColor}
+              onChange={e => setColorMixerHasColor(e.target.checked)}
+              className="w-4 h-4"
+            />
+            <label htmlFor="colorMixerHasColor" className="text-text-muted text-xs">
+              ツールに色を付ける
+            </label>
+          </div>
+          
           <div className="text-text-muted text-xs">
-            キャンバス上の色と選択した色をスペクトラル混色します
+            {colorMixerHasColor 
+              ? `${colorMixMode === 'spectral' ? 'スペクトラル' : '通常'}混色で既存色と混ぜます`
+              : 'ペンエリア内の色をにじませて混色します'
+            }
           </div>
         </div>
       )}

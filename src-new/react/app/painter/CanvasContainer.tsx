@@ -213,10 +213,14 @@ export default function CanvasContainer({
           tool={pointer.tool}
           lineWidth={pointer.lineWidth}
           selectionMode={pointer.selectionMode}
+          colorMixMode={pointer.colorMixMode}
+          colorMixerHasColor={pointer.colorMixerHasColor}
           zoom={zoom}
           rotation={rotation}
           setLineWidth={pointer.setLineWidth}
           setSelectionMode={pointer.setSelectionMode}
+          setColorMixMode={pointer.setColorMixMode}
+          setColorMixerHasColor={pointer.setColorMixerHasColor}
           setZoom={setZoom}
           setRotation={setRotation}
           layoutDirection={layoutDirection}
