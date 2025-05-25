@@ -16,11 +16,9 @@ export class TimelinePlugin {
     this.plugin.registerView('timeline-view', (leaf) => this.factory.createTimelineView(leaf));
     this.plugin.registerExtensions(['otio', 'timeline'], 'timeline-view');
     
-    
     this.plugin.register(() => {
       this.plugin.app.workspace.detachLeavesOfType('timeline-view');
     });
   }
-
 
 } 

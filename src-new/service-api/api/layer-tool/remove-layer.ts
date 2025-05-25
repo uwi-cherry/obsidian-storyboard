@@ -33,16 +33,13 @@ namespace Internal {
       return 'no-op';
     }
     
-    // 操作前の状態を履歴に保存
     historyStore.saveHistory(layers, currentLayerIndex);
     
-    // レイヤーを削除
     layersStore.removeLayer(index);
     
-    // 現在のレイヤーインデックスを調整
     let newCurrentIndex = currentLayerIndex;
     if (newCurrentIndex >= layers.length - 1) {
-      newCurrentIndex = layers.length - 2; // 削除後の長さに合わせる
+      newCurrentIndex = layers.length - 2;
     }
     currentLayerIndexStore.setCurrentLayerIndex(newCurrentIndex);
     

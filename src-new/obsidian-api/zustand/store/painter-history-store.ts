@@ -13,7 +13,6 @@ interface PainterHistoryState {
   currentIndex: number;
   maxHistorySize: number;
   
-  // アクション
   saveHistory: (layers: Layer[], currentLayerIndex: number) => void;
   undo: () => HistorySnapshot | null;
   redo: () => HistorySnapshot | null;
@@ -30,7 +29,6 @@ export const usePainterHistoryStore = create<PainterHistoryState>((set, get) => 
   saveHistory: (layers, currentLayerIndex) => {
     const state = get();
     
-    // レイヤーのディープコピーを作成（Canvasも含む）
     const layersCopy = layers.map(layer => {
       const canvas = document.createElement('canvas');
       canvas.width = layer.canvas.width;
@@ -51,11 +49,9 @@ export const usePainterHistoryStore = create<PainterHistoryState>((set, get) => 
       timestamp: Date.now()
     };
     
-    // 現在のインデックス以降の履歴を削除
     const newHistory = state.history.slice(0, state.currentIndex + 1);
     newHistory.push(snapshot);
     
-    // 最大履歴サイズを超えた場合は古いものを削除
     if (newHistory.length > state.maxHistorySize) {
       newHistory.shift();
     } else {

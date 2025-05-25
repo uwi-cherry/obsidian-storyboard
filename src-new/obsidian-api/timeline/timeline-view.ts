@@ -43,7 +43,6 @@ export class TimelineView extends FileView {
     console.log('🔥 TimelineView: ファイルを設定:', file.path);
     this.file = file;
     
-    // Reactコンポーネントを再レンダリング
     this.renderReact();
   }
 

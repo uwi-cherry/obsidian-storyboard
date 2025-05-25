@@ -14,7 +14,6 @@ export class RightSidebarPlugin {
   initialize(): void {
     this.plugin.registerView(RIGHT_SIDEBAR_VIEW_TYPE, (leaf) => this.factory.createRightSidebarView(leaf));
 
-
     this.plugin.app.workspace.onLayoutReady(() => {
       this.activateRightSidebar();
     });

@@ -41,7 +41,6 @@ const BGMCreationInput: React.FC<BGMCreationInputProps> = ({
     ? t('NEW_CHAPTER_BGM_LABEL') 
     : t('BGM_LABEL');
 
-  // 新チャプター用のテーブルレイアウト
   if (isNewChapter && columnsCount !== undefined) {
     return (
       <table className="w-full border-collapse border border-modifier-border mb-4 table-fixed">
@@ -66,7 +65,6 @@ const BGMCreationInput: React.FC<BGMCreationInputProps> = ({
     );
   }
 
-  // 既存チャプター用のdivレイアウト
   return (
     <div className={`flex items-center gap-2 p-2 border border-modifier-border rounded bg-secondary ${className}`}>
       <div className="flex items-center gap-2 flex-1">

@@ -115,7 +115,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onArrowDown: focusNextCellPrompt,
   });
 
-  
   const handleThumbnailDoubleClick = async () => {
     if (!imageUrl?.endsWith('.psd')) return;
     const file = app.vault.getAbstractFileByPath(imageUrl);
@@ -126,7 +125,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     }
   };
 
-  
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -152,7 +150,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       path = newFile.path;
     }
 
-    
     const ext = path.toLowerCase().split('.').pop();
     if (ext && ['png', 'jpg', 'jpeg', 'gif', 'webp'].includes(ext)) {
       const imageFile = app.vault.getAbstractFileByPath(path);
@@ -174,7 +171,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onImageUrlChange(path);
   };
 
-  
   const handleClearPath = () => {
     
     setThumbnail(null);
@@ -183,7 +179,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     onImageUrlChange('');
   };
 
-  
   const handleAiGenerate = async () => {
     if (isGenerating) return; 
 
@@ -192,7 +187,6 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       return;
     }
 
-    
     new Notice('AI生成機能は実装予定です');
   };
 

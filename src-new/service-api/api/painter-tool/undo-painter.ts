@@ -5,7 +5,6 @@ import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/c
 
 namespace Internal {
   export interface UndoPainterInput {
-    // パラメータは不要（グローバルストアを使用）
   }
 
   export const UNDO_PAINTER_METADATA = {
@@ -27,7 +26,6 @@ namespace Internal {
     
     const snapshot = historyStore.undo();
     if (snapshot) {
-      // レイヤーストアを更新
       useLayersStore.getState().setLayers(snapshot.layers);
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(snapshot.currentLayerIndex);
       

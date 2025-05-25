@@ -43,12 +43,10 @@ export class PainterView extends FileView {
     console.log('🔥 PainterView: ファイルを設定:', file.path);
     this.file = file;
     
-    // Reactコンポーネントを再レンダリング
     this.renderReact();
   }
 
   async onOpen(): Promise<void> {
-    // Undo / Redo アクション（Obsidian ヘッダー）
     const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
       try {
         await toolRegistry.executeTool('redo_painter', {});

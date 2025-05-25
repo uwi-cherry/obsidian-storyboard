@@ -128,7 +128,6 @@ export default function LayerControls() {
         {t('LAYERS')}
       </div>
 
-      
       {layers[currentLayerIndex] && (
         <div className="flex items-center gap-2 mb-2">
           <button
@@ -189,7 +188,6 @@ export default function LayerControls() {
         </div>
       )}
 
-      
       <div className="space-y-1">
         {layers.slice().reverse().map((layer, reverseIdx) => {
           const idx = layers.length - 1 - reverseIdx;

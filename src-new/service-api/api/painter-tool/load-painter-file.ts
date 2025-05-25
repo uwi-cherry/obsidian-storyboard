@@ -4,7 +4,6 @@ import * as agPsd from 'ag-psd';
 import { Layer } from '../../../types/painter-types';
 
 function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
-  // DOM環境でない場合はダミーのキャンバスオブジェクトを返す
   if (typeof document === 'undefined' || typeof HTMLCanvasElement === 'undefined') {
     return obj as HTMLCanvasElement;
   }
@@ -16,17 +15,14 @@ function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
   const ctx = canvas.getContext('2d');
   if (!ctx) return canvas;
   
-  // ag-psdから取得したキャンバスデータがある場合
   if (
     obj &&
     obj.canvas &&
     typeof HTMLCanvasElement !== 'undefined' &&
     obj.canvas instanceof HTMLCanvasElement
   ) {
-    // 既存のキャンバスからデータをコピー
     ctx.drawImage(obj.canvas, 0, 0);
   } else if (obj && obj.canvas && obj.canvas.data) {
-    // ImageDataとしてデータがある場合
     try {
       const imageData = new ImageData(
         new Uint8ClampedArray(obj.canvas.data), 
@@ -38,7 +34,6 @@ function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
       console.warn('ImageData作成エラー:', error);
     }
   } else if (obj && obj.data) {
-    // 直接データがある場合
     try {
       const imageData = new ImageData(
         new Uint8ClampedArray(obj.data), 
@@ -50,7 +45,6 @@ function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
       console.warn('ImageData作成エラー:', error);
     }
   } else {
-    // データがない場合は白い背景で初期化
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, width, height);
   }

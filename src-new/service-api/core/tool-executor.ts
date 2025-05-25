@@ -1,13 +1,11 @@
 import { Tool } from './tool';
 import { ToolsConfiguration } from './tool-config-types';
 
-
 namespace Internal {
   export let config: ToolsConfiguration;
   export let tools: Map<string, Tool>;
   export let aiEnabledTools: Set<string>;
 
-  
   export function initialize(
     toolsMap: Map<string, Tool>, 
     aiToolsSet: Set<string>, 
@@ -19,7 +17,6 @@ namespace Internal {
   }
 }
 
-
 export class ToolExecutor {
   
   static initialize(
@@ -30,7 +27,6 @@ export class ToolExecutor {
     Internal.initialize(tools, aiEnabledTools, config);
   }
 
-  
   static async executeTool(name: string, args: any): Promise<string> {
     const tool = Internal.tools.get(name);
     if (!tool) {
@@ -52,17 +48,14 @@ export class ToolExecutor {
     }
   }
 
-  
   static isAiEnabled(name: string): boolean {
     return Internal.aiEnabledTools.has(name);
   }
 
-  
   static hasToolRegistered(name: string): boolean {
     return Internal.tools.has(name);
   }
 
-  
   static getTool(name: string): Tool | undefined {
     return Internal.tools.get(name);
   }

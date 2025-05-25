@@ -3,8 +3,8 @@ import { hslToRgb } from './color';
 
 interface ColorWheelProps {
   hue: number;
-  saturation: number; // 0-1
-  lightness: number; // 0-100
+  saturation: number;
+  lightness: number;
   onChange: (h: number, s: number, l: number) => void;
   size?: number;
 }
@@ -39,7 +39,6 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
           continue;
         }
         if (dist >= innerRadius) {
-          // 色相リング
           let angle = Math.atan2(dy, dx);
           if (angle < 0) angle += Math.PI * 2;
           const h = (angle * 180) / Math.PI;
@@ -49,7 +48,6 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
           data[idx + 2] = b;
           data[idx + 3] = 255;
         } else if (Math.abs(dx) <= halfSquare && Math.abs(dy) <= halfSquare) {
-          // 中央の四角形 (彩度 x 輝度)
           const sat = (dx + halfSquare) / squareSize;
           const light = 1 - (dy + halfSquare) / squareSize;
           const { r, g, b } = hslToRgb(hue, sat * 100, light * 100);
@@ -65,7 +63,6 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
 
     ctx.putImageData(image, 0, 0);
 
-    // 色相リングのポインタ
     const hueRad = (hue * Math.PI) / 180;
     const ringRadius = radius - ringWidth / 2;
     const hx = radius + ringRadius * Math.cos(hueRad);
@@ -77,7 +74,6 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     ctx.arc(hx, hy, 4, 0, Math.PI * 2);
     ctx.stroke();
 
-    // 四角形のポインタ
     const sx = radius - halfSquare + saturation * squareSize;
     const sy = radius - halfSquare + (1 - lightness / 100) * squareSize;
     ctx.strokeRect(sx - 3, sy - 3, 6, 6);
@@ -93,12 +89,10 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     const dist = Math.sqrt(x * x + y * y);
 
     if (dist >= innerRadius && dist <= radius) {
-      // 色相リング
       let angle = Math.atan2(y, x);
       if (angle < 0) angle += Math.PI * 2;
       onChange((angle * 180) / Math.PI, saturation, lightness);
     } else if (dist < innerRadius) {
-      // 中央の四角形
       const squareSize = innerRadius * Math.SQRT2;
       const halfSquare = squareSize / 2;
       const clampedX = Math.max(-halfSquare, Math.min(halfSquare, x));

@@ -11,12 +11,10 @@ const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap
 
 export class StoryboardFactory {
 
-
   injectStoryboardCapability(leaf: WorkspaceLeaf): void {
     if (!(leaf.view instanceof MarkdownView)) return;
     const view = leaf.view;
     
-
     if (view.file?.extension === 'storyboard') {
       viewModes.set(leaf, 'markdown');
     }
@@ -49,7 +47,6 @@ export class StoryboardFactory {
         factory: this
       });
     } catch (error) {
-
 
     }
   }

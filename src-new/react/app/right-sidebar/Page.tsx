@@ -33,31 +33,26 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [view?.app]);
 
-  // current-psd-file-storeの変化を監視してレイヤーを読み込み
   useEffect(() => {
     if (!app) return;
 
     if (!currentPsdFile) {
-      // PSDファイルがない場合はレイヤーをクリア
       useLayersStore.getState().clearLayers();
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
       setCurrentFile(null);
       return;
     }
 
-    // PainterPageで既に読み込み処理が行われるため、ここでは状態の同期のみ行う
     setCurrentFile(currentPsdFile);
     console.log('🔍 RightSidebar: PSDファイル状態を同期:', currentPsdFile.path);
   }, [currentPsdFile, app]);
 
-  
   useEffect(() => {
     const handlePsdFileOpened = async (e: Event) => {
       const custom = e as CustomEvent;
       const { file } = custom.detail || {};
       if (!file || !app) return;
 
-      // PainterPageで読み込み処理が行われるため、ここでは状態の同期のみ
       setCurrentFile(file);
       console.log('🔍 RightSidebar: PSDファイルオープンイベント受信:', file.path);
     };
@@ -68,7 +63,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [app]);
 
-  // デバッグ: レイヤー状態をログ出力
   useEffect(() => {
     console.log('🔍 RightSidebar: レイヤー状態変化:', {
       layers: layers,
@@ -79,7 +73,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
   }, [layers, currentPsdFile, isPsdPainterOpen]);
 
   const handleImageChange = (url: string | null) => {
-    
     
   };
 
@@ -122,7 +115,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     
   };
 
-  
   const currentImageUrl = selectedFrame?.imageUrl || null;
 
   console.log('🔍 RightSidebar: レンダリング時の状態:', {

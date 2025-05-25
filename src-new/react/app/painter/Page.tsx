@@ -27,15 +27,12 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const [rotation, setRotation] = useState<number>(0);
   const { layoutDirection } = usePainterLayoutStore();
   
-  // ペインター内で直接管理するレイヤーデータ
   const [layers, setLayers] = useState<any[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
 
-  // zustandストアからの値を監視
   const zustandLayers = useLayersStore((state) => state.layers);
   const zustandCurrentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
 
-  // zustandからの変更をローカルstateとviewに反映
   useEffect(() => {
     console.log('🔄 PainterPage: zustandレイヤー変更検知:', zustandLayers.length, 'レイヤー');
     if (zustandLayers.length > 0) {
@@ -54,11 +51,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     }
   }, [zustandCurrentLayerIndex, view]);
 
-  // レイヤーデータが設定された後に初期履歴を保存
   useEffect(() => {
     if (zustandLayers.length > 0) {
       const historyStore = usePainterHistoryStore.getState();
-      // 履歴が空の場合のみ初期履歴を保存
       if (historyStore.history.length === 0) {
         historyStore.saveHistory(zustandLayers, zustandCurrentLayerIndex);
         console.log('📝 初期履歴を保存しました:', zustandLayers.length, 'レイヤー');
@@ -66,7 +61,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     }
   }, [zustandLayers, zustandCurrentLayerIndex]);
 
-  // PSDファイルが開かれた時に適切なツールを実行
   useEffect(() => {
     console.log('🔍 PainterPage: useEffect発火 - view:', view, 'app:', app);
     console.log('🔍 PainterPage: view.file:', view?.file);
@@ -90,16 +84,13 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     if (view.file.extension === 'psd') {
       console.log('🔍 PainterPage: PSDファイルが開かれました:', view.file.path);
       
-      // current-psd-file-storeを更新（サイドバーとの連携用）
       useLayersStore.getState().setCurrentPsdFile(view.file);
       console.log('🔍 PainterPage: current-psd-file-storeを設定しました:', view.file.path);
       
-      // PSDファイルを読み込んでレイヤーデータを取得
       const loadPsdFile = async () => {
         try {
           console.log('🔍 PainterPage: PSDファイル読み込み開始');
           
-          // 初期読み込み開始を設定
           useLayersStore.getState().setInitialLoad(true);
           
           const result = await toolRegistry.executeTool('load_painter_file', {
@@ -109,7 +100,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           
           const psdData = JSON.parse(result);
           
-          // DataURLからCanvasに変換
           const layersWithCanvas = await Promise.all(psdData.layers.map(async (layer: any) => {
             const canvas = document.createElement('canvas');
             canvas.width = layer.width || psdData.width;
@@ -145,7 +135,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           
           console.log('🔍 変換後のレイヤー:', layersWithCanvas.length, '個');
           
-          // ビューにレイヤーデータを設定
           view.layers = layersWithCanvas;
           view.currentLayerIndex = 0;
           view._painterData = {
@@ -155,14 +144,11 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             canvasHeight: psdData.height
           };
           
-          // 履歴をクリアしてから新しいデータを設定
           usePainterHistoryStore.getState().clearHistory();
           
-          // zustandストアのみを更新（useEffectでローカルstateに反映される）
           useLayersStore.getState().setLayers(layersWithCanvas);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
           
-          // 初期読み込み完了を設定（少し遅延させて確実に処理を完了させる）
           setTimeout(() => {
             useLayersStore.getState().setInitialLoad(false);
             console.log('🔍 PainterPage: 初期読み込み完了フラグを設定');
@@ -173,18 +159,13 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         } catch (error) {
           console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
           
-          // エラー時も初期読み込みフラグをリセット
           useLayersStore.getState().setInitialLoad(false);
           
-          // エラーの場合は初期化ツールを実行
           try {
             await toolRegistry.executeTool('initialize_painter_data', { view });
-            // 初期化されたデータを取得
             if (view.layers) {
-              // 履歴をクリアしてから新しいデータを設定
               usePainterHistoryStore.getState().clearHistory();
               
-              // zustandストアのみを更新
               useLayersStore.getState().setLayers(view.layers);
               useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
             }
@@ -200,16 +181,12 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       console.log('🔍 PainterPage: PSDファイルではありません:', view.file.extension);
       useLayersStore.getState().clearCurrentPsdFile();
       
-      // PSDファイルでない場合は初期化
       const initializePainter = async () => {
         try {
           await toolRegistry.executeTool('initialize_painter_data', { view });
-          // 初期化されたデータを取得
           if (view.layers) {
-            // 履歴をクリアしてから新しいデータを設定
             usePainterHistoryStore.getState().clearHistory();
             
-            // zustandストアのみを更新
             useLayersStore.getState().setLayers(view.layers);
             useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
           }
