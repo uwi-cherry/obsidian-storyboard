@@ -16,6 +16,8 @@ export const TOOL_NAMES = {
   GENERATE_THUMBNAIL: 'generate_thumbnail',
   UNDO_PAINTER: 'undo_painter',
   REDO_PAINTER: 'redo_painter',
+  FILL_PAINTER: 'fill_painter',
+  CLEAR_PAINTER: 'clear_painter',
   
   // レイヤー関連
   ADD_LAYER: 'add_layer',
@@ -126,6 +128,22 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "redoPainterTool",
       ai_enabled: false,
       description: "Redo painter view",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.FILL_PAINTER,
+      modulePath: "../../src-new/service-api/api/painter-tool/fill-painter",
+      exportName: "fillPainterTool",
+      ai_enabled: false,
+      description: "Fill area on all layers",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.CLEAR_PAINTER,
+      modulePath: "../../src-new/service-api/api/painter-tool/clear-painter",
+      exportName: "clearPainterTool",
+      ai_enabled: false,
+      description: "Clear area on all layers",
       category: TOOL_CATEGORIES.PAINTER
     },
     {

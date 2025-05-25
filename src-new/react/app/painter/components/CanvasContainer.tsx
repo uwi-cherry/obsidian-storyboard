@@ -5,6 +5,7 @@ import ColorProperties from './ColorProperties';
 import ActionProperties from './ActionProperties';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
 import { usePainterLayoutStore } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
+import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
 interface SelectionRect {
   x: number;
@@ -63,8 +64,19 @@ export default function CanvasContainer({
   };
 
   const actionHandlers = {
-    fill: () => {},
-    clear: () => {},
+    fill: async () => {
+      await toolRegistry.executeTool('fill_painter', {
+        color: pointer.color,
+        rect: selectionRect
+      });
+      cancelSelection();
+    },
+    clear: async () => {
+      await toolRegistry.executeTool('clear_painter', {
+        rect: selectionRect
+      });
+      cancelSelection();
+    },
     cancel: cancelSelection
   };
 

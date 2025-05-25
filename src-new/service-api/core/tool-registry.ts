@@ -14,6 +14,8 @@ import { redoPainterTool } from '../api/painter-tool/redo-painter';
 import { loadPainterFileTool } from '../api/painter-tool/load-painter-file';
 import { savePainterFileTool } from '../api/painter-tool/save-painter-file';
 import { generateThumbnailTool } from '../api/painter-tool/generate-thumbnail';
+import { fillPainterTool } from '../api/painter-tool/fill-painter';
+import { clearPainterTool } from '../api/painter-tool/clear-painter';
 import { removeLayerTool } from '../api/layer-tool/remove-layer';
 import { setLayerOpacityTool } from '../api/layer-tool/set-layer-opacity';
 import { setLayerBlendModeTool } from '../api/layer-tool/set-layer-blend-mode';
@@ -39,6 +41,8 @@ namespace Internal {
     [TOOL_NAMES.GENERATE_THUMBNAIL]: generateThumbnailTool,
     [TOOL_NAMES.UNDO_PAINTER]: undoPainterTool,
     [TOOL_NAMES.REDO_PAINTER]: redoPainterTool,
+    [TOOL_NAMES.FILL_PAINTER]: fillPainterTool,
+    [TOOL_NAMES.CLEAR_PAINTER]: clearPainterTool,
     [TOOL_NAMES.ADD_LAYER]: addLayerTool,
     [TOOL_NAMES.REMOVE_LAYER]: removeLayerTool,
     [TOOL_NAMES.SET_LAYER_OPACITY]: setLayerOpacityTool,
