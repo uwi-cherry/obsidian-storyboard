@@ -14,9 +14,11 @@ export class TimelineFactory {
   private renderReactComponent(view: TimelineView): void {
     view.containerEl.empty();
     view.reactRoot = createRoot(view.containerEl);
-    view.reactRoot.render(React.createElement(TimelineReactView, {
-      project: null,
-      onProjectChange: () => {}
-    }));
+    view.reactRoot.render(
+      React.createElement(TimelineReactView, {
+        app: view.app,
+        file: view.file
+      })
+    );
   }
-} 
+}
