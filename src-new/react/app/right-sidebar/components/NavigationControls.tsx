@@ -1,5 +1,5 @@
 import React from 'react';
-import { Notice, App, Menu } from 'obsidian';
+import { Notice, App, Menu, TFile } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
@@ -135,12 +135,24 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
           const newFile = app.vault.getAbstractFileByPath(newFilePath);
           console.log('Found file object:', newFile);
           
-          if (newFile) {
+          if (newFile && newFile instanceof TFile) {
             console.log('Opening renamed file:', newFile.path);
             const leaf = app.workspace.getLeaf();
             console.log('Got leaf:', leaf);
-            await leaf.openFile(newFile as any);
-            console.log('File opened successfully');
+            
+            // ファイルの拡張子に応じて適切なビューで開く
+            if (newFile.extension === 'otio') {
+              // OTIOファイルの場合はタイムラインビューで開く
+              await leaf.setViewState({
+                type: 'timeline-view',
+                state: { file: newFile.path }
+              });
+              console.log('OTIO file opened with timeline view');
+            } else {
+              // その他のファイルは通常通り開く（ストーリーボードファイルはfile-openイベントで自動切り替え）
+              await leaf.openFile(newFile);
+              console.log('File opened successfully');
+            }
           } else {
             console.log('Renamed file not found in vault');
             console.log('Trying alternative search...');
@@ -154,8 +166,20 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
             if (foundFile) {
               console.log('Opening file found by alternative search:', foundFile.path);
               const leaf = app.workspace.getLeaf();
-              await leaf.openFile(foundFile);
-              console.log('Alternative file opened successfully');
+              
+              // ファイルの拡張子に応じて適切なビューで開く
+              if (foundFile.extension === 'otio') {
+                // OTIOファイルの場合はタイムラインビューで開く
+                await leaf.setViewState({
+                  type: 'timeline-view',
+                  state: { file: foundFile.path }
+                });
+                console.log('OTIO file opened with timeline view (alternative)');
+              } else {
+                // その他のファイルは通常通り開く
+                await leaf.openFile(foundFile);
+                console.log('Alternative file opened successfully');
+              }
             }
           }
         } else {
@@ -172,25 +196,37 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
         const parsedResult = JSON.parse(result);
         console.log('Parsed result:', parsedResult);
         
-                 // 変換後のファイルを開く
-         const newFilePath = parsedResult.filePath;
-         console.log('New file path:', newFilePath);
-         console.log('All vault files:', app.vault.getFiles().map(f => f.path));
-         if (newFilePath) {
-           const newFile = app.vault.getAbstractFileByPath(newFilePath);
-           console.log('Found file object:', newFile);
-           if (newFile) {
-             console.log('Opening converted file:', newFile.path);
-             const leaf = app.workspace.getLeaf();
-             console.log('Got leaf:', leaf);
-             await leaf.openFile(newFile as any);
-             console.log('File opened successfully');
-           } else {
-             console.log('Converted file not found in vault');
-           }
-         } else {
-           console.log('No filePath in result');
-         }
+        // 変換後のファイルを開く
+        const newFilePath = parsedResult.filePath;
+        console.log('New file path:', newFilePath);
+        console.log('All vault files:', app.vault.getFiles().map(f => f.path));
+        if (newFilePath) {
+          const newFile = app.vault.getAbstractFileByPath(newFilePath);
+          console.log('Found file object:', newFile);
+          if (newFile && newFile instanceof TFile) {
+            console.log('Opening converted file:', newFile.path);
+            const leaf = app.workspace.getLeaf();
+            console.log('Got leaf:', leaf);
+            
+            // ファイルの拡張子に応じて適切なビューで開く
+            if (newFile.extension === 'otio') {
+              // OTIOファイルの場合はタイムラインビューで開く
+              await leaf.setViewState({
+                type: 'timeline-view',
+                state: { file: newFile.path }
+              });
+              console.log('OTIO file opened with timeline view');
+            } else {
+              // その他のファイルは通常通り開く
+              await leaf.openFile(newFile);
+              console.log('File opened successfully');
+            }
+          } else {
+            console.log('Converted file not found in vault');
+          }
+        } else {
+          console.log('No filePath in result');
+        }
       }
     } catch (error) {
       console.error(`Conversion to ${modeName} failed:`, error);
@@ -229,9 +265,12 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
         const storyboardData = JSON.parse(storyboardResult);
         
         const storyboardFile = app.vault.getAbstractFileByPath(storyboardData.newPath);
-        if (storyboardFile) {
+        if (storyboardFile && storyboardFile instanceof TFile) {
           console.log('Opening STORYBOARD file:', storyboardFile.path);
-          await app.workspace.getLeaf().openFile(storyboardFile as any);
+          const leaf = app.workspace.getLeaf();
+          // ストーリーボードファイルは通常通り開く（file-openイベントで自動切り替え）
+          await leaf.openFile(storyboardFile);
+          console.log('STORYBOARD file opened successfully');
         } else {
           console.log('STORYBOARD file not found in vault');
         }

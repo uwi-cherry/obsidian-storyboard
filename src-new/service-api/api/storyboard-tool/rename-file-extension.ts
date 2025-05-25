@@ -43,10 +43,10 @@ namespace Internal {
     const baseName = file.basename;
 
     let counter = 0;
-    let newPath = parentPath ? `${parentPath}/${baseName}.${newExt}` : `${baseName}.${newExt}`;
+    let newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}.${newExt}` : `${baseName}.${newExt}`;
     while (app.vault.getAbstractFileByPath(newPath)) {
       counter += 1;
-      newPath = parentPath ? `${parentPath}/${baseName}-${counter}.${newExt}` : `${baseName}-${counter}.${newExt}`;
+      newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}-${counter}.${newExt}` : `${baseName}-${counter}.${newExt}`;
     }
 
     try {
