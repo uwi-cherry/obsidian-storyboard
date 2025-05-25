@@ -38,7 +38,6 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
           data[idx + 3] = 0;
           continue;
         }
-
         if (dist >= innerRadius) {
           // 色相リング
           let angle = Math.atan2(dy, dx);
@@ -107,7 +106,6 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
       const sat = (clampedX + halfSquare) / squareSize;
       const light = 1 - (clampedY + halfSquare) / squareSize;
       onChange(hue, sat, light * 100);
-    }
   }
 
   return (
