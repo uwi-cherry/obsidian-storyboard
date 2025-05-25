@@ -9,18 +9,18 @@ interface ToolbarProps {
   onChange: (tool: string) => void;
 }
 
-const TOOLS = [
-  { id: 'pen', title: t('TOOL_PEN'), icon: TOOL_ICONS.pen },
-  { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
-  { id: 'paint-brush', title: t('TOOL_PAINT_BRUSH'), icon: TOOL_ICONS['paint-brush'] },
-  { id: 'color-mixer', title: t('TOOL_COLOR_MIXER'), icon: TOOL_ICONS['color-mixer'] },
-  { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
-  { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
-  { id: 'hand', title: t('TOOL_HAND'), icon: TOOL_ICONS.hand }
-];
-
 export default function Toolbar({ tool, onChange }: ToolbarProps) {
   const { layoutDirection, setLayoutDirection } = usePainterLayoutStore();
+
+  const TOOLS = [
+    { id: 'pen', title: t('TOOL_PEN'), icon: TOOL_ICONS.pen },
+    { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
+    { id: 'paint-brush', title: t('TOOL_PAINT_BRUSH'), icon: TOOL_ICONS['paint-brush'] },
+    { id: 'color-mixer', title: t('TOOL_COLOR_MIXER'), icon: TOOL_ICONS['color-mixer'] },
+    { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
+    { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
+    { id: 'hand', title: t('TOOL_HAND'), icon: TOOL_ICONS.hand }
+  ];
 
   const layoutMenuOptions = [
     {
