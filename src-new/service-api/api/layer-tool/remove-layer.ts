@@ -43,7 +43,6 @@ namespace Internal {
     }
     currentLayerIndexStore.setCurrentLayerIndex(newCurrentIndex);
     
-    console.log('📝 レイヤー削除:', index, '- 履歴保存済み');
     
     return 'layer_removed';
   }

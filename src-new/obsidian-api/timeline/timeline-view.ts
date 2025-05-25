@@ -27,20 +27,16 @@ export class TimelineView extends FileView {
   }
 
   async setState(state: { file: string | null }) {
-    console.log('🔥 TimelineView: setState呼び出し - state:', state);
     
     if (!state.file) {
-      console.log('🔥 TimelineView: ファイルパスが空のためリターン');
       return;
     }
 
     const file = this.app.vault.getAbstractFileByPath(state.file);
     if (!(file instanceof TFile)) {
-      console.log('🔥 TimelineView: ファイルが見つからないためリターン:', state.file);
       return;
     }
 
-    console.log('🔥 TimelineView: ファイルを設定:', file.path);
     this.file = file;
     
     this.renderReact();

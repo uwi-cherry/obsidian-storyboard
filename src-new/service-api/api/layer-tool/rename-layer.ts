@@ -38,7 +38,6 @@ namespace Internal {
     
     layersStore.renameLayer(index, name);
     
-    console.log('📝 レイヤー名変更:', index, '->', name, '- 履歴保存済み');
     
     return 'layer_renamed';
   }

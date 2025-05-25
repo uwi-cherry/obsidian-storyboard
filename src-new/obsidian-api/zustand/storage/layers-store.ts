@@ -80,7 +80,6 @@ export const useLayersStore = create<LayersState>()(
 
 const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
   if (isInitialLoad) {
-    console.log('🔄 初期読み込み中のため自動保存をスキップ');
     return;
   }
 
@@ -91,7 +90,6 @@ const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
     const app = (window as any).app;
     
     if (layers.length > 0 && currentFile && app && currentFile.extension === 'psd') {
-      console.log('🔄 自動保存開始:', currentFile.path, 'レイヤー数:', layers.length);
       
       await toolRegistry.executeTool('save_painter_file', {
         app,
@@ -99,17 +97,14 @@ const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
         layers
       });
       
-      console.log('✅ 自動保存完了:', currentFile.path);
     }
   } catch (error) {
-    console.error('❌ 自動保存エラー:', error);
   }
 }, 5000);
 
 useLayersStore.subscribe(
   (state) => {
     if (state.layers.length > 0) {
-      console.log('🔄 レイヤー変更検知:', state.layers.length, 'レイヤー');
       autoSave(state.layers, state.isInitialLoad);
     }
   }
@@ -119,7 +114,6 @@ useLayersStore.subscribe(
   (state, prevState) => {
     if (prevState.currentPsdFile && 
         (state.currentPsdFile?.path !== prevState.currentPsdFile?.path || state.currentPsdFile === null)) {
-      console.log('🔄 PSDファイル切り替え検知、前のファイルを保存:', prevState.currentPsdFile.path);
       
       const app = (window as any).app;
       
@@ -129,9 +123,7 @@ useLayersStore.subscribe(
           file: prevState.currentPsdFile,
           layers: prevState.layers
         }).then(() => {
-          console.log('✅ 前のPSDファイル保存完了:', prevState.currentPsdFile?.path);
         }).catch((error) => {
-          console.error('❌ 前のPSDファイル保存エラー:', error);
         });
       }
     }
@@ -144,7 +136,6 @@ export async function manualSavePainter() {
   const app = (window as any).app;
   
   if (layersStore.layers.length > 0 && currentPsdFileStore && app && currentPsdFileStore.extension === 'psd') {
-    console.log('🔄 手動保存開始:', currentPsdFileStore.path);
     
     try {
       await toolRegistry.executeTool('save_painter_file', {
@@ -153,14 +144,11 @@ export async function manualSavePainter() {
         layers: layersStore.layers
       });
       
-      console.log('✅ 手動保存完了:', currentPsdFileStore.path);
       return true;
     } catch (error) {
-      console.error('❌ 手動保存エラー:', error);
       return false;
     }
   }
   
-  console.warn('⚠️ 保存条件が満たされていません');
   return false;
 } 

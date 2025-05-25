@@ -245,7 +245,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
       const file = app.vault.getAbstractFileByPath(row.imageUrl);
       if (file instanceof TFile) {
         useLayersStore.getState().setCurrentPsdFile(file);
-        console.log('🔍 Page: current-psd-file-storeを更新:', file.path);
       }
     } else {
       useLayersStore.getState().clearCurrentPsdFile();

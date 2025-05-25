@@ -99,7 +99,6 @@ namespace Internal {
 
     layersStore.addLayer(layer);
 
-    console.log('📝 レイヤー追加:', name, '- 履歴保存済み');
 
     return 'layer_added';
   }
