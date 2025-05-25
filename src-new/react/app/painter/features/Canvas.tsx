@@ -202,10 +202,10 @@ export default function Canvas({
       ctx.stroke();
     } else if (pointer.tool === 'brush') {
       if (pointer.brushHasColor) {
-        // ペンに色を付ける場合
-        drawWithColor(ctx, fromPos, toPos);
+        // ペンに色を付ける場合（透明度適用）
+        drawWithColorAndOpacity(ctx, fromPos, toPos);
       } else {
-        // にじみツールとして使用
+        // にじみツールとして使用（透明度0%の場合）
         blendExistingColors(ctx, fromPos, toPos);
       }
     }
@@ -213,6 +213,102 @@ export default function Canvas({
     const updatedLayers = [...layers];
     updatedLayers[currentLayerIndex] = { ...layers[currentLayerIndex] };
     setLayers(updatedLayers);
+  };
+
+  const drawWithColorAndOpacity = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
+    const brushRadius = pointer.lineWidth / 2;
+    const opacity = pointer.brushOpacity / 100;
+    
+    // 透明度0の場合は何も描画しない
+    if (opacity === 0) return;
+    
+    // 線の軌跡上の点を計算
+    const distance = Math.sqrt((toPos.x - fromPos.x) ** 2 + (toPos.y - fromPos.y) ** 2);
+    const steps = Math.max(1, Math.floor(distance));
+    
+    for (let i = 0; i <= steps; i++) {
+      const t = steps === 0 ? 0 : i / steps;
+      const x = fromPos.x + (toPos.x - fromPos.x) * t;
+      const y = fromPos.y + (toPos.y - fromPos.y) * t;
+      
+      // ブラシエリア内の既存色を取得
+      const imageData = ctx.getImageData(
+        Math.max(0, x - brushRadius), 
+        Math.max(0, y - brushRadius), 
+        Math.min(pointer.lineWidth, ctx.canvas.width - (x - brushRadius)), 
+        Math.min(pointer.lineWidth, ctx.canvas.height - (y - brushRadius))
+      );
+      
+      const data = imageData.data;
+      const width = imageData.width;
+      const height = imageData.height;
+      
+      // 混色比率に基づいて色を決定
+      let finalColor = pointer.color;
+      
+      if (pointer.mixRatio < 100) {
+        // 既存色との混色が必要
+        const existingColors: string[] = [];
+        
+        for (let py = 0; py < height; py++) {
+          for (let px = 0; px < width; px++) {
+            const idx = (py * width + px) * 4;
+            const alpha = data[idx + 3];
+            
+            if (alpha > 0) {
+              const r = data[idx];
+              const g = data[idx + 1];
+              const b = data[idx + 2];
+              const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+              existingColors.push(hex);
+            }
+          }
+        }
+        
+        if (existingColors.length > 0) {
+          const avgExistingColor = averageColors(existingColors, pointer.blendMode);
+          const ratio = pointer.mixRatio / 100;
+          finalColor = pointer.blendMode === 'spectral' 
+            ? mixSpectralColors(avgExistingColor, pointer.color, ratio)
+            : mixColorsNormal(avgExistingColor, pointer.color, ratio);
+        }
+      }
+      
+      // にじみ効果を適用
+      const blendIntensity = pointer.blendStrength / 100;
+      
+      if (blendIntensity > 0) {
+        // にじみ効果ありの場合：グラデーション描画
+        const effectRadius = brushRadius * Math.max(0.3, blendIntensity);
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, effectRadius);
+        gradient.addColorStop(0, finalColor + Math.floor(255 * opacity).toString(16).padStart(2, '0'));
+        gradient.addColorStop(0.7, finalColor + Math.floor(255 * opacity * blendIntensity * 0.8).toString(16).padStart(2, '0'));
+        gradient.addColorStop(1, finalColor + '00');
+        
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, effectRadius, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // にじみ強度0の場合は普通の線描画（透明度適用）
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = opacity;
+        ctx.strokeStyle = finalColor;
+        ctx.lineWidth = pointer.lineWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        ctx.beginPath();
+        ctx.moveTo(fromPos.x, fromPos.y);
+        ctx.lineTo(toPos.x, toPos.y);
+        ctx.stroke();
+        
+        // globalAlphaをリセット
+        ctx.globalAlpha = 1.0;
+        return;
+      }
+    }
   };
 
   const drawWithColor = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {

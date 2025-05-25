@@ -8,6 +8,7 @@ interface ToolProps {
   selectionMode: 'rect' | 'lasso' | 'magic';
   blendMode: 'normal' | 'spectral';
   brushHasColor: boolean;
+  brushOpacity: number;
   blendStrength: number;
   mixRatio: number;
   zoom: number;
@@ -16,6 +17,7 @@ interface ToolProps {
   setSelectionMode: (m: 'rect' | 'lasso' | 'magic') => void;
   setBlendMode: (m: 'normal' | 'spectral') => void;
   setBrushHasColor: (hasColor: boolean) => void;
+  setBrushOpacity: (opacity: number) => void;
   setBlendStrength: (strength: number) => void;
   setMixRatio: (ratio: number) => void;
   setZoom: (z: number) => void;
@@ -29,6 +31,7 @@ export default function ToolProperties({
   selectionMode,
   blendMode,
   brushHasColor,
+  brushOpacity,
   blendStrength,
   mixRatio,
   zoom,
@@ -37,6 +40,7 @@ export default function ToolProperties({
   setSelectionMode,
   setBlendMode,
   setBrushHasColor,
+  setBrushOpacity,
   setBlendStrength,
   setMixRatio,
   setZoom,
@@ -81,31 +85,32 @@ export default function ToolProperties({
             </select>
           </div>
           
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">ブラシ透明度: {brushOpacity}%</div>
             <input
-              type="checkbox"
-              id="brushHasColor"
-              checked={brushHasColor}
-              onChange={e => setBrushHasColor(e.target.checked)}
-              className="w-4 h-4"
+              type="range"
+              min={0}
+              max={100}
+              value={brushOpacity}
+              onChange={e => {
+                const opacity = parseInt(e.currentTarget.value, 10);
+                setBrushOpacity(opacity);
+                // 透明度0%の時は「ペンに色を付けない」、それ以外は「ペンに色を付ける」
+                setBrushHasColor(opacity > 0);
+              }}
             />
-            <label htmlFor="brushHasColor" className="text-text-muted text-xs">
-              ペンに色を付ける
-            </label>
           </div>
           
-          {brushHasColor && (
-            <div className="flex flex-col gap-1">
-              <div className="text-text-muted text-xs">混色比率（キャンバス：ペン＝{100 - mixRatio}:{mixRatio}）</div>
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={mixRatio}
-                onChange={e => setMixRatio(parseInt(e.currentTarget.value, 10))}
-              />
-            </div>
-          )}
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">混色比率（キャンバス：ペン＝{100 - mixRatio}:{mixRatio}）</div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={mixRatio}
+              onChange={e => setMixRatio(parseInt(e.currentTarget.value, 10))}
+            />
+          </div>
           
           <div className="flex flex-col gap-1">
             <div className="text-text-muted text-xs">にじみ強度: {blendStrength}%</div>

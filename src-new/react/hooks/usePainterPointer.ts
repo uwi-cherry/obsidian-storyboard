@@ -13,6 +13,7 @@ export interface PainterPointer {
   selectionMode: SelectionMode;
   blendMode: BlendMode;
   brushHasColor: boolean;
+  brushOpacity: number;
   blendStrength: number;
   mixRatio: number;
   setTool: (tool: PainterTool) => void;
@@ -21,6 +22,7 @@ export interface PainterPointer {
   setSelectionMode: (mode: SelectionMode) => void;
   setBlendMode: (mode: BlendMode) => void;
   setBrushHasColor: (hasColor: boolean) => void;
+  setBrushOpacity: (opacity: number) => void;
   setBlendStrength: (strength: number) => void;
   setMixRatio: (ratio: number) => void;
 }
@@ -32,6 +34,7 @@ export default function usePainterPointer() {
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('rect');
   const [blendMode, setBlendMode] = useState<BlendMode>('normal');
   const [brushHasColor, setBrushHasColor] = useState<boolean>(true);
+  const [brushOpacity, setBrushOpacity] = useState<number>(100);
   const [blendStrength, setBlendStrength] = useState<number>(50);
   const [mixRatio, setMixRatio] = useState<number>(100);
 
@@ -42,6 +45,7 @@ export default function usePainterPointer() {
     selectionMode,
     blendMode,
     brushHasColor,
+    brushOpacity,
     blendStrength,
     mixRatio,
     setTool,
@@ -50,6 +54,7 @@ export default function usePainterPointer() {
     setSelectionMode,
     setBlendMode,
     setBrushHasColor,
+    setBrushOpacity,
     setBlendStrength,
     setMixRatio,
   };

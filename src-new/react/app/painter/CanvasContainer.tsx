@@ -215,6 +215,7 @@ export default function CanvasContainer({
           selectionMode={pointer.selectionMode}
           blendMode={pointer.blendMode}
           brushHasColor={pointer.brushHasColor}
+          brushOpacity={pointer.brushOpacity}
           blendStrength={pointer.blendStrength}
           mixRatio={pointer.mixRatio}
           zoom={zoom}
@@ -223,6 +224,7 @@ export default function CanvasContainer({
           setSelectionMode={pointer.setSelectionMode}
           setBlendMode={pointer.setBlendMode}
           setBrushHasColor={pointer.setBrushHasColor}
+          setBrushOpacity={pointer.setBrushOpacity}
           setBlendStrength={pointer.setBlendStrength}
           setMixRatio={pointer.setMixRatio}
           setZoom={setZoom}
