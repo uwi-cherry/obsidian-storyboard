@@ -46,26 +46,9 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
       return;
     }
 
-    const loadLayers = async () => {
-      try {
-        console.log('🔍 RightSidebar: PSDファイルを読み込み中:', currentPsdFile.path);
-        
-        const result = await toolRegistry.executeTool('load_painter_file', {
-          app,
-          file: currentPsdFile
-        });
-        const psdData = JSON.parse(result);
-        if (psdData.layers && psdData.layers.length > 0) {
-          useLayersStore.getState().setLayers(psdData.layers);
-          useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
-          setCurrentFile(currentPsdFile);
-          console.log('PSDレイヤーを自動ロードしました:', currentPsdFile.name);
-        }
-      } catch (error) {
-      }
-    };
-
-    loadLayers();
+    // PainterPageで既に読み込み処理が行われるため、ここでは状態の同期のみ行う
+    setCurrentFile(currentPsdFile);
+    console.log('🔍 RightSidebar: PSDファイル状態を同期:', currentPsdFile.path);
   }, [currentPsdFile, app]);
 
   
@@ -75,19 +58,9 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
       const { file } = custom.detail || {};
       if (!file || !app) return;
 
-      try {
-        const result = await toolRegistry.executeTool('load_painter_file', {
-          app,
-          file
-        });
-        const psdData = JSON.parse(result);
-        if (psdData.layers && psdData.layers.length > 0) {
-          useLayersStore.getState().setLayers(psdData.layers);
-          useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
-          setCurrentFile(file);
-        }
-      } catch (error) {
-      }
+      // PainterPageで読み込み処理が行われるため、ここでは状態の同期のみ
+      setCurrentFile(file);
+      console.log('🔍 RightSidebar: PSDファイルオープンイベント受信:', file.path);
     };
 
     window.addEventListener('psd-file-opened', handlePsdFileOpened as EventListener);

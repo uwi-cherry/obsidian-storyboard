@@ -15,6 +15,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
 
 interface LayersState {
   layers: Layer[];
+  isInitialLoad: boolean;
   setLayers: (layers: Layer[]) => void;
   addLayer: (layer: Layer) => void;
   removeLayer: (index: number) => void;
@@ -23,11 +24,13 @@ interface LayersState {
   setLayerBlendMode: (index: number, blendMode: string) => void;
   renameLayer: (index: number, name: string) => void;
   clearLayers: () => void;
+  setInitialLoad: (isLoading: boolean) => void;
 }
 
 export const useLayersStore = create<LayersState>()(
   subscribeWithSelector((set) => ({
     layers: [],
+    isInitialLoad: false,
     
     setLayers: (layers) => set({ layers }),
     
@@ -64,11 +67,19 @@ export const useLayersStore = create<LayersState>()(
     })),
     
     clearLayers: () => set({ layers: [] }),
+    
+    setInitialLoad: (isLoading) => set({ isInitialLoad: isLoading }),
   }))
 );
 
 // 自動保存機能
-const autoSave = debounce(async (layers: Layer[]) => {
+const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
+  // 初期読み込み中は自動保存しない
+  if (isInitialLoad) {
+    console.log('🔄 初期読み込み中のため自動保存をスキップ');
+    return;
+  }
+
   try {
     const currentPsdFileStore = useCurrentPsdFileStore.getState();
     const currentFile = currentPsdFileStore.currentPsdFile;
@@ -90,7 +101,7 @@ const autoSave = debounce(async (layers: Layer[]) => {
   } catch (error) {
     console.error('❌ 自動保存エラー:', error);
   }
-}, 2000); // 2秒のデバウンス
+}, 5000); // デバウンス時間を5秒に延長
 
 // レイヤーの変更を監視して自動保存
 useLayersStore.subscribe(
@@ -98,7 +109,7 @@ useLayersStore.subscribe(
     // 空のレイヤー配列の場合は保存しない
     if (state.layers.length > 0) {
       console.log('🔄 レイヤー変更検知:', state.layers.length, 'レイヤー');
-      autoSave(state.layers);
+      autoSave(state.layers, state.isInitialLoad);
     }
   }
 );

@@ -99,6 +99,10 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       const loadPsdFile = async () => {
         try {
           console.log('🔍 PainterPage: PSDファイル読み込み開始');
+          
+          // 初期読み込み開始を設定
+          useLayersStore.getState().setInitialLoad(true);
+          
           const result = await toolRegistry.executeTool('load_painter_file', {
             app: app,
             file: view.file
@@ -159,10 +163,19 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           useLayersStore.getState().setLayers(layersWithCanvas);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
           
+          // 初期読み込み完了を設定（少し遅延させて確実に処理を完了させる）
+          setTimeout(() => {
+            useLayersStore.getState().setInitialLoad(false);
+            console.log('🔍 PainterPage: 初期読み込み完了フラグを設定');
+          }, 1000);
+          
           console.log('🔍 PainterPage: レイヤーデータを設定しました:', layersWithCanvas.length, 'レイヤー');
           
         } catch (error) {
           console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
+          
+          // エラー時も初期読み込みフラグをリセット
+          useLayersStore.getState().setInitialLoad(false);
           
           // エラーの場合は初期化ツールを実行
           try {
@@ -208,7 +221,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       
       initializePainter();
     }
-  }, [view, app, view?.file, view?.file?.path]);
+  }, [view?.file?.path, app]);
 
   const containerClass = layoutDirection === 'horizontal' 
     ? "flex w-full h-full overflow-hidden"
