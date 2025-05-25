@@ -104,8 +104,12 @@ export default function ToolProperties({
               type="range"
               min={0}
               max={100}
-              value={blendStrength}
-              onChange={e => setBlendStrength(parseInt(e.currentTarget.value, 10))}
+              value={Math.sqrt(blendStrength) * 10}
+              onChange={e => {
+                const sliderValue = parseInt(e.currentTarget.value, 10);
+                const strength = Math.round((sliderValue / 10) ** 2);
+                setBlendStrength(Math.max(0, Math.min(100, strength)));
+              }}
             />
           </div>
           
