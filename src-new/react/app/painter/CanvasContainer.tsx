@@ -5,6 +5,9 @@ import ActionProperties from './features/ActionProperties';
 import Canvas from './features/Canvas';
 import ColorProperties from './features/ColorProperties';
 import ToolProperties from './features/ToolProperties';
+import { useLayersStore } from 'src-new/obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from 'src-new/obsidian-api/zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from 'src-new/obsidian-api/zustand/store/painter-history-store';
 
 interface SelectionRect {
   x: number;
@@ -63,8 +66,55 @@ export default function CanvasContainer({
   };
 
   const actionHandlers = {
-    fill: () => {},
-    clear: () => {},
+    fill: () => {
+      const layersStore = useLayersStore.getState();
+      const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
+      const historyStore = usePainterHistoryStore.getState();
+
+      const layers = layersStore.layers;
+      const index = currentLayerIndexStore.currentLayerIndex;
+      const layer = layers[index];
+      if (!layer || !layer.canvas) return;
+
+      // 履歴に現在の状態を保存
+      historyStore.saveHistory(layers, index);
+
+      const ctx = layer.canvas.getContext('2d');
+      if (!ctx) return;
+
+      const rect = selectionRect
+        ? selectionRect
+        : { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+
+      ctx.fillStyle = pointer.color;
+      ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+
+      layersStore.setLayers([...layers]);
+    },
+    clear: () => {
+      const layersStore = useLayersStore.getState();
+      const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
+      const historyStore = usePainterHistoryStore.getState();
+
+      const layers = layersStore.layers;
+      const index = currentLayerIndexStore.currentLayerIndex;
+      const layer = layers[index];
+      if (!layer || !layer.canvas) return;
+
+      // 履歴に現在の状態を保存
+      historyStore.saveHistory(layers, index);
+
+      const ctx = layer.canvas.getContext('2d');
+      if (!ctx) return;
+
+      const rect = selectionRect
+        ? selectionRect
+        : { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+
+      ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
+
+      layersStore.setLayers([...layers]);
+    },
     cancel: cancelSelection
   };
 
