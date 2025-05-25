@@ -159,27 +159,30 @@ export default function LayerControls() {
 
       
       <div className="space-y-1">
-        {layers.map((layer, idx) => (
-          <div
-            key={idx}
-            className={`p-2 bg-primary rounded cursor-pointer flex items-center gap-2 relative select-none hover:bg-modifier-hover ${idx === currentLayerIndex ? 'ring-2 ring-accent' : ''}`}
-            onClick={() => selectLayer(idx)}
-          >
+        {layers.slice().reverse().map((layer, reverseIdx) => {
+          const idx = layers.length - 1 - reverseIdx;
+          return (
             <div
-              className={`w-4 h-4 border border-modifier-border rounded relative cursor-pointer ${layer.visible ? 'bg-accent' : 'bg-transparent'}`}
-              onClick={e => {
-                e.stopPropagation();
-                toggleVisibility(idx);
-              }}
-            />
-            <div
-              className="text-text-normal text-sm flex-1"
-              onDoubleClick={() => renameLayer(idx)}
+              key={idx}
+              className={`p-2 bg-primary rounded cursor-pointer flex items-center gap-2 relative select-none hover:bg-modifier-hover ${idx === currentLayerIndex ? 'ring-2 ring-accent' : ''}`}
+              onClick={() => selectLayer(idx)}
             >
-              {layer.name}
+              <div
+                className={`w-4 h-4 border border-modifier-border rounded relative cursor-pointer ${layer.visible ? 'bg-accent' : 'bg-transparent'}`}
+                onClick={e => {
+                  e.stopPropagation();
+                  toggleVisibility(idx);
+                }}
+              />
+              <div
+                className="text-text-normal text-sm flex-1"
+                onDoubleClick={() => renameLayer(idx)}
+              >
+                {layer.name}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
