@@ -71,7 +71,7 @@ export default function ToolProperties({
           </div>
           
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">ブラシ不透明度: {brushOpacity}%</div>
+            <div className="text-text-muted text-xs">{t('BRUSH_OPACITY')}: {brushOpacity}%</div>
             <input
               type="range"
               min={0}
@@ -87,7 +87,7 @@ export default function ToolProperties({
           </div>
           
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">混色比率（キャンバス：ペン＝{100 - mixRatio}:{mixRatio}）</div>
+            <div className="text-text-muted text-xs">{t('COLOR_MIX_RATIO').replace('{canvas}', (100 - mixRatio).toString()).replace('{pen}', mixRatio.toString())}</div>
             <input
               type="range"
               min={0}
@@ -98,7 +98,7 @@ export default function ToolProperties({
           </div>
           
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">にじみ強度: {blendStrength}%</div>
+            <div className="text-text-muted text-xs">{t('BLEND_STRENGTH')}: {blendStrength}%</div>
             <input
               type="range"
               min={0}
