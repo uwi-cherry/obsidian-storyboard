@@ -107,24 +107,20 @@ export default function LayerControls() {
       </div>
 
       
-      <div className="flex items-center gap-2 mb-2">
-        <button
-          className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-          onClick={addBlankLayer}
-          title={t('NEW_LAYER')}
-          dangerouslySetInnerHTML={{ __html: LAYER_ICONS.add }}
-        />
-        <button
-          className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
-          onClick={deleteCurrentLayer}
-          title={t('DELETE_LAYER')}
-          dangerouslySetInnerHTML={{ __html: LAYER_ICONS.delete }}
-        />
-      </div>
-
-      
       {layers[currentLayerIndex] && (
         <div className="flex items-center gap-2 mb-2">
+          <button
+            className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
+            onClick={addBlankLayer}
+            title={t('NEW_LAYER')}
+            dangerouslySetInnerHTML={{ __html: LAYER_ICONS.add }}
+          />
+          <button
+            className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
+            onClick={deleteCurrentLayer}
+            title={t('DELETE_LAYER')}
+            dangerouslySetInnerHTML={{ __html: LAYER_ICONS.delete }}
+          />
           <input
             type="range"
             min="0"
