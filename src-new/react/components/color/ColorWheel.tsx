@@ -11,6 +11,7 @@ interface ColorWheelProps {
 
 export default function ColorWheel({ hue, saturation, lightness, onChange, size = 100 }: ColorWheelProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const activeRef = useRef<'hue' | 'sl' | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -79,20 +80,29 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     ctx.strokeRect(sx - 3, sy - 3, 6, 6);
   }, [hue, saturation, lightness, size]);
 
-  function handleEvent(e: React.MouseEvent<HTMLCanvasElement>) {
+  function getArea(x: number, y: number) {
+    const radius = size / 2;
+    const ringWidth = size * 0.15;
+    const innerRadius = radius - ringWidth;
+    const dist = Math.sqrt(x * x + y * y);
+    if (dist >= innerRadius && dist <= radius) return 'hue';
+    if (dist < innerRadius) return 'sl';
+    return null;
+  }
+
+  function updateColorFromEvent(e: React.MouseEvent<HTMLCanvasElement>, area: 'hue' | 'sl') {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left - size / 2;
     const y = e.clientY - rect.top - size / 2;
     const radius = size / 2;
     const ringWidth = size * 0.15;
     const innerRadius = radius - ringWidth;
-    const dist = Math.sqrt(x * x + y * y);
 
-    if (dist >= innerRadius && dist <= radius) {
+    if (area === 'hue') {
       let angle = Math.atan2(y, x);
       if (angle < 0) angle += Math.PI * 2;
       onChange((angle * 180) / Math.PI, saturation, lightness);
-    } else if (dist < innerRadius) {
+    } else {
       const squareSize = innerRadius * Math.SQRT2;
       const halfSquare = squareSize / 2;
       const clampedX = Math.max(-halfSquare, Math.min(halfSquare, x));
@@ -103,13 +113,34 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     }
   }
 
+  function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    const area = getArea(x, y);
+    if (!area) return;
+    activeRef.current = area;
+    updateColorFromEvent(e, area);
+  }
+
+  function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+    if (!activeRef.current) return;
+    updateColorFromEvent(e, activeRef.current);
+  }
+
+  function handleMouseUp() {
+    activeRef.current = null;
+  }
+
   return (
     <canvas
       ref={canvasRef}
       width={size}
       height={size}
-      onMouseDown={handleEvent}
-      onMouseMove={e => e.buttons === 1 && handleEvent(e)}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
       className="cursor-crosshair rounded-full select-none"
     />
   );
