@@ -100,7 +100,7 @@ export default function ChatBox() {
         return updated;
       });
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t('AI_RESPONSE_ERROR') || 'AI応答エラー');
+      setError(err instanceof Error ? err.message : t('AI_RESPONSE_ERROR'));
     } finally {
       setLoading(false);
     }
@@ -144,7 +144,7 @@ export default function ChatBox() {
         
         {loading && (
           <div className="text-xs text-text-faint text-center">
-            {t('LOADING') || '読み込み中...'}
+            {t('LOADING')}
           </div>
         )}
         
@@ -209,21 +209,21 @@ export default function ChatBox() {
                   className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
                   onClick={() => openFileDialog('image')}
                 >
-                  🖼️ 画像
+                  🖼️ {t('ATTACH_IMAGE')}
                 </button>
                 <button
                   type="button"
                   className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
                   onClick={() => openFileDialog('mask')}
                 >
-                  🎭 マスク
+                  🎭 {t('ATTACH_MASK')}
                 </button>
                 <button
                   type="button"
                   className="px-2 py-1 text-sm hover:bg-modifier-hover text-left flex items-center"
                   onClick={() => openFileDialog('reference')}
                 >
-                  📎 参考
+                  📎 {t('ATTACH_REFERENCE')}
                 </button>
               </div>
             )}
@@ -233,7 +233,7 @@ export default function ChatBox() {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder={t('CHAT_INPUT_PLACEHOLDER') || 'メッセージを入力...'}
+            placeholder={t('CHAT_INPUT_PLACEHOLDER')}
             className="flex-1 p-1 border border-modifier-border rounded bg-primary text-text-normal"
             disabled={loading}
           />
@@ -243,7 +243,7 @@ export default function ChatBox() {
             className="p-1 bg-accent text-on-accent rounded cursor-pointer hover:bg-accent-hover disabled:opacity-50"
             disabled={loading || !input.trim()}
           >
-            送信
+            {t('SEND')}
           </button>
         </div>
       </form>
