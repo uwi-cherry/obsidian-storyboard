@@ -8,8 +8,8 @@ import { AdaptiveDebouncer } from '../adaptive-debouncer';
 interface LayersState {
   layers: Layer[];
   currentPsdFile: TFile | null;
-  isInitialLoad: boolean;
   setLayers: (layers: Layer[]) => void;
+  initializeLayers: (layers: Layer[]) => void;
   addLayer: (layer: Layer) => void;
   removeLayer: (index: number) => void;
   toggleLayerVisibility: (index: number) => void;
@@ -17,7 +17,6 @@ interface LayersState {
   setLayerBlendMode: (index: number, blendMode: string) => void;
   renameLayer: (index: number, name: string) => void;
   clearLayers: () => void;
-  setInitialLoad: (isLoading: boolean) => void;
   setCurrentPsdFile: (file: TFile | null) => void;
   clearCurrentPsdFile: () => void;
   getCurrentSaveDelay: () => number;
@@ -25,12 +24,7 @@ interface LayersState {
 }
 
 // 自動保存機能
-const autoSave = new AdaptiveDebouncer(async (layers: Layer[], isInitialLoad: boolean, currentPsdFile: TFile | null) => {
-  // 初期読み込み中は自動保存しない
-  if (isInitialLoad) {
-    return;
-  }
-
+const autoSave = new AdaptiveDebouncer(async (layers: Layer[], currentPsdFile: TFile | null) => {
   // レイヤーが空、ファイルがない、PSDファイルでない場合はスキップ
   if (layers.length === 0 || !currentPsdFile || currentPsdFile.extension !== 'psd') {
     return;
@@ -62,9 +56,20 @@ export const useLayersStore = create<LayersState>()(
   subscribeWithSelector((set, get) => ({
     layers: [],
     currentPsdFile: null,
-    isInitialLoad: false,
     
-    setLayers: (layers) => set({ layers }),
+    setLayers: (layers) => {
+      set({ layers });
+      // setLayersは自動保存を実行
+      const state = get();
+      if (state.layers.length > 0) {
+        autoSave.execute(state.layers, state.currentPsdFile);
+      }
+    },
+    
+    initializeLayers: (layers) => {
+      // initializeLayersは自動保存を実行しない
+      set({ layers });
+    },
     
     addLayer: (layer) => set((state) => ({
       layers: [...state.layers, layer]
@@ -100,8 +105,6 @@ export const useLayersStore = create<LayersState>()(
     
     clearLayers: () => set({ layers: [], currentPsdFile: null }),
     
-    setInitialLoad: (isLoading) => set({ isInitialLoad: isLoading }),
-    
     setCurrentPsdFile: (file) => set({ currentPsdFile: file }),
     clearCurrentPsdFile: () => set({ currentPsdFile: null }),
     
@@ -110,15 +113,8 @@ export const useLayersStore = create<LayersState>()(
     triggerAutoSave: () => {
       const state = get();
       if (state.layers.length > 0) {
-        autoSave.execute(state.layers, state.isInitialLoad, state.currentPsdFile);
+        autoSave.execute(state.layers, state.currentPsdFile);
       }
     },
   }))
-);
-
-// レイヤーの変更を監視して自動保存
-useLayersStore.subscribe(
-  (state) => {
-    state.triggerAutoSave();
-  }
 );

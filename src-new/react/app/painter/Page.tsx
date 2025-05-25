@@ -40,10 +40,13 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
   useEffect(() => {
     if (zustandLayers.length > 0) {
+      console.log('🎨 レイヤー更新:', zustandLayers.length, 'レイヤー', zustandLayers);
       setLayers(zustandLayers);
       if (view) {
         view.layers = zustandLayers;
       }
+    } else {
+      console.log('⚠️ レイヤーが空です');
     }
   }, [zustandLayers, view]);
 
@@ -86,7 +89,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
         if (view.file.extension === 'psd') {
           // current-psd-file-storeを更新
           useLayersStore.getState().setCurrentPsdFile(view.file);
-          useLayersStore.getState().setInitialLoad(true);
           
           const result = await toolRegistry.executeTool('load_painter_file', {
             app: app,
@@ -140,25 +142,18 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           usePainterHistoryStore.getState().clearHistory();
           
           // zustandストアを更新
-          useLayersStore.getState().setLayers(layersWithCanvas);
+          useLayersStore.getState().initializeLayers(layersWithCanvas);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
-          useLayersStore.getState().setInitialLoad(false);
           
           console.log('✅ PSDファイル読み込み完了:', layersWithCanvas.length, 'レイヤー');
           
         } else {
           useLayersStore.getState().clearCurrentPsdFile();
           
-          await toolRegistry.executeTool('initialize_painter_data', { view });
-          if (view.layers) {
-            usePainterHistoryStore.getState().clearHistory();
-            useLayersStore.getState().setLayers(view.layers);
-            useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
-          }
+          console.log('📄 非PSDファイル:', view.file.path);
         }
       } catch (error) {
         console.error('❌ ファイル処理エラー:', error);
-        useLayersStore.getState().setInitialLoad(false);
         
         // エラー時は処理済みマークを削除
         processedFileRef.current.delete(fileKey);

@@ -191,6 +191,7 @@ export default function CanvasContainer({
       ctx.restore();
       layersStore.setLayers([...layers]);
     },
+    edit: startEdit,
     cancel: cancelSelection
   };
 

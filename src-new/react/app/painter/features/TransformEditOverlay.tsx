@@ -76,8 +76,7 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     );
 
     ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
-    useLayersStore.getState().setLayers([...layers]);
-  }, [rect, layers, currentLayerIndex]);
+  }, [rect, currentLayerIndex]);
 
   useEffect(() => {
     const canvas = overlayCanvasRef.current;
@@ -120,8 +119,10 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     ctx.drawImage(overlayCanvas, -rect.width / 2, -rect.height / 2);
     ctx.restore();
 
-    useLayersStore.getState().setLayers([...layers]);
-    usePainterHistoryStore.getState().saveHistory(layers, currentLayerIndex);
+    const layersStore = useLayersStore.getState();
+    const historyStore = usePainterHistoryStore.getState();
+    historyStore.saveHistory(layersStore.layers, currentLayerIndex);
+    layersStore.setLayers([...layersStore.layers]);
     onFinish();
   };
 
@@ -132,7 +133,8 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     if (!ctx || !backup) return;
     ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
     ctx.drawImage(backup, rect.x, rect.y);
-    useLayersStore.getState().setLayers([...layers]);
+    const layersStore = useLayersStore.getState();
+    layersStore.setLayers([...layersStore.layers]);
     onFinish();
   };
 
