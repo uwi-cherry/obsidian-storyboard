@@ -96,7 +96,7 @@ export default function ToolProperties({
           
           {brushHasColor && (
             <div className="flex flex-col gap-1">
-              <div className="text-text-muted text-xs">混色比率: {mixRatio}%</div>
+              <div className="text-text-muted text-xs">キャンバス色：ペン色＝{100 - mixRatio}:{mixRatio}</div>
               <input
                 type="range"
                 min={0}
@@ -104,9 +104,6 @@ export default function ToolProperties({
                 value={mixRatio}
                 onChange={e => setMixRatio(parseInt(e.currentTarget.value, 10))}
               />
-              <div className="text-text-muted text-xs text-center">
-                既存色 ←→ ペンの色
-              </div>
             </div>
           )}
           
