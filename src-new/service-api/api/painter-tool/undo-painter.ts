@@ -26,7 +26,7 @@ namespace Internal {
     
     const snapshot = historyStore.undo();
     if (snapshot) {
-      useLayersStore.getState().setLayers(snapshot.layers);
+      useLayersStore.getState().updateLayers(snapshot.layers);
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(snapshot.currentLayerIndex);
       
       return 'undo-success';

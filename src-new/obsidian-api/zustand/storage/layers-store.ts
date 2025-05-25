@@ -8,7 +8,7 @@ import { AdaptiveDebouncer } from '../adaptive-debouncer';
 interface LayersState {
   layers: Layer[];
   currentPsdFile: TFile | null;
-  setLayers: (layers: Layer[]) => void;
+  updateLayers: (layers: Layer[]) => void;
   initializeLayers: (layers: Layer[]) => void;
   addLayer: (layer: Layer) => void;
   removeLayer: (index: number) => void;
@@ -57,7 +57,7 @@ export const useLayersStore = create<LayersState>()(
     layers: [],
     currentPsdFile: null,
     
-    setLayers: (layers) => {
+    updateLayers: (layers) => {
       set({ layers });
       // setLayersは自動保存を実行
       const state = get();

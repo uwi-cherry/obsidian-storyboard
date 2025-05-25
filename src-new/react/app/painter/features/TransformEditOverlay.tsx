@@ -122,7 +122,7 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     const layersStore = useLayersStore.getState();
     const historyStore = usePainterHistoryStore.getState();
     historyStore.saveHistory(layersStore.layers, currentLayerIndex);
-    layersStore.setLayers([...layersStore.layers]);
+    layersStore.updateLayers([...layersStore.layers]);
     onFinish();
   };
 
@@ -134,7 +134,7 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
     ctx.drawImage(backup, rect.x, rect.y);
     const layersStore = useLayersStore.getState();
-    layersStore.setLayers([...layersStore.layers]);
+    layersStore.updateLayers([...layersStore.layers]);
     onFinish();
   };
 

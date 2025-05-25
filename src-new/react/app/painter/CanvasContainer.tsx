@@ -141,7 +141,7 @@ export default function CanvasContainer({
       }
 
       ctx.restore();
-      layersStore.setLayers([...layers]);
+      layersStore.updateLayers([...layers]);
     },
     clear: () => {
       const layersStore = useLayersStore.getState();
@@ -189,7 +189,7 @@ export default function CanvasContainer({
       }
 
       ctx.restore();
-      layersStore.setLayers([...layers]);
+      layersStore.updateLayers([...layers]);
     },
     edit: startEdit,
     cancel: cancelSelection

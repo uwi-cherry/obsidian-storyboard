@@ -27,7 +27,7 @@ export default function Canvas({
 
   const layers = useLayersStore((state) => state.layers);
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
-  const { setLayers } = useLayersStore();
+  const { updateLayers: setLayers } = useLayersStore();
 
   const dashOffsetRef = useRef(0);
   const animIdRef = useRef<number>();
