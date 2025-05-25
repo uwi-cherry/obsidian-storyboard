@@ -39,7 +39,7 @@ export default class MyPlugin extends Plugin {
     this.rightSidebarPlugin.initialize();
     this.timelinePlugin.initialize();
     this.storyboardPlugin.initialize();
-    this.settingsPlugin.initialize();
+    await this.settingsPlugin.initialize();
     this.createMenuPlugin.initialize();
 
   }
