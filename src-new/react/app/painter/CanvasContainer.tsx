@@ -5,6 +5,8 @@ import ActionProperties from './features/ActionProperties';
 import Canvas from './features/Canvas';
 import ColorProperties from './features/ColorProperties';
 import ToolProperties from './features/ToolProperties';
+
+import TransformEditOverlay from './features/TransformEditOverlay';
 import { useLayersStore } from 'src-new/obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from 'src-new/obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from 'src-new/obsidian-api/zustand/store/painter-history-store';
@@ -40,6 +42,7 @@ export default function CanvasContainer({
   const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
+  const [editRect, setEditRect] = useState<SelectionRect | undefined>();
   
   const { layoutDirection } = usePainterLayoutStore();
 
@@ -62,6 +65,24 @@ export default function CanvasContainer({
 
   const cancelSelection = () => {
     setSelectionRect(undefined);
+    setMenuMode('global');
+  };
+
+  const startEdit = () => {
+    let rect = selectionRect;
+    if (!rect) {
+      if (view?._canvas) {
+        rect = { x: 0, y: 0, width: view._canvas.width, height: view._canvas.height };
+      }
+    }
+    if (!rect) return;
+    setEditRect(rect);
+    setSelectionRect(undefined);
+    setMenuMode('hidden');
+  };
+
+  const finishEdit = () => {
+    setEditRect(undefined);
     setMenuMode('global');
   };
 
@@ -174,6 +195,15 @@ export default function CanvasContainer({
             mode={menuMode}
             position={menuPos}
             isFloating={true}
+          />
+        )}
+
+        {editRect && (
+          <TransformEditOverlay
+            rect={editRect}
+            layers={layers}
+            currentLayerIndex={currentLayerIndex}
+            onFinish={finishEdit}
           />
         )}
       </div>
