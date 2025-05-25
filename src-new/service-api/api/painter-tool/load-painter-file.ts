@@ -137,6 +137,8 @@ namespace Internal {
           visible: !layer.hidden,
           opacity: layer.opacity ?? 1,
           blendMode: layer.blendMode ?? 'normal',
+          width: psd.width,
+          height: psd.height,
           ...(isDom ? { canvasDataUrl } : { canvas: layer.canvas })
         };
       });
