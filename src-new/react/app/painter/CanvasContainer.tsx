@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { usePainterLayoutStore } from 'src-new/obsidian-api/zustand/storage/painter-layout-store';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
+import useSelectionState, { SelectionState } from 'src-new/react/hooks/useSelectionState';
 import ActionProperties from './features/ActionProperties';
 import Canvas from './features/Canvas';
 import ColorProperties from './features/ColorProperties';
@@ -39,7 +40,8 @@ export default function CanvasContainer({
   setZoom,
   setRotation
 }: Props) {
-  const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
+  const selectionState: SelectionState = useSelectionState();
+  const [, setSelectionVersion] = useState(0);
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
   const [editRect, setEditRect] = useState<SelectionRect | undefined>();
@@ -50,11 +52,12 @@ export default function CanvasContainer({
     setMenuMode('hidden');
   };
 
-  const handleSelectionUpdate = (rect: SelectionRect | undefined) => {
-    setSelectionRect(rect);
+  const handleSelectionUpdate = () => {
+    setSelectionVersion(v => v + 1);
   };
 
-  const handleSelectionEnd = (rect?: SelectionRect) => {
+  const handleSelectionEnd = () => {
+    const rect = selectionState.getBoundingRect();
     if (rect) {
       setMenuPos({ x: rect.x, y: rect.y - 28 });
       setMenuMode('selection');
@@ -64,7 +67,8 @@ export default function CanvasContainer({
   };
 
   const cancelSelection = () => {
-    setSelectionRect(undefined);
+    selectionState.reset();
+    setSelectionVersion(v => v + 1);
     setMenuMode('global');
   };
 
@@ -183,7 +187,7 @@ export default function CanvasContainer({
           layers={layers}
           currentLayerIndex={currentLayerIndex}
           view={view}
-          selectionRect={selectionRect}
+          selectionState={selectionState}
           onSelectionStart={handleSelectionStart}
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}
