@@ -1,5 +1,8 @@
 import React, { useRef, useEffect, useState } from 'react';
 import type { PainterPointer } from '../../../hooks/usePainterPointer';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 
 interface SelectionRect {
   x: number;
@@ -162,6 +165,10 @@ export default function Canvas({
   const handlePointerDown = (e: React.PointerEvent) => {
     const { x, y } = getPointerPos(e);
 
+    const layersStore = useLayersStore.getState();
+    const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
+    const historyStore = usePainterHistoryStore.getState();
+
     if (pointer.tool === 'selection') {
       selectingRef.current = true;
       startXRef.current = x;
@@ -169,6 +176,9 @@ export default function Canvas({
       onSelectionUpdate?.({ x, y, width: 0, height: 0 });
       onSelectionStart?.();
     } else if (pointer.tool === 'brush') {
+      // 操作前の状態を履歴に保存
+      historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
+
       drawingRef.current = true;
       lastPosRef.current = { x, y };
       // 点を描画
@@ -204,6 +214,9 @@ export default function Canvas({
     } else if (pointer.tool === 'brush') {
       drawingRef.current = false;
       lastPosRef.current = null;
+      // 描画結果をzustandストアに反映
+      const layersStore = useLayersStore.getState();
+      layersStore.setLayers([...layers]);
     }
   };
 
