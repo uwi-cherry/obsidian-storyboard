@@ -6,6 +6,9 @@ export interface PainterPointer {
   tool: PainterTool;
   lineWidth: number;
   color: string;
+  setTool: (tool: PainterTool) => void;
+  setLineWidth: (lineWidth: number) => void;
+  setColor: (color: string) => void;
 }
 
 export default function usePainterPointer() {

@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import Canvas from './Canvas';
-import ActionMenu from './ActionMenu';
+import ToolProperties from './ToolProperties';
+import ColorProperties from './ColorProperties';
+import ActionProperties from './ActionProperties';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
+import { usePainterLayoutStore } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
 
 interface SelectionRect {
   x: number;
@@ -15,12 +18,27 @@ interface Props {
   layers?: any[];
   currentLayerIndex?: number;
   view?: any;
+  zoom: number;
+  rotation: number;
+  setZoom: (zoom: number) => void;
+  setRotation: (rotation: number) => void;
 }
 
-export default function CanvasContainer({ pointer, layers = [], currentLayerIndex = 0, view }: Props) {
+export default function CanvasContainer({ 
+  pointer, 
+  layers = [], 
+  currentLayerIndex = 0, 
+  view,
+  zoom,
+  rotation,
+  setZoom,
+  setRotation
+}: Props) {
   const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
+  
+  const { layoutDirection } = usePainterLayoutStore();
 
   const handleSelectionStart = () => {
     setMenuMode('hidden');
@@ -44,27 +62,69 @@ export default function CanvasContainer({ pointer, layers = [], currentLayerInde
     setMenuMode('global');
   };
 
+  const actionHandlers = {
+    fill: () => {},
+    clear: () => {},
+    cancel: cancelSelection
+  };
+
+  const containerClass = layoutDirection === 'horizontal' 
+    ? "flex flex-1 w-full h-full overflow-hidden"
+    : "flex flex-col flex-1 w-full h-full overflow-hidden";
+
+  const propertiesContainerClass = layoutDirection === 'horizontal' 
+    ? "flex flex-col"
+    : "flex flex-row border-b border-modifier-border";
+
   return (
-    <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative">
-      <Canvas
-        pointer={pointer}
-        layers={layers}
-        currentLayerIndex={currentLayerIndex}
-        view={view}
-        selectionRect={selectionRect}
-        onSelectionStart={handleSelectionStart}
-        onSelectionUpdate={handleSelectionUpdate}
-        onSelectionEnd={handleSelectionEnd}
-      />
-      <ActionMenu
-        handlers={{
-          fill: () => {},
-          clear: () => {},
-          cancel: cancelSelection
-        }}
-        mode={menuMode}
-        position={menuPos}
-      />
+    <div className={containerClass}>
+      <div className={propertiesContainerClass}>
+        <ToolProperties
+          tool={pointer.tool}
+          lineWidth={pointer.lineWidth}
+          zoom={zoom}
+          rotation={rotation}
+          setLineWidth={pointer.setLineWidth}
+          setZoom={setZoom}
+          setRotation={setRotation}
+          layoutDirection={layoutDirection}
+        />
+        
+        <ColorProperties
+          color={pointer.color}
+          setColor={pointer.setColor}
+          layoutDirection={layoutDirection}
+        />
+        
+        <ActionProperties
+          handlers={actionHandlers}
+          mode={menuMode === 'selection' ? 'hidden' : 'global'}
+          isFloating={false}
+          layoutDirection={layoutDirection}
+        />
+      </div>
+      
+      <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative">
+        <Canvas
+          pointer={pointer}
+          layers={layers}
+          currentLayerIndex={currentLayerIndex}
+          view={view}
+          selectionRect={selectionRect}
+          onSelectionStart={handleSelectionStart}
+          onSelectionUpdate={handleSelectionUpdate}
+          onSelectionEnd={handleSelectionEnd}
+        />
+        
+        {menuMode === 'selection' && (
+          <ActionProperties
+            handlers={actionHandlers}
+            mode={menuMode}
+            position={menuPos}
+            isFloating={true}
+          />
+        )}
+      </div>
     </div>
   );
 }
