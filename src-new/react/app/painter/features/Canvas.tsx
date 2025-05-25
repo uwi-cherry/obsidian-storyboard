@@ -201,8 +201,13 @@ export default function Canvas({
       ctx.lineTo(toPos.x, toPos.y);
       ctx.stroke();
     } else if (pointer.tool === 'brush') {
-      // 統一された描画処理（透明度0%の時は自動的ににじみツールになる）
-      drawWithColorAndOpacity(ctx, fromPos, toPos);
+      if (pointer.brushOpacity === 0) {
+        // 透明度0%の場合：にじみツール（隣接する異なる色を混色）
+        blendExistingColors(ctx, fromPos, toPos);
+      } else {
+        // 透明度1%以上の場合：色付きブラシ（透明度適用）
+        drawWithColorAndOpacity(ctx, fromPos, toPos);
+      }
     }
 
     const updatedLayers = [...layers];
