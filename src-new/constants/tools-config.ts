@@ -13,8 +13,6 @@ export const TOOL_NAMES = {
   GENERATE_THUMBNAIL: 'generate_thumbnail',
   UNDO_PAINTER: 'undo_painter',
   REDO_PAINTER: 'redo_painter',
-
-  SEND_CHAT_MESSAGE: 'send_chat_message',
   
   ADD_LAYER: 'add_layer',
   REMOVE_LAYER: 'remove_layer',
@@ -169,14 +167,6 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "toggleLayerVisibilityTool",
       ai_enabled: false,
       description: "Toggle layer visibility in painter view",
-      category: TOOL_CATEGORIES.PAINTER
-    },
-    {
-      name: TOOL_NAMES.SEND_CHAT_MESSAGE,
-      modulePath: "../../src-new/service-api/api/ai-tool/send-chat-message",
-      exportName: "sendChatMessageTool",
-      ai_enabled: true,
-      description: "Send chat message to AI agent",
       category: TOOL_CATEGORIES.PAINTER
     }
   ],
