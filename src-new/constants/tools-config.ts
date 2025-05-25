@@ -6,6 +6,10 @@ export const TOOL_NAMES = {
   TOGGLE_STORYBOARD_VIEW: 'toggle_storyboard_view',
   LOAD_STORYBOARD_DATA: 'load_storyboard_data',
   SAVE_STORYBOARD_DATA: 'save_storyboard_data',
+
+  CREATE_OTIO_FILE: 'create_otio_file',
+  LOAD_OTIO_FILE: 'load_otio_file',
+  SAVE_OTIO_FILE: 'save_otio_file',
   
   CREATE_PAINTER_FILE: 'create_painter_file',
   LOAD_PAINTER_FILE: 'load_painter_file',
@@ -26,7 +30,8 @@ export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
 
 export const TOOL_CATEGORIES = {
   STORYBOARD: 'storyboard',
-  PAINTER: 'painter'
+  PAINTER: 'painter',
+  TIMELINE: 'timeline'
 } as const;
 
 export type ToolCategory = typeof TOOL_CATEGORIES[keyof typeof TOOL_CATEGORIES];
@@ -72,6 +77,30 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       ai_enabled: false,
       description: "Save storyboard data to file",
       category: TOOL_CATEGORIES.STORYBOARD
+    },
+    {
+      name: TOOL_NAMES.CREATE_OTIO_FILE,
+      modulePath: "../../src-new/service-api/api/otio-tool/create-otio-file",
+      exportName: "createOtioFileTool",
+      ai_enabled: false,
+      description: "Create new OTIO file",
+      category: TOOL_CATEGORIES.TIMELINE
+    },
+    {
+      name: TOOL_NAMES.LOAD_OTIO_FILE,
+      modulePath: "../../src-new/service-api/api/otio-tool/load-otio-file",
+      exportName: "loadOtioFileTool",
+      ai_enabled: false,
+      description: "Load OTIO file",
+      category: TOOL_CATEGORIES.TIMELINE
+    },
+    {
+      name: TOOL_NAMES.SAVE_OTIO_FILE,
+      modulePath: "../../src-new/service-api/api/otio-tool/save-otio-file",
+      exportName: "saveOtioFileTool",
+      ai_enabled: false,
+      description: "Save OTIO file",
+      category: TOOL_CATEGORIES.TIMELINE
     },
     {
       name: TOOL_NAMES.CREATE_PAINTER_FILE,
