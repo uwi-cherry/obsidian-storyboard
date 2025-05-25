@@ -6,21 +6,23 @@ export type SelectionMode = 'rect' | 'lasso' | 'magic';
 
 export type BlendMode = 'normal' | 'spectral';
 
+export type DrawingMode = 'normal' | 'spectral' | 'erase-soft';
+
 export interface PainterPointer {
   tool: PainterTool;
+  drawingMode: DrawingMode;
   lineWidth: number;
   color: string;
   selectionMode: SelectionMode;
-  blendMode: BlendMode;
   brushHasColor: boolean;
   brushOpacity: number;
   blendStrength: number;
   mixRatio: number;
   setTool: (tool: PainterTool) => void;
+  setDrawingMode: (mode: DrawingMode) => void;
   setLineWidth: (lineWidth: number) => void;
   setColor: (color: string) => void;
   setSelectionMode: (mode: SelectionMode) => void;
-  setBlendMode: (mode: BlendMode) => void;
   setBrushHasColor: (hasColor: boolean) => void;
   setBrushOpacity: (opacity: number) => void;
   setBlendStrength: (strength: number) => void;
@@ -31,8 +33,8 @@ export default function usePainterPointer() {
   const [tool, setTool] = useState<PainterTool>('brush');
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [color, setColor] = useState<string>('#000000');
+  const [drawingMode, setDrawingMode] = useState<DrawingMode>('normal');
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('rect');
-  const [blendMode, setBlendMode] = useState<BlendMode>('normal');
   const [brushHasColor, setBrushHasColor] = useState<boolean>(true);
   const [brushOpacity, setBrushOpacity] = useState<number>(100);
   const [blendStrength, setBlendStrength] = useState<number>(50);
@@ -40,19 +42,19 @@ export default function usePainterPointer() {
 
   return {
     tool,
+    drawingMode,
     lineWidth,
     color,
     selectionMode,
-    blendMode,
     brushHasColor,
     brushOpacity,
     blendStrength,
     mixRatio,
     setTool,
+    setDrawingMode,
     setLineWidth,
     setColor,
     setSelectionMode,
-    setBlendMode,
     setBrushHasColor,
     setBrushOpacity,
     setBlendStrength,

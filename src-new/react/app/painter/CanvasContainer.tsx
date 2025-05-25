@@ -211,18 +211,18 @@ export default function CanvasContainer({
       <div className={propertiesContainerClass}>
         <ToolProperties
           tool={pointer.tool}
+          drawingMode={pointer.drawingMode}
           lineWidth={pointer.lineWidth}
           selectionMode={pointer.selectionMode}
-          blendMode={pointer.blendMode}
           brushHasColor={pointer.brushHasColor}
           brushOpacity={pointer.brushOpacity}
           blendStrength={pointer.blendStrength}
           mixRatio={pointer.mixRatio}
           zoom={zoom}
           rotation={rotation}
+          setDrawingMode={pointer.setDrawingMode}
           setLineWidth={pointer.setLineWidth}
           setSelectionMode={pointer.setSelectionMode}
-          setBlendMode={pointer.setBlendMode}
           setBrushHasColor={pointer.setBrushHasColor}
           setBrushOpacity={pointer.setBrushOpacity}
           setBlendStrength={pointer.setBlendStrength}

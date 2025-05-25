@@ -4,18 +4,18 @@ import { LayoutDirection } from '../../../../obsidian-api/zustand/storage/painte
 
 interface ToolProps {
   tool: string;
+  drawingMode: 'normal' | 'spectral' | 'erase-soft';
   lineWidth: number;
   selectionMode: 'rect' | 'lasso' | 'magic';
-  blendMode: 'normal' | 'spectral';
   brushHasColor: boolean;
   brushOpacity: number;
   blendStrength: number;
   mixRatio: number;
   zoom: number;
   rotation: number;
+  setDrawingMode: (m: 'normal' | 'spectral' | 'erase-soft') => void;
   setLineWidth: (w: number) => void;
   setSelectionMode: (m: 'rect' | 'lasso' | 'magic') => void;
-  setBlendMode: (m: 'normal' | 'spectral') => void;
   setBrushHasColor: (hasColor: boolean) => void;
   setBrushOpacity: (opacity: number) => void;
   setBlendStrength: (strength: number) => void;
@@ -27,18 +27,18 @@ interface ToolProps {
 
 export default function ToolProperties({
   tool,
+  drawingMode,
   lineWidth,
   selectionMode,
-  blendMode,
   brushHasColor,
   brushOpacity,
   blendStrength,
   mixRatio,
   zoom,
   rotation,
+  setDrawingMode,
   setLineWidth,
   setSelectionMode,
-  setBlendMode,
   setBrushHasColor,
   setBrushOpacity,
   setBlendStrength,
@@ -74,19 +74,20 @@ export default function ToolProperties({
       {tool === 'brush' && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">混色モード:</div>
+            <div className="text-text-muted text-xs">描画モード:</div>
             <select
               className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
-              value={blendMode}
-              onChange={e => setBlendMode(e.target.value as 'normal' | 'spectral')}
+              value={drawingMode}
+              onChange={e => setDrawingMode(e.target.value as 'normal' | 'spectral' | 'erase-soft')}
             >
-              <option value="normal">通常混色</option>
+              <option value="normal">通常描画</option>
               <option value="spectral">スペクトラル混色</option>
+              <option value="erase-soft">透明度減算</option>
             </select>
           </div>
           
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">ブラシ透明度: {brushOpacity}%</div>
+            <div className="text-text-muted text-xs">ブラシ不透明度: {brushOpacity}%</div>
             <input
               type="range"
               min={0}
