@@ -28,9 +28,19 @@ export class CreateMenuPlugin {
           .setTitle('Timeline')
           .setIcon('timeline')
           .onClick(async () => {
-            const leaf = this.plugin.app.workspace.getLeaf(true);
-            await leaf.setViewState({ type: 'timeline-view', active: true });
-            this.plugin.app.workspace.revealLeaf(leaf);
+            try {
+              const result = await toolRegistry.executeTool(TOOL_NAMES.CREATE_OTIO_FILE, { app: this.plugin.app });
+              const resultData = JSON.parse(result);
+              if (resultData.filePath) {
+                const file = this.plugin.app.vault.getAbstractFileByPath(resultData.filePath);
+                if (file instanceof TFile) {
+                  const leaf = this.plugin.app.workspace.getLeaf(true);
+                  await leaf.openFile(file);
+                }
+              }
+            } catch (error) {
+              console.error('タイムラインファイル作成エラー:', error);
+            }
           })
       );
       menu.addItem(item =>

@@ -15,10 +15,20 @@ export interface OtioMediaReference {
   metadata: Record<string, any>;
 }
 
+export interface OtioClip {
+  name: string;
+  kind: string;
+  media_reference: OtioMediaReference;
+  source_range: OtioTimeRange;
+  effects: any[];
+  markers: any[];
+  metadata: Record<string, any>;
+}
+
 export interface OtioTrack {
   name: string;
   kind: string;
-  children: any[];
+  children: OtioClip[];
   source_range: OtioTimeRange;
   effects: any[];
   markers: any[];
