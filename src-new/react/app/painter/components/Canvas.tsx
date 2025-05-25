@@ -3,6 +3,7 @@ import type { PainterPointer } from '../../../hooks/usePainterPointer';
 import { useLayersStore } from '../../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/painter-history-store';
+import useSelection, { SelectionMode } from '../../hooks/useSelection';
 
 interface SelectionRect {
   x: number;
@@ -17,7 +18,7 @@ interface CanvasProps {
   setLayers?: (layers: any[]) => void;
   view?: any;
   pointer: PainterPointer;
-  selectionRect?: SelectionRect;
+  selectionMode?: SelectionMode;
   onSelectionStart?: () => void;
   onSelectionUpdate?: (rect: SelectionRect) => void;
   onSelectionEnd?: (rect: SelectionRect | undefined) => void;
@@ -29,7 +30,7 @@ export default function Canvas({
   setLayers,
   view,
   pointer,
-  selectionRect,
+  selectionMode = 'rect',
   onSelectionStart,
   onSelectionUpdate,
   onSelectionEnd
@@ -37,9 +38,20 @@ export default function Canvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
 
-  const selectingRef = useRef(false);
-  const startXRef = useRef(0);
-  const startYRef = useRef(0);
+  const {
+    state: selectionState,
+    setMode: setSelectionMode,
+    onPointerDown: selectionPointerDown,
+    onPointerMove: selectionPointerMove,
+    onPointerUp: selectionPointerUp,
+    draw: drawSelection,
+    tick: selectionTick
+  } = useSelection(canvasRef);
+
+  useEffect(() => {
+    setSelectionMode(selectionMode);
+  }, [selectionMode, setSelectionMode]);
+
   const drawingRef = useRef(false);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -105,15 +117,10 @@ export default function Canvas({
     }
 
     
-    if (selectionRect) {
-      ctx.save();
-      ctx.setLineDash([6]);
-      ctx.strokeStyle = '#000';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(selectionRect.x + 0.5, selectionRect.y + 0.5, selectionRect.width, selectionRect.height);
-      ctx.restore();
+    if (selectionState.hasSelection()) {
+      drawSelection(ctx);
     }
-  }, [layers, currentLayerIndex, selectionRect]);
+  }, [layers, currentLayerIndex, selectionTick]);
 
   const getPointerPos = (e: React.PointerEvent) => {
     const canvas = canvasRef.current;
@@ -175,18 +182,15 @@ export default function Canvas({
     const historyStore = usePainterHistoryStore.getState();
 
     if (pointer.tool === 'selection') {
-      selectingRef.current = true;
-      startXRef.current = x;
-      startYRef.current = y;
-      onSelectionUpdate?.({ x, y, width: 0, height: 0 });
+      selectionPointerDown(x, y);
+      const rect = selectionState.getBoundingRect();
+      if (rect) onSelectionUpdate?.(rect);
       onSelectionStart?.();
     } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
       // 操作前の状態を履歴に保存
       historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
-
       drawingRef.current = true;
       lastPosRef.current = { x, y };
-      // 点を描画
       drawOnCurrentLayer({ x, y }, { x, y });
     }
   };
@@ -194,12 +198,10 @@ export default function Canvas({
   const handlePointerMove = (e: React.PointerEvent) => {
     const { x, y } = getPointerPos(e);
 
-    if (pointer.tool === 'selection' && selectingRef.current) {
-      const x0 = Math.min(startXRef.current, x);
-      const y0 = Math.min(startYRef.current, y);
-      const w = Math.abs(x - startXRef.current);
-      const h = Math.abs(y - startYRef.current);
-      onSelectionUpdate?.({ x: x0, y: y0, width: w, height: h });
+    if (pointer.tool === 'selection') {
+      selectionPointerMove(x, y);
+      const rect = selectionState.getBoundingRect();
+      if (rect) onSelectionUpdate?.(rect);
     } else if ((pointer.tool === 'brush' || pointer.tool === 'eraser') && drawingRef.current && lastPosRef.current) {
       drawOnCurrentLayer(lastPosRef.current, { x, y });
       lastPosRef.current = { x, y };
@@ -208,10 +210,10 @@ export default function Canvas({
 
   const handlePointerUp = (e: React.PointerEvent) => {
     if (pointer.tool === 'selection') {
-      if (!selectingRef.current) return;
-      selectingRef.current = false;
-      if (selectionRect && selectionRect.width >= 2 && selectionRect.height >= 2) {
-        onSelectionEnd?.(selectionRect);
+      const valid = selectionPointerUp();
+      if (valid) {
+        const rect = selectionState.getBoundingRect();
+        if (rect) onSelectionEnd?.(rect);
       } else {
         onSelectionUpdate?.(undefined as any);
         onSelectionEnd?.(undefined);

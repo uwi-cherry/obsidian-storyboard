@@ -35,6 +35,7 @@ export default function CanvasContainer({
   setRotation
 }: Props) {
   const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
+  const [selectionMode] = useState<'rect' | 'lasso' | 'magic'>('rect');
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
   
@@ -110,7 +111,7 @@ export default function CanvasContainer({
           layers={layers}
           currentLayerIndex={currentLayerIndex}
           view={view}
-          selectionRect={selectionRect}
+          selectionMode={selectionMode}
           onSelectionStart={handleSelectionStart}
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}
