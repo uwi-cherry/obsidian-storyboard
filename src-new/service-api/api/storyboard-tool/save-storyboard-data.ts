@@ -25,22 +25,25 @@ namespace Internal {
     }
     data.chapters.forEach(chapter => {
       content += `\n### ${chapter.bgmPrompt ?? ''}\n\n`;
-      let prevEnd = '00:00:00';
       chapter.frames.forEach(frame => {
         content += `#### ${frame.speaker || ''}\n`;
         content += `${frame.dialogues || ''}\n`;
         if (frame.imageUrl !== undefined || frame.imagePrompt !== undefined) {
           content += `[${frame.imagePrompt ?? ''}](${frame.imageUrl ?? ''})\n`;
         }
-        if (frame.endTime !== undefined || frame.prompt !== undefined) {
-          const timecode = `${prevEnd}-${frame.endTime ?? ''}`;
-          content += `> [!INFO] ${timecode}`.trimEnd() + '\n';
+        if (frame.startTime !== undefined || frame.duration !== undefined || frame.prompt !== undefined) {
+          let infoLine = '> [!INFO]';
+          if (frame.startTime !== undefined || frame.duration !== undefined) {
+            const startTime = frame.startTime ?? 0;
+            const duration = frame.duration ?? 0;
+            infoLine += ` start: ${startTime}, duration: ${duration}`;
+          }
+          content += infoLine.trimEnd() + '\n';
           if (frame.prompt !== undefined) {
             frame.prompt.split('\n').forEach(l => {
               content += `> ${l}\n`;
             });
           }
-          prevEnd = frame.endTime ?? prevEnd;
         }
       });
     });

@@ -5,6 +5,8 @@ export interface StoryboardFrame {
   imagePrompt?: string;
   prompt?: string;
   endTime?: string;
+  startTime?: number;
+  duration?: number;
 }
 
 export interface CharacterInfo {
