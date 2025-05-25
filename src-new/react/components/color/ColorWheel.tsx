@@ -10,12 +10,15 @@ interface ColorWheelProps {
 }
 
 function lightnessFromPosition(s: number, v: number): number {
-  return (1 - s) * v * 100 + s * 50;
+  // When saturation is 0, brightness ranges from 0 to 100.
+  // At saturation 1, brightness should range from 0 to 50.
+  return v * (100 - 50 * s);
 }
 
 function verticalFromLightness(s: number, l: number): number {
-  if (s >= 1) return 0.5;
-  return (l - s * 50) / ((1 - s) * 100);
+  const denom = 100 - 50 * s;
+  if (denom <= 0) return 0;
+  return l / denom;
 }
 
 export default function ColorWheel({ hue, saturation, lightness, onChange, size = 100 }: ColorWheelProps) {
