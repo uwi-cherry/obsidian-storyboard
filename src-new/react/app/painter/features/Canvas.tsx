@@ -68,7 +68,19 @@ export default function Canvas({
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    
+    // チェック枠背景を描画
+    const checkSize = 10;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#e0e0e0';
+    for (let y = 0; y < canvas.height; y += checkSize * 2) {
+      for (let x = 0; x < canvas.width; x += checkSize * 2) {
+        ctx.fillRect(x + checkSize, y, checkSize, checkSize);
+        ctx.fillRect(x, y + checkSize, checkSize, checkSize);
+      }
+    }
+
+
     if (layers && layers.length > 0) {
       layers.forEach((layer: any, index: number) => {
         if (layer.visible && layer.canvas) {
