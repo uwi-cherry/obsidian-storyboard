@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { Plugin } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { ADD_ICON_SVG, TABLE_ICONS } from '../../../../constants/icons';
+import { toolRegistry } from '../../../../service-api/core/tool-registry';
+import { TOOL_NAMES } from '../../../../constants/tools-config';
 
 interface ChatBoxProps {
   plugin?: Plugin;
@@ -86,11 +88,26 @@ export default function ChatBox() {
     setLoading(true);
     
     try {
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const response = `AI応答（開発中）: ${userMessage}`;
-      
+      const sendAttachments = attachments;
+
+      const response = await toolRegistry.executeTool(
+        TOOL_NAMES.SEND_CHAT_MESSAGE,
+        {
+          message: userMessage,
+          attachments: sendAttachments,
+          onToken: (token: string) => {
+            setMessages(prev => {
+              const updated = [...prev];
+              const last = updated[updated.length - 1];
+              if (last && last.role === 'assistant') {
+                last.content += token;
+              }
+              return updated;
+            });
+          }
+        }
+      );
+
       setMessages(prev => {
         const updated = [...prev];
         const last = updated[updated.length - 1];
