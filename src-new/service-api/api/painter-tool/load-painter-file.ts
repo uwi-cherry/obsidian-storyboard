@@ -17,7 +17,12 @@ function toCanvas(obj: any, width: number, height: number): HTMLCanvasElement {
   if (!ctx) return canvas;
   
   // ag-psdから取得したキャンバスデータがある場合
-  if (obj && obj.canvas && obj.canvas instanceof HTMLCanvasElement) {
+  if (
+    obj &&
+    obj.canvas &&
+    typeof HTMLCanvasElement !== 'undefined' &&
+    obj.canvas instanceof HTMLCanvasElement
+  ) {
     // 既存のキャンバスからデータをコピー
     ctx.drawImage(obj.canvas, 0, 0);
   } else if (obj && obj.canvas && obj.canvas.data) {
@@ -111,11 +116,14 @@ namespace Internal {
         });
         
         const canvas = convertPsdLayerToCanvas(layer, psd.width, psd.height);
-        console.log('🔍 作成されたCanvas:', canvas instanceof HTMLCanvasElement ? 'HTMLCanvasElement' : typeof canvas);
-        
-        // CanvasをDataURLに変換（JSONでシリアライズ可能にする）
+        const isDom = typeof HTMLCanvasElement !== 'undefined';
+        console.log(
+          '🔍 作成されたCanvas:',
+          isDom && canvas instanceof HTMLCanvasElement ? 'HTMLCanvasElement' : typeof canvas
+        );
+
         let canvasDataUrl = '';
-        if (canvas instanceof HTMLCanvasElement) {
+        if (isDom && canvas instanceof HTMLCanvasElement) {
           try {
             canvasDataUrl = canvas.toDataURL('image/png');
             console.log('🔍 DataURL作成成功、長さ:', canvasDataUrl.length);
@@ -123,15 +131,13 @@ namespace Internal {
             console.warn('🔍 DataURL作成エラー:', error);
           }
         }
-        
+
         return {
           name: layer.name ?? `Layer ${index}`,
           visible: !layer.hidden,
           opacity: layer.opacity ?? 1,
           blendMode: layer.blendMode ?? 'normal',
-          canvasDataUrl: canvasDataUrl,
-          width: psd.width,
-          height: psd.height
+          ...(isDom ? { canvasDataUrl } : { canvas: layer.canvas })
         };
       });
       
