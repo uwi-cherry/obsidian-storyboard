@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Toolbar from './components/Toolbar';
-import CanvasContainer from './components/CanvasContainer';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
 import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
@@ -8,6 +6,8 @@ import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/c
 import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { usePainterLayoutStore } from '../../../obsidian-api/zustand/storage/painter-layout-store';
+import CanvasContainer from './CanvasContainer';
+import Toolbar from './Toolbar';
 
 interface PainterPageProps {
   view?: any;

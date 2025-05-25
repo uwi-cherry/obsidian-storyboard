@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { App, TFile } from 'obsidian';
-import { NavigationControls } from './components/NavigationControls';
-import LayerControls from './components/LayerControls';
-import ChatBox from './components/ChatBox';
+import { NavigationControls } from './features/NavigationControls';
+import LayerControls from './features/LayerControls';
+import ChatBox from './features/ChatBox';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';

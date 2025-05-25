@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import Canvas from './Canvas';
-import ToolProperties from './ToolProperties';
-import ColorProperties from './ColorProperties';
-import ActionProperties from './ActionProperties';
+import { usePainterLayoutStore } from 'src-new/obsidian-api/zustand/storage/painter-layout-store';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
-import { usePainterLayoutStore } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
+import ActionProperties from './features/ActionProperties';
+import Canvas from './features/Canvas';
+import ColorProperties from './features/ColorProperties';
+import ToolProperties from './features/ToolProperties';
 
 interface SelectionRect {
   x: number;

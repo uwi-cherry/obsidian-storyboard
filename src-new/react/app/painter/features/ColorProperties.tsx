@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { LayoutDirection } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
-import ColorWheel from './ColorWheel';
-import { hexToHsl, hslToHex } from '../../../utils/color';
+import ColorWheel from '../../../components/color/ColorWheel';
+import { hexToHsl, hslToHex } from '../../../components/color/color';
 
 interface ColorPropertiesProps {
   color: string;

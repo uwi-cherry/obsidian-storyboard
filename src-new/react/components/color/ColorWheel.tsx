@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import { hslToRgb } from '../../../utils/color';
+import { hslToRgb } from './color';
 
 interface ColorWheelProps {
   hue: number;
