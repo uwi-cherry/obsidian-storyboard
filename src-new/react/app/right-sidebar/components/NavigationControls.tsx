@@ -3,6 +3,7 @@ import { Notice, App, Menu, TFile, MarkdownView } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboard-factory';
+import { toggleStoryboardViewTool } from '../../../../service-api/api/storyboard-tool/toggle-storyboard-view';
 
 interface NavigationControlsProps {
   isPsdPainterOpen: boolean;
@@ -152,106 +153,30 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
               }
             }
             
-            // 現在のリーフでファイルの拡張子に応じて適切なビューに切り替え
-            if (newFile.extension === 'storyboard' && targetLeaf) {
-              console.log('Switching to storyboard view for renamed file');
-              console.log('Target leaf:', targetLeaf);
-              console.log('Target leaf view:', targetLeaf.view);
-              console.log('Is MarkdownView:', targetLeaf.view instanceof MarkdownView);
-              
+            // toggle-storyboard-viewツールを使用してビュー切り替え
+            if ((newFile.extension === 'storyboard' || newFile.extension === 'md') && targetLeaf) {
+              console.log('Using toggle-storyboard-view tool for renamed file');
               try {
-                // ストーリーボードファクトリーを使用してビューを切り替え
                 const factory = new StoryboardFactory();
-                console.log('Created factory:', factory);
-                
-                if (targetLeaf.view instanceof MarkdownView) {
-                  console.log('Calling switchToStoryboardViewMode...');
-                  await factory.switchToStoryboardViewMode(targetLeaf, app);
-                  console.log('Successfully switched to storyboard view');
-                } else {
-                  console.log('Target view is not MarkdownView, cannot switch');
-                }
+                const result = await toggleStoryboardViewTool.execute({
+                  app,
+                  leaf: targetLeaf,
+                  factory
+                });
+                console.log('Toggle result:', result);
               } catch (error) {
-                console.error('Failed to switch to storyboard view:', error);
-                
+                console.error('Failed to toggle view:', error);
                 // フォールバック: file-openイベントを発火
                 console.log('Trying fallback: triggering file-open event');
                 app.workspace.trigger('file-open', newFile);
               }
-            } else if (newFile.extension === 'md' && targetLeaf) {
-              console.log('File renamed to markdown, switching to markdown view');
-              try {
-                // ストーリーボードファクトリーを使用してマークダウンビューに切り替え
-                const factory = new StoryboardFactory();
-                console.log('Switching to markdown view for target leaf');
-                factory.switchToMarkdownViewMode(targetLeaf);
-                console.log('Successfully switched to markdown view');
-              } catch (error) {
-                console.error('Failed to switch to markdown view:', error);
-              }
-            } else if (newFile.extension === 'md' && !targetLeaf) {
-              console.log('No target leaf found for markdown file, triggering file-open event');
-              app.workspace.trigger('file-open', newFile);
-            } else if (newFile.extension === 'storyboard' && !targetLeaf) {
+            } else if (!targetLeaf) {
               console.log('No target leaf found, triggering file-open event');
               app.workspace.trigger('file-open', newFile);
             }
             console.log('File extension change completed');
           } else {
             console.log('Renamed file not found in vault');
-            console.log('Trying alternative search...');
-            
-            // 代替検索: ファイル名で検索
-            const allFiles = app.vault.getFiles();
-            const targetFileName = newFilePath.split('/').pop();
-            const foundFile = allFiles.find(f => f.name === targetFileName);
-            console.log('Alternative search result:', foundFile);
-            
-            if (foundFile) {
-              console.log('File found by alternative search, extension:', foundFile.extension);
-              
-              // ストーリーボードファイルが開かれているMarkdownViewのリーフを探す
-              const markdownLeaves = app.workspace.getLeavesOfType('markdown');
-              let targetLeaf = null;
-              for (const leaf of markdownLeaves) {
-                if (leaf.view instanceof MarkdownView && leaf.view.file?.path === foundFile.path) {
-                  targetLeaf = leaf;
-                  break;
-                }
-              }
-              
-              // 現在のリーフでファイルの拡張子に応じて適切なビューに切り替え
-              if (foundFile.extension === 'storyboard' && targetLeaf) {
-                console.log('Switching to storyboard view for alternative found file');
-                try {
-                  // ストーリーボードファクトリーを使用してビューを切り替え
-                  const factory = new StoryboardFactory();
-                  if (targetLeaf.view instanceof MarkdownView) {
-                    await factory.switchToStoryboardViewMode(targetLeaf, app);
-                    console.log('Successfully switched to storyboard view (alternative)');
-                  }
-                } catch (error) {
-                  console.error('Failed to switch to storyboard view (alternative):', error);
-                }
-              } else if (foundFile.extension === 'storyboard' && !targetLeaf) {
-                console.log('No target leaf found for alternative file, triggering file-open event');
-                app.workspace.trigger('file-open', foundFile);
-              } else if (foundFile.extension === 'md' && targetLeaf) {
-                console.log('Alternative file is markdown, switching to markdown view');
-                try {
-                  // ストーリーボードファクトリーを使用してマークダウンビューに切り替え
-                  const factory = new StoryboardFactory();
-                  factory.switchToMarkdownViewMode(targetLeaf);
-                  console.log('Successfully switched to markdown view (alternative)');
-                } catch (error) {
-                  console.error('Failed to switch to markdown view (alternative):', error);
-                }
-              } else if (foundFile.extension === 'md' && !targetLeaf) {
-                console.log('No target leaf found for alternative markdown file, triggering file-open event');
-                app.workspace.trigger('file-open', foundFile);
-              }
-              console.log('Alternative file extension change completed');
-            }
           }
         } else {
           console.log('No newPath in result');

@@ -57,11 +57,11 @@ namespace Internal {
           const parentPath = file.parent?.path ?? '';
           const baseName = file.basename;
           let counter = 0;
-          let newPath = `${parentPath ? parentPath + '/' : ''}${baseName}.storyboard`;
+          let newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}.storyboard` : `${baseName}.storyboard`;
           
           while (app.vault.getAbstractFileByPath(newPath) && app.vault.getAbstractFileByPath(newPath) !== file) {
             counter += 1;
-            newPath = `${parentPath ? parentPath + '/' : ''}${baseName}-${counter}.storyboard`;
+            newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}-${counter}.storyboard` : `${baseName}-${counter}.storyboard`;
           }
           
           if (newPath !== file.path) {
@@ -79,11 +79,11 @@ namespace Internal {
           const parentPath = file.parent?.path ?? '';
           const baseName = file.basename;
           let counter = 0;
-          let newPath = `${parentPath ? parentPath + '/' : ''}${baseName}.md`;
+          let newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}.md` : `${baseName}.md`;
           
           while (app.vault.getAbstractFileByPath(newPath) && app.vault.getAbstractFileByPath(newPath) !== file) {
             counter += 1;
-            newPath = `${parentPath ? parentPath + '/' : ''}${baseName}-${counter}.md`;
+            newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}-${counter}.md` : `${baseName}-${counter}.md`;
           }
           
           if (newPath !== file.path) {
