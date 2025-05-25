@@ -5,7 +5,6 @@ import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/painter-history-store';
 
-
 interface CanvasProps {
   view?: any;
   pointer: PainterPointer;
@@ -26,7 +25,6 @@ export default function Canvas({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
 
-  // zustandストアから直接取得
   const layers = useLayersStore((state) => state.layers);
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
   const { setLayers } = useLayersStore();
@@ -61,7 +59,6 @@ export default function Canvas({
   const drawingRef = useRef(false);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
-  // キャンバスサイズをPSDサイズに合わせる
   useEffect(() => {
     if (view?._painterData?.canvasWidth && view?._painterData?.canvasHeight) {
       setCanvasSize({
@@ -83,10 +80,8 @@ export default function Canvas({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // チェック枠背景を描画
     const checkSize = 10;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -98,16 +93,13 @@ export default function Canvas({
       }
     }
 
-
     if (layers && layers.length > 0) {
       layers.forEach((layer: any, index: number) => {
         if (layer.visible && layer.canvas) {
           
-          // レイヤーの不透明度を設定
           const originalAlpha = ctx.globalAlpha;
           ctx.globalAlpha = layer.opacity || 1;
           
-          // ブレンドモードを設定（サポートされているもののみ）
           const originalCompositeOperation = ctx.globalCompositeOperation;
           if (layer.blendMode && layer.blendMode !== 'normal') {
             try {
@@ -116,13 +108,11 @@ export default function Canvas({
             }
           }
           
-          // レイヤーのキャンバスを描画
           try {
             ctx.drawImage(layer.canvas, 0, 0);
           } catch (error) {
           }
           
-          // 設定を元に戻す
           ctx.globalAlpha = originalAlpha;
           ctx.globalCompositeOperation = originalCompositeOperation;
         }
@@ -130,7 +120,6 @@ export default function Canvas({
     } else {
     }
 
-    
     if (selectionState.hasSelection()) {
       ctx.save();
       ctx.setLineDash([6]);
@@ -190,7 +179,6 @@ export default function Canvas({
     ctx.lineTo(toPos.x, toPos.y);
     ctx.stroke();
 
-    // 描画後にzustandストアを更新（新しい配列を作成して参照を変更）
     const updatedLayers = [...layers];
     updatedLayers[currentLayerIndex] = { ...layers[currentLayerIndex] };
     setLayers(updatedLayers);
@@ -344,12 +332,10 @@ export default function Canvas({
       onSelectionStart?.();
       startAnimation();
     } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
-      // 操作前の状態を履歴に保存
       historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
 
       drawingRef.current = true;
       lastPosRef.current = { x, y };
-      // 点を描画
       drawOnCurrentLayer({ x, y }, { x, y });
     }
   };
@@ -402,7 +388,6 @@ export default function Canvas({
     } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
       drawingRef.current = false;
       lastPosRef.current = null;
-      // 描画の状態更新はdrawOnCurrentLayerで既に行われている
     }
   };
 

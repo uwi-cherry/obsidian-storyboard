@@ -33,29 +33,24 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     };
   }, [view?.app]);
 
-  // current-psd-file-storeの変化を監視してレイヤーを読み込み
   useEffect(() => {
     if (!app) return;
 
     if (!currentPsdFile) {
-      // PSDファイルがない場合はレイヤーをクリア
       useLayersStore.getState().clearLayers();
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
       setCurrentFile(null);
       return;
     }
 
-    // PainterPageで既に読み込み処理が行われるため、ここでは状態の同期のみ行う
     setCurrentFile(currentPsdFile);  }, [currentPsdFile, app]);
 
-  
   useEffect(() => {
     const handlePsdFileOpened = async (e: Event) => {
       const custom = e as CustomEvent;
       const { file } = custom.detail || {};
       if (!file || !app) return;
 
-      // PainterPageで読み込み処理が行われるため、ここでは状態の同期のみ
       setCurrentFile(file);    };
 
     window.addEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
@@ -65,7 +60,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
   }, [app]);
 
   const handleImageChange = (url: string | null) => {
-    
     
   };
 
@@ -108,7 +102,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     
   };
 
-  
   const currentImageUrl = selectedFrame?.imageUrl || null;
   return (
     <div className="w-full h-full flex flex-col bg-primary border-l border-modifier-border">

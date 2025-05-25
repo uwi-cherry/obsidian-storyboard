@@ -22,7 +22,7 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
 
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
-  const [rotation, setRotation] = useState(0); // radians
+  const [rotation, setRotation] = useState(0);
 
   const draggingRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
@@ -34,7 +34,6 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
   const startScaleRef = useRef(1);
   const startRotationRef = useRef(0);
 
-  // initialize overlay canvas and backup
   useEffect(() => {
     const layer = layers[currentLayerIndex];
     if (!layer) return;
@@ -42,7 +41,6 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     const overlayCanvas = overlayCanvasRef.current;
     if (!ctx || !overlayCanvas) return;
 
-    // backup original
     const backup = document.createElement('canvas');
     backup.width = rect.width;
     backup.height = rect.height;
@@ -61,7 +59,6 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     );
     backupCanvasRef.current = backup;
 
-    // copy selection to overlay
     overlayCanvas.width = rect.width;
     overlayCanvas.height = rect.height;
     const octx = overlayCanvas.getContext('2d');
@@ -78,12 +75,10 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
       rect.height
     );
 
-    // clear original area
     ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
     useLayersStore.getState().setLayers([...layers]);
   }, [rect, layers, currentLayerIndex]);
 
-  // update CSS transform
   useEffect(() => {
     const canvas = overlayCanvasRef.current;
     if (canvas) {
@@ -91,7 +86,6 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     }
   }, [offset, scale, rotation]);
 
-  // global move listeners
   useEffect(() => {
     const move = (e: PointerEvent) => {
       if (!draggingRef.current) return;
@@ -113,7 +107,6 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     };
   }, []);
 
-  // confirm transformation
   const confirm = () => {
     const layer = layers[currentLayerIndex];
     const ctx = layer.canvas.getContext('2d');
@@ -132,7 +125,6 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     onFinish();
   };
 
-  // cancel transformation
   const cancel = () => {
     const layer = layers[currentLayerIndex];
     const ctx = layer.canvas.getContext('2d');
@@ -144,7 +136,6 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     onFinish();
   };
 
-  // handle pointer events
   const onPointerDown = (e: React.PointerEvent) => {
     draggingRef.current = true;
     dragStartRef.current = { x: e.clientX, y: e.clientY };

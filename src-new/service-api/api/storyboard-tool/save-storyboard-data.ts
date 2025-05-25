@@ -3,7 +3,6 @@ import { App, TFile } from 'obsidian';
 import { StoryboardData } from '../../../types/storyboard';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-
 namespace Internal {
   
   export interface SaveStoryboardDataInput {
@@ -15,7 +14,6 @@ namespace Internal {
     data: string;
   }
 
-  
   function formatStoryboardToMarkdown(data: StoryboardData): string {
     let content = '';
     content += '### キャラクター\n\n';
@@ -49,7 +47,6 @@ namespace Internal {
     return content.trimEnd() + (data.chapters.some(c => c.frames.length > 0) ? '\n' : '');
   }
 
-  
   export async function executeSaveStoryboardData(args: SaveStoryboardDataInput): Promise<string> {
     const { app, file, data } = args;
     try {
@@ -62,7 +59,6 @@ namespace Internal {
     }
   }
 }
-
 
 export const saveStoryboardDataTool: Tool<Internal.SaveStoryboardDataInput> = {
   name: TOOL_NAMES.SAVE_STORYBOARD_DATA,

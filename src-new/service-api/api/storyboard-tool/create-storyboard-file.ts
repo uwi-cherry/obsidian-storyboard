@@ -2,7 +2,6 @@ import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-
 namespace Internal {
   
   export interface CreateStoryboardFileInput {
@@ -10,7 +9,6 @@ namespace Internal {
     app: any;
   }
 
-  
   export interface CreateStoryboardFileOutput {
     
     filePath: string;
@@ -18,7 +16,6 @@ namespace Internal {
     message: string;
   }
 
-  
   export const CREATE_STORYBOARD_FILE_METADATA = {
     name: TOOL_NAMES.CREATE_STORYBOARD_FILE,
     description: 'Create a new storyboard file with sample content',
@@ -34,7 +31,6 @@ namespace Internal {
     }
   } as const;
 
-  
   export async function executeCreateStoryboardFile(args: CreateStoryboardFileInput): Promise<string> {
     const { app } = args;
     
@@ -66,7 +62,6 @@ namespace Internal {
     }
   }
 }
-
 
 export const createStoryboardFileTool: Tool<Internal.CreateStoryboardFileInput> = {
   name: TOOL_NAMES.CREATE_STORYBOARD_FILE,

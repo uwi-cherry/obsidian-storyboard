@@ -2,7 +2,6 @@ import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import * as agPsd from 'ag-psd';
 
-
 namespace Internal {
   
   export interface GenerateThumbnailInput {
@@ -10,13 +9,11 @@ namespace Internal {
     file: TFile;
   }
 
-  
   export interface GenerateThumbnailOutput {
     thumbnailData: string | null;
     message: string;
   }
 
-  
   export const GENERATE_THUMBNAIL_METADATA = {
     name: 'generate_thumbnail',
     description: 'Generate thumbnail from PSD file',
@@ -30,7 +27,6 @@ namespace Internal {
     }
   } as const;
 
-  
   export async function executeGenerateThumbnail(args: GenerateThumbnailInput): Promise<string> {
     const { app, file } = args;
 
@@ -94,7 +90,6 @@ namespace Internal {
     }
   }
 }
-
 
 export const generateThumbnailTool: Tool<Internal.GenerateThumbnailInput> = {
   name: 'generate_thumbnail',

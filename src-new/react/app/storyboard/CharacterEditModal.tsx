@@ -15,7 +15,6 @@ const CharacterEditModal: React.FC<{
   const [editChars, setEditChars] = useState<CharacterInfo[]>(characters);
   const [selectedIdx, setSelectedIdx] = useState(0);
 
-  
   const usedCharacterNames = Array.from(new Set(frames.map(frame => frame.speaker).filter(Boolean)));
 
   useEffect(() => {

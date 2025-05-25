@@ -2,27 +2,18 @@ import { App, moment } from 'obsidian';
 
 let app: App | null = null;
 
-/**
- * アプリインスタンスを設定
- */
 export function setAppInstance(appInstance: App): void {
   app = appInstance;
 }
 
-/**
- * Obsidian標準の翻訳機能を使用して翻訳を取得
- */
 export function t(key: string): string {
   if (!app) {
     console.warn('App instance not set for i18n');
     return key;
   }
   
-  // Obsidianの内部翻訳システムを使用
-  // @ts-ignore - Obsidianの内部APIアクセス
   const locale = moment.locale();
   
-  // 日本語の場合は日本語の翻訳を返す
   if (locale === 'ja') {
     const jaTranslations: Record<string, string> = {
       'STORYBOARD_TOGGLE': '絵コンテ切替',
@@ -93,7 +84,6 @@ export function t(key: string): string {
     return jaTranslations[key] || key;
   }
   
-  // 英語の場合は英語の翻訳を返す
   const enTranslations: Record<string, string> = {
     'STORYBOARD_TOGGLE': 'Toggle storyboard',
     'CHARACTER_EDIT': 'Edit characters',

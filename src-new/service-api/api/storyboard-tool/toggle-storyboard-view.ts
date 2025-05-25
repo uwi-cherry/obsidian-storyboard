@@ -2,7 +2,6 @@ import { Tool } from '../../core/tool';
 import { WorkspaceLeaf, MarkdownView } from 'obsidian';
 import { TOOL_NAMES } from '../../../constants/tools-config';
 
-
 namespace Internal {
   
   export interface ToggleStoryboardViewInput {
@@ -14,7 +13,6 @@ namespace Internal {
     factory: any;
   }
 
-  
   export const TOGGLE_STORYBOARD_VIEW_METADATA = {
     name: TOOL_NAMES.TOGGLE_STORYBOARD_VIEW,
     description: 'Toggle between markdown and storyboard view',
@@ -38,7 +36,6 @@ namespace Internal {
     }
   } as const;
 
-  
   export async function executeToggleStoryboardView(args: ToggleStoryboardViewInput): Promise<string> {
     const { app, leaf, factory } = args;
     
@@ -103,7 +100,6 @@ namespace Internal {
     }
   }
 }
-
 
 export const toggleStoryboardViewTool: Tool<Internal.ToggleStoryboardViewInput> = {
   name: TOOL_NAMES.TOGGLE_STORYBOARD_VIEW,

@@ -1,15 +1,12 @@
 import { ToolsConfiguration } from '../service-api/core/tool-config-types';
 
-// ツール名定数
 export const TOOL_NAMES = {
-  // ストーリーボード関連
   CREATE_STORYBOARD_FILE: 'create_storyboard_file',
   RENAME_FILE_EXTENSION: 'rename_file_extension',
   TOGGLE_STORYBOARD_VIEW: 'toggle_storyboard_view',
   LOAD_STORYBOARD_DATA: 'load_storyboard_data',
   SAVE_STORYBOARD_DATA: 'save_storyboard_data',
   
-  // ペインター関連
   CREATE_PAINTER_FILE: 'create_painter_file',
   LOAD_PAINTER_FILE: 'load_painter_file',
   SAVE_PAINTER_FILE: 'save_painter_file',
@@ -17,7 +14,6 @@ export const TOOL_NAMES = {
   UNDO_PAINTER: 'undo_painter',
   REDO_PAINTER: 'redo_painter',
   
-  // レイヤー関連
   ADD_LAYER: 'add_layer',
   REMOVE_LAYER: 'remove_layer',
   SET_LAYER_OPACITY: 'set_layer_opacity',
@@ -26,16 +22,13 @@ export const TOOL_NAMES = {
   TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility'
 } as const;
 
-// ツール名の型定義
 export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
 
-// カテゴリ定数
 export const TOOL_CATEGORIES = {
   STORYBOARD: 'storyboard',
   PAINTER: 'painter'
 } as const;
 
-// カテゴリの型定義
 export type ToolCategory = typeof TOOL_CATEGORIES[keyof typeof TOOL_CATEGORIES];
 
 export const TOOLS_CONFIG: ToolsConfiguration = {
@@ -184,23 +177,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
   }
 };
 
-/**
- * ツール名が有効かチェック
- */
 export function isValidToolName(name: string): name is ToolName {
   return Object.values(TOOL_NAMES).includes(name as ToolName);
 }
 
-/**
- * カテゴリが有効かチェック
- */
 export function isValidToolCategory(category: string): category is ToolCategory {
   return Object.values(TOOL_CATEGORIES).includes(category as ToolCategory);
 }
 
-/**
- * 設定に含まれるすべてのツール名を取得
- */
 export function getConfiguredToolNames(): ToolName[] {
   return TOOLS_CONFIG.tools.map(tool => tool.name as ToolName);
 } 

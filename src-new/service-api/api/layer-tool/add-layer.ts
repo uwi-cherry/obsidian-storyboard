@@ -45,7 +45,6 @@ namespace Internal {
       app
     } = args;
 
-    // 操作前の状態を履歴に保存
     const layersStore = useLayersStore.getState();
     const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
     const historyStore = usePainterHistoryStore.getState();
@@ -86,7 +85,6 @@ namespace Internal {
       ctx.drawImage(img, x, y);
       URL.revokeObjectURL(url);
     } else {
-      // 空のレイヤーを作成
       ctx.fillStyle = 'transparent';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
@@ -99,7 +97,6 @@ namespace Internal {
       canvas
     };
 
-    // zustandストアに追加
     layersStore.addLayer(layer);
 
 

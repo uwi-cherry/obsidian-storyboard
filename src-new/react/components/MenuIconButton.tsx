@@ -47,7 +47,6 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
     return 'text-gray-700 hover:bg-gray-100';
   };
 
-  
   const toggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!disabled) {
@@ -55,7 +54,6 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
     }
   };
 
-  
   const handleOptionClick = (option: MenuOption, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!option.disabled) {
@@ -64,7 +62,6 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
     }
   };
 
-  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node) &&
