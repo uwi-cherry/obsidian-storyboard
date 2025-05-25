@@ -2,6 +2,7 @@ import { Tool } from '../../core/tool';
 import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { useSelectionStateStore } from '../../../obsidian-api/zustand/store/selection-state-store';
 
 namespace Internal {
   export interface RedoPainterInput {
@@ -30,6 +31,7 @@ namespace Internal {
       // レイヤーストアを更新
       useLayersStore.getState().setLayers(snapshot.layers);
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(snapshot.currentLayerIndex);
+      useSelectionStateStore.getState().applySnapshot(snapshot.selectionState);
       
       console.log('🔄 Redo実行:', {
         layersCount: snapshot.layers.length,

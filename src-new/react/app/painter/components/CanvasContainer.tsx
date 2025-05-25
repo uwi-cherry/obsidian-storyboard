@@ -5,6 +5,7 @@ import ColorProperties from './ColorProperties';
 import ActionProperties from './ActionProperties';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
 import { usePainterLayoutStore } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
+import { useSelectionStateStore } from '../../../../obsidian-api/zustand/store/selection-state-store';
 
 interface SelectionRect {
   x: number;
@@ -34,7 +35,8 @@ export default function CanvasContainer({
   setZoom,
   setRotation
 }: Props) {
-  const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
+  const selectionRect = useSelectionStateStore(state => state.selectionRect);
+  const setSelectionRect = useSelectionStateStore(state => state.setSelectionRect);
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
   
@@ -58,7 +60,7 @@ export default function CanvasContainer({
   };
 
   const cancelSelection = () => {
-    setSelectionRect(undefined);
+    useSelectionStateStore.getState().reset();
     setMenuMode('global');
   };
 
@@ -110,7 +112,6 @@ export default function CanvasContainer({
           layers={layers}
           currentLayerIndex={currentLayerIndex}
           view={view}
-          selectionRect={selectionRect}
           onSelectionStart={handleSelectionStart}
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}

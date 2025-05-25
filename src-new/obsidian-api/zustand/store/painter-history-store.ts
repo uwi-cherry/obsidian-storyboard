@@ -1,10 +1,15 @@
 import { create } from 'zustand';
 import { Layer } from '../../../types/painter-types';
 import { MAX_HISTORY_SIZE } from '../../../constants/constants';
+import {
+  useSelectionStateStore,
+  SelectionStateSnapshot
+} from './selection-state-store';
 
 interface HistorySnapshot {
   layers: Layer[];
   currentLayerIndex: number;
+  selectionState: SelectionStateSnapshot;
   timestamp: number;
 }
 
@@ -29,7 +34,7 @@ export const usePainterHistoryStore = create<PainterHistoryState>((set, get) => 
   
   saveHistory: (layers, currentLayerIndex) => {
     const state = get();
-    
+
     // レイヤーのディープコピーを作成（Canvasも含む）
     const layersCopy = layers.map(layer => {
       const canvas = document.createElement('canvas');
@@ -44,10 +49,23 @@ export const usePainterHistoryStore = create<PainterHistoryState>((set, get) => 
         canvas
       };
     });
-    
+
+    const selState = useSelectionStateStore.getState();
+    const selectionSnapshot: SelectionStateSnapshot = {
+      mode: selState.mode,
+      selectionRect: selState.selectionRect
+        ? { ...selState.selectionRect }
+        : undefined,
+      lassoPoints: [...selState.lassoPoints],
+      magicBounding: selState.magicBounding
+        ? { ...selState.magicBounding }
+        : undefined
+    };
+
     const snapshot: HistorySnapshot = {
       layers: layersCopy,
       currentLayerIndex,
+      selectionState: selectionSnapshot,
       timestamp: Date.now()
     };
     
