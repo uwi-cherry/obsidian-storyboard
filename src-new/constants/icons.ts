@@ -54,15 +54,64 @@ const TABLE_ICON_PATHS = {
   menu: `<circle cx="12" cy="5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="19" r="2" fill="currentColor"/>`
 };
 
+// SVG path definitions for each tool icon.
+// All paths use stroke-only outlines (fill="none") to keep icons lightweight and theme‑aware.
+// For full SVG output you can wrap the path string in
+//   <svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"> … </svg>
+// in your renderer.
+
 const TOOL_ICON_PATHS = {
-  pen: `<path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/>`,
-  brush: `<path d="M20 5l-2 2a2 2 0 0 1-2.5 0L5 17l-2 2a2 2 0 0 1-2.5-2.5L13 6a2 2 0 0 1 2.5 0L20 5z"/>`,
-  'paint-brush': `<path d="M18.37 2.63l3 3a1 1 0 0 1 0 1.41L8.5 19.91a2 2 0 0 1-1.41.59H3a1 1 0 0 1-1-1v-4.09a2 2 0 0 1 .59-1.41L15.46 1.22a1 1 0 0 1 1.41 0l1.5 1.41z"/><circle cx="6" cy="18" r="3"/>`,
-  'color-mixer': `<circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="16" cy="16" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 12l4 4" stroke="currentColor" stroke-width="2"/>`,
-  eraser: `<path d="M18 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="14 3 20 3 20 9"/><line x1="10" y1="14" x2="20" y2="4"/>`,
-  selection: `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="21" x2="10" y2="10"/>`,
-  hand: `<path d="M7 12V6a1 1 0 0 1 2 0v5"/><path d="M11 13V3a1 1 0 0 1 2 0v8"/><path d="M16 12V7a1 1 0 0 1 2 0v5"/><path d="M5 14s1 2 4 2 4-2 4-2 1 2 4 2 4-2 4-2"/>`
+  // ✒️  Ball‑point / pen‑tool nib
+  pen: `
+    <path d="M14.7 3.3l6 6-9.4 9.4-4.6 1.3 1.3-4.6 9.4-9.4z" fill="none"/>
+    <circle cx="17.8" cy="6.2" r="1.2"/>
+  `,
+
+  // 💨 Airbrush gun – body, handle, and spray dots
+  brush: `
+    <rect x="2" y="10" width="14" height="4" rx="1" ry="1" fill="none"/>
+    <path d="M9 14v6" fill="none"/>
+    <circle cx="18" cy="12" r="1"/>
+    <circle cx="20" cy="12" r="1"/>
+    <circle cx="22" cy="12" r="1"/>
+  `,
+
+  // 🖌️ Traditional paint‑brush – handle & bristles
+  'paint-brush': `
+    <path d="M4 22c.5-2.5 2-4.5 4-6l9-9-3-3-9 9c-1.5 1.5-3.5 3.5-6 4l5 5z" fill="none"/>
+    <path d="M14 5l3 3" fill="none"/>
+  `,
+
+  // 🎨 Color‑mixer – three overlapping translucent circles
+  'color-mixer': `
+    <circle cx="9"  cy="9"  r="6" fill="currentColor" fill-opacity="0.25"/>
+    <circle cx="15" cy="9"  r="6" fill="currentColor" fill-opacity="0.25"/>
+    <circle cx="12" cy="15" r="6" fill="currentColor" fill-opacity="0.25"/>
+  `,
+
+  // 🧽 Eraser – beveled head + sleeve + wipe line
+  eraser: `
+    <path d="M3 14l7.5-7.5a2 2 0 0 1 2.83 0l5.17 5.17a2 2 0 0 1 0 2.83L13 22a2 2 0 0 1-2.83 0L3 14z" fill="none"/>
+    <path d="M14 7l3 3" fill="none"/>
+    <path d="M2 22h6" fill="none"/>
+  `,
+
+  // 🔲 Rectangular selection tool
+  selection: `
+    <rect x="4" y="4" width="16" height="16" rx="2" ry="2" fill="none"/>
+    <path d="M4 9h16" fill="none"/>
+    <path d="M9 20V9" fill="none"/>
+  `,
+
+  // 🤚 Hand / pan tool – three raised fingers & curved palm
+  hand: `
+    <path d="M7 12V6a1.5 1.5 0 0 1 3 0v6" fill="none"/>
+    <path d="M11 13V3a1.5 1.5 0 0 1 3 0v10" fill="none"/>
+    <path d="M16 13V7a1.5 1.5 0 0 1 3 0v10" fill="none"/>
+    <path d="M5 16s2 4 7 4 7-4 7-4" fill="none"/>
+  `,
 };
+
 
 const BUTTON_ICON_PATHS = {
   fileSelect: `<path d="M8 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M17 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h6.5L17 6.5zM4 2a1 1 0 0 0-1 1v12l2.7-2.7a.5.5 0 0 1 .7-.1L10 14l2.6-3.6a.5.5 0 0 1 .9-.1L16 12V6.5h-2A2 2 0 0 1 12 4.5V2z"/>`,
