@@ -1,164 +1,146 @@
-// 内部定数（中小サイズのみ）
+// アイコンシステム - ObsidianとReact用に分離
 const SVG_BASE = 'xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"';
 const STROKE_ATTRS = 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const VIEWBOX = '0 0 24 24';
 
-// 中小サイズ
-const SVG_MEDIUM = `${SVG_BASE} width="20" height="20" viewBox="0 0 20 20" ${STROKE_ATTRS}`;   // 20x20  
-const SVG_SMALL = `${SVG_BASE} width="16" height="16" viewBox="0 0 16 16" ${STROKE_ATTRS}`;    // 16x16
+// Obsidian用の設定（24x24統一、サイズ指定なし）
+const OBSIDIAN_SVG = `${SVG_BASE} viewBox="${VIEWBOX}" ${STROKE_ATTRS}`;
 
-// ───────────────────────────
-// 1) ベースアイコン（20x20統一）
-// ───────────────────────────
-
-// PSDアイコン
-export const PSD_ICON_SVG = `<svg ${SVG_MEDIUM}>
-  <rect x="3" y="3" width="14" height="14" rx="2" ry="2"/>
-  <line x1="3" y1="8" x2="17" y2="8"/>
-  <line x1="8" y1="17" x2="8" y2="8"/>
-</svg>`;
-
-// ペインターアイコン（パレットと星の組み合わせ）
-export const PAINTER_ICON_SVG = `<svg ${SVG_MEDIUM}>
-  <path d="M10 2l2.5 5L17 7.5l-4 4L14 16l-4-2.5L6 16l1-4.5L3 7.5l4.5-.5L10 2z"/>
-  <circle cx="10" cy="10" r="2"/>
-</svg>`;
-
-// タイムラインアイコン
-export const TIMELINE_ICON_SVG = `<svg ${SVG_MEDIUM}>
-  <line x1="3" y1="10" x2="17" y2="10"/>
-  <circle cx="5" cy="10" r="1"/>
-  <circle cx="10" cy="10" r="1"/>
-  <circle cx="15" cy="10" r="1"/>
-  <line x1="5" y1="7" x2="5" y2="8"/>
-  <line x1="10" y1="7" x2="10" y2="8"/>
-  <line x1="15" y1="7" x2="15" y2="8"/>
-</svg>`;
-
-// ストーリーボード
-export const STORYBOARD_ICON_SVG = `<svg ${SVG_MEDIUM}>
-  <path d="M3 16v-12A2 2 0 0 1 5 2h12v16H5a2 2 0 0 1 0-4h12"/>
-  <path d="M6 6h8"/><path d="M6 9h8"/><path d="M6 12h6"/>
-</svg>`;
-
-// ストーリーボードトグル
-export const STORYBOARD_TOGGLE_ICON_SVG = `<svg ${SVG_MEDIUM}>
-  <polyline points="13 3 17 3 17 7"/><line x1="3" y1="17" x2="17" y2="3"/><polyline points="7 17 3 17 3 13"/>
-</svg>`;
+// React用の設定（24x24座標系、20x20表示サイズ）
+const REACT_SVG = `${SVG_BASE} width="20" height="20" viewBox="${VIEWBOX}" ${STROKE_ATTRS}`;
 
 // ───────────────────────────
-// 2) テーブル操作 20×20 アイコン（統一サイズ）
+// アイコンパス定義（24x24ベース）
 // ───────────────────────────
+
+// PSDアイコンパス
+const PSD_ICON_PATH = `
+  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+  <line x1="4" y1="10" x2="20" y2="10"/>
+  <line x1="10" y1="20" x2="10" y2="10"/>
+`;
+
+// ペインターアイコンパス（パレットと星の組み合わせ）
+const PAINTER_ICON_PATH = `
+  <path d="M12 2l3 6L21 9l-4.5 4.5L18 21l-6-3.5L6 21l1.5-7.5L3 9l6-.5L12 2z"/>
+  <circle cx="12" cy="12" r="2"/>
+`;
+
+// タイムラインアイコンパス
+const TIMELINE_ICON_PATH = `
+  <line x1="4" y1="12" x2="20" y2="12"/>
+  <circle cx="6" cy="12" r="1"/>
+  <circle cx="12" cy="12" r="1"/>
+  <circle cx="18" cy="12" r="1"/>
+  <line x1="6" y1="8" x2="6" y2="10"/>
+  <line x1="12" y1="8" x2="12" y2="10"/>
+  <line x1="18" y1="8" x2="18" y2="10"/>
+`;
+
+// ストーリーボードパス
+const STORYBOARD_ICON_PATH = `
+  <path d="M4 19v-14A2 2 0 0 1 6 3h14v18H6a2 2 0 0 1 0-4h14"/>
+  <path d="M7 7h10"/><path d="M7 11h10"/><path d="M7 15h7"/>
+`;
+
+// ストーリーボードトグルパス
+const STORYBOARD_TOGGLE_ICON_PATH = `
+  <polyline points="15 4 20 4 20 9"/><line x1="4" y1="20" x2="20" y2="4"/><polyline points="9 20 4 20 4 15"/>
+`;
+
+// 追加アイコンパス
+const ADD_ICON_PATH = `
+  <line x1="12" y1="7" x2="12" y2="17"/>
+  <line x1="7" y1="12" x2="17" y2="12"/>
+`;
+
+// 折りたたみアイコンパス
+const FOLD_ICON_PATH = `
+  <polyline points="9 6 15 12 9 18"/>
+`;
+
+// ───────────────────────────
+// テーブル操作アイコンパス
+// ───────────────────────────
+const TABLE_ICON_PATHS = {
+  moveUp: `<polyline points="6 14 12 8 18 14"/>`,
+  moveDown: `<polyline points="6 10 12 16 18 10"/>`,
+  add: `<line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/>`,
+  addBelow: `<polyline points="12 5 12 15"/><polyline points="8 11 12 15 16 11"/>`,
+  delete: `<line x1="8" y1="8" x2="16" y2="16"/><line x1="16" y1="8" x2="8" y2="16"/>`,
+  menu: `<circle cx="12" cy="5" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="19" r="2" fill="currentColor"/>`
+};
+
+// ───────────────────────────
+// ツールアイコンパス
+// ───────────────────────────
+const TOOL_ICON_PATHS = {
+  brush: `<path d="M20 5l-2 2a2 2 0 0 1-2.5 0L5 17l-2 2a2 2 0 0 1-2.5-2.5L13 6a2 2 0 0 1 2.5 0L20 5z"/>`,
+  eraser: `<path d="M18 12v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="14 3 20 3 20 9"/><line x1="10 14" y1="14" x2="20" y2="4"/>`,
+  selection: `<rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="10" y1="21" x2="10" y2="10"/>`,
+  hand: `<path d="M7 12V6a1 1 0 0 1 2 0v5"/><path d="M11 13V3a1 1 0 0 1 2 0v8"/><path d="M16 12V7a1 1 0 0 1 2 0v5"/><path d="M5 14s1 2 4 2 4-2 4-2 1 2 4 2 4-2 4-2"/>`
+};
+
+// ───────────────────────────
+// ボタンアイコンパス
+// ───────────────────────────
+const BUTTON_ICON_PATHS = {
+  fileSelect: `<path d="M8 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M17 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h6.5L17 6.5zM4 2a1 1 0 0 0-1 1v12l2.7-2.7a.5.5 0 0 1 .7-.1L10 14l2.6-3.6a.5.5 0 0 1 .9-.1L16 12V6.5h-2A2 2 0 0 1 12 4.5V2z"/>`,
+  aiGenerate: `<path d="M7 .3a.9.9 0 0 1 .1 1 8.6 8.6 0 0 0-1 4.1c0 4.8 3.9 8.7 8.8 8.7q.9 0 1.8-.2a.9.9 0 0 1 1 .4.9.9 0 0 1 0 1.1A10 10 0 0 1 10 19C4.5 19 0 14.7 0 9.3 0 5.1 2.5 1.6 6.1.1A.9.9 0 0 1 7 .3M5.8 1.6A8.7 8.7 0 0 0 1.2 9.3c0 4.8 3.9 8.7 8.8 8.7a8.8 8.8 0 0 0 6.2-2.6q-.6.1-1.2.1c-5.5 0-10-4.5-10-10 0-1.4.3-2.7.8-3.9"/><path d="M13 3.8a.3.3 0 0 1 .5 0l.5 1.4c.2.6.7 1.1 1.3 1.3l1.4.5a.3.3 0 0 1 0 .5l-1.4.5a2.1 2.1 0 0 0-1.3 1.3l-.5 1.4a.3.3 0 0 1-.5 0l-.5-1.4a2.1 2.1 0 0 0-1.3-1.3l-1.4-.5a.3.3 0 0 1 0-.5l1.4-.5c.4-.1.7-.5 1.3-1.3zM16.6.1a.2.2 0 0 1 .3 0l.3.9c.1.4.5.7.9.9l.9.3a.2.2 0 0 1 0 .3l-.9.3a1.4 1.4 0 0 0-.9.9l-.3.9a.2.2 0 0 1-.3 0l-.3-.9a1.4 1.4 0 0 0-.9-.9l-.9-.3a.2.2 0 0 1 0-.3l.9-.3c.4-.1.7-.5.9-.9z"/>`,
+  clearPath: `<path d="M2 6h20"/><path d="M19 6v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>`
+};
+
+// ───────────────────────────
+// Obsidian用エクスポート（完全なSVG）
+// ───────────────────────────
+export const OBSIDIAN_ICONS = {
+  PSD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${PSD_ICON_PATH}</svg>`,
+  PAINTER_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${PAINTER_ICON_PATH}</svg>`,
+  TIMELINE_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${TIMELINE_ICON_PATH}</svg>`,
+  STORYBOARD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${STORYBOARD_ICON_PATH}</svg>`,
+  STORYBOARD_TOGGLE_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${STORYBOARD_TOGGLE_ICON_PATH}</svg>`,
+  ADD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${ADD_ICON_PATH}</svg>`,
+  FOLD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${FOLD_ICON_PATH}</svg>`
+};
+
+// ───────────────────────────
+// React用エクスポート（完全なSVG）
+// ───────────────────────────
+export const PSD_ICON_SVG = `<svg ${REACT_SVG}>${PSD_ICON_PATH}</svg>`;
+export const PAINTER_ICON_SVG = `<svg ${REACT_SVG}>${PAINTER_ICON_PATH}</svg>`;
+export const TIMELINE_ICON_SVG = `<svg ${REACT_SVG}>${TIMELINE_ICON_PATH}</svg>`;
+export const STORYBOARD_ICON_SVG = `<svg ${REACT_SVG}>${STORYBOARD_ICON_PATH}</svg>`;
+export const STORYBOARD_TOGGLE_ICON_SVG = `<svg ${REACT_SVG}>${STORYBOARD_TOGGLE_ICON_PATH}</svg>`;
+export const FOLD_ICON_SVG = `<svg ${REACT_SVG}>${FOLD_ICON_PATH}</svg>`;
+export const ADD_ICON_SVG = `<svg ${REACT_SVG}>${ADD_ICON_PATH}</svg>`;
+
+// テーブルアイコン（React用）
 export const TABLE_ICONS = {
-  // 上へ
-  moveUp: `<svg ${SVG_MEDIUM}>
-    <polyline points="5 12 10 7 15 12"/>
-  </svg>`,
-
-  // 下へ
-  moveDown: `<svg ${SVG_MEDIUM}>
-    <polyline points="5 8 10 13 15 8"/>
-  </svg>`,
-
-  // 行を上に挿入
-  add: `<svg ${SVG_MEDIUM}>
-    <line x1="10" y1="6" x2="10" y2="14"/>
-    <line x1="6"  y1="10" x2="14" y2="10"/>
-  </svg>`,
-
-  // 行を追加（下に）
-  addBelow: `<svg ${SVG_MEDIUM}>
-    <polyline points="10 4 10 12"/>
-    <polyline points="6 8 10 12 14 8"/>
-  </svg>`,
-
-  // 行を削除
-  delete: `<svg ${SVG_MEDIUM}>
-    <line x1="7" y1="7" x2="13" y2="13"/>
-    <line x1="13" y1="7" x2="7"  y2="13"/>
-  </svg>`,
-
-  // メニュー
-  menu: `<svg ${SVG_MEDIUM}>
-    <circle cx="10" cy="4"  r="1.5" fill="currentColor"/>
-    <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
-    <circle cx="10" cy="16" r="1.5" fill="currentColor"/>
-  </svg>`
+  moveUp: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.moveUp}</svg>`,
+  moveDown: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.moveDown}</svg>`,
+  add: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.add}</svg>`,
+  addBelow: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.addBelow}</svg>`,
+  delete: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.delete}</svg>`,
+  menu: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.menu}</svg>`
 };
 
-// ───────────────────────────
-// 3) レイヤー操作アイコン（可視性改善）
-// ───────────────────────────
+// レイヤーアイコン（React用）
 export const LAYER_ICONS = {
-  // レイヤー追加（可視性改善版）
-  add: `<svg ${SVG_SMALL}>
-    <line x1="10" y1="6" x2="10" y2="14"/>
-    <line x1="6" y1="10" x2="14" y2="10"/>
-  </svg>`,
-
-  // レイヤー削除（可視性改善版）
-  delete: `<svg ${SVG_SMALL}>
-    <line x1="7" y1="7" x2="13" y2="13"/>
-    <line x1="13" y1="7" x2="7" y2="13"/>
-  </svg>`
+  add: `<svg ${REACT_SVG}>${ADD_ICON_PATH}</svg>`,
+  delete: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.delete}</svg>`
 };
 
-// ───────────────────────────
-// 4) そのほか（統一されたサイズ）
-// ───────────────────────────
-export const FOLD_ICON_SVG = `<svg ${SVG_MEDIUM}>
-  <polyline points="8 5 13 10 8 15"/>
-</svg>`;
-
-export const NOTE_ICON_SVG = `<svg ${SVG_BASE} viewBox="0 0 24 24" fill="currentColor">
-  <path d="M9 3v12.563A2.5 2.5 0 1 1 7 13V6.132L19 4v9.563A2.5 2.5 0 1 1 17 11V3H9z"/>
-</svg>`;
-
-// 汎用追加アイコン（テーブルアイコンと統一、可視性改善）
-export const ADD_ICON_SVG = `<svg ${SVG_MEDIUM}>
-  <line x1="10" y1="6" x2="10" y2="14"/>
-  <line x1="6" y1="10" x2="14" y2="10"/>
-</svg>`;
-
-// ツールアイコン（20×20統一）
+// ツールアイコン（React用）
 export const TOOL_ICONS = {
-    brush: `<svg ${SVG_MEDIUM}>
-        <path d="M17 4l-1.5 1.5a1.5 1.5 0 0 1-2 0L4 15l-1.5 1.5a1.5 1.5 0 0 1-2-2L11 5a1.5 1.5 0 0 1 2 0L17 4z"/>
-    </svg>`,
-    eraser: `<svg ${SVG_MEDIUM}>
-        <path d="M15 10v5a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5V6a1.5 1.5 0 0 1 1.5-1.5h5"/>
-        <polyline points="12 2 17 2 17 7"/>
-        <line x1="8" y1="12" x2="17" y2="3"/>
-    </svg>`,
-    selection: `<svg ${SVG_MEDIUM}>
-        <rect x="2" y="2" width="16" height="16" rx="2" ry="2"/>
-        <line x1="2" y1="8" x2="18" y2="8"/>
-        <line x1="8" y1="18" x2="8" y2="8"/>
-    </svg>`,
-    hand: `<svg ${SVG_MEDIUM}>
-        <path d="M6 10V4a1 1 0 0 1 2 0v4"/>
-        <path d="M10 11V2a1 1 0 0 1 2 0v7"/>
-        <path d="M14 10V5a1 1 0 0 1 2 0v5"/>
-        <path d="M4 12s1 2 3 2 3-2 3-2 1 2 3 2 3-2 3-2"/>
-    </svg>`
+  brush: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.brush}</svg>`,
+  eraser: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.eraser}</svg>`,
+  selection: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.selection}</svg>`,
+  hand: `<svg ${REACT_SVG}>${TOOL_ICON_PATHS.hand}</svg>`
 };
 
-// ボタンアイコン（16×16統一）
+// ボタンアイコン（React用）
 export const BUTTON_ICONS = {
-    // ファイル選択
-    fileSelect: `<svg ${SVG_SMALL}>
-        <path d="M6.502 7a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3"/>
-        <path d="M14 14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zM4 1a1 1 0 0 0-1 1v10l2.224-2.224a.5.5 0 0 1 .61-.075L8 11l2.157-3.02a.5.5 0 0 1 .76-.063L13 10V4.5h-2A1.5 1.5 0 0 1 9.5 3V1z"/>
-    </svg>`,
-    // AI生成
-    aiGenerate: `<svg ${SVG_SMALL}>
-        <path d="M6 .278a.77.77 0 0 1 .08.858 7.2 7.2 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277q.792-.001 1.533-.16a.79.79 0 0 1 .81.316.73.73 0 0 1-.031.893A8.35 8.35 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.75.75 0 0 1 6 .278M4.858 1.311A7.27 7.27 0 0 0 1.025 7.71c0 4.02 3.279 7.276 7.319 7.276a7.32 7.32 0 0 0 5.205-2.162q-.506.063-1.029.063c-4.61 0-8.343-3.714-8.343-8.290 0-1.167.242-2.278.681-3.286"/>
-        <path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.73 1.73 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.73 1.73 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.73 1.73 0 0 0 1.097-1.097zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.16 1.16 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.16 1.16 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732z"/>
-    </svg>`,
-    // パスをクリア
-    clearPath: `<svg ${SVG_SMALL}>
-        <path d="M2 5h16"/>
-        <path d="M16 5v10a1.5 1.5 0 0 1-1.5 1.5H5.5a1.5 1.5 0 0 1-1.5-1.5V5m2 0V3a1.5 1.5 0 0 1 1.5-1.5h3A1.5 1.5 0 0 1 12 3v2"/>
-        <line x1="8" y1="9" x2="8" y2="14"/>
-        <line x1="12" y1="9" x2="12" y2="14"/>
-    </svg>`
+  fileSelect: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.fileSelect}</svg>`,
+  aiGenerate: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.aiGenerate}</svg>`,
+  clearPath: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.clearPath}</svg>`
 }; 

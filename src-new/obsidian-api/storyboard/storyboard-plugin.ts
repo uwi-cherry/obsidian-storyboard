@@ -1,6 +1,6 @@
 import { Plugin, addIcon, TFile, WorkspaceLeaf, MarkdownView } from 'obsidian';
 import { StoryboardFactory } from './storyboard-factory';
-import { STORYBOARD_ICON_SVG, STORYBOARD_TOGGLE_ICON_SVG } from '../../constants/icons';
+import { OBSIDIAN_ICONS } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { TOOL_NAMES } from '../../constants/tools-config';
 
@@ -14,19 +14,11 @@ export class StoryboardPlugin {
   }
 
   initialize(): void {
-
-    addIcon('storyboard', STORYBOARD_ICON_SVG);
-    addIcon('storyboard-toggle', STORYBOARD_TOGGLE_ICON_SVG);
-
+    addIcon('storyboard', OBSIDIAN_ICONS.STORYBOARD_ICON_SVG);
+    addIcon('storyboard-toggle', OBSIDIAN_ICONS.STORYBOARD_TOGGLE_ICON_SVG);
 
     this.plugin.registerExtensions(['storyboard'], 'markdown');
     
-
-
-
-
-
-
     const ensureButtonsInAllMarkdownViews = () => {
       this.plugin.app.workspace.getLeavesOfType('markdown').forEach((leaf: WorkspaceLeaf) => {
         if (leaf.view instanceof MarkdownView) {
@@ -34,7 +26,6 @@ export class StoryboardPlugin {
         }
       });
     };
-
 
     const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
       if (leaf && leaf.view instanceof MarkdownView) {
@@ -45,14 +36,11 @@ export class StoryboardPlugin {
     this.plugin.registerEvent(this.plugin.app.workspace.on('layout-change', ensureButtonsInAllMarkdownViews));
     this.plugin.registerEvent(this.plugin.app.workspace.on('active-leaf-change', handleActiveLeafChange));
 
-
     ensureButtonsInAllMarkdownViews();
-
 
     const handleFileOpen = async (file: TFile) => {
       const activeLeaf = this.plugin.app.workspace.activeLeaf;
       if (!activeLeaf || !(activeLeaf.view instanceof MarkdownView)) return;
-
 
       if (file.extension === 'storyboard') {
         await this.factory.switchToStoryboardViewMode(activeLeaf, this.plugin.app);
@@ -62,16 +50,12 @@ export class StoryboardPlugin {
     };
     this.plugin.registerEvent(this.plugin.app.workspace.on('file-open', handleFileOpen));
     
-
     this.plugin.register(() => {
       this.factory.cleanupStoryboardViewRoots(this.plugin.app);
     });
   }
 
-
   getFactory(): StoryboardFactory {
     return this.factory;
   }
-
-
 } 

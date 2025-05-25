@@ -1,6 +1,6 @@
 import { Plugin, addIcon, TFile } from 'obsidian';
 import { PainterFactory } from './painter-factory';
-import { PAINTER_ICON_SVG } from '../../constants/icons';
+import { OBSIDIAN_ICONS } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { PainterView } from './painter-view';
 
@@ -14,7 +14,7 @@ export class PainterPlugin {
   }
 
   initialize(): void {
-    addIcon('palette', PAINTER_ICON_SVG);
+    addIcon('palette', OBSIDIAN_ICONS.PAINTER_ICON_SVG);
     this.plugin.registerView('psd-view', (leaf) => this.factory.createPainterView(leaf));
     this.plugin.registerExtensions(['psd', 'painter'], 'psd-view');
     

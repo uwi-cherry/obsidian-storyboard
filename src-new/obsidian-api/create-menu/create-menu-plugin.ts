@@ -1,5 +1,5 @@
 import { Plugin, addIcon, Menu, TFile } from 'obsidian';
-import { ADD_ICON_SVG } from '../../constants/icons';
+import { OBSIDIAN_ICONS } from '../../constants/icons';
 import { toolRegistry } from '../../service-api/core/tool-registry';
 import { TOOL_NAMES } from '../../constants/tools-config';
 
@@ -11,7 +11,7 @@ export class CreateMenuPlugin {
   }
 
   initialize(): void {
-    addIcon('create-menu', ADD_ICON_SVG);
+    addIcon('create-menu', OBSIDIAN_ICONS.ADD_ICON_SVG);
     
     const ribbonIcon = this.plugin.addRibbonIcon('create-menu', '新規作成', async (evt: MouseEvent) => {
       const menu = new Menu();

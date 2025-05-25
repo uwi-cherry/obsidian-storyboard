@@ -1,6 +1,6 @@
 import { Plugin, addIcon } from 'obsidian';
 import { TimelineFactory } from './timeline-factory';
-import { TIMELINE_ICON_SVG } from '../../constants/icons';
+import { OBSIDIAN_ICONS } from '../../constants/icons';
 
 export class TimelinePlugin {
   private plugin: Plugin;
@@ -12,7 +12,7 @@ export class TimelinePlugin {
   }
 
   initialize(): void {
-    addIcon('timeline', TIMELINE_ICON_SVG);
+    addIcon('timeline', OBSIDIAN_ICONS.TIMELINE_ICON_SVG);
     this.plugin.registerView('timeline-view', (leaf) => this.factory.createTimelineView(leaf));
     this.plugin.registerExtensions(['otio', 'timeline'], 'timeline-view');
     
