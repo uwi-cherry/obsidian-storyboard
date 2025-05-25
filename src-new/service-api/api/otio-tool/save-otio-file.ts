@@ -26,7 +26,7 @@ namespace Internal {
       metadata: {
         fps: 30,
         resolution: { width: 1920, height: 1080 },
-        psd_references: []
+
       }
     };
   }
@@ -38,9 +38,7 @@ namespace Internal {
     if (!projectToSave.metadata) {
       projectToSave.metadata = createEmptyProject().metadata;
     }
-    if (projectToSave.metadata.psd_references === undefined) {
-      projectToSave.metadata.psd_references = [];
-    }
+    
 
     const content = JSON.stringify(projectToSave, null, 2);
     await app.vault.modify(file, content);

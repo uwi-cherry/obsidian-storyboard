@@ -25,7 +25,7 @@ namespace Internal {
       metadata: {
         fps: 30,
         resolution: { width: 1920, height: 1080 },
-        psd_references: []
+
       }
     };
   }
@@ -45,9 +45,7 @@ namespace Internal {
     if (!project.metadata) {
       project.metadata = createEmptyProject().metadata;
     }
-    if (project.metadata.psd_references === undefined) {
-      project.metadata.psd_references = [];
-    }
+    
 
     return JSON.stringify(project);
   }

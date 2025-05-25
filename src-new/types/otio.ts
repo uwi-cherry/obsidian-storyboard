@@ -50,7 +50,7 @@ export interface OtioProjectMetadata {
     width: number;
     height: number;
   };
-  psd_references?: { name: string; file_path: string; type: string }[];
+
   currentPsdFilePath?: string;
 }
 

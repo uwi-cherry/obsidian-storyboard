@@ -33,7 +33,7 @@ namespace Internal {
       metadata: {
         fps: 30,
         resolution: { width: 1920, height: 1080 },
-        psd_references: []
+
       }
     };
   }
