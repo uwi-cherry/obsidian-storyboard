@@ -202,7 +202,7 @@ export default function Canvas({
       ctx.stroke();
     } else if (pointer.tool === 'brush') {
       if (pointer.drawingMode === 'erase-soft') {
-        // 透明度減算モード：消しゴムとして動作
+        // ソフト消しゴムモード
         drawWithEraseSoft(ctx, fromPos, toPos);
       } else if (pointer.brushOpacity === 0) {
         // 透明度0%の場合：にじみツール（隣接する異なる色を混色）
@@ -221,7 +221,7 @@ export default function Canvas({
   const drawWithEraseSoft = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
     const opacity = pointer.brushOpacity / 100;
     
-    // 透明度減算：消しゴム効果
+    // 消しゴム効果
     ctx.globalCompositeOperation = 'destination-out';
     ctx.globalAlpha = opacity; // ブラシ不透明度をそのまま適用
     ctx.strokeStyle = 'rgba(0,0,0,1)';
