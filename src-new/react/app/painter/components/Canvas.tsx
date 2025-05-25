@@ -133,8 +133,13 @@ export default function Canvas({
     const ctx = layerCanvas.getContext('2d');
     if (!ctx) return;
 
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.strokeStyle = pointer.color;
+    if (pointer.tool === 'eraser') {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.strokeStyle = pointer.color;
+    }
     ctx.lineWidth = pointer.lineWidth;
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -175,7 +180,7 @@ export default function Canvas({
       startYRef.current = y;
       onSelectionUpdate?.({ x, y, width: 0, height: 0 });
       onSelectionStart?.();
-    } else if (pointer.tool === 'brush') {
+    } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
       // 操作前の状態を履歴に保存
       historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
 
@@ -195,7 +200,7 @@ export default function Canvas({
       const w = Math.abs(x - startXRef.current);
       const h = Math.abs(y - startYRef.current);
       onSelectionUpdate?.({ x: x0, y: y0, width: w, height: h });
-    } else if ((pointer.tool === 'brush') && drawingRef.current && lastPosRef.current) {
+    } else if ((pointer.tool === 'brush' || pointer.tool === 'eraser') && drawingRef.current && lastPosRef.current) {
       drawOnCurrentLayer(lastPosRef.current, { x, y });
       lastPosRef.current = { x, y };
     }
@@ -211,7 +216,7 @@ export default function Canvas({
         onSelectionUpdate?.(undefined as any);
         onSelectionEnd?.(undefined);
       }
-    } else if (pointer.tool === 'brush') {
+    } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
       drawingRef.current = false;
       lastPosRef.current = null;
       // 描画結果をzustandストアに反映
