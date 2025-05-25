@@ -46,9 +46,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     }
 
     // PainterPageで既に読み込み処理が行われるため、ここでは状態の同期のみ行う
-    setCurrentFile(currentPsdFile);
-    console.log('🔍 RightSidebar: PSDファイル状態を同期:', currentPsdFile.path);
-  }, [currentPsdFile, app]);
+    setCurrentFile(currentPsdFile);  }, [currentPsdFile, app]);
 
   
   useEffect(() => {
@@ -58,25 +56,13 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
       if (!file || !app) return;
 
       // PainterPageで読み込み処理が行われるため、ここでは状態の同期のみ
-      setCurrentFile(file);
-      console.log('🔍 RightSidebar: PSDファイルオープンイベント受信:', file.path);
-    };
+      setCurrentFile(file);    };
 
     window.addEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
     return () => {
       window.removeEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
     };
   }, [app]);
-
-  // デバッグ: レイヤー状態をログ出力
-  useEffect(() => {
-    console.log('🔍 RightSidebar: レイヤー状態変化:', {
-      layers: layers,
-      layersLength: layers?.length,
-      currentPsdFile: currentPsdFile?.path,
-      isPsdPainterOpen: isPsdPainterOpen
-    });
-  }, [layers, currentPsdFile, isPsdPainterOpen]);
 
   const handleImageChange = (url: string | null) => {
     
@@ -124,14 +110,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
 
   
   const currentImageUrl = selectedFrame?.imageUrl || null;
-
-  console.log('🔍 RightSidebar: レンダリング時の状態:', {
-    layers: layers,
-    layersLength: layers?.length,
-    showLayerControls: layers && layers.length > 0,
-    currentPsdFile: currentPsdFile?.path
-  });
-
   return (
     <div className="w-full h-full flex flex-col bg-primary border-l border-modifier-border">
       <NavigationControls

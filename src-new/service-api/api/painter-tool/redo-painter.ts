@@ -31,12 +31,6 @@ namespace Internal {
       useLayersStore.getState().setLayers(snapshot.layers);
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(snapshot.currentLayerIndex);
       
-      console.log('🔄 Redo実行:', {
-        layersCount: snapshot.layers.length,
-        currentLayerIndex: snapshot.currentLayerIndex,
-        timestamp: new Date(snapshot.timestamp).toLocaleTimeString()
-      });
-      
       return 'redo-success';
     }
     

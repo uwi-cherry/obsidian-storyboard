@@ -37,7 +37,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
   // zustandからの変更をローカルstateとviewに反映
   useEffect(() => {
-    console.log('🔄 PainterPage: zustandレイヤー変更検知:', zustandLayers.length, 'レイヤー');
     if (zustandLayers.length > 0) {
       setLayers(zustandLayers);
       if (view) {
@@ -47,7 +46,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   }, [zustandLayers, view]);
 
   useEffect(() => {
-    console.log('🔄 PainterPage: zustand現在レイヤー変更検知:', zustandCurrentLayerIndex);
     setCurrentLayerIndex(zustandCurrentLayerIndex);
     if (view) {
       view.currentLayerIndex = zustandCurrentLayerIndex;
@@ -61,43 +59,34 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       // 履歴が空の場合のみ初期履歴を保存
       if (historyStore.history.length === 0) {
         historyStore.saveHistory(zustandLayers, zustandCurrentLayerIndex);
-        console.log('📝 初期履歴を保存しました:', zustandLayers.length, 'レイヤー');
       }
     }
   }, [zustandLayers, zustandCurrentLayerIndex]);
 
   // PSDファイルが開かれた時に適切なツールを実行
   useEffect(() => {
-    console.log('🔍 PainterPage: useEffect発火 - view:', view, 'app:', app);
-    console.log('🔍 PainterPage: view.file:', view?.file);
-    console.log('🔍 PainterPage: view.file詳細:', view?.file ? {
       name: view.file.name,
       path: view.file.path,
       extension: view.file.extension
     } : 'ファイルなし');
     
     if (!view?.file || !app) {
-      console.log('🔍 PainterPage: 条件不一致でリターン');
       return;
     }
     
-    console.log('🔍 PainterPage: ファイル変化検知:', {
       file: view.file,
       extension: view.file.extension,
       path: view.file.path
     });
     
     if (view.file.extension === 'psd') {
-      console.log('🔍 PainterPage: PSDファイルが開かれました:', view.file.path);
       
       // current-psd-file-storeを更新（サイドバーとの連携用）
       useLayersStore.getState().setCurrentPsdFile(view.file);
-      console.log('🔍 PainterPage: current-psd-file-storeを設定しました:', view.file.path);
       
       // PSDファイルを読み込んでレイヤーデータを取得
       const loadPsdFile = async () => {
         try {
-          console.log('🔍 PainterPage: PSDファイル読み込み開始');
           
           // 初期読み込み開始を設定
           useLayersStore.getState().setInitialLoad(true);
@@ -128,9 +117,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
                 if (ctx) {
                   ctx.drawImage(img, 0, 0);
                 }
-                console.log('🔍 DataURLからCanvas変換成功:', layer.name);
               } catch (error) {
-                console.warn('🔍 DataURLからCanvas変換エラー:', layer.name, error);
               }
             }
             
@@ -143,7 +130,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             };
           }));
           
-          console.log('🔍 変換後のレイヤー:', layersWithCanvas.length, '個');
           
           // ビューにレイヤーデータを設定
           view.layers = layersWithCanvas;
@@ -165,13 +151,10 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           // 初期読み込み完了を設定（少し遅延させて確実に処理を完了させる）
           setTimeout(() => {
             useLayersStore.getState().setInitialLoad(false);
-            console.log('🔍 PainterPage: 初期読み込み完了フラグを設定');
           }, 1000);
           
-          console.log('🔍 PainterPage: レイヤーデータを設定しました:', layersWithCanvas.length, 'レイヤー');
           
         } catch (error) {
-          console.error('🔍 PainterPage: PSDファイル読み込みエラー:', error);
           
           // エラー時も初期読み込みフラグをリセット
           useLayersStore.getState().setInitialLoad(false);
@@ -189,7 +172,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
               useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
             }
           } catch (initError) {
-            console.error('🔍 PainterPage: 初期化エラー:', initError);
           }
         }
       };
@@ -197,7 +179,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       loadPsdFile();
       
     } else {
-      console.log('🔍 PainterPage: PSDファイルではありません:', view.file.extension);
       useLayersStore.getState().clearCurrentPsdFile();
       
       // PSDファイルでない場合は初期化
@@ -214,7 +195,6 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
           }
         } catch (error) {
-          console.error('🔍 PainterPage: 初期化エラー:', error);
         }
       };
       

@@ -27,20 +27,16 @@ export class PainterView extends FileView {
   }
 
   async setState(state: { file: string | null }) {
-    console.log('🔥 PainterView: setState呼び出し - state:', state);
     
     if (!state.file) {
-      console.log('🔥 PainterView: ファイルパスが空のためリターン');
       return;
     }
 
     const file = this.app.vault.getAbstractFileByPath(state.file);
     if (!(file instanceof TFile)) {
-      console.log('🔥 PainterView: ファイルが見つからないためリターン:', state.file);
       return;
     }
 
-    console.log('🔥 PainterView: ファイルを設定:', file.path);
     this.file = file;
     
     // Reactコンポーネントを再レンダリング
@@ -52,9 +48,7 @@ export class PainterView extends FileView {
     const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
       try {
         await toolRegistry.executeTool('redo_painter', {});
-        console.log('🔄 Redoボタンクリック実行完了');
       } catch (error) {
-        console.error('🔄 Redoボタンエラー:', error);
       }
     }) as HTMLElement;
     redoBtn.querySelector('svg')?.remove();
@@ -63,9 +57,7 @@ export class PainterView extends FileView {
     const undoBtn = this.addAction('arrow-left', t('UNDO'), async () => {
       try {
         await toolRegistry.executeTool('undo_painter', {});
-        console.log('🔄 Undoボタンクリック実行完了');
       } catch (error) {
-        console.error('🔄 Undoボタンエラー:', error);
       }
     }) as HTMLElement;
     undoBtn.querySelector('svg')?.remove();
