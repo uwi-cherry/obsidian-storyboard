@@ -8,7 +8,6 @@ import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
-import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 
 interface RightSidebarReactViewProps {
   view?: any;
@@ -18,7 +17,7 @@ interface RightSidebarReactViewProps {
 export default function RightSidebarReactView({ view, app }: RightSidebarReactViewProps) {
   const [isPsdPainterOpen, setIsPsdPainterOpen] = useState(false);
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
-  const currentPsdFile = useCurrentPsdFileStore((state) => state.currentPsdFile);
+  const currentPsdFile = useLayersStore((state) => state.currentPsdFile);
   const layers = useLayersStore((state) => state.layers);
   const [currentFile, setCurrentFile] = useState<TFile | null>(null);
 

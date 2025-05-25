@@ -13,7 +13,7 @@ import PreviewCell from './PreviewCell';
 import SpeakerDialogueCell from './SpeakerDialogueCell';
 import { useSelectedRowIndexStore } from '../../../obsidian-api/zustand/store/selected-row-index-store';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
-import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 
 interface StoryboardReactViewProps {
   app: App;
@@ -254,11 +254,11 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     if (row.imageUrl?.endsWith('.psd')) {
       const file = app.vault.getAbstractFileByPath(row.imageUrl);
       if (file instanceof TFile) {
-        useCurrentPsdFileStore.getState().setCurrentPsdFile(file);
+        useLayersStore.getState().setCurrentPsdFile(file);
         console.log('🔍 Page: current-psd-file-storeを更新:', file.path);
       }
     } else {
-      useCurrentPsdFileStore.getState().clearCurrentPsdFile();
+      useLayersStore.getState().clearCurrentPsdFile();
     }
   }, [app, storyboard]);
 

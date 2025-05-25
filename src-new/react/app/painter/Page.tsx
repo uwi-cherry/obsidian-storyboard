@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
-import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
@@ -92,7 +91,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       console.log('🔍 PainterPage: PSDファイルが開かれました:', view.file.path);
       
       // current-psd-file-storeを更新（サイドバーとの連携用）
-      useCurrentPsdFileStore.getState().setCurrentPsdFile(view.file);
+      useLayersStore.getState().setCurrentPsdFile(view.file);
       console.log('🔍 PainterPage: current-psd-file-storeを設定しました:', view.file.path);
       
       // PSDファイルを読み込んでレイヤーデータを取得
@@ -199,7 +198,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       
     } else {
       console.log('🔍 PainterPage: PSDファイルではありません:', view.file.extension);
-      useCurrentPsdFileStore.getState().clearCurrentPsdFile();
+      useLayersStore.getState().clearCurrentPsdFile();
       
       // PSDファイルでない場合は初期化
       const initializePainter = async () => {

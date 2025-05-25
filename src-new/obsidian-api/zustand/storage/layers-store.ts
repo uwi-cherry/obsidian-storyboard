@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
 import { Layer } from '../../../types/painter-types';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import { useCurrentPsdFileStore } from '../store/current-psd-file-store';
+import { TFile } from 'obsidian';
 
 // シンプルなdebounce関数
 function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
@@ -15,6 +15,7 @@ function debounce<T extends (...args: any[]) => any>(func: T, wait: number): T {
 
 interface LayersState {
   layers: Layer[];
+  currentPsdFile: TFile | null;
   isInitialLoad: boolean;
   setLayers: (layers: Layer[]) => void;
   addLayer: (layer: Layer) => void;
@@ -25,11 +26,14 @@ interface LayersState {
   renameLayer: (index: number, name: string) => void;
   clearLayers: () => void;
   setInitialLoad: (isLoading: boolean) => void;
+  setCurrentPsdFile: (file: TFile | null) => void;
+  clearCurrentPsdFile: () => void;
 }
 
 export const useLayersStore = create<LayersState>()(
   subscribeWithSelector((set) => ({
     layers: [],
+    currentPsdFile: null,
     isInitialLoad: false,
     
     setLayers: (layers) => set({ layers }),
@@ -66,9 +70,12 @@ export const useLayersStore = create<LayersState>()(
       )
     })),
     
-    clearLayers: () => set({ layers: [] }),
+    clearLayers: () => set({ layers: [], currentPsdFile: null }),
     
     setInitialLoad: (isLoading) => set({ isInitialLoad: isLoading }),
+    
+    setCurrentPsdFile: (file) => set({ currentPsdFile: file }),
+    clearCurrentPsdFile: () => set({ currentPsdFile: null }),
   }))
 );
 
@@ -81,8 +88,8 @@ const autoSave = debounce(async (layers: Layer[], isInitialLoad: boolean) => {
   }
 
   try {
-    const currentPsdFileStore = useCurrentPsdFileStore.getState();
-    const currentFile = currentPsdFileStore.currentPsdFile;
+    const currentPsdFileStore = useLayersStore.getState().currentPsdFile;
+    const currentFile = currentPsdFileStore;
     
     // Obsidianのappインスタンスを取得
     const app = (window as any).app;
@@ -114,24 +121,48 @@ useLayersStore.subscribe(
   }
 );
 
+// PSDファイル切り替え時の処理
+useLayersStore.subscribe(
+  (state, prevState) => {
+    // PSDファイルが変更された場合（PSDファイル→別PSDファイル、またはPSDファイル→null）
+    if (prevState.currentPsdFile && 
+        (state.currentPsdFile?.path !== prevState.currentPsdFile?.path || state.currentPsdFile === null)) {
+      console.log('🔄 PSDファイル切り替え検知、前のファイルを保存:', prevState.currentPsdFile.path);
+      
+      const app = (window as any).app;
+      
+      if (prevState.layers.length > 0 && app && prevState.currentPsdFile.extension === 'psd') {
+        toolRegistry.executeTool('save_painter_file', {
+          app,
+          file: prevState.currentPsdFile,
+          layers: prevState.layers
+        }).then(() => {
+          console.log('✅ 前のPSDファイル保存完了:', prevState.currentPsdFile?.path);
+        }).catch((error) => {
+          console.error('❌ 前のPSDファイル保存エラー:', error);
+        });
+      }
+    }
+  }
+);
+
 // 手動保存機能（必要に応じて使用）
 export async function manualSavePainter() {
   const layersStore = useLayersStore.getState();
-  const currentPsdFileStore = useCurrentPsdFileStore.getState();
-  const currentFile = currentPsdFileStore.currentPsdFile;
+  const currentPsdFileStore = layersStore.currentPsdFile;
   const app = (window as any).app;
   
-  if (layersStore.layers.length > 0 && currentFile && app && currentFile.extension === 'psd') {
-    console.log('🔄 手動保存開始:', currentFile.path);
+  if (layersStore.layers.length > 0 && currentPsdFileStore && app && currentPsdFileStore.extension === 'psd') {
+    console.log('🔄 手動保存開始:', currentPsdFileStore.path);
     
     try {
       await toolRegistry.executeTool('save_painter_file', {
         app,
-        file: currentFile,
+        file: currentPsdFileStore,
         layers: layersStore.layers
       });
       
-      console.log('✅ 手動保存完了:', currentFile.path);
+      console.log('✅ 手動保存完了:', currentPsdFileStore.path);
       return true;
     } catch (error) {
       console.error('❌ 手動保存エラー:', error);
