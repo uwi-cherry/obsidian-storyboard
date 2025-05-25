@@ -6,6 +6,9 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { createMockApp, createMockTFile } from '../utils/obsidian-mock.js';
 
+// HTMLCanvasElement が未定義の環境でもテストできるようにダミーを設定
+global.HTMLCanvasElement = class {};
+
 // TypeScriptソースを一時的にビルドしてESMとして読み込む
 const sourceFile = path.resolve('src-new/service-api/api/painter-tool/load-painter-file.ts');
 const tmpDir = fs.mkdtempSync(path.join(process.cwd(), 'test', 'tmp-load-painter-'));
@@ -47,8 +50,8 @@ test('loadPainterFileTool.execute の戻り値が期待通り', async () => {
     width: 640,
     height: 480,
     layers: [
-      { name: 'Layer1', visible: true, opacity: 1, blendMode: 'normal', canvas: {} },
-      { name: 'Layer2', visible: false, opacity: 0.5, blendMode: 'multiply', canvas: {} }
+      { name: 'Layer1', visible: true, opacity: 1, blendMode: 'normal', canvasDataUrl: '', width: 640, height: 480 },
+      { name: 'Layer2', visible: false, opacity: 0.5, blendMode: 'multiply', canvasDataUrl: '', width: 640, height: 480 }
     ]
   };
 

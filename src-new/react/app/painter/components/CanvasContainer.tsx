@@ -82,9 +82,11 @@ export default function CanvasContainer({
         <ToolProperties
           tool={pointer.tool}
           lineWidth={pointer.lineWidth}
+          selectionMode={pointer.selectionMode}
           zoom={zoom}
           rotation={rotation}
           setLineWidth={pointer.setLineWidth}
+          setSelectionMode={pointer.setSelectionMode}
           setZoom={setZoom}
           setRotation={setRotation}
           layoutDirection={layoutDirection}
