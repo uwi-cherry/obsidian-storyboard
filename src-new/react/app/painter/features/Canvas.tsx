@@ -201,13 +201,8 @@ export default function Canvas({
       ctx.lineTo(toPos.x, toPos.y);
       ctx.stroke();
     } else if (pointer.tool === 'brush') {
-      if (pointer.brushHasColor) {
-        // ペンに色を付ける場合（透明度適用）
-        drawWithColorAndOpacity(ctx, fromPos, toPos);
-      } else {
-        // にじみツールとして使用（透明度0%の場合）
-        blendExistingColors(ctx, fromPos, toPos);
-      }
+      // 統一された描画処理（透明度0%の時は自動的ににじみツールになる）
+      drawWithColorAndOpacity(ctx, fromPos, toPos);
     }
 
     const updatedLayers = [...layers];
@@ -218,9 +213,6 @@ export default function Canvas({
   const drawWithColorAndOpacity = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
     const brushRadius = pointer.lineWidth / 2;
     const opacity = pointer.brushOpacity / 100;
-    
-    // 透明度0の場合は何も描画しない
-    if (opacity === 0) return;
     
     // 線の軌跡上の点を計算
     const distance = Math.sqrt((toPos.x - fromPos.x) ** 2 + (toPos.y - fromPos.y) ** 2);
