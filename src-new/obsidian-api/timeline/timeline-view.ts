@@ -42,10 +42,6 @@ export class TimelineView extends FileView {
     this.renderReact();
   }
 
-  async onOpen(): Promise<void> {
-    this.renderReact();
-  }
-
   async onClose(): Promise<void> {
     if (this.reactRoot) {
       this.reactRoot.unmount();

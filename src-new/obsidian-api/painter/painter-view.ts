@@ -27,22 +27,6 @@ export class PainterView extends FileView {
   }
 
   async setState(state: { file: string | null }) {
-    
-    if (!state.file) {
-      return;
-    }
-
-    const file = this.app.vault.getAbstractFileByPath(state.file);
-    if (!(file instanceof TFile)) {
-      return;
-    }
-
-    this.file = file;
-    
-    this.renderReact();
-  }
-
-  async onOpen(): Promise<void> {
     const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
       try {
         await toolRegistry.executeTool('redo_painter', {});
@@ -61,6 +45,17 @@ export class PainterView extends FileView {
     undoBtn.querySelector('svg')?.remove();
     undoBtn.textContent = t('UNDO');
 
+    if (!state.file) {
+      return;
+    }
+
+    const file = this.app.vault.getAbstractFileByPath(state.file);
+    if (!(file instanceof TFile)) {
+      return;
+    }
+
+    this.file = file;
+    
     this.renderReact();
   }
 
