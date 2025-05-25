@@ -32,7 +32,13 @@ export interface I18nStrings {
   TOOL_ERASER: string;
   TOOL_SELECTION: string;
   TOOL_HAND: string;
+  TOOL_PEN: string;
+  TOOL_PAINT_BRUSH: string;
+  TOOL_COLOR_MIXER: string;
   BRUSH_SIZE: string;
+  BRUSH_OPACITY: string;
+  COLOR_MIX_RATIO: string;
+  BLEND_STRENGTH: string;
   SELECTION_TYPE: string;
   SELECT_RECT: string;
   SELECT_LASSO: string;
@@ -65,4 +71,11 @@ export interface I18nStrings {
   LAYER: string;
   UNDO: string;
   REDO: string;
+  LAYOUT_SETTINGS: string;
+  LAYOUT_HORIZONTAL: string;
+  LAYOUT_VERTICAL: string;
+  DRAWING_MODE: string;
+  DRAWING_MODE_NORMAL: string;
+  DRAWING_MODE_SPECTRAL: string;
+  DRAWING_MODE_ERASE_SOFT: string;
 }

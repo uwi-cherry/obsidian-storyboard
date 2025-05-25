@@ -32,7 +32,13 @@ const ja: I18nStrings = {
   TOOL_ERASER: '消しゴム',
   TOOL_SELECTION: '選択',
   TOOL_HAND: '手のひら',
+  TOOL_PEN: 'ペン',
+  TOOL_PAINT_BRUSH: '筆',
+  TOOL_COLOR_MIXER: '色混ぜ',
   BRUSH_SIZE: 'ブラシサイズ',
+  BRUSH_OPACITY: 'ブラシ不透明度',
+  COLOR_MIX_RATIO: '混色比率（キャンバス：ペン＝{canvas}:{pen}）',
+  BLEND_STRENGTH: 'にじみ強度',
   SELECTION_TYPE: '選択種別',
   SELECT_RECT: '矩形',
   SELECT_LASSO: '投げ縄',
@@ -65,6 +71,13 @@ const ja: I18nStrings = {
   LAYER: 'レイヤー',
   UNDO: '元に戻す',
   REDO: 'やり直し',
+  LAYOUT_SETTINGS: 'レイアウト設定',
+  LAYOUT_HORIZONTAL: '横並び',
+  LAYOUT_VERTICAL: '縦並び',
+  DRAWING_MODE: '描画モード',
+  DRAWING_MODE_NORMAL: '通常描画',
+  DRAWING_MODE_SPECTRAL: 'スペクトラル混色',
+  DRAWING_MODE_ERASE_SOFT: '消しゴム',
 };
 
 export default ja;

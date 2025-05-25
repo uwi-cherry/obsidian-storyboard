@@ -10,11 +10,11 @@ interface ToolbarProps {
 }
 
 const TOOLS = [
-  { id: 'pen', title: 'ペン', icon: TOOL_ICONS.pen },
-  { id: 'brush', title: 'ブラシ', icon: TOOL_ICONS.brush },
-  { id: 'paint-brush', title: '筆', icon: TOOL_ICONS['paint-brush'] },
-  { id: 'color-mixer', title: '色混ぜ', icon: TOOL_ICONS['color-mixer'] },
-  { id: 'eraser', title: '消しゴム', icon: TOOL_ICONS.eraser },
+  { id: 'pen', title: t('TOOL_PEN'), icon: TOOL_ICONS.pen },
+  { id: 'brush', title: t('TOOL_BRUSH'), icon: TOOL_ICONS.brush },
+  { id: 'paint-brush', title: t('TOOL_PAINT_BRUSH'), icon: TOOL_ICONS['paint-brush'] },
+  { id: 'color-mixer', title: t('TOOL_COLOR_MIXER'), icon: TOOL_ICONS['color-mixer'] },
+  { id: 'eraser', title: t('TOOL_ERASER'), icon: TOOL_ICONS.eraser },
   { id: 'selection', title: t('TOOL_SELECTION'), icon: TOOL_ICONS.selection },
   { id: 'hand', title: t('TOOL_HAND'), icon: TOOL_ICONS.hand }
 ];
@@ -24,12 +24,12 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
 
   const layoutMenuOptions = [
     {
-      label: '横並び',
+      label: t('LAYOUT_HORIZONTAL'),
       icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="4" height="12"/><rect x="7" y="2" width="7" height="12"/></svg>',
       onClick: () => setLayoutDirection('horizontal')
     },
     {
-      label: '縦並び',
+      label: t('LAYOUT_VERTICAL'),
       icon: '<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><rect x="2" y="2" width="12" height="4"/><rect x="2" y="7" width="12" height="7"/></svg>',
       onClick: () => setLayoutDirection('vertical')
     }
@@ -49,7 +49,7 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
     <div className={containerClass}>
       <MenuIconButton
         icon={layoutIcon}
-        title="レイアウト設定"
+        title={t('LAYOUT_SETTINGS')}
         options={layoutMenuOptions}
         className="w-10 h-10"
         variant="primary"

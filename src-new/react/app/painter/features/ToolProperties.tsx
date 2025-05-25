@@ -109,15 +109,15 @@ export default function ToolProperties({
           </div>
           
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">描画モード:</div>
+            <div className="text-text-muted text-xs">{t('DRAWING_MODE')}:</div>
             <select
               className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
               value={drawingMode}
               onChange={e => setDrawingMode(e.target.value as 'normal' | 'spectral' | 'erase-soft')}
             >
-              <option value="normal">通常描画</option>
-              <option value="spectral">スペクトラル混色</option>
-              <option value="erase-soft">消しゴム</option>
+              <option value="normal">{t('DRAWING_MODE_NORMAL')}</option>
+              <option value="spectral">{t('DRAWING_MODE_SPECTRAL')}</option>
+              <option value="erase-soft">{t('DRAWING_MODE_ERASE_SOFT')}</option>
             </select>
           </div>
         </div>

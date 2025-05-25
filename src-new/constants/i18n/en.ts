@@ -32,6 +32,9 @@ const en: I18nStrings = {
   TOOL_ERASER: 'Eraser',
   TOOL_SELECTION: 'Select',
   TOOL_HAND: 'Hand',
+  TOOL_PEN: 'Pen',
+  TOOL_PAINT_BRUSH: 'Paint brush',
+  TOOL_COLOR_MIXER: 'Color mixer',
   BRUSH_SIZE: 'Brush size',
   SELECTION_TYPE: 'Selection mode',
   SELECT_RECT: 'Rectangle',
@@ -65,6 +68,13 @@ const en: I18nStrings = {
   LAYER: 'Layer',
   UNDO: 'Undo',
   REDO: 'Redo',
+  LAYOUT_SETTINGS: 'Layout settings',
+  LAYOUT_HORIZONTAL: 'Horizontal',
+  LAYOUT_VERTICAL: 'Vertical',
+  DRAWING_MODE: 'Drawing mode',
+  DRAWING_MODE_NORMAL: 'Normal',
+  DRAWING_MODE_SPECTRAL: 'Spectral mixing',
+  DRAWING_MODE_ERASE_SOFT: 'Soft eraser',
 };
 
 export default en;
