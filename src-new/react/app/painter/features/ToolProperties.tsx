@@ -76,10 +76,13 @@ export default function ToolProperties({
               type="range"
               min={0}
               max={100}
-              value={brushOpacity}
+              value={brushOpacity === 0 ? 0 : Math.log10(brushOpacity) * 50}
               onChange={e => {
-                const opacity = parseInt(e.currentTarget.value, 10);
-                setBrushOpacity(opacity);
+                const sliderValue = parseInt(e.currentTarget.value, 10);
+                const opacity = sliderValue === 0
+                  ? 0
+                  : Math.round(Math.pow(10, sliderValue / 50));
+                setBrushOpacity(Math.max(0, Math.min(100, opacity)));
                 // 透明度0%の時は「ペンに色を付けない」、それ以外は「ペンに色を付ける」
                 setBrushHasColor(opacity > 0);
               }}
