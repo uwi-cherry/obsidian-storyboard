@@ -201,11 +201,14 @@ export default function Canvas({
       ctx.lineTo(toPos.x, toPos.y);
       ctx.stroke();
     } else if (pointer.tool === 'brush') {
-      if (pointer.brushOpacity === 0) {
+      if (pointer.drawingMode === 'erase-soft') {
+        // 透明度減算モード：消しゴムとして動作
+        drawWithEraseSoft(ctx, fromPos, toPos);
+      } else if (pointer.brushOpacity === 0) {
         // 透明度0%の場合：にじみツール（隣接する異なる色を混色）
         blendExistingColors(ctx, fromPos, toPos);
       } else {
-        // 透明度1%以上の場合：色付きブラシ（透明度適用）
+        // 通常描画・スペクトラル混色（透明度適用）
         drawWithColorAndOpacity(ctx, fromPos, toPos);
       }
     }
@@ -213,6 +216,27 @@ export default function Canvas({
     const updatedLayers = [...layers];
     updatedLayers[currentLayerIndex] = { ...layers[currentLayerIndex] };
     setLayers(updatedLayers);
+  };
+
+  const drawWithEraseSoft = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
+    const opacity = pointer.brushOpacity / 100;
+    
+    // 透明度減算：消しゴム効果
+    ctx.globalCompositeOperation = 'destination-out';
+    ctx.globalAlpha = opacity; // ブラシ不透明度をそのまま適用
+    ctx.strokeStyle = 'rgba(0,0,0,1)';
+    ctx.lineWidth = pointer.lineWidth;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    ctx.beginPath();
+    ctx.moveTo(fromPos.x, fromPos.y);
+    ctx.lineTo(toPos.x, toPos.y);
+    ctx.stroke();
+    
+    // リセット
+    ctx.globalAlpha = 1.0;
+    ctx.globalCompositeOperation = 'source-over';
   };
 
   const drawWithColorAndOpacity = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
@@ -263,9 +287,10 @@ export default function Canvas({
         }
         
         if (existingColors.length > 0) {
-          const avgExistingColor = averageColors(existingColors, pointer.blendMode);
+          const blendMode = pointer.drawingMode === 'spectral' ? 'spectral' : 'normal';
+          const avgExistingColor = averageColors(existingColors, blendMode);
           const ratio = pointer.mixRatio / 100;
-          finalColor = pointer.blendMode === 'spectral' 
+          finalColor = blendMode === 'spectral' 
             ? mixSpectralColors(avgExistingColor, pointer.color, ratio)
             : mixColorsNormal(avgExistingColor, pointer.color, ratio);
         }
@@ -355,9 +380,10 @@ export default function Canvas({
         }
         
         if (existingColors.length > 0) {
-          const avgExistingColor = averageColors(existingColors, pointer.blendMode);
+          const blendMode = pointer.drawingMode === 'spectral' ? 'spectral' : 'normal';
+          const avgExistingColor = averageColors(existingColors, blendMode);
           const ratio = pointer.mixRatio / 100;
-          finalColor = pointer.blendMode === 'spectral' 
+          finalColor = blendMode === 'spectral' 
             ? mixSpectralColors(avgExistingColor, pointer.color, ratio)
             : mixColorsNormal(avgExistingColor, pointer.color, ratio);
         }
@@ -478,12 +504,14 @@ export default function Canvas({
         resultColor = colorsArray[0];
       } else if (colorsArray.length === 2) {
         // 2色の場合：直接混色（赤+青=紫）
-        resultColor = pointer.blendMode === 'spectral' 
+        const blendMode = pointer.drawingMode === 'spectral' ? 'spectral' : 'normal';
+        resultColor = blendMode === 'spectral' 
           ? mixSpectralColors(colorsArray[0], colorsArray[1], 0.5)
           : mixColorsNormal(colorsArray[0], colorsArray[1], 0.5);
       } else {
         // 3色以上の場合：段階的に混色
-        resultColor = blendMultipleColors(colorsArray, pointer.blendMode);
+        const blendMode = pointer.drawingMode === 'spectral' ? 'spectral' : 'normal';
+        resultColor = blendMultipleColors(colorsArray, blendMode);
       }
       
       // にじみ効果で描画
