@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
 import { LAYER_ICONS, BUTTON_ICONS } from '../../../../constants/icons';
 import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-store';
@@ -10,6 +10,8 @@ export default function LayerControls() {
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [editingLayerIndex, setEditingLayerIndex] = useState<number | null>(null);
+  const [editingLayerName, setEditingLayerName] = useState<string>('');
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -71,19 +73,29 @@ export default function LayerControls() {
     }
   };
 
-  const renameLayer = async (index: number) => {
-    
-    const newName = prompt(t('ENTER_LAYER_NAME'), layers[index].name);
-    if (newName && newName !== layers[index].name) {
+  const startRenaming = (index: number) => {
+    setEditingLayerIndex(index);
+    setEditingLayerName(layers[index].name);
+  };
+
+  const finishRenaming = async () => {
+    if (editingLayerIndex !== null && editingLayerName.trim() && editingLayerName !== layers[editingLayerIndex].name) {
       try {
         await toolRegistry.executeTool('rename_layer', {
-          index,
-          name: newName
+          index: editingLayerIndex,
+          name: editingLayerName.trim()
         });
       } catch (error) {
         console.error(error);
       }
     }
+    setEditingLayerIndex(null);
+    setEditingLayerName('');
+  };
+
+  const cancelRenaming = () => {
+    setEditingLayerIndex(null);
+    setEditingLayerName('');
   };
 
   const changeOpacity = async (opacity: number) => {
@@ -210,12 +222,30 @@ export default function LayerControls() {
                   toggleVisibility(idx);
                 }}
               />
-              <div
-                className="text-text-normal text-sm flex-1"
-                onDoubleClick={() => renameLayer(idx)}
-              >
-                {layer.name}
-              </div>
+              {editingLayerIndex === idx ? (
+                <input
+                  type="text"
+                  value={editingLayerName}
+                  onChange={(e) => setEditingLayerName(e.target.value)}
+                  onBlur={finishRenaming}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      finishRenaming();
+                    } else if (e.key === 'Escape') {
+                      cancelRenaming();
+                    }
+                  }}
+                  className="text-text-normal text-sm flex-1 bg-primary border border-modifier-border rounded px-1"
+                  autoFocus
+                />
+              ) : (
+                <div
+                  className="text-text-normal text-sm flex-1"
+                  onDoubleClick={() => startRenaming(idx)}
+                >
+                  {layer.name}
+                </div>
+              )}
             </div>
           );
         })}
