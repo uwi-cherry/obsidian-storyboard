@@ -82,7 +82,7 @@ export default function ToolProperties({
             >
               <option value="normal">通常描画</option>
               <option value="spectral">スペクトラル混色</option>
-              <option value="erase-soft">透明度減算</option>
+              <option value="erase-soft">消しゴム</option>
             </select>
           </div>
           
