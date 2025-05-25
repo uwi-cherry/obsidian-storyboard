@@ -47,11 +47,11 @@ export class StoryboardFactory {
         factory: this
       });
     } catch (error) {
-
+      console.error(error);
     }
   }
 
-  async createSampleStoryboardFile(app: App): Promise<any> {
+  async createSampleStoryboardFile(app: App): Promise<string | null> {
     try {
       const result = await toolRegistry.executeTool(TOOL_NAMES.CREATE_STORYBOARD_FILE, { app });
       return result;

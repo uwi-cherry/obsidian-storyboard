@@ -40,6 +40,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         });
         setInitialData(JSON.parse(result));
       } catch (error) {
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
@@ -58,6 +59,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         data: JSON.stringify(updatedData)
       });
     } catch (error) {
+      console.error(error);
     }
   };
 
@@ -143,6 +145,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
           if (parsed.layers && parsed.layers.length > 0) {
           }
         } catch (err) {
+          console.error(err);
         }
       }
       

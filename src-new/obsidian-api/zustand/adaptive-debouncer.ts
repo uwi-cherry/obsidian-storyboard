@@ -5,7 +5,7 @@ export class AdaptiveDebouncer {
   
   constructor(private func: Function) {}
   
-  execute(...args: any[]) {
+  execute(...args: unknown[]) {
     const now = Date.now();
     
     // 過去1分間の保存履歴をクリーンアップ

@@ -9,7 +9,7 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
   }
   
   if (typeof document === 'undefined' || typeof HTMLCanvasElement === 'undefined') {
-    return layer.canvas as any;
+    return layer.canvas as HTMLCanvasElement;
   }
   
   const canvas = document.createElement('canvas');
@@ -22,7 +22,7 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
     return canvas;
   }
   
-  const src = layer.canvas as any;
+  const src = layer.canvas as HTMLCanvasElement | { data?: Uint8ClampedArray };
   
   if (src?.data && src.data instanceof Uint8ClampedArray) {
     try {
@@ -36,6 +36,7 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
     try {
       ctx.drawImage(src, 0, 0);
     } catch (error) {
+      console.error(error);
     }
   } else {
     ctx.fillStyle = 'white';
@@ -91,12 +92,13 @@ namespace Internal {
           ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
           
           const canvas = ensureCanvas(layer, width, height);
-          if (canvas instanceof HTMLCanvasElement) {
-            ctx.drawImage(canvas, 0, 0);
-          } else {
-          }
-        } catch (error) {
+        if (canvas instanceof HTMLCanvasElement) {
+          ctx.drawImage(canvas, 0, 0);
+        } else {
         }
+      } catch (error) {
+        console.error(error);
+      }
       }
     }
     

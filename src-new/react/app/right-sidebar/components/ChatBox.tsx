@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
+import type { Plugin } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { ADD_ICON_SVG, TABLE_ICONS } from '../../../../constants/icons';
 
 interface ChatBoxProps {
-  plugin?: any;
+  plugin?: Plugin;
 }
 
 interface Message {

@@ -1,9 +1,22 @@
+import type { App } from 'obsidian';
+
 export interface Layer {
   name: string;
   visible: boolean;
   opacity: number;
   blendMode: string;
   canvas: HTMLCanvasElement;
+}
+
+export interface PsdLayerData {
+  name: string;
+  visible: boolean;
+  opacity: number;
+  blendMode: string;
+  width: number;
+  height: number;
+  canvasDataUrl?: string;
+  canvas?: HTMLCanvasElement;
 }
 
 export interface PainterData {
@@ -17,6 +30,8 @@ export interface PainterData {
   }>;
   historyIndex?: number;
 }
+
+import type { App } from 'obsidian';
 
 export interface PainterView {
   _canvas?: HTMLCanvasElement | null;
@@ -32,7 +47,7 @@ export interface PainterView {
   onPointerMove?: (event: PointerEvent) => void;
   onPointerUp?: (event: PointerEvent) => void;
   
-  app?: any;
+  app?: App;
   containerEl?: HTMLElement;
 }
 

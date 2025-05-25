@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
+import type { PainterView } from 'src-new/types/painter-types';
 
-export default function useCanvasTransform(canvas: HTMLCanvasElement | null, view: any) {
+export default function useCanvasTransform(canvas: HTMLCanvasElement | null, view: PainterView | null) {
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
 

@@ -1,4 +1,4 @@
-import { FileView, TFile } from 'obsidian';
+import { FileView, TFile, WorkspaceLeaf } from 'obsidian';
 import { Root } from 'react-dom/client';
 import { t } from '../../constants/obsidian-i18n';
 import { toolRegistry } from '../../service-api/core/tool-registry';
@@ -7,7 +7,7 @@ export class PainterView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;
 
-  constructor(leaf: any, renderReact: () => void) {
+  constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
     super(leaf);
     this.renderReact = renderReact;
   }
@@ -27,21 +27,23 @@ export class PainterView extends FileView {
   }
 
   async setState(state: { file: string | null }) {
-    const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
-      try {
-        await toolRegistry.executeTool('redo_painter', {});
-      } catch (error) {
-      }
-    }) as HTMLElement;
+      const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
+        try {
+          await toolRegistry.executeTool('redo_painter', {});
+        } catch (error) {
+          console.error(error);
+        }
+      }) as HTMLElement;
     redoBtn.querySelector('svg')?.remove();
     redoBtn.textContent = t('REDO');
 
-    const undoBtn = this.addAction('arrow-left', t('UNDO'), async () => {
-      try {
-        await toolRegistry.executeTool('undo_painter', {});
-      } catch (error) {
-      }
-    }) as HTMLElement;
+      const undoBtn = this.addAction('arrow-left', t('UNDO'), async () => {
+        try {
+          await toolRegistry.executeTool('undo_painter', {});
+        } catch (error) {
+          console.error(error);
+        }
+      }) as HTMLElement;
     undoBtn.querySelector('svg')?.remove();
     undoBtn.textContent = t('UNDO');
 

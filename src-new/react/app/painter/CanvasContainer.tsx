@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import type { PainterView } from 'src-new/types/painter-types';
 import { usePainterLayoutStore } from 'src-new/obsidian-api/zustand/storage/painter-layout-store';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
 import useSelectionState, { SelectionState } from 'src-new/react/hooks/useSelectionState';
@@ -21,7 +22,7 @@ interface SelectionRect {
 
 interface Props {
   pointer: PainterPointer;
-  view?: any;
+  view?: PainterView;
   zoom: number;
   rotation: number;
   setZoom: (zoom: number) => void;

@@ -1,16 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
+import type { App } from 'obsidian';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
 import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { usePainterLayoutStore } from '../../../obsidian-api/zustand/storage/painter-layout-store';
+import type { Layer, PainterView } from 'src-new/types/painter-types';
 import CanvasContainer from './CanvasContainer';
 import Toolbar from './Toolbar';
 
 interface PainterPageProps {
-  view?: any;
-  app?: any;
+  view?: PainterView;
+  app?: App;
 }
 
 export default function PainterPage({ view, app }: PainterPageProps) {
@@ -27,7 +29,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const [rotation, setRotation] = useState<number>(0);
   const { layoutDirection } = usePainterLayoutStore();
   
-  const [layers, setLayers] = useState<any[]>([]);
+  const [layers, setLayers] = useState<Layer[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
 
   // 処理済みファイルを追跡するref
@@ -97,7 +99,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           
           const psdData = JSON.parse(result);
           
-          const layersWithCanvas = await Promise.all(psdData.layers.map(async (layer: any) => {
+          const layersWithCanvas = await Promise.all(psdData.layers.map(async (layer: Layer) => {
             const canvas = document.createElement('canvas');
             canvas.width = layer.width || psdData.width;
             canvas.height = layer.height || psdData.height;
