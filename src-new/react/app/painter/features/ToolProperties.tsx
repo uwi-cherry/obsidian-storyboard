@@ -54,10 +54,14 @@ export default function ToolProperties({
           <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}:</div>
           <input
             type="range"
-            min={1}
-            max={50}
-            value={lineWidth}
-            onChange={e => setLineWidth(parseInt(e.currentTarget.value, 10))}
+            min={0}
+            max={100}
+            value={Math.log10(lineWidth) * 33.33}
+            onChange={e => {
+              const logValue = parseInt(e.currentTarget.value, 10) / 33.33;
+              const actualValue = Math.round(Math.pow(10, logValue));
+              setLineWidth(Math.max(1, Math.min(1000, actualValue)));
+            }}
           />
           <div className="text-text-muted text-xs text-center">{lineWidth}px</div>
         </div>
