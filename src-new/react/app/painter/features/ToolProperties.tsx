@@ -96,7 +96,7 @@ export default function ToolProperties({
           
           {brushHasColor && (
             <div className="flex flex-col gap-1">
-              <div className="text-text-muted text-xs">キャンバス色：ペン色＝{100 - mixRatio}:{mixRatio}</div>
+              <div className="text-text-muted text-xs">混色比率（キャンバス：ペン＝{100 - mixRatio}:{mixRatio}）</div>
               <input
                 type="range"
                 min={0}
