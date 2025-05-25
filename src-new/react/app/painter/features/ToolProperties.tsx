@@ -5,9 +5,11 @@ import { LayoutDirection } from '../../../../obsidian-api/zustand/storage/painte
 interface ToolProps {
   tool: string;
   lineWidth: number;
+  selectionMode: 'rect' | 'lasso' | 'magic';
   zoom: number;
   rotation: number;
   setLineWidth: (w: number) => void;
+  setSelectionMode: (m: 'rect' | 'lasso' | 'magic') => void;
   setZoom: (z: number) => void;
   setRotation: (r: number) => void;
   layoutDirection: LayoutDirection;
@@ -16,9 +18,11 @@ interface ToolProps {
 export default function ToolProperties({
   tool,
   lineWidth,
+  selectionMode,
   zoom,
   rotation,
   setLineWidth,
+  setSelectionMode,
   setZoom,
   setRotation,
   layoutDirection
@@ -40,6 +44,23 @@ export default function ToolProperties({
             onChange={e => setLineWidth(parseInt(e.currentTarget.value, 10))}
           />
           <div className="text-text-muted text-xs text-center">{lineWidth}px</div>
+        </div>
+      )}
+
+      {tool === 'selection' && (
+        <div className="flex flex-col gap-1">
+          <div className="text-text-muted text-xs">{t('SELECTION_TYPE')}:</div>
+          <select
+            className="w-full text-xs"
+            value={selectionMode}
+            onChange={e =>
+              setSelectionMode(e.currentTarget.value as 'rect' | 'lasso' | 'magic')
+            }
+          >
+            <option value="rect">{t('SELECT_RECT')}</option>
+            <option value="lasso">{t('SELECT_LASSO')}</option>
+            <option value="magic">{t('SELECT_MAGIC')}</option>
+          </select>
         </div>
       )}
 
