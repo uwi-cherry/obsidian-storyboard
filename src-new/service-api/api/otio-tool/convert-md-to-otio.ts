@@ -38,6 +38,91 @@ namespace Internal {
     };
   }
 
+  // 台詞文字数から時間を計算する関数（1文字あたり0.2秒、最低2秒）
+  function calculateDurationFromText(text: string): number {
+    const charCount = text.replace(/\s/g, '').length; // 空白を除いた文字数
+    return Math.max(charCount * 0.2, 2); // 最低2秒
+  }
+
+  // マークダウンを解析してストーリーボードデータにstartTimeとdurationを設定
+  function processMarkdownWithTiming(markdown: string): string {
+    const lines = markdown.split('\n');
+    const processedLines: string[] = [];
+    let currentTime = 0;
+    let inFrame = false;
+    let currentDialogues = '';
+    let currentSpeaker = '';
+    let frameStartIndex = -1;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      if (line.startsWith('####')) {
+        // 前のフレームを処理
+        if (inFrame && currentDialogues.trim()) {
+          const duration = calculateDurationFromText(currentDialogues);
+          // [!INFO]行を探して確認
+          let infoLineFound = false;
+          let existingStart: number | null = null;
+          let existingDuration: number | null = null;
+          
+          for (let j = frameStartIndex; j < i; j++) {
+            const infoMatch = processedLines[j].match(/^>\s*\[!INFO\]\s*start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
+            if (infoMatch) {
+              existingStart = parseFloat(infoMatch[1]);
+              existingDuration = parseFloat(infoMatch[2]);
+              infoLineFound = true;
+              break;
+            }
+          }
+          
+          if (infoLineFound && existingStart !== null && existingDuration !== null) {
+            // 既に設定されている場合はその値を使用
+            currentTime = existingStart + existingDuration;
+          } else {
+            // 設定されていない場合は新規追加
+            processedLines.push(`> [!INFO] start: ${currentTime}, duration: ${duration}`);
+            currentTime += duration;
+          }
+        }
+        
+        // 新しいフレーム開始
+        currentSpeaker = line.replace(/^####\s*/, '');
+        currentDialogues = '';
+        inFrame = true;
+        frameStartIndex = processedLines.length;
+        processedLines.push(line);
+      } else if (inFrame) {
+        if (line.match(/^>\s*\[!INFO\]/)) {
+          // [!INFO]行はそのまま保持
+          processedLines.push(line);
+        } else if (line.match(/^\[(.*)\]\((.*)\)$/)) {
+          // 画像行
+          processedLines.push(line);
+        } else if (line.startsWith('>')) {
+          // プロンプト行
+          processedLines.push(line);
+        } else if (line.trim()) {
+          // 台詞行
+          currentDialogues += (currentDialogues ? '\n' : '') + line;
+          processedLines.push(line);
+        } else {
+          processedLines.push(line);
+        }
+      } else {
+        processedLines.push(line);
+      }
+    }
+    
+    // 最後のフレームを処理
+    if (inFrame && currentDialogues.trim()) {
+      const duration = calculateDurationFromText(currentDialogues);
+      processedLines.push(`> [!INFO] start: ${currentTime}, duration: ${duration}`);
+    }
+    
+    return processedLines.join('\n');
+  }
+
   export async function executeConvertMdToOtio(args: ConvertMdToOtioInput): Promise<string> {
     const { app, file } = args;
 
@@ -76,6 +161,8 @@ namespace Internal {
     }
     
     const cleanMarkdown = markdownLines.join('\n').trim();
+    // タイミング情報を追加したマークダウンを生成
+    const processedMarkdown = processMarkdownWithTiming(cleanMarkdown);
     const jsonContent = jsonLines.join('\n').trim();
     
     let otioProject: OtioProject;
@@ -85,14 +172,14 @@ namespace Internal {
       try {
         otioProject = JSON.parse(jsonContent);
         otioProject.timeline.metadata = otioProject.timeline.metadata || {};
-        otioProject.timeline.metadata.source_markdown = cleanMarkdown;
+        otioProject.timeline.metadata.source_markdown = processedMarkdown;
       } catch (error) {
         // JSONパースエラーの場合は空プロジェクトを作成
-        otioProject = createEmptyOtioProject(cleanMarkdown);
+        otioProject = createEmptyOtioProject(processedMarkdown);
       }
     } else {
       // JSONがない場合は空プロジェクトを作成
-      otioProject = createEmptyOtioProject(cleanMarkdown);
+      otioProject = createEmptyOtioProject(processedMarkdown);
     }
     
     // 元のファイルをOTIOに置き換え

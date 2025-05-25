@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import type { App, TFile } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import type { OtioProject, OtioClip, OtioTrack } from '../../../types/otio';
+import type { StoryboardData } from '../../../types/storyboard';
 
 interface TimelineReactViewProps {
   app: App;
@@ -52,6 +53,7 @@ function createTrack(name: string): OtioTrack {
 
 export default function TimelineReactView({ app, file }: TimelineReactViewProps) {
   const [project, setProject] = useState<OtioProject | null>(null);
+  const [storyboardData, setStoryboardData] = useState<StoryboardData | null>(null);
 
   useEffect(() => {
     if (!file) return;
@@ -62,7 +64,22 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           app,
           file
         });
-        setProject(JSON.parse(result));
+        const projectData = JSON.parse(result);
+        setProject(projectData);
+        
+        // ストーリーボードデータを取得（source_markdownから）
+        const sourceMarkdown = projectData.timeline.metadata?.source_markdown;
+        if (sourceMarkdown) {
+          try {
+            const storyboardResult = await toolRegistry.executeTool('load_storyboard_data', {
+              app,
+              markdown: sourceMarkdown
+            });
+            setStoryboardData(JSON.parse(storyboardResult));
+          } catch (error) {
+            console.error('Failed to parse storyboard data:', error);
+          }
+        }
       } catch (error) {
         console.error(error);
       }
@@ -154,6 +171,30 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           トラックを追加
         </button>
       </div>
+      
+      {/* ストーリーボードトラック */}
+      {storyboardData && (
+        <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
+          <div className="font-semibold text-sm text-purple-400">ストーリーボード</div>
+          <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
+            {storyboardData.chapters.flatMap(chapter => 
+              chapter.frames.filter(frame => frame.startTime !== undefined && frame.duration !== undefined)
+            ).map((frame, idx) => (
+              <div
+                key={idx}
+                className="absolute top-0 h-full bg-purple-500 text-white text-center text-xs truncate flex items-center justify-center border-r border-purple-400"
+                style={{
+                  left: `${(frame.startTime || 0) * PIXELS_PER_SECOND}px`,
+                  width: `${(frame.duration || 0) * PIXELS_PER_SECOND}px`
+                }}
+                title={`${frame.speaker}: ${frame.dialogues}`}
+              >
+                {frame.speaker}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       
       {project.timeline.tracks.map((track, tIdx) => (
         <div

@@ -97,9 +97,15 @@ namespace Internal {
           const calloutInfoMatch = line.match(/^>\s*\[!INFO\]\s*(.*)$/);
           const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
           if (calloutInfoMatch) {
-            const timecode = calloutInfoMatch[1].trim();
-            const parts = timecode.split('-');
-            currentFrame.endTime = parts[1] || '';
+            const infoContent = calloutInfoMatch[1].trim();
+            
+            // start: 0, duration: 12 形式
+            const timingMatch = infoContent.match(/start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
+            if (timingMatch) {
+              currentFrame.startTime = parseFloat(timingMatch[1]);
+              currentFrame.duration = parseFloat(timingMatch[2]);
+            }
+            
             const promptLines: string[] = [];
             while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
               const raw = lines[i + 1].replace(/^>\s*/, '').trim();
