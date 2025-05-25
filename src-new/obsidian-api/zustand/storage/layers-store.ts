@@ -79,29 +79,57 @@ export const useLayersStore = create<LayersState>()(
       layers: state.layers.filter((_, i) => i !== index)
     })),
     
-    toggleLayerVisibility: (index) => set((state) => ({
-      layers: state.layers.map((layer, i) => 
-        i === index ? { ...layer, visible: !layer.visible } : layer
-      )
-    })),
+    toggleLayerVisibility: (index) => {
+      set((state) => ({
+        layers: state.layers.map((layer, i) => 
+          i === index ? { ...layer, visible: !layer.visible } : layer
+        )
+      }));
+      // 自動保存をトリガー
+      const state = get();
+      if (state.layers.length > 0) {
+        autoSave.execute(state.layers, state.currentPsdFile);
+      }
+    },
     
-    setLayerOpacity: (index, opacity) => set((state) => ({
-      layers: state.layers.map((layer, i) => 
-        i === index ? { ...layer, opacity } : layer
-      )
-    })),
+    setLayerOpacity: (index, opacity) => {
+      set((state) => ({
+        layers: state.layers.map((layer, i) => 
+          i === index ? { ...layer, opacity } : layer
+        )
+      }));
+      // 自動保存をトリガー
+      const state = get();
+      if (state.layers.length > 0) {
+        autoSave.execute(state.layers, state.currentPsdFile);
+      }
+    },
     
-    setLayerBlendMode: (index, blendMode) => set((state) => ({
-      layers: state.layers.map((layer, i) => 
-        i === index ? { ...layer, blendMode } : layer
-      )
-    })),
+    setLayerBlendMode: (index, blendMode) => {
+      set((state) => ({
+        layers: state.layers.map((layer, i) => 
+          i === index ? { ...layer, blendMode } : layer
+        )
+      }));
+      // 自動保存をトリガー
+      const state = get();
+      if (state.layers.length > 0) {
+        autoSave.execute(state.layers, state.currentPsdFile);
+      }
+    },
     
-    renameLayer: (index, name) => set((state) => ({
-      layers: state.layers.map((layer, i) => 
-        i === index ? { ...layer, name } : layer
-      )
-    })),
+    renameLayer: (index, name) => {
+      set((state) => ({
+        layers: state.layers.map((layer, i) => 
+          i === index ? { ...layer, name } : layer
+        )
+      }));
+      // 自動保存をトリガー
+      const state = get();
+      if (state.layers.length > 0) {
+        autoSave.execute(state.layers, state.currentPsdFile);
+      }
+    },
     
     clearLayers: () => set({ layers: [], currentPsdFile: null }),
     
