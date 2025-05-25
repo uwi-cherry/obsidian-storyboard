@@ -63,30 +63,32 @@ export function t(key: string): string {
       'SELECT_MAGIC': 'マジックワンド',
       'CANVAS_SIZE': 'キャンバスサイズ',
       'ZOOM_LEVEL': '拡大率',
-      'ROTATION_ANGLE': '回転角'
-      , 'LAYERS': 'レイヤー'
-      , 'NEW_LAYER': '新規レイヤー'
-      , 'IMAGE_LAYER': '画像レイヤー'
-      , 'DELETE_LAYER': 'レイヤー削除'
-      , 'ENTER_LAYER_NAME': 'レイヤー名を入力'
-      , 'BACKGROUND': '背景'
-      , 'AI_RESPONSE_ERROR': 'AI応答エラー'
-      , 'BACK_TO_STORYBOARD': 'ストーリーボードに戻る'
-      , 'BGM_LABEL': 'BGM'
-      , 'BGM_PROMPT_PLACEHOLDER': 'BGM生成プロンプト(任意)'
-      , 'CHAT_INPUT_PLACEHOLDER': 'メッセージを入力...'
-      , 'NO_LAYERS': 'レイヤーがありません'
-      , 'ATTACH_IMAGE': '画像'
-      , 'ATTACH_MASK': 'マスク'
-      , 'ATTACH_REFERENCE': '参考'
-      , 'SEND': '送信'
-      , 'CREATE_PSD': 'PSDペインターを新規作成'
-      , 'EXPORT_IMAGE': '画像出力'
-      , 'EXPORT_VIDEO': '動画出力'
-      , 'NEW_CHAPTER_BGM_LABEL': 'BGM'
-      , 'NEW_CHAPTER_BGM_PLACEHOLDER': '新しいBGMプロンプトを追加'
-      , 'OPEN_PSD': 'PSDペインターを開く'
-      , 'LAYER': 'レイヤー'
+      'ROTATION_ANGLE': '回転角',
+      'LAYERS': 'レイヤー',
+      'NEW_LAYER': '新規レイヤー',
+      'IMAGE_LAYER': '画像レイヤー',
+      'DELETE_LAYER': 'レイヤー削除',
+      'ENTER_LAYER_NAME': 'レイヤー名を入力',
+      'BACKGROUND': '背景',
+      'AI_RESPONSE_ERROR': 'AI応答エラー',
+      'BACK_TO_STORYBOARD': 'ストーリーボードに戻る',
+      'BGM_LABEL': 'BGM',
+      'BGM_PROMPT_PLACEHOLDER': 'BGM生成プロンプト(任意)',
+      'CHAT_INPUT_PLACEHOLDER': 'メッセージを入力...',
+      'NO_LAYERS': 'レイヤーがありません',
+      'ATTACH_IMAGE': '画像',
+      'ATTACH_MASK': 'マスク',
+      'ATTACH_REFERENCE': '参考',
+      'SEND': '送信',
+      'CREATE_PSD': 'PSDペインターを新規作成',
+      'EXPORT_IMAGE': '画像出力',
+      'EXPORT_VIDEO': '動画出力',
+      'NEW_CHAPTER_BGM_LABEL': 'BGM',
+      'NEW_CHAPTER_BGM_PLACEHOLDER': '新しいBGMプロンプトを追加',
+      'OPEN_PSD': 'PSDペインターを開く',
+      'LAYER': 'レイヤー',
+      'UNDO': '元に戻す',
+      'REDO': 'やり直し'
     };
     return jaTranslations[key] || key;
   }
@@ -154,7 +156,9 @@ export function t(key: string): string {
     'NEW_CHAPTER_BGM_PLACEHOLDER': 'Add new BGM prompt',
     'OPEN_PSD': 'Open PSD Painter',
     'BACKGROUND': 'Background',
-    'LAYER': 'Layer'
+    'LAYER': 'Layer',
+    'UNDO': 'Undo',
+    'REDO': 'Redo'
   };
   return enTranslations[key] || key;
 } 

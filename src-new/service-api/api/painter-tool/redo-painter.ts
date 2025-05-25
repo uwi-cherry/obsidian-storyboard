@@ -1,8 +1,11 @@
 import { Tool } from '../../core/tool';
+import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 namespace Internal {
   export interface RedoPainterInput {
-    view: any;
+    // パラメータは不要（グローバルストアを使用）
   }
 
   export const REDO_PAINTER_METADATA = {
@@ -10,20 +13,34 @@ namespace Internal {
     description: 'Redo painter view',
     parameters: {
       type: 'object',
-      properties: {
-        view: { type: 'object', description: 'Painter view instance' }
-      },
-      required: ['view']
+      properties: {},
+      required: []
     }
   } as const;
 
   export async function executeRedoPainter(args: RedoPainterInput): Promise<string> {
-    const { view } = args;
-    if (view && typeof view.redo === 'function') {
-      view.redo();
-      return 'redo';
+    const historyStore = usePainterHistoryStore.getState();
+    
+    if (!historyStore.canRedo()) {
+      return 'no-redo-available';
     }
-    return 'no-op';
+    
+    const snapshot = historyStore.redo();
+    if (snapshot) {
+      // レイヤーストアを更新
+      useLayersStore.getState().setLayers(snapshot.layers);
+      useCurrentLayerIndexStore.getState().setCurrentLayerIndex(snapshot.currentLayerIndex);
+      
+      console.log('🔄 Redo実行:', {
+        layersCount: snapshot.layers.length,
+        currentLayerIndex: snapshot.currentLayerIndex,
+        timestamp: new Date(snapshot.timestamp).toLocaleTimeString()
+      });
+      
+      return 'redo-success';
+    }
+    
+    return 'redo-failed';
   }
 }
 

@@ -6,6 +6,7 @@ import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
 import { useCurrentPsdFileStore } from '../../../obsidian-api/zustand/store/current-psd-file-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 
 interface PainterPageProps {
@@ -52,6 +53,18 @@ export default function PainterPage({ view, app }: PainterPageProps) {
       view.currentLayerIndex = zustandCurrentLayerIndex;
     }
   }, [zustandCurrentLayerIndex, view]);
+
+  // レイヤーデータが設定された後に初期履歴を保存
+  useEffect(() => {
+    if (zustandLayers.length > 0) {
+      const historyStore = usePainterHistoryStore.getState();
+      // 履歴が空の場合のみ初期履歴を保存
+      if (historyStore.history.length === 0) {
+        historyStore.saveHistory(zustandLayers, zustandCurrentLayerIndex);
+        console.log('📝 初期履歴を保存しました:', zustandLayers.length, 'レイヤー');
+      }
+    }
+  }, [zustandLayers, zustandCurrentLayerIndex]);
 
   // PSDファイルが開かれた時に適切なツールを実行
   useEffect(() => {
@@ -139,6 +152,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             canvasHeight: psdData.height
           };
           
+          // 履歴をクリアしてから新しいデータを設定
+          usePainterHistoryStore.getState().clearHistory();
+          
           // zustandストアのみを更新（useEffectでローカルstateに反映される）
           useLayersStore.getState().setLayers(layersWithCanvas);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
@@ -153,6 +169,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             await toolRegistry.executeTool('initialize_painter_data', { view });
             // 初期化されたデータを取得
             if (view.layers) {
+              // 履歴をクリアしてから新しいデータを設定
+              usePainterHistoryStore.getState().clearHistory();
+              
               // zustandストアのみを更新
               useLayersStore.getState().setLayers(view.layers);
               useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
@@ -175,6 +194,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           await toolRegistry.executeTool('initialize_painter_data', { view });
           // 初期化されたデータを取得
           if (view.layers) {
+            // 履歴をクリアしてから新しいデータを設定
+            usePainterHistoryStore.getState().clearHistory();
+            
             // zustandストアのみを更新
             useLayersStore.getState().setLayers(view.layers);
             useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);

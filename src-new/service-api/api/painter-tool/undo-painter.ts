@@ -1,8 +1,11 @@
 import { Tool } from '../../core/tool';
+import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
+import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 
 namespace Internal {
   export interface UndoPainterInput {
-    view: any;
+    // パラメータは不要（グローバルストアを使用）
   }
 
   export const UNDO_PAINTER_METADATA = {
@@ -10,20 +13,34 @@ namespace Internal {
     description: 'Undo current painter view',
     parameters: {
       type: 'object',
-      properties: {
-        view: { type: 'object', description: 'Painter view instance' }
-      },
-      required: ['view']
+      properties: {},
+      required: []
     }
   } as const;
 
   export async function executeUndoPainter(args: UndoPainterInput): Promise<string> {
-    const { view } = args;
-    if (view && typeof view.undo === 'function') {
-      view.undo();
-      return 'undo';
+    const historyStore = usePainterHistoryStore.getState();
+    
+    if (!historyStore.canUndo()) {
+      return 'no-undo-available';
     }
-    return 'no-op';
+    
+    const snapshot = historyStore.undo();
+    if (snapshot) {
+      // レイヤーストアを更新
+      useLayersStore.getState().setLayers(snapshot.layers);
+      useCurrentLayerIndexStore.getState().setCurrentLayerIndex(snapshot.currentLayerIndex);
+      
+      console.log('🔄 Undo実行:', {
+        layersCount: snapshot.layers.length,
+        currentLayerIndex: snapshot.currentLayerIndex,
+        timestamp: new Date(snapshot.timestamp).toLocaleTimeString()
+      });
+      
+      return 'undo-success';
+    }
+    
+    return 'undo-failed';
   }
 }
 

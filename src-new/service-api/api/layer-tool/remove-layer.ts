@@ -1,6 +1,7 @@
 import { Tool } from '../../core/tool';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 
 namespace Internal {
   export interface RemoveLayerInput {
@@ -21,22 +22,31 @@ namespace Internal {
 
   export async function executeRemoveLayer(args: RemoveLayerInput): Promise<string> {
     const { index } = args;
-    const layers = useLayersStore.getState().layers;
-    const currentLayerIndex = useCurrentLayerIndexStore.getState().currentLayerIndex;
+    const layersStore = useLayersStore.getState();
+    const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
+    const historyStore = usePainterHistoryStore.getState();
+    
+    const layers = layersStore.layers;
+    const currentLayerIndex = currentLayerIndexStore.currentLayerIndex;
     
     if (layers.length <= 1 || index < 0 || index >= layers.length) {
       return 'no-op';
     }
     
+    // 操作前の状態を履歴に保存
+    historyStore.saveHistory(layers, currentLayerIndex);
+    
     // レイヤーを削除
-    useLayersStore.getState().removeLayer(index);
+    layersStore.removeLayer(index);
     
     // 現在のレイヤーインデックスを調整
     let newCurrentIndex = currentLayerIndex;
     if (newCurrentIndex >= layers.length - 1) {
       newCurrentIndex = layers.length - 2; // 削除後の長さに合わせる
     }
-    useCurrentLayerIndexStore.getState().setCurrentLayerIndex(newCurrentIndex);
+    currentLayerIndexStore.setCurrentLayerIndex(newCurrentIndex);
+    
+    console.log('📝 レイヤー削除:', index, '- 履歴保存済み');
     
     return 'layer_removed';
   }

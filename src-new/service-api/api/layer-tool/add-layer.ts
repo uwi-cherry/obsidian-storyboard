@@ -2,6 +2,8 @@ import { Layer } from 'src-new/types/painter-types';
 import { Tool } from '../../core/tool';
 import { TFile } from 'obsidian';
 import { useLayersStore } from '../../../obsidian-api/zustand/store/layers-store';
+import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
 
 namespace Internal {
   export interface AddLayerInput {
@@ -39,6 +41,13 @@ namespace Internal {
       height = DEFAULT_CANVAS_HEIGHT,
       app 
     } = args;
+
+    // 操作前の状態を履歴に保存
+    const layersStore = useLayersStore.getState();
+    const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
+    const historyStore = usePainterHistoryStore.getState();
+    
+    historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
 
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -78,7 +87,9 @@ namespace Internal {
     };
 
     // zustandストアに追加
-    useLayersStore.getState().addLayer(layer);
+    layersStore.addLayer(layer);
+
+    console.log('📝 レイヤー追加:', name, '- 履歴保存済み');
 
     return 'layer_added';
   }

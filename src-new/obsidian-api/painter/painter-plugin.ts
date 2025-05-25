@@ -37,14 +37,14 @@ export class PainterPlugin {
         evt.preventDefault();
         const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
         if (view) {
-          toolRegistry.executeTool('undo_painter', { view });
+          toolRegistry.executeTool('undo_painter', {});
         }
       }
       if ((evt.ctrlKey && evt.shiftKey && evt.key === 'z') || (evt.ctrlKey && evt.key === 'y')) {
         evt.preventDefault();
         const view = this.plugin.app.workspace.getActiveViewOfType(PainterView);
         if (view) {
-          toolRegistry.executeTool('redo_painter', { view });
+          toolRegistry.executeTool('redo_painter', {});
         }
       }
     });

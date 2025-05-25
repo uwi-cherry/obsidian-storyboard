@@ -1,5 +1,7 @@
 import { FileView, TFile } from 'obsidian';
 import { Root } from 'react-dom/client';
+import { t } from '../../constants/obsidian-i18n';
+import { toolRegistry } from '../../service-api/core/tool-registry';
 
 export class PainterView extends FileView {
   public reactRoot: Root | null = null;
@@ -46,6 +48,29 @@ export class PainterView extends FileView {
   }
 
   async onOpen(): Promise<void> {
+    // Undo / Redo アクション（Obsidian ヘッダー）
+    const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
+      try {
+        await toolRegistry.executeTool('redo_painter', {});
+        console.log('🔄 Redoボタンクリック実行完了');
+      } catch (error) {
+        console.error('🔄 Redoボタンエラー:', error);
+      }
+    }) as HTMLElement;
+    redoBtn.querySelector('svg')?.remove();
+    redoBtn.textContent = t('REDO');
+
+    const undoBtn = this.addAction('arrow-left', t('UNDO'), async () => {
+      try {
+        await toolRegistry.executeTool('undo_painter', {});
+        console.log('🔄 Undoボタンクリック実行完了');
+      } catch (error) {
+        console.error('🔄 Undoボタンエラー:', error);
+      }
+    }) as HTMLElement;
+    undoBtn.querySelector('svg')?.remove();
+    undoBtn.textContent = t('UNDO');
+
     this.renderReact();
   }
 
