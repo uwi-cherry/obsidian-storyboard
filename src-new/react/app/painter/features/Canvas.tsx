@@ -272,12 +272,13 @@ export default function Canvas({
       
       // にじみ効果を適用
       const blendIntensity = pointer.blendStrength / 100;
-      const effectRadius = brushRadius * blendIntensity;
       
-      if (effectRadius > 0) {
+      if (blendIntensity > 0) {
+        // にじみ効果ありの場合：グラデーション描画
+        const effectRadius = brushRadius * Math.max(0.3, blendIntensity);
         const gradient = ctx.createRadialGradient(x, y, 0, x, y, effectRadius);
         gradient.addColorStop(0, finalColor);
-        gradient.addColorStop(0.7, finalColor + Math.floor(255 * blendIntensity * 0.5).toString(16).padStart(2, '0'));
+        gradient.addColorStop(0.7, finalColor + Math.floor(255 * blendIntensity * 0.8).toString(16).padStart(2, '0'));
         gradient.addColorStop(1, finalColor + '00');
         
         ctx.globalCompositeOperation = 'source-over';
@@ -329,8 +330,9 @@ export default function Canvas({
       const width = imageData.width;
       const height = imageData.height;
       
-      // ブラシエリア内の色を収集
-      const colors: string[] = [];
+      // 隣接する異なる色を検出
+      const colorMap = new Map<string, number>();
+      const adjacentColors = new Set<string>();
       
       for (let py = 0; py < height; py++) {
         for (let px = 0; px < width; px++) {
@@ -342,21 +344,60 @@ export default function Canvas({
             const g = data[idx + 1];
             const b = data[idx + 2];
             const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-            colors.push(hex);
+            
+            colorMap.set(hex, (colorMap.get(hex) || 0) + 1);
+            
+            // 隣接ピクセルをチェックして異なる色を検出
+            const neighbors = [
+              [px - 1, py], [px + 1, py], [px, py - 1], [px, py + 1]
+            ];
+            
+            for (const [nx, ny] of neighbors) {
+              if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                const nIdx = (ny * width + nx) * 4;
+                const nAlpha = data[nIdx + 3];
+                
+                if (nAlpha > 0) {
+                  const nr = data[nIdx];
+                  const ng = data[nIdx + 1];
+                  const nb = data[nIdx + 2];
+                  const nHex = `#${nr.toString(16).padStart(2, '0')}${ng.toString(16).padStart(2, '0')}${nb.toString(16).padStart(2, '0')}`;
+                  
+                  // 色が異なる場合は隣接色として記録
+                  if (hex !== nHex && isColorDifferent(hex, nHex)) {
+                    adjacentColors.add(hex);
+                    adjacentColors.add(nHex);
+                  }
+                }
+              }
+            }
           }
         }
       }
       
-      if (colors.length === 0) return; // 透明エリアなら何もしない
+      if (adjacentColors.size === 0) return; // 隣接する異なる色がない場合は何もしない
       
-      // 既存色同士をにじませて混色
-      const resultColor = blendColors(colors, pointer.blendMode);
+      // 隣接する色同士を混色
+      const colorsArray = Array.from(adjacentColors);
+      let resultColor: string;
+      
+      if (colorsArray.length === 1) {
+        resultColor = colorsArray[0];
+      } else if (colorsArray.length === 2) {
+        // 2色の場合：直接混色（赤+青=紫）
+        resultColor = pointer.blendMode === 'spectral' 
+          ? mixSpectralColors(colorsArray[0], colorsArray[1], 0.5)
+          : mixColorsNormal(colorsArray[0], colorsArray[1], 0.5);
+      } else {
+        // 3色以上の場合：段階的に混色
+        resultColor = blendMultipleColors(colorsArray, pointer.blendMode);
+      }
       
       // にじみ効果で描画
       const effectRadius = brushRadius * blendIntensity;
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, effectRadius);
       gradient.addColorStop(0, resultColor);
-      gradient.addColorStop(0.7, resultColor + Math.floor(255 * blendIntensity * 0.5).toString(16).padStart(2, '0'));
+      gradient.addColorStop(0.6, resultColor + Math.floor(255 * blendIntensity * 0.7).toString(16).padStart(2, '0'));
       gradient.addColorStop(1, resultColor + '00');
       
       ctx.globalCompositeOperation = 'source-over';
@@ -365,6 +406,45 @@ export default function Canvas({
       ctx.arc(x, y, effectRadius, 0, Math.PI * 2);
       ctx.fill();
     }
+  };
+
+  // 色が十分に異なるかどうかを判定
+  const isColorDifferent = (color1: string, color2: string): boolean => {
+    const rgb1 = hexToRgb(color1);
+    const rgb2 = hexToRgb(color2);
+    
+    if (!rgb1 || !rgb2) return false;
+    
+    // RGB値の差が一定以上なら異なる色とみなす
+    const threshold = 30;
+    return Math.abs(rgb1.r - rgb2.r) > threshold ||
+           Math.abs(rgb1.g - rgb2.g) > threshold ||
+           Math.abs(rgb1.b - rgb2.b) > threshold;
+  };
+
+  // HEXからRGBに変換（ローカル関数）
+  const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16)
+    } : null;
+  };
+
+  // 複数色の混色
+  const blendMultipleColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
+    if (colors.length === 0) return '#000000';
+    if (colors.length === 1) return colors[0];
+    
+    let result = colors[0];
+    for (let i = 1; i < colors.length; i++) {
+      const ratio = 1 / (i + 1); // 均等に混色
+      result = mode === 'spectral' 
+        ? mixSpectralColors(result, colors[i], ratio)
+        : mixColorsNormal(result, colors[i], ratio);
+    }
+    return result;
   };
 
   // 色の平均を計算
@@ -377,25 +457,6 @@ export default function Canvas({
       result = mode === 'spectral' 
         ? mixSpectralColors(result, colors[i], 0.5)
         : mixColorsNormal(result, colors[i], 0.5);
-    }
-    return result;
-  };
-
-  // 複数色をにじませて混色
-  const blendColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
-    if (colors.length === 0) return '#000000';
-    if (colors.length === 1) return colors[0];
-    
-    // 隣接する色同士を混色してにじませ効果を作る
-    const uniqueColors = [...new Set(colors)];
-    if (uniqueColors.length === 1) return uniqueColors[0];
-    
-    let result = uniqueColors[0];
-    for (let i = 1; i < Math.min(uniqueColors.length, 4); i++) {
-      const ratio = 0.3 + (i * 0.2); // 徐々に混色比率を変える
-      result = mode === 'spectral' 
-        ? mixSpectralColors(result, uniqueColors[i], ratio)
-        : mixColorsNormal(result, uniqueColors[i], ratio);
     }
     return result;
   };
