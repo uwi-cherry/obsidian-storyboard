@@ -87,7 +87,7 @@ namespace Internal {
     for (const layer of layers) {
       if (layer.visible && layer.canvas) {
         try {
-          ctx.globalAlpha = layer.opacity ?? 1;
+          ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
           const blend = layer.blendMode === 'normal' ? 'source-over' : layer.blendMode;
           ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
           

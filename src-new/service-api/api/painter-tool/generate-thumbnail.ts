@@ -45,7 +45,7 @@ namespace Internal {
         const layers = [...(psdData.children || [])].reverse();
         for (const layer of layers) {
           if (!layer.hidden) {
-            ctx.globalAlpha = layer.opacity ?? 1;
+            ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
             const blend = layer.blendMode === 'normal' ? 'source-over' : layer.blendMode;
             ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
             if (layer.canvas) {

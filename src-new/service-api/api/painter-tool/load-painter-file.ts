@@ -108,7 +108,7 @@ export async function executeLoadPainterFile(args: LoadPainterFileInput): Promis
         return {
           name: layer.name ?? `Layer ${index}`,
           visible: !layer.hidden,
-          opacity: layer.opacity ?? 1,
+          opacity: layer.opacity !== undefined ? layer.opacity : 1,
           blendMode: layer.blendMode ?? 'normal',
           width: psd.width,
           height: psd.height,

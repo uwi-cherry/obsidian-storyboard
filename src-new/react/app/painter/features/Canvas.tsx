@@ -122,7 +122,7 @@ export default function Canvas({
         if (layer.visible && layer.canvas) {
           
           const originalAlpha = ctx.globalAlpha;
-          ctx.globalAlpha = layer.opacity || 1;
+          ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
           
           const originalCompositeOperation = ctx.globalCompositeOperation;
           if (layer.blendMode && layer.blendMode !== 'normal') {
