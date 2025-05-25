@@ -139,11 +139,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             canvasHeight: psdData.height
           };
           
-          // ペインター内のstateを直接更新
-          setLayers(layersWithCanvas);
-          setCurrentLayerIndex(0);
-          
-          // zustandストアも更新
+          // zustandストアのみを更新（useEffectでローカルstateに反映される）
           useLayersStore.getState().setLayers(layersWithCanvas);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
           
@@ -157,9 +153,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
             await toolRegistry.executeTool('initialize_painter_data', { view });
             // 初期化されたデータを取得
             if (view.layers) {
-              setLayers(view.layers);
-              setCurrentLayerIndex(view.currentLayerIndex || 0);
-              // zustandストアも更新
+              // zustandストアのみを更新
               useLayersStore.getState().setLayers(view.layers);
               useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
             }
@@ -181,9 +175,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           await toolRegistry.executeTool('initialize_painter_data', { view });
           // 初期化されたデータを取得
           if (view.layers) {
-            setLayers(view.layers);
-            setCurrentLayerIndex(view.currentLayerIndex || 0);
-            // zustandストアも更新
+            // zustandストアのみを更新
             useLayersStore.getState().setLayers(view.layers);
             useCurrentLayerIndexStore.getState().setCurrentLayerIndex(view.currentLayerIndex || 0);
           }
