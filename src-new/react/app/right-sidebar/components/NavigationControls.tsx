@@ -1,7 +1,8 @@
 import React from 'react';
-import { Notice, App, Menu, TFile } from 'obsidian';
+import { Notice, App, Menu, TFile, MarkdownView } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
+import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboard-factory';
 
 interface NavigationControlsProps {
   isPsdPainterOpen: boolean;
@@ -136,23 +137,66 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
           console.log('Found file object:', newFile);
           
           if (newFile && newFile instanceof TFile) {
-            console.log('Opening renamed file:', newFile.path);
-            const leaf = app.workspace.getLeaf();
-            console.log('Got leaf:', leaf);
+            console.log('File extension changed to:', newFile.extension);
             
-            // ファイルの拡張子に応じて適切なビューで開く
-            if (newFile.extension === 'otio') {
-              // OTIOファイルの場合はタイムラインビューで開く
-              await leaf.setViewState({
-                type: 'timeline-view',
-                state: { file: newFile.path }
-              });
-              console.log('OTIO file opened with timeline view');
-            } else {
-              // その他のファイルは通常通り開く（ストーリーボードファイルはfile-openイベントで自動切り替え）
-              await leaf.openFile(newFile);
-              console.log('File opened successfully');
+            // ストーリーボードファイルが開かれているMarkdownViewのリーフを探す
+            const markdownLeaves = app.workspace.getLeavesOfType('markdown');
+            console.log('Found markdown leaves:', markdownLeaves.length);
+            
+            let targetLeaf = null;
+            for (const leaf of markdownLeaves) {
+              if (leaf.view instanceof MarkdownView && leaf.view.file?.path === newFile.path) {
+                targetLeaf = leaf;
+                console.log('Found target leaf with matching file:', leaf);
+                break;
+              }
             }
+            
+            // 現在のリーフでファイルの拡張子に応じて適切なビューに切り替え
+            if (newFile.extension === 'storyboard' && targetLeaf) {
+              console.log('Switching to storyboard view for renamed file');
+              console.log('Target leaf:', targetLeaf);
+              console.log('Target leaf view:', targetLeaf.view);
+              console.log('Is MarkdownView:', targetLeaf.view instanceof MarkdownView);
+              
+              try {
+                // ストーリーボードファクトリーを使用してビューを切り替え
+                const factory = new StoryboardFactory();
+                console.log('Created factory:', factory);
+                
+                if (targetLeaf.view instanceof MarkdownView) {
+                  console.log('Calling switchToStoryboardViewMode...');
+                  await factory.switchToStoryboardViewMode(targetLeaf, app);
+                  console.log('Successfully switched to storyboard view');
+                } else {
+                  console.log('Target view is not MarkdownView, cannot switch');
+                }
+              } catch (error) {
+                console.error('Failed to switch to storyboard view:', error);
+                
+                // フォールバック: file-openイベントを発火
+                console.log('Trying fallback: triggering file-open event');
+                app.workspace.trigger('file-open', newFile);
+              }
+            } else if (newFile.extension === 'md' && targetLeaf) {
+              console.log('File renamed to markdown, switching to markdown view');
+              try {
+                // ストーリーボードファクトリーを使用してマークダウンビューに切り替え
+                const factory = new StoryboardFactory();
+                console.log('Switching to markdown view for target leaf');
+                factory.switchToMarkdownViewMode(targetLeaf);
+                console.log('Successfully switched to markdown view');
+              } catch (error) {
+                console.error('Failed to switch to markdown view:', error);
+              }
+            } else if (newFile.extension === 'md' && !targetLeaf) {
+              console.log('No target leaf found for markdown file, triggering file-open event');
+              app.workspace.trigger('file-open', newFile);
+            } else if (newFile.extension === 'storyboard' && !targetLeaf) {
+              console.log('No target leaf found, triggering file-open event');
+              app.workspace.trigger('file-open', newFile);
+            }
+            console.log('File extension change completed');
           } else {
             console.log('Renamed file not found in vault');
             console.log('Trying alternative search...');
@@ -164,22 +208,49 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
             console.log('Alternative search result:', foundFile);
             
             if (foundFile) {
-              console.log('Opening file found by alternative search:', foundFile.path);
-              const leaf = app.workspace.getLeaf();
+              console.log('File found by alternative search, extension:', foundFile.extension);
               
-              // ファイルの拡張子に応じて適切なビューで開く
-              if (foundFile.extension === 'otio') {
-                // OTIOファイルの場合はタイムラインビューで開く
-                await leaf.setViewState({
-                  type: 'timeline-view',
-                  state: { file: foundFile.path }
-                });
-                console.log('OTIO file opened with timeline view (alternative)');
-              } else {
-                // その他のファイルは通常通り開く
-                await leaf.openFile(foundFile);
-                console.log('Alternative file opened successfully');
+              // ストーリーボードファイルが開かれているMarkdownViewのリーフを探す
+              const markdownLeaves = app.workspace.getLeavesOfType('markdown');
+              let targetLeaf = null;
+              for (const leaf of markdownLeaves) {
+                if (leaf.view instanceof MarkdownView && leaf.view.file?.path === foundFile.path) {
+                  targetLeaf = leaf;
+                  break;
+                }
               }
+              
+              // 現在のリーフでファイルの拡張子に応じて適切なビューに切り替え
+              if (foundFile.extension === 'storyboard' && targetLeaf) {
+                console.log('Switching to storyboard view for alternative found file');
+                try {
+                  // ストーリーボードファクトリーを使用してビューを切り替え
+                  const factory = new StoryboardFactory();
+                  if (targetLeaf.view instanceof MarkdownView) {
+                    await factory.switchToStoryboardViewMode(targetLeaf, app);
+                    console.log('Successfully switched to storyboard view (alternative)');
+                  }
+                } catch (error) {
+                  console.error('Failed to switch to storyboard view (alternative):', error);
+                }
+              } else if (foundFile.extension === 'storyboard' && !targetLeaf) {
+                console.log('No target leaf found for alternative file, triggering file-open event');
+                app.workspace.trigger('file-open', foundFile);
+              } else if (foundFile.extension === 'md' && targetLeaf) {
+                console.log('Alternative file is markdown, switching to markdown view');
+                try {
+                  // ストーリーボードファクトリーを使用してマークダウンビューに切り替え
+                  const factory = new StoryboardFactory();
+                  factory.switchToMarkdownViewMode(targetLeaf);
+                  console.log('Successfully switched to markdown view (alternative)');
+                } catch (error) {
+                  console.error('Failed to switch to markdown view (alternative):', error);
+                }
+              } else if (foundFile.extension === 'md' && !targetLeaf) {
+                console.log('No target leaf found for alternative markdown file, triggering file-open event');
+                app.workspace.trigger('file-open', foundFile);
+              }
+              console.log('Alternative file extension change completed');
             }
           }
         } else {
@@ -220,6 +291,13 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
               // その他のファイルは通常通り開く
               await leaf.openFile(newFile);
               console.log('File opened successfully');
+              
+              // ストーリーボードファイルの場合は明示的にストーリーボードビューに切り替え
+              if (newFile.extension === 'storyboard') {
+                console.log('Triggering storyboard view switch for converted file:', newFile.path);
+                // file-openイベントを手動で発火
+                app.workspace.trigger('file-open', newFile);
+              }
             }
           } else {
             console.log('Converted file not found in vault');
@@ -268,9 +346,14 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
         if (storyboardFile && storyboardFile instanceof TFile) {
           console.log('Opening STORYBOARD file:', storyboardFile.path);
           const leaf = app.workspace.getLeaf();
-          // ストーリーボードファイルは通常通り開く（file-openイベントで自動切り替え）
+          // ストーリーボードファイルは通常通り開く
           await leaf.openFile(storyboardFile);
           console.log('STORYBOARD file opened successfully');
+          
+          // 明示的にストーリーボードビューに切り替え
+          console.log('Triggering storyboard view switch for 2-step conversion:', storyboardFile.path);
+          // file-openイベントを手動で発火
+          app.workspace.trigger('file-open', storyboardFile);
         } else {
           console.log('STORYBOARD file not found in vault');
         }
