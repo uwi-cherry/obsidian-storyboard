@@ -30,7 +30,7 @@ const ActionProperties: React.FC<ActionPropertiesProps> = ({
     containerClasses = `absolute ${baseClasses} shadow-lg z-50`;
   } else {
     containerClasses = layoutDirection === 'horizontal'
-      ? `${baseClasses} border-r border-l-0 border-t-0 border-b-0 w-[120px] flex-col`
+      ? `${baseClasses} border-r border-l-0 border-t-0 border-b-0 w-[250px] flex-col`
       : `${baseClasses} border-r border-l-0 border-t-0 border-b-0 h-[80px] flex-row items-center`;
   }
 

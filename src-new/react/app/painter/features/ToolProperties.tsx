@@ -28,7 +28,7 @@ export default function ToolProperties({
   layoutDirection
 }: ToolProps) {
   const containerClass = layoutDirection === 'horizontal'
-    ? "p-2 bg-secondary border-r border-modifier-border w-[200px] flex flex-col gap-2"
+    ? "p-2 bg-secondary border-r border-modifier-border w-[250px] flex flex-col gap-2"
     : "p-2 bg-secondary border-r border-modifier-border h-[80px] flex flex-row gap-4 items-center";
 
   return (
