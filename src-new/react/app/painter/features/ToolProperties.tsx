@@ -56,7 +56,7 @@ export default function ToolProperties({
       {['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(tool) && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}:</div>
+            <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}: {lineWidth}px</div>
             <input
               type="range"
               min={0}
@@ -68,7 +68,6 @@ export default function ToolProperties({
                 setLineWidth(Math.max(1, Math.min(1000, actualValue)));
               }}
             />
-            <div className="text-text-muted text-xs text-center">{lineWidth}px</div>
           </div>
           
           <div className="flex flex-col gap-1">
