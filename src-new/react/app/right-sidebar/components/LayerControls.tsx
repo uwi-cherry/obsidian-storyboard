@@ -159,8 +159,12 @@ export default function LayerControls() {
             type="range"
             min="0"
             max="100"
-            value={Math.round((layers[currentLayerIndex]?.opacity ?? 1) * 100)}
-            onChange={e => changeOpacity(parseInt(e.target.value, 10))}
+            value={Math.sqrt((layers[currentLayerIndex]?.opacity ?? 1) * 100) * 10}
+            onChange={e => {
+              const sliderValue = parseInt(e.target.value, 10);
+              const opacity = sliderValue === 0 ? 0 : Math.round((sliderValue / 10) ** 2);
+              changeOpacity(opacity);
+            }}
             className="flex-1 h-1 bg-modifier-border rounded outline-none"
           />
           <select
@@ -169,20 +173,20 @@ export default function LayerControls() {
             className="p-1 border border-modifier-border rounded bg-primary text-xs"
           >
             {[
-              'normal',
-              'multiply',
-              'screen',
-              'overlay',
-              'darken',
-              'lighten',
-              'color-dodge',
-              'color-burn',
-              'hard-light',
-              'soft-light',
-              'difference',
-              'exclusion'
+              { key: 'normal', label: t('BLEND_MODE_NORMAL') },
+              { key: 'multiply', label: t('BLEND_MODE_MULTIPLY') },
+              { key: 'screen', label: t('BLEND_MODE_SCREEN') },
+              { key: 'overlay', label: t('BLEND_MODE_OVERLAY') },
+              { key: 'darken', label: t('BLEND_MODE_DARKEN') },
+              { key: 'lighten', label: t('BLEND_MODE_LIGHTEN') },
+              { key: 'color-dodge', label: t('BLEND_MODE_COLOR_DODGE') },
+              { key: 'color-burn', label: t('BLEND_MODE_COLOR_BURN') },
+              { key: 'hard-light', label: t('BLEND_MODE_HARD_LIGHT') },
+              { key: 'soft-light', label: t('BLEND_MODE_SOFT_LIGHT') },
+              { key: 'difference', label: t('BLEND_MODE_DIFFERENCE') },
+              { key: 'exclusion', label: t('BLEND_MODE_EXCLUSION') }
             ].map(mode => (
-              <option key={mode} value={mode}>{mode}</option>
+              <option key={mode.key} value={mode.key}>{mode.label}</option>
             ))}
           </select>
         </div>
