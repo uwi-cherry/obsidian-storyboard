@@ -73,7 +73,8 @@ export default function CanvasContainer({
   };
 
   const startEdit = () => {
-    let rect = selectionRect;
+    const boundingRect = selectionState.getBoundingRect();
+    let rect = boundingRect;
     if (!rect) {
       if (view?._canvas) {
         rect = { x: 0, y: 0, width: view._canvas.width, height: view._canvas.height };
@@ -81,7 +82,7 @@ export default function CanvasContainer({
     }
     if (!rect) return;
     setEditRect(rect);
-    setSelectionRect(undefined);
+    selectionState.reset();
     setMenuMode('hidden');
   };
 
@@ -107,9 +108,8 @@ export default function CanvasContainer({
       const ctx = layer.canvas.getContext('2d');
       if (!ctx) return;
 
-      const rect = selectionRect
-        ? selectionRect
-        : { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+      const boundingRect = selectionState.getBoundingRect();
+      const rect = boundingRect || { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
 
       ctx.fillStyle = pointer.color;
       ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
@@ -132,9 +132,8 @@ export default function CanvasContainer({
       const ctx = layer.canvas.getContext('2d');
       if (!ctx) return;
 
-      const rect = selectionRect
-        ? selectionRect
-        : { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
+      const boundingRect = selectionState.getBoundingRect();
+      const rect = boundingRect || { x: 0, y: 0, width: layer.canvas.width, height: layer.canvas.height };
 
       ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
 

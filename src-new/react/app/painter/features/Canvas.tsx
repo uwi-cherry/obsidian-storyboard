@@ -152,6 +152,7 @@ export default function Canvas({
           const p = selectionState.lassoPoints[i];
           ctx.lineTo(p.x + 0.5, p.y + 0.5);
         }
+        ctx.closePath();
         ctx.stroke();
       } else if (selectionState.mode === 'magic' && selectionState.magicOutline) {
         ctx.stroke(selectionState.magicOutline);
@@ -402,6 +403,9 @@ export default function Canvas({
       if (selectionState.mode === 'rect') {
         valid = !!(selectionState.selectionRect && selectionState.selectionRect.width > 2 && selectionState.selectionRect.height > 2);
       } else {
+        if (selectionState.lassoPoints.length > 2) {
+          selectionState.lassoPoints.push(selectionState.lassoPoints[0]);
+        }
         valid = selectionState.lassoPoints.length > 2;
       }
       if (!valid) {
