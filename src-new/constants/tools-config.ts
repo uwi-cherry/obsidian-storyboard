@@ -133,7 +133,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       modulePath: "../../src-new/service-api/api/layer-tool/add-layer",
       exportName: "addLayerTool",
       ai_enabled: false,
-      description: "Add new layer to painter view",
+      description: "Add new layer to painter view (supports fileData)",
       category: TOOL_CATEGORIES.PAINTER
     },
     {
