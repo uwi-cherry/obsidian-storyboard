@@ -6,14 +6,18 @@ interface ToolProps {
   tool: string;
   lineWidth: number;
   selectionMode: 'rect' | 'lasso' | 'magic';
-  colorMixMode: 'normal' | 'spectral';
-  colorMixerHasColor: boolean;
+  blendMode: 'normal' | 'spectral';
+  brushHasColor: boolean;
+  blendStrength: number;
+  mixRatio: number;
   zoom: number;
   rotation: number;
   setLineWidth: (w: number) => void;
   setSelectionMode: (m: 'rect' | 'lasso' | 'magic') => void;
-  setColorMixMode: (m: 'normal' | 'spectral') => void;
-  setColorMixerHasColor: (hasColor: boolean) => void;
+  setBlendMode: (m: 'normal' | 'spectral') => void;
+  setBrushHasColor: (hasColor: boolean) => void;
+  setBlendStrength: (strength: number) => void;
+  setMixRatio: (ratio: number) => void;
   setZoom: (z: number) => void;
   setRotation: (r: number) => void;
   layoutDirection: LayoutDirection;
@@ -23,14 +27,18 @@ export default function ToolProperties({
   tool,
   lineWidth,
   selectionMode,
-  colorMixMode,
-  colorMixerHasColor,
+  blendMode,
+  brushHasColor,
+  blendStrength,
+  mixRatio,
   zoom,
   rotation,
   setLineWidth,
   setSelectionMode,
-  setColorMixMode,
-  setColorMixerHasColor,
+  setBlendMode,
+  setBrushHasColor,
+  setBlendStrength,
+  setMixRatio,
   setZoom,
   setRotation,
   layoutDirection
@@ -41,7 +49,7 @@ export default function ToolProperties({
 
   return (
     <div className={containerClass}>
-      {['brush', 'eraser', 'color-mixer'].includes(tool) && (
+      {['brush', 'eraser'].includes(tool) && (
         <div className="flex flex-col gap-1">
           <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}:</div>
           <input
@@ -55,14 +63,14 @@ export default function ToolProperties({
         </div>
       )}
 
-      {tool === 'color-mixer' && (
+      {tool === 'brush' && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
             <div className="text-text-muted text-xs">混色モード:</div>
             <select
               className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
-              value={colorMixMode}
-              onChange={e => setColorMixMode(e.target.value as 'normal' | 'spectral')}
+              value={blendMode}
+              onChange={e => setBlendMode(e.target.value as 'normal' | 'spectral')}
             >
               <option value="normal">通常混色</option>
               <option value="spectral">スペクトラル混色</option>
@@ -72,20 +80,47 @@ export default function ToolProperties({
           <div className="flex items-center gap-2">
             <input
               type="checkbox"
-              id="colorMixerHasColor"
-              checked={colorMixerHasColor}
-              onChange={e => setColorMixerHasColor(e.target.checked)}
+              id="brushHasColor"
+              checked={brushHasColor}
+              onChange={e => setBrushHasColor(e.target.checked)}
               className="w-4 h-4"
             />
-            <label htmlFor="colorMixerHasColor" className="text-text-muted text-xs">
-              ツールに色を付ける
+            <label htmlFor="brushHasColor" className="text-text-muted text-xs">
+              ペンに色を付ける
             </label>
           </div>
           
+          {brushHasColor && (
+            <div className="flex flex-col gap-1">
+              <div className="text-text-muted text-xs">混色比率: {mixRatio}%</div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={mixRatio}
+                onChange={e => setMixRatio(parseInt(e.currentTarget.value, 10))}
+              />
+              <div className="text-text-muted text-xs text-center">
+                既存色 ←→ ペンの色
+              </div>
+            </div>
+          )}
+          
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">にじみ強度: {blendStrength}%</div>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={blendStrength}
+              onChange={e => setBlendStrength(parseInt(e.currentTarget.value, 10))}
+            />
+          </div>
+          
           <div className="text-text-muted text-xs">
-            {colorMixerHasColor 
-              ? `${colorMixMode === 'spectral' ? 'スペクトラル' : '通常'}混色で既存色と混ぜます`
-              : 'ペンエリア内の色をにじませて混色します'
+            {brushHasColor 
+              ? `${blendMode === 'spectral' ? 'スペクトラル' : '通常'}混色で既存色とペンの色を混ぜます`
+              : `ペンエリア内の色を${blendMode === 'spectral' ? 'スペクトラル' : '通常'}混色でにじませます`
             }
           </div>
         </div>

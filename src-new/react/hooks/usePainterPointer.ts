@@ -1,24 +1,28 @@
 import { useState } from 'react';
 
-export type PainterTool = 'brush' | 'eraser' | 'selection' | 'hand' | 'color-mixer';
+export type PainterTool = 'brush' | 'eraser' | 'selection' | 'hand';
 
 export type SelectionMode = 'rect' | 'lasso' | 'magic';
 
-export type ColorMixMode = 'normal' | 'spectral';
+export type BlendMode = 'normal' | 'spectral';
 
 export interface PainterPointer {
   tool: PainterTool;
   lineWidth: number;
   color: string;
   selectionMode: SelectionMode;
-  colorMixMode: ColorMixMode;
-  colorMixerHasColor: boolean;
+  blendMode: BlendMode;
+  brushHasColor: boolean;
+  blendStrength: number;
+  mixRatio: number;
   setTool: (tool: PainterTool) => void;
   setLineWidth: (lineWidth: number) => void;
   setColor: (color: string) => void;
   setSelectionMode: (mode: SelectionMode) => void;
-  setColorMixMode: (mode: ColorMixMode) => void;
-  setColorMixerHasColor: (hasColor: boolean) => void;
+  setBlendMode: (mode: BlendMode) => void;
+  setBrushHasColor: (hasColor: boolean) => void;
+  setBlendStrength: (strength: number) => void;
+  setMixRatio: (ratio: number) => void;
 }
 
 export default function usePainterPointer() {
@@ -26,21 +30,27 @@ export default function usePainterPointer() {
   const [lineWidth, setLineWidth] = useState<number>(5);
   const [color, setColor] = useState<string>('#000000');
   const [selectionMode, setSelectionMode] = useState<SelectionMode>('rect');
-  const [colorMixMode, setColorMixMode] = useState<ColorMixMode>('spectral');
-  const [colorMixerHasColor, setColorMixerHasColor] = useState<boolean>(false);
+  const [blendMode, setBlendMode] = useState<BlendMode>('normal');
+  const [brushHasColor, setBrushHasColor] = useState<boolean>(true);
+  const [blendStrength, setBlendStrength] = useState<number>(50);
+  const [mixRatio, setMixRatio] = useState<number>(100);
 
   return {
     tool,
     lineWidth,
     color,
     selectionMode,
-    colorMixMode,
-    colorMixerHasColor,
+    blendMode,
+    brushHasColor,
+    blendStrength,
+    mixRatio,
     setTool,
     setLineWidth,
     setColor,
     setSelectionMode,
-    setColorMixMode,
-    setColorMixerHasColor,
+    setBlendMode,
+    setBrushHasColor,
+    setBlendStrength,
+    setMixRatio,
   };
 }

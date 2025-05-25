@@ -78,8 +78,6 @@ export default function Canvas({
       canvas.style.cursor = 'crosshair';
     } else if (pointer.tool === 'hand') {
       canvas.style.cursor = 'grab';
-    } else if (pointer.tool === 'color-mixer') {
-      canvas.style.cursor = 'crosshair';
     } else {
       canvas.style.cursor = 'default';
     }
@@ -194,22 +192,212 @@ export default function Canvas({
     if (pointer.tool === 'eraser') {
       ctx.globalCompositeOperation = 'destination-out';
       ctx.strokeStyle = 'rgba(0,0,0,1)';
-    } else {
-      ctx.globalCompositeOperation = 'source-over';
-      ctx.strokeStyle = pointer.color;
-    }
-    ctx.lineWidth = pointer.lineWidth;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+      ctx.lineWidth = pointer.lineWidth;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
 
-    ctx.beginPath();
-    ctx.moveTo(fromPos.x, fromPos.y);
-    ctx.lineTo(toPos.x, toPos.y);
-    ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(fromPos.x, fromPos.y);
+      ctx.lineTo(toPos.x, toPos.y);
+      ctx.stroke();
+    } else if (pointer.tool === 'brush') {
+      if (pointer.brushHasColor) {
+        // ペンに色を付ける場合
+        drawWithColor(ctx, fromPos, toPos);
+      } else {
+        // にじみツールとして使用
+        blendExistingColors(ctx, fromPos, toPos);
+      }
+    }
 
     const updatedLayers = [...layers];
     updatedLayers[currentLayerIndex] = { ...layers[currentLayerIndex] };
     setLayers(updatedLayers);
+  };
+
+  const drawWithColor = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
+    const brushRadius = pointer.lineWidth / 2;
+    
+    // 線の軌跡上の点を計算
+    const distance = Math.sqrt((toPos.x - fromPos.x) ** 2 + (toPos.y - fromPos.y) ** 2);
+    const steps = Math.max(1, Math.floor(distance));
+    
+    for (let i = 0; i <= steps; i++) {
+      const t = steps === 0 ? 0 : i / steps;
+      const x = fromPos.x + (toPos.x - fromPos.x) * t;
+      const y = fromPos.y + (toPos.y - fromPos.y) * t;
+      
+      // ブラシエリア内の既存色を取得
+      const imageData = ctx.getImageData(
+        Math.max(0, x - brushRadius), 
+        Math.max(0, y - brushRadius), 
+        Math.min(pointer.lineWidth, ctx.canvas.width - (x - brushRadius)), 
+        Math.min(pointer.lineWidth, ctx.canvas.height - (y - brushRadius))
+      );
+      
+      const data = imageData.data;
+      const width = imageData.width;
+      const height = imageData.height;
+      
+      // 混色比率に基づいて色を決定
+      let finalColor = pointer.color;
+      
+      if (pointer.mixRatio < 100) {
+        // 既存色との混色が必要
+        const existingColors: string[] = [];
+        
+        for (let py = 0; py < height; py++) {
+          for (let px = 0; px < width; px++) {
+            const idx = (py * width + px) * 4;
+            const alpha = data[idx + 3];
+            
+            if (alpha > 0) {
+              const r = data[idx];
+              const g = data[idx + 1];
+              const b = data[idx + 2];
+              const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+              existingColors.push(hex);
+            }
+          }
+        }
+        
+        if (existingColors.length > 0) {
+          const avgExistingColor = averageColors(existingColors, pointer.blendMode);
+          const ratio = pointer.mixRatio / 100;
+          finalColor = pointer.blendMode === 'spectral' 
+            ? mixSpectralColors(avgExistingColor, pointer.color, ratio)
+            : mixColorsNormal(avgExistingColor, pointer.color, ratio);
+        }
+      }
+      
+      // にじみ効果を適用
+      const blendIntensity = pointer.blendStrength / 100;
+      const effectRadius = brushRadius * blendIntensity;
+      
+      if (effectRadius > 0) {
+        const gradient = ctx.createRadialGradient(x, y, 0, x, y, effectRadius);
+        gradient.addColorStop(0, finalColor);
+        gradient.addColorStop(0.7, finalColor + Math.floor(255 * blendIntensity * 0.5).toString(16).padStart(2, '0'));
+        gradient.addColorStop(1, finalColor + '00');
+        
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x, y, effectRadius, 0, Math.PI * 2);
+        ctx.fill();
+      } else {
+        // にじみ強度0の場合は普通の線描画
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.strokeStyle = finalColor;
+        ctx.lineWidth = pointer.lineWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        
+        ctx.beginPath();
+        ctx.moveTo(fromPos.x, fromPos.y);
+        ctx.lineTo(toPos.x, toPos.y);
+        ctx.stroke();
+        return;
+      }
+    }
+  };
+
+  const blendExistingColors = (ctx: CanvasRenderingContext2D, fromPos: { x: number; y: number }, toPos: { x: number; y: number }) => {
+    const brushRadius = pointer.lineWidth / 2;
+    const blendIntensity = pointer.blendStrength / 100;
+    
+    if (blendIntensity === 0) return; // にじみ強度0なら何もしない
+    
+    // 線の軌跡上の点を計算
+    const distance = Math.sqrt((toPos.x - fromPos.x) ** 2 + (toPos.y - fromPos.y) ** 2);
+    const steps = Math.max(1, Math.floor(distance));
+    
+    for (let i = 0; i <= steps; i++) {
+      const t = steps === 0 ? 0 : i / steps;
+      const x = fromPos.x + (toPos.x - fromPos.x) * t;
+      const y = fromPos.y + (toPos.y - fromPos.y) * t;
+      
+      // ブラシエリア内の画像データを取得
+      const imageData = ctx.getImageData(
+        Math.max(0, x - brushRadius), 
+        Math.max(0, y - brushRadius), 
+        Math.min(pointer.lineWidth, ctx.canvas.width - (x - brushRadius)), 
+        Math.min(pointer.lineWidth, ctx.canvas.height - (y - brushRadius))
+      );
+      
+      const data = imageData.data;
+      const width = imageData.width;
+      const height = imageData.height;
+      
+      // ブラシエリア内の色を収集
+      const colors: string[] = [];
+      
+      for (let py = 0; py < height; py++) {
+        for (let px = 0; px < width; px++) {
+          const idx = (py * width + px) * 4;
+          const alpha = data[idx + 3];
+          
+          if (alpha > 0) {
+            const r = data[idx];
+            const g = data[idx + 1];
+            const b = data[idx + 2];
+            const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+            colors.push(hex);
+          }
+        }
+      }
+      
+      if (colors.length === 0) return; // 透明エリアなら何もしない
+      
+      // 既存色同士をにじませて混色
+      const resultColor = blendColors(colors, pointer.blendMode);
+      
+      // にじみ効果で描画
+      const effectRadius = brushRadius * blendIntensity;
+      const gradient = ctx.createRadialGradient(x, y, 0, x, y, effectRadius);
+      gradient.addColorStop(0, resultColor);
+      gradient.addColorStop(0.7, resultColor + Math.floor(255 * blendIntensity * 0.5).toString(16).padStart(2, '0'));
+      gradient.addColorStop(1, resultColor + '00');
+      
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.fillStyle = gradient;
+      ctx.beginPath();
+      ctx.arc(x, y, effectRadius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  };
+
+  // 色の平均を計算
+  const averageColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
+    if (colors.length === 0) return '#000000';
+    if (colors.length === 1) return colors[0];
+    
+    let result = colors[0];
+    for (let i = 1; i < colors.length; i++) {
+      result = mode === 'spectral' 
+        ? mixSpectralColors(result, colors[i], 0.5)
+        : mixColorsNormal(result, colors[i], 0.5);
+    }
+    return result;
+  };
+
+  // 複数色をにじませて混色
+  const blendColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
+    if (colors.length === 0) return '#000000';
+    if (colors.length === 1) return colors[0];
+    
+    // 隣接する色同士を混色してにじませ効果を作る
+    const uniqueColors = [...new Set(colors)];
+    if (uniqueColors.length === 1) return uniqueColors[0];
+    
+    let result = uniqueColors[0];
+    for (let i = 1; i < Math.min(uniqueColors.length, 4); i++) {
+      const ratio = 0.3 + (i * 0.2); // 徐々に混色比率を変える
+      result = mode === 'spectral' 
+        ? mixSpectralColors(result, uniqueColors[i], ratio)
+        : mixColorsNormal(result, uniqueColors[i], ratio);
+    }
+    return result;
   };
 
   const computeMagicSelection = (px: number, py: number) => {
@@ -323,126 +511,6 @@ export default function Canvas({
     };
   };
 
-  const mixColorsOnCurrentLayer = (x: number, y: number) => {
-    if (!layers[currentLayerIndex] || !layers[currentLayerIndex].canvas) return;
-
-    const layerCanvas = layers[currentLayerIndex].canvas;
-    const ctx = layerCanvas.getContext('2d');
-    if (!ctx) return;
-
-    const brushRadius = pointer.lineWidth / 2;
-    const brushDiameter = pointer.lineWidth;
-    
-    // ブラシエリア内の画像データを取得
-    const imageData = ctx.getImageData(
-      Math.max(0, x - brushRadius), 
-      Math.max(0, y - brushRadius), 
-      Math.min(brushDiameter, layerCanvas.width - (x - brushRadius)), 
-      Math.min(brushDiameter, layerCanvas.height - (y - brushRadius))
-    );
-    
-    const data = imageData.data;
-    const width = imageData.width;
-    const height = imageData.height;
-    
-    // ブラシエリア内の色を収集して平均化またはにじませ処理
-    const colors: string[] = [];
-    
-    for (let py = 0; py < height; py++) {
-      for (let px = 0; px < width; px++) {
-        const idx = (py * width + px) * 4;
-        const alpha = data[idx + 3];
-        
-        if (alpha > 0) {
-          const r = data[idx];
-          const g = data[idx + 1];
-          const b = data[idx + 2];
-          const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-          colors.push(hex);
-        }
-      }
-    }
-    
-    if (colors.length === 0) {
-      // 透明エリアの場合
-      if (pointer.colorMixerHasColor) {
-        // ツールに色がある場合は描画
-        ctx.globalCompositeOperation = 'source-over';
-        ctx.fillStyle = pointer.color;
-        ctx.beginPath();
-        ctx.arc(x, y, brushRadius, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      // 色がない場合は何もしない
-      return;
-    }
-    
-    // 色をにじませて混色
-    let resultColor: string;
-    
-    if (pointer.colorMixerHasColor) {
-      // ツールに色がある場合：既存色と混色
-      const avgColor = averageColors(colors, pointer.colorMixMode);
-      resultColor = pointer.colorMixMode === 'spectral' 
-        ? mixSpectralColors(avgColor, pointer.color, 0.5)
-        : mixColorsNormal(avgColor, pointer.color, 0.5);
-    } else {
-      // ツールに色がない場合：既存色同士をにじませて混色
-      resultColor = blendColors(colors, pointer.colorMixMode);
-    }
-    
-    // 結果を描画（ソフトブラシ効果）
-    ctx.globalCompositeOperation = 'source-over';
-    
-    // グラデーション効果で自然な混色
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, brushRadius);
-    gradient.addColorStop(0, resultColor);
-    gradient.addColorStop(0.7, resultColor + '80'); // 半透明
-    gradient.addColorStop(1, resultColor + '00'); // 完全透明
-    
-    ctx.fillStyle = gradient;
-    ctx.beginPath();
-    ctx.arc(x, y, brushRadius, 0, Math.PI * 2);
-    ctx.fill();
-
-    const updatedLayers = [...layers];
-    updatedLayers[currentLayerIndex] = { ...layers[currentLayerIndex] };
-    setLayers(updatedLayers);
-  };
-
-  // 色の平均を計算
-  const averageColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
-    if (colors.length === 0) return '#000000';
-    if (colors.length === 1) return colors[0];
-    
-    let result = colors[0];
-    for (let i = 1; i < colors.length; i++) {
-      result = mode === 'spectral' 
-        ? mixSpectralColors(result, colors[i], 0.5)
-        : mixColorsNormal(result, colors[i], 0.5);
-    }
-    return result;
-  };
-
-  // 複数色をにじませて混色
-  const blendColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
-    if (colors.length === 0) return '#000000';
-    if (colors.length === 1) return colors[0];
-    
-    // 隣接する色同士を混色してにじませ効果を作る
-    const uniqueColors = [...new Set(colors)];
-    if (uniqueColors.length === 1) return uniqueColors[0];
-    
-    let result = uniqueColors[0];
-    for (let i = 1; i < Math.min(uniqueColors.length, 4); i++) {
-      const ratio = 0.3 + (i * 0.2); // 徐々に混色比率を変える
-      result = mode === 'spectral' 
-        ? mixSpectralColors(result, uniqueColors[i], ratio)
-        : mixColorsNormal(result, uniqueColors[i], ratio);
-    }
-    return result;
-  };
-
   const handlePointerDown = (e: React.PointerEvent) => {
     const { x, y } = getPointerPos(e);
 
@@ -485,12 +553,6 @@ export default function Canvas({
       drawingRef.current = true;
       lastPosRef.current = { x, y };
       drawOnCurrentLayer({ x, y }, { x, y });
-    } else if (pointer.tool === 'color-mixer') {
-      historyStore.saveHistory(layersStore.layers, currentLayerIndexStore.currentLayerIndex);
-
-      drawingRef.current = true;
-      lastPosRef.current = { x, y };
-      mixColorsOnCurrentLayer(x, y);
     } else if (pointer.tool === 'hand') {
       panningRef.current = true;
       panLastRef.current = { x: e.clientX, y: e.clientY };
@@ -516,9 +578,6 @@ export default function Canvas({
       onSelectionUpdate?.();
     } else if ((pointer.tool === 'brush' || pointer.tool === 'eraser') && drawingRef.current && lastPosRef.current) {
       drawOnCurrentLayer(lastPosRef.current, { x, y });
-      lastPosRef.current = { x, y };
-    } else if (pointer.tool === 'color-mixer' && drawingRef.current && lastPosRef.current) {
-      mixColorsOnCurrentLayer(x, y);
       lastPosRef.current = { x, y };
     } else if (pointer.tool === 'hand' && panningRef.current) {
       const deltaX = e.clientX - panLastRef.current.x;
@@ -559,9 +618,6 @@ export default function Canvas({
         onSelectionEnd?.();
       }
     } else if (pointer.tool === 'brush' || pointer.tool === 'eraser') {
-      drawingRef.current = false;
-      lastPosRef.current = null;
-    } else if (pointer.tool === 'color-mixer') {
       drawingRef.current = false;
       lastPosRef.current = null;
     } else if (pointer.tool === 'hand') {

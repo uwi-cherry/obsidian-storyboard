@@ -45,13 +45,21 @@ export function mixSpectralColors(color1: string, color2: string, ratio: number)
     
     if (!rgb1 || !rgb2) return color1;
     
+    // spectral.jsの正しい使用方法
     const spectral1 = new spectral.Color([rgb1.r, rgb1.g, rgb1.b]);
     const spectral2 = new spectral.Color([rgb2.r, rgb2.g, rgb2.b]);
     
+    // 混色比率を正しく適用
     const mixed = spectral.mix([spectral1, 1 - ratio], [spectral2, ratio]);
-    return mixed.toString();
+    
+    // 結果をHEX形式に変換
+    const result = mixed.toString();
+    
+    // spectral.jsの結果が#で始まらない場合は追加
+    return result.startsWith('#') ? result : '#' + result;
   } catch (error) {
     console.error('スペクトラル混色エラー:', error);
+    console.log('フォールバック: 通常混色を使用');
     // エラーの場合は通常混色にフォールバック
     return mixColorsNormal(color1, color2, ratio);
   }
