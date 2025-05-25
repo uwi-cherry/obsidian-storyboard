@@ -55,9 +55,10 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
         {TOOLS.map(btn => (
           <button
             key={btn.id}
+            aria-pressed={tool === btn.id}
             className={`w-10 h-10 border-none rounded cursor-pointer flex items-center justify-center transition-colors ${
-              tool === btn.id 
-                ? 'bg-accent text-on-accent shadow-md border-2 border-accent-hover' 
+              tool === btn.id
+                ? 'bg-accent text-on-accent shadow-md ring-2 ring-accent'
                 : 'bg-primary text-text-normal hover:bg-modifier-hover'
             }`}
             title={btn.title}
