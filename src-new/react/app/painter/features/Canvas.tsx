@@ -32,6 +32,7 @@ export default function Canvas({
 }: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
 
   const layers = useLayersStore((state) => state.layers);
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
@@ -387,9 +388,15 @@ export default function Canvas({
     } else if ((pointer.tool === 'brush' || pointer.tool === 'eraser') && drawingRef.current && lastPosRef.current) {
       drawOnCurrentLayer(lastPosRef.current, { x, y });
       lastPosRef.current = { x, y };
-    } else if (pointer.tool === 'hand' && panningRef.current && containerRef.current) {
-      containerRef.current.scrollLeft -= e.clientX - panLastRef.current.x;
-      containerRef.current.scrollTop -= e.clientY - panLastRef.current.y;
+    } else if (pointer.tool === 'hand' && panningRef.current) {
+      const deltaX = e.clientX - panLastRef.current.x;
+      const deltaY = e.clientY - panLastRef.current.y;
+      
+      setPanOffset(prev => ({
+        x: prev.x + deltaX,
+        y: prev.y + deltaY
+      }));
+      
       panLastRef.current = { x: e.clientX, y: e.clientY };
     }
   };
@@ -441,7 +448,7 @@ export default function Canvas({
           style={{
             display: 'block',
             objectFit: 'contain',
-            transform: `scale(${zoom / 100}) rotate(${rotation}deg)`
+            transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom / 100}) rotate(${rotation}deg)`
           }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
