@@ -14,7 +14,7 @@ export default function LayerControls() {
       const currentLayers = [...layers];
       const newCanvas = document.createElement('canvas');
       const newLayer = {
-        name: `レイヤー ${currentLayers.length + 1}`,
+        name: `${t('LAYER')} ${currentLayers.length + 1}`,
         visible: true,
         opacity: 1.0,
         blendMode: 'normal',
@@ -67,7 +67,7 @@ export default function LayerControls() {
 
   const renameLayer = async (index: number) => {
     
-    const newName = prompt(t('ENTER_LAYER_NAME') || 'レイヤー名を入力', layers[index].name);
+    const newName = prompt(t('ENTER_LAYER_NAME'), layers[index].name);
     if (newName && newName !== layers[index].name) {
       try {
         const currentLayers = [...layers];
@@ -120,7 +120,7 @@ export default function LayerControls() {
     return (
       <div className="p-2 border-b border-modifier-border">
         <div className="text-text-muted text-sm">
-          レイヤーがありません
+          {t('NO_LAYERS')}
         </div>
         <div className="text-text-muted text-xs mt-1">
           デバッグ情報:
@@ -133,7 +133,7 @@ export default function LayerControls() {
   return (
     <div className="p-2 border-b border-modifier-border">
       <div className="text-text-normal text-sm mb-2 pb-1 border-b border-modifier-border">
-        {t('LAYERS') || 'レイヤー'}
+        {t('LAYERS')}
       </div>
 
       
@@ -141,13 +141,13 @@ export default function LayerControls() {
         <button
           className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
           onClick={addBlankLayer}
-          title={t('NEW_LAYER') || '新しいレイヤー'}
+          title={t('NEW_LAYER')}
           dangerouslySetInnerHTML={{ __html: LAYER_ICONS.add }}
         />
         <button
           className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
           onClick={deleteCurrentLayer}
-          title={t('DELETE_LAYER') || 'レイヤーを削除'}
+          title={t('DELETE_LAYER')}
           dangerouslySetInnerHTML={{ __html: LAYER_ICONS.delete }}
         />
       </div>
