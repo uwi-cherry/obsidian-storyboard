@@ -144,6 +144,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           await app.vault.createFolder(assetsDir);
         }
       } catch (err) {
+        console.error(err);
       }
       path = normalizePath(`${assetsDir}/${file.name}`);
       const newFile = await app.vault.createBinary(path, arrayBuffer);
@@ -163,7 +164,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
           const parsedResult = JSON.parse(result);
           path = parsedResult.filePath;
         } catch (error) {
-          
+          console.error(error);
         }
       }
     }

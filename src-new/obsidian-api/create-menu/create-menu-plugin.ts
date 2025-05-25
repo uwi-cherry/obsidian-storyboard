@@ -60,6 +60,7 @@ export class CreateMenuPlugin {
                 await activeLeaf.openFile(latestFile);
               }
             } catch (error) {
+              console.error(error);
             }
           })
       );

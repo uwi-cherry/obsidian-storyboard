@@ -21,6 +21,7 @@ export default function LayerControls() {
         fileData: arrayBuffer
       });
     } catch (error) {
+      console.error(error);
     } finally {
       e.target.value = '';
     }
@@ -36,6 +37,7 @@ export default function LayerControls() {
         name: `レイヤー ${layers.length + 1}`
       });
     } catch (error) {
+      console.error(error);
     }
   };
 
@@ -47,6 +49,7 @@ export default function LayerControls() {
         index: currentLayerIndex
       });
     } catch (error) {
+      console.error(error);
     }
   };
 
@@ -54,6 +57,7 @@ export default function LayerControls() {
     try {
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(index);
     } catch (error) {
+      console.error(error);
     }
   };
 
@@ -63,6 +67,7 @@ export default function LayerControls() {
         index
       });
     } catch (error) {
+      console.error(error);
     }
   };
 
@@ -76,6 +81,7 @@ export default function LayerControls() {
           name: newName
         });
       } catch (error) {
+        console.error(error);
       }
     }
   };
@@ -87,6 +93,7 @@ export default function LayerControls() {
         opacity: opacity / 100
       });
     } catch (error) {
+      console.error(error);
     }
   };
 
@@ -97,6 +104,7 @@ export default function LayerControls() {
         blendMode
       });
     } catch (error) {
+      console.error(error);
     }
   };
 

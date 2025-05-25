@@ -27,21 +27,23 @@ export class PainterView extends FileView {
   }
 
   async setState(state: { file: string | null }) {
-    const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
-      try {
-        await toolRegistry.executeTool('redo_painter', {});
-      } catch (error) {
-      }
-    }) as HTMLElement;
+      const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
+        try {
+          await toolRegistry.executeTool('redo_painter', {});
+        } catch (error) {
+          console.error(error);
+        }
+      }) as HTMLElement;
     redoBtn.querySelector('svg')?.remove();
     redoBtn.textContent = t('REDO');
 
-    const undoBtn = this.addAction('arrow-left', t('UNDO'), async () => {
-      try {
-        await toolRegistry.executeTool('undo_painter', {});
-      } catch (error) {
-      }
-    }) as HTMLElement;
+      const undoBtn = this.addAction('arrow-left', t('UNDO'), async () => {
+        try {
+          await toolRegistry.executeTool('undo_painter', {});
+        } catch (error) {
+          console.error(error);
+        }
+      }) as HTMLElement;
     undoBtn.querySelector('svg')?.remove();
     undoBtn.textContent = t('UNDO');
 
