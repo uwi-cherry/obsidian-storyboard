@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
-import { LAYER_ICONS } from '../../../../constants/icons';
+import { LAYER_ICONS, BUTTON_ICONS } from '../../../../constants/icons';
 import { useLayersStore } from '../../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
@@ -8,6 +8,28 @@ import { toolRegistry } from '../../../../service-api/core/tool-registry';
 export default function LayerControls() {
   const layers = useLayersStore((state) => state.layers);
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      await toolRegistry.executeTool('add_layer', {
+        name: file.name,
+        fileData: arrayBuffer
+      });
+    } catch (error) {
+      console.error('Failed to add layer from file:', error);
+    } finally {
+      e.target.value = '';
+    }
+  };
+
+  const openFileDialog = () => {
+    fileInputRef.current?.click();
+  };
 
   const addBlankLayer = async () => {
     try {
@@ -114,6 +136,19 @@ export default function LayerControls() {
             onClick={addBlankLayer}
             title={t('NEW_LAYER')}
             dangerouslySetInnerHTML={{ __html: LAYER_ICONS.add }}
+          />
+          <button
+            className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
+            onClick={openFileDialog}
+            title={t('FILE_SELECT')}
+            dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileSelect}
           />
           <button
             className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"

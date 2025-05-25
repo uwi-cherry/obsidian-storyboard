@@ -9,6 +9,7 @@ namespace Internal {
   export interface AddLayerInput {
     name?: string;
     imageFile?: TFile;
+    fileData?: ArrayBuffer | Blob;
     width?: number;
     height?: number;
     app?: any;
@@ -22,6 +23,7 @@ namespace Internal {
       properties: {
         name: { type: 'string', description: 'Layer name', nullable: true },
         imageFile: { type: 'object', description: 'Image file', nullable: true },
+        fileData: { type: 'object', description: 'Image data', nullable: true },
         width: { type: 'number', description: 'Canvas width', default: 800 },
         height: { type: 'number', description: 'Canvas height', default: 600 },
         app: { type: 'object', description: 'Obsidian app instance', nullable: true }
@@ -36,10 +38,11 @@ namespace Internal {
   export async function executeAddLayer(args: AddLayerInput): Promise<string> {
     const { 
       name = 'New Layer', 
-      imageFile, 
-      width = DEFAULT_CANVAS_WIDTH, 
+      imageFile,
+      fileData,
+      width = DEFAULT_CANVAS_WIDTH,
       height = DEFAULT_CANVAS_HEIGHT,
-      app 
+      app
     } = args;
 
     // 操作前の状態を履歴に保存
@@ -56,10 +59,20 @@ namespace Internal {
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
 
+    let imageArrayBuffer: ArrayBuffer | undefined;
+
     if (imageFile && app) {
-      // 画像ファイルからレイヤーを作成
-      const data = await app.vault.readBinary(imageFile);
-      const blob = new Blob([data]);
+      imageArrayBuffer = await app.vault.readBinary(imageFile);
+    } else if (fileData) {
+      if (fileData instanceof Blob) {
+        imageArrayBuffer = await fileData.arrayBuffer();
+      } else {
+        imageArrayBuffer = fileData;
+      }
+    }
+
+    if (imageArrayBuffer) {
+      const blob = new Blob([imageArrayBuffer]);
       const url = URL.createObjectURL(blob);
       const img = await new Promise<HTMLImageElement>((resolve, reject) => {
         const im = new Image();
@@ -67,7 +80,7 @@ namespace Internal {
         im.onerror = reject;
         im.src = url;
       });
-      
+
       const x = (canvas.width - img.width) / 2;
       const y = (canvas.height - img.height) / 2;
       ctx.drawImage(img, x, y);
