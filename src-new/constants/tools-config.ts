@@ -19,12 +19,11 @@ export const TOOL_NAMES = {
   
   // レイヤー関連
   ADD_LAYER: 'add_layer',
-  DELETE_LAYER: 'delete_layer',
-  UPDATE_LAYER: 'update_layer',
-  DUPLICATE_LAYER: 'duplicate_layer',
-  INITIALIZE_PAINTER_DATA: 'initialize_painter_data',
-  SET_CURRENT_LAYER: 'set_current_layer',
-  REFRESH_LAYERS: 'refresh_layers'
+  REMOVE_LAYER: 'remove_layer',
+  SET_LAYER_OPACITY: 'set_layer_opacity',
+  SET_LAYER_BLEND_MODE: 'set_layer_blend_mode',
+  RENAME_LAYER: 'rename_layer',
+  TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility'
 } as const;
 
 // ツール名の型定義
@@ -138,51 +137,43 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: TOOL_NAMES.DELETE_LAYER,
-      modulePath: "../../src-new/service-api/api/layer-tool/delete-layer",
-      exportName: "deleteLayerTool",
+      name: TOOL_NAMES.REMOVE_LAYER,
+      modulePath: "../../src-new/service-api/api/layer-tool/remove-layer",
+      exportName: "removeLayerTool",
       ai_enabled: false,
-      description: "Delete layer from painter view",
+      description: "Remove layer from painter view",
       category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: TOOL_NAMES.UPDATE_LAYER,
-      modulePath: "../../src-new/service-api/api/layer-tool/update-layer",
-      exportName: "updateLayerTool",
+      name: TOOL_NAMES.SET_LAYER_OPACITY,
+      modulePath: "../../src-new/service-api/api/layer-tool/set-layer-opacity",
+      exportName: "setLayerOpacityTool",
       ai_enabled: false,
-      description: "Update layer properties in painter view",
+      description: "Set layer opacity in painter view",
       category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: TOOL_NAMES.DUPLICATE_LAYER,
-      modulePath: "../../src-new/service-api/api/layer-tool/duplicate-layer",
-      exportName: "duplicateLayerTool",
+      name: TOOL_NAMES.SET_LAYER_BLEND_MODE,
+      modulePath: "../../src-new/service-api/api/layer-tool/set-layer-blend-mode",
+      exportName: "setLayerBlendModeTool",
       ai_enabled: false,
-      description: "Duplicate layer in painter view",
+      description: "Set layer blend mode in painter view",
       category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: TOOL_NAMES.INITIALIZE_PAINTER_DATA,
-      modulePath: "../../src-new/service-api/api/layer-tool/initialize-painter-data",
-      exportName: "initializePainterDataTool",
+      name: TOOL_NAMES.RENAME_LAYER,
+      modulePath: "../../src-new/service-api/api/layer-tool/rename-layer",
+      exportName: "renameLayerTool",
       ai_enabled: false,
-      description: "Initialize painter data with default layer",
+      description: "Rename layer in painter view",
       category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: TOOL_NAMES.SET_CURRENT_LAYER,
-      modulePath: "../../src-new/service-api/api/layer-tool/set-current-layer",
-      exportName: "setCurrentLayerTool",
+      name: TOOL_NAMES.TOGGLE_LAYER_VISIBILITY,
+      modulePath: "../../src-new/service-api/api/layer-tool/toggle-layer-visibility",
+      exportName: "toggleLayerVisibilityTool",
       ai_enabled: false,
-      description: "Set current layer index in painter view",
-      category: TOOL_CATEGORIES.PAINTER
-    },
-    {
-      name: TOOL_NAMES.REFRESH_LAYERS,
-      modulePath: "../../src-new/service-api/api/layer-tool/refresh-layers",
-      exportName: "refreshLayersTool",
-      ai_enabled: false,
-      description: "Refresh layer display when PSD file is opened or storyboard row is selected",
+      description: "Toggle layer visibility in painter view",
       category: TOOL_CATEGORIES.PAINTER
     }
   ],
