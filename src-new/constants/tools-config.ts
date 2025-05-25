@@ -23,7 +23,8 @@ export const TOOL_NAMES = {
   SET_LAYER_OPACITY: 'set_layer_opacity',
   SET_LAYER_BLEND_MODE: 'set_layer_blend_mode',
   RENAME_LAYER: 'rename_layer',
-  TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility'
+  TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility',
+  APPLY_SELECTION_TRANSFORM: 'apply_selection_transform'
 } as const;
 
 // ツール名の型定義
@@ -174,6 +175,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "toggleLayerVisibilityTool",
       ai_enabled: false,
       description: "Toggle layer visibility in painter view",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.APPLY_SELECTION_TRANSFORM,
+      modulePath: "../../src-new/service-api/api/layer-tool/apply-selection-transform",
+      exportName: "applySelectionTransformTool",
+      ai_enabled: false,
+      description: "Apply transformed selection to current layer",
       category: TOOL_CATEGORIES.PAINTER
     }
   ],

@@ -3,6 +3,7 @@ import Canvas from './Canvas';
 import ToolProperties from './ToolProperties';
 import ColorProperties from './ColorProperties';
 import ActionProperties from './ActionProperties';
+import TransformOverlay from './TransformOverlay';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
 import { usePainterLayoutStore } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
 
@@ -35,6 +36,8 @@ export default function CanvasContainer({
   setRotation
 }: Props) {
   const [selectionRect, setSelectionRect] = useState<SelectionRect | undefined>();
+  const [transformRect, setTransformRect] = useState<SelectionRect | undefined>();
+  const [showTransform, setShowTransform] = useState(false);
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
   
@@ -50,8 +53,10 @@ export default function CanvasContainer({
 
   const handleSelectionEnd = (rect?: SelectionRect) => {
     if (rect) {
-      setMenuPos({ x: rect.x, y: rect.y - 28 });
-      setMenuMode('selection');
+      setTransformRect(rect);
+      setShowTransform(true);
+      setSelectionRect(undefined);
+      setMenuMode('hidden');
     } else {
       setMenuMode('global');
     }
@@ -59,6 +64,15 @@ export default function CanvasContainer({
 
   const cancelSelection = () => {
     setSelectionRect(undefined);
+    setTransformRect(undefined);
+    setShowTransform(false);
+    setMenuMode('global');
+  };
+
+  const finishTransform = () => {
+    setSelectionRect(undefined);
+    setTransformRect(undefined);
+    setShowTransform(false);
     setMenuMode('global');
   };
 
@@ -115,13 +129,22 @@ export default function CanvasContainer({
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}
         />
-        
+
         {menuMode === 'selection' && (
           <ActionProperties
             handlers={actionHandlers}
             mode={menuMode}
             position={menuPos}
             isFloating={true}
+          />
+        )}
+
+        {showTransform && transformRect && (
+          <TransformOverlay
+            rect={transformRect}
+            view={view}
+            zoom={zoom}
+            onFinish={finishTransform}
           />
         )}
       </div>

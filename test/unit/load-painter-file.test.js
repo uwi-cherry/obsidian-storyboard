@@ -6,6 +6,10 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { createMockApp, createMockTFile } from '../utils/obsidian-mock.js';
 
+
+// Node環境では HTMLCanvasElement が存在しないためダミーを定義
+global.HTMLCanvasElement = function () {};
+
 // TypeScriptソースを一時的にビルドしてESMとして読み込む
 const sourceFile = path.resolve('src-new/service-api/api/painter-tool/load-painter-file.ts');
 const tmpDir = fs.mkdtempSync(path.join(process.cwd(), 'test', 'tmp-load-painter-'));
