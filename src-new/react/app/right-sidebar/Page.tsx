@@ -172,7 +172,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         app={app || ({} as App)}
         onImageUrlChange={handleImageChange}
       />
-      {layers && layers.length > 0 && <LayerControls />}
+      {layers && layers.length > 0 && <LayerControls app={app} />}
       <ChatBox />
     </div>
   );

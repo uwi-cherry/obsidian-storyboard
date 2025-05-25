@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useRef } from 'react';
+import { App, normalizePath, TFile } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
-import { LAYER_ICONS } from '../../../../constants/icons';
+import { LAYER_ICONS, BUTTON_ICONS } from '../../../../constants/icons';
 import { useLayersStore } from '../../../../obsidian-api/zustand/store/layers-store';
 import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
-export default function LayerControls() {
+interface LayerControlsProps {
+  app?: App;
+}
+
+export default function LayerControls({ app }: LayerControlsProps) {
   const layers = useLayersStore((state) => state.layers);
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
 
@@ -64,6 +69,50 @@ export default function LayerControls() {
     }
   };
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageLayerSelect = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file || !app) return;
+
+    const vaultFiles = app.vault.getFiles();
+    const found = vaultFiles.find((f) => f.name === file.name);
+
+    let tFile: TFile;
+    if (found) {
+      tFile = found;
+    } else {
+      const arrayBuffer = await file.arrayBuffer();
+      const storyboardDir = app.workspace.getActiveFile()?.parent?.path || '';
+      const assetsDir = storyboardDir
+        ? normalizePath(`${storyboardDir}/assets`)
+        : 'assets';
+      try {
+        if (!app.vault.getAbstractFileByPath(assetsDir)) {
+          await app.vault.createFolder(assetsDir);
+        }
+      } catch (err) {
+        console.error('Failed to create assets folder:', err);
+      }
+      const path = normalizePath(`${assetsDir}/${file.name}`);
+      tFile = await app.vault.createBinary(path, arrayBuffer);
+    }
+
+    try {
+      await toolRegistry.executeTool('add_layer', {
+        name: file.name,
+        imageFile: tFile,
+        app,
+      });
+    } catch (error) {
+      console.error('Failed to add image layer:', error);
+    } finally {
+      e.target.value = '';
+    }
+  };
+
   const changeOpacity = async (opacity: number) => {
     try {
       await toolRegistry.executeTool('set_layer_opacity', {
@@ -106,7 +155,14 @@ export default function LayerControls() {
         {t('LAYERS')}
       </div>
 
-      
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".psd,.png,.jpg,.jpeg,.gif,.webp"
+        className="hidden"
+        onChange={handleImageLayerSelect}
+      />
+
       {layers[currentLayerIndex] && (
         <div className="flex items-center gap-2 mb-2">
           <button
@@ -114,6 +170,12 @@ export default function LayerControls() {
             onClick={addBlankLayer}
             title={t('NEW_LAYER')}
             dangerouslySetInnerHTML={{ __html: LAYER_ICONS.add }}
+          />
+          <button
+            className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
+            onClick={() => fileInputRef.current?.click()}
+            title={t('IMAGE_LAYER')}
+            dangerouslySetInnerHTML={{ __html: BUTTON_ICONS.fileSelect }}
           />
           <button
             className="p-2 w-8 h-8 bg-primary border border-modifier-border text-text-normal rounded cursor-pointer hover:bg-modifier-hover flex items-center justify-center"
