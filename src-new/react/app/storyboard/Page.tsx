@@ -9,7 +9,6 @@ import { StoryboardData, StoryboardFrame } from '../../../types/storyboard';
 import BGMCreationInput from './BGMCreationInput';
 import CharacterEditModal from './CharacterEditModal';
 import ImageInputCell from './ImageInputCell';
-import NewChapterBGMInput from './NewChapterBGMInput';
 import PreviewCell from './PreviewCell';
 import SpeakerDialogueCell from './SpeakerDialogueCell';
 import { useSelectedRowIndexStore } from '../../../obsidian-api/zustand/store/selected-row-index-store';
@@ -449,15 +448,16 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
           />
         </details>
       ))}
-      <NewChapterBGMInput
+      <BGMCreationInput
         value={newChapterBgm}
         onChange={setNewChapterBgm}
-        onSubmit={(value) => {
+        onSubmit={(value: string) => {
           addChapter(value);
           setOpenChapters(prev => [...prev, true]);
           setNewChapterBgm('');
         }}
         columnsCount={columns.length}
+        isNewChapter={true}
       />
     </>
   );
