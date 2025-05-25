@@ -14,12 +14,12 @@ import { redoPainterTool } from '../api/painter-tool/redo-painter';
 import { loadPainterFileTool } from '../api/painter-tool/load-painter-file';
 import { savePainterFileTool } from '../api/painter-tool/save-painter-file';
 import { generateThumbnailTool } from '../api/painter-tool/generate-thumbnail';
-import { addLayerTool } from '../api/layer-tool/add-layer';
 import { removeLayerTool } from '../api/layer-tool/remove-layer';
 import { setLayerOpacityTool } from '../api/layer-tool/set-layer-opacity';
 import { setLayerBlendModeTool } from '../api/layer-tool/set-layer-blend-mode';
 import { renameLayerTool } from '../api/layer-tool/rename-layer';
 import { toggleLayerVisibilityTool } from '../api/layer-tool/toggle-layer-visibility';
+import { addLayerTool } from '../api/layer-tool/add-layer';
 
 
 namespace Internal {
