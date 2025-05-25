@@ -83,12 +83,11 @@ namespace Internal {
     return { canvas: toCanvas(psdLayer, layerWidth, layerHeight), width: layerWidth, height: layerHeight };
   }
 
-  export async function executeLoadPainterFile(args: LoadPainterFileInput): Promise<string> {
+export async function executeLoadPainterFile(args: LoadPainterFileInput): Promise<string> {
     const { app, file } = args;
-    
-    try {
-      const buffer = await app.vault.readBinary(file);
-      const psd = agPsd.readPsd(buffer);
+
+    const buffer = await app.vault.readBinary(file);
+    const psd = agPsd.readPsd(buffer);
       
             
       const layers: PsdLayerData[] = (psd.children || []).map((layer: agPsd.Layer, index: number) => {
@@ -117,18 +116,14 @@ namespace Internal {
         };
       });
       
-      const result = {
+    const result = {
         width: psd.width,
         height: psd.height,
         layers
-      };
-      
-            
-      return JSON.stringify(result);
-    } catch (error) {
-            throw error;
-    }
-  }
+    };
+
+    return JSON.stringify(result);
+}
 }
 
 export const loadPainterFileTool: Tool<Internal.LoadPainterFileInput> = {
