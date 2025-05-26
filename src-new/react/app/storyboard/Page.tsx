@@ -254,13 +254,15 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [app, storyboard]);
 
+  // 選択されたフレームの変更を監視してストーリーボードのデータを更新
+  const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
+  const selectedRowIndex = useSelectedRowIndexStore((state) => state.selectedRowIndex);
+  
   useEffect(() => {
-    const handler = (e: Event) => {
-      const custom = e as CustomEvent;
-      const { rowIndex, imageUrl, imagePrompt } = custom.detail || {};
-      if (rowIndex === undefined) return;
+    if (selectedFrame && selectedRowIndex !== null) {
+      // グローバルインデックスから章とフレームのインデックスを計算
       let targetChapterIndex = 0;
-      let idxInChapter = rowIndex;
+      let idxInChapter = selectedRowIndex;
       for (let i = 0; i < storyboard.chapters.length; i++) {
         if (idxInChapter < storyboard.chapters[i].frames.length) {
           targetChapterIndex = i;
@@ -268,16 +270,22 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         }
         idxInChapter -= storyboard.chapters[i].frames.length;
       }
-      if (imageUrl !== undefined) {
-        handleCellChange(targetChapterIndex, idxInChapter, 'imageUrl', imageUrl);
+      
+      // 現在のフレームと選択されたフレームを比較して、変更があれば更新
+      const currentFrame = storyboard.chapters[targetChapterIndex]?.frames[idxInChapter];
+      if (currentFrame && 
+          (currentFrame.imageUrl !== selectedFrame.imageUrl || 
+           currentFrame.imagePrompt !== selectedFrame.imagePrompt)) {
+        
+        if (currentFrame.imageUrl !== selectedFrame.imageUrl) {
+          handleCellChange(targetChapterIndex, idxInChapter, 'imageUrl', selectedFrame.imageUrl || '');
+        }
+        if (currentFrame.imagePrompt !== selectedFrame.imagePrompt) {
+          handleCellChange(targetChapterIndex, idxInChapter, 'imagePrompt', selectedFrame.imagePrompt || '');
+        }
       }
-      if (imagePrompt !== undefined) {
-        handleCellChange(targetChapterIndex, idxInChapter, 'imagePrompt', imagePrompt);
-      }
-    };
-    window.addEventListener('psd-sidebar-update-image', handler);
-    return () => window.removeEventListener('psd-sidebar-update-image', handler);
-  }, [handleCellChange, storyboard]);
+    }
+  }, [selectedFrame, selectedRowIndex, storyboard, handleCellChange]);
 
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {

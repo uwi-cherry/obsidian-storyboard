@@ -7,6 +7,7 @@ import ChatBox from './components/ChatBox';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
+import { useSelectedRowIndexStore } from '../../../obsidian-api/zustand/store/selected-row-index-store';
 import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
 import type { Layer } from '../../../types/painter-types';
@@ -113,22 +114,25 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     loadPsdFile();
   }, [currentPsdFile, app]);
 
-  useEffect(() => {
-    const handlePsdFileOpened = async (e: Event) => {
-      const custom = e as CustomEvent;
-      const { file } = custom.detail || {};
-      if (!file || !app) return;
-
-      setCurrentFile(file);    };
-
-    window.addEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
-    return () => {
-      window.removeEventListener('psd-file-opened', handlePsdFileOpened as EventListener);
-    };
-  }, [app]);
+  // PSDファイルが開かれた際の処理は、currentPsdFileの変更で自動的に処理される
 
   const handleImageChange = (url: string | null) => {
+    // 選択されたフレームのimageUrlを更新
+    const selectedFrame = useSelectedFrameStore.getState().selectedFrame;
     
+    if (selectedFrame && url) {
+      // 選択されたフレームのストアを更新
+      const updatedFrame = { ...selectedFrame, imageUrl: url };
+      useSelectedFrameStore.getState().setSelectedFrame(updatedFrame);
+      
+      // PSDファイルの場合は、レイヤーストアも更新
+      if (url.endsWith('.psd') && app) {
+        const file = app.vault.getAbstractFileByPath(url);
+        if (file instanceof TFile) {
+          useLayersStore.getState().setCurrentPsdFile(file);
+        }
+      }
+    }
   };
 
   const handleOpenPsdPainter = async () => {
@@ -176,7 +180,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
   return (
     <div className="w-full h-full flex flex-col bg-primary border-l border-modifier-border">
       <NavigationControls
-        view={view}
         isPsdPainterOpen={isPsdPainterOpen}
         currentImageUrl={currentImageUrl}
         onBackToStoryboard={handleBackToStoryboard}
