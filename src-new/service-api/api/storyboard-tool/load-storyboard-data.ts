@@ -142,30 +142,6 @@ namespace Internal {
     const { app, file } = args;
     const markdownContent = await app.vault.read(file);
     
-    const isNewFile = markdownContent.trim() === '' || 
-                     markdownContent.includes('無題のファイル') || 
-                     markdownContent.includes('山田太郎') || 
-                     markdownContent.includes('田中花子');
-    
-    if (isNewFile) {
-      const emptyData: StoryboardData = {
-        title: '',
-        chapters: [{ 
-          bgmPrompt: 'calm acoustic guitar, soft piano, peaceful ambient, instrumental', 
-          frames: [{ 
-            dialogues: '', 
-            speaker: '', 
-            imageUrl: '', 
-            imagePrompt: '', 
-            prompt: '', 
-            endTime: '' 
-          }] 
-        }],
-        characters: []
-      };
-      return JSON.stringify(emptyData);
-    }
-    
     const storyboardData = parseMarkdownToStoryboard(markdownContent);
     return JSON.stringify(storyboardData);
   }

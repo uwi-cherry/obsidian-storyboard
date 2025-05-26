@@ -34,7 +34,10 @@ namespace Internal {
   export async function executeCreateStoryboardFile(args: CreateStoryboardFileInput): Promise<string> {
     const { app } = args;
     
-    const sampleContent = '';
+    const sampleContent = `### calm acoustic guitar, soft piano, peaceful ambient, instrumental
+
+#### 
+`;
 
     try {
       let counter = 1;
