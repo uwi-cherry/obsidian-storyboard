@@ -121,7 +121,6 @@ export default function ToolProperties({
                     }
                   }}
                   className="w-20 text-xs p-1 border border-modifier-border rounded bg-primary"
-                  style={{ appearance: 'auto', MozAppearance: 'textfield' }}
                 />
                 <span className="text-xs">px</span>
               </div>
