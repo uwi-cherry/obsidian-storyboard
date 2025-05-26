@@ -11,6 +11,100 @@ interface TimelineReactViewProps {
 
 const PIXELS_PER_SECOND = 20;
 
+// マークダウン解析関数
+function parseMarkdownToStoryboard(markdown: string): StoryboardData {
+  const lines = markdown.split('\n');
+  const data: StoryboardData = { title: '', chapters: [], characters: [] };
+  let currentFrame: any = null;
+  let currentChapter: any = null;
+  let inCharacterSection = false;
+  let inChapterSection = false;
+
+  function initializeNewFrame() {
+    return {
+      dialogues: '',
+      speaker: '',
+      imageUrl: undefined,
+      imagePrompt: undefined,
+      prompt: undefined,
+      endTime: undefined,
+      startTime: undefined,
+      duration: undefined,
+    };
+  }
+
+  function saveCurrentFrameIfValid() {
+    if (currentFrame && currentChapter) {
+      currentChapter.frames.push(currentFrame);
+    }
+    currentFrame = null;
+  }
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trimEnd();
+    
+    if (line.startsWith('### キャラクター')) {
+      inCharacterSection = true;
+      inChapterSection = false;
+      continue;
+    }
+    
+    if (line.startsWith('### ')) {
+      const bgmPrompt = line.replace(/^###\s*/, '');
+      if (currentChapter) {
+        saveCurrentFrameIfValid();
+        data.chapters.push(currentChapter);
+      }
+      currentChapter = { bgmPrompt, frames: [] };
+      inCharacterSection = false;
+      inChapterSection = true;
+      continue;
+    }
+    
+    if (inChapterSection) {
+      if (line.startsWith('####')) {
+        saveCurrentFrameIfValid();
+        currentFrame = initializeNewFrame();
+        currentFrame.speaker = line.replace(/^####\s*/, '');
+      } else if (currentFrame) {
+        const calloutInfoMatch = line.match(/^>\s*\[!INFO\]\s*(.*)$/);
+        const imageMatch = line.match(/^\[(.*)\]\((.*)\)$/);
+        
+        if (calloutInfoMatch) {
+          const infoContent = calloutInfoMatch[1].trim();
+          const timingMatch = infoContent.match(/start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
+          if (timingMatch) {
+            currentFrame.startTime = parseFloat(timingMatch[1]);
+            currentFrame.duration = parseFloat(timingMatch[2]);
+          }
+          
+          const promptLines: string[] = [];
+          while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
+            const raw = lines[i + 1].replace(/^>\s*/, '').trim();
+            if (raw) promptLines.push(raw);
+            i++;
+          }
+          if (promptLines.length > 0) {
+            currentFrame.prompt = promptLines.join('\n');
+          }
+        } else if (imageMatch) {
+          currentFrame.imagePrompt = imageMatch[1];
+          currentFrame.imageUrl = imageMatch[2];
+        } else if (line.trim() && !line.startsWith('>')) {
+          currentFrame.dialogues += (currentFrame.dialogues ? '\n' : '') + line;
+        }
+      }
+    }
+  }
+  
+  saveCurrentFrameIfValid();
+  if (currentChapter) {
+    data.chapters.push(currentChapter);
+  }
+  
+  return data;
+}
+
 // クリップ作成ヘルパー関数
 function createClip(filePath: string, startTime = 0, duration = 5): OtioClip {
   return {
@@ -70,7 +164,24 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         // ストーリーボードデータを取得（source_markdownから）
         const sourceMarkdown = projectData.timeline.metadata?.source_markdown;
         console.log('Source markdown:', sourceMarkdown);
-        console.log('Storyboard data loading temporarily disabled for debugging');
+        if (sourceMarkdown) {
+          try {
+            const parsedData = parseMarkdownToStoryboard(sourceMarkdown);
+            console.log('Parsed storyboard data:', parsedData);
+            console.log('Chapters:', parsedData.chapters);
+            parsedData.chapters.forEach((chapter, idx) => {
+              console.log(`Chapter ${idx}:`, chapter);
+              console.log(`Frames:`, chapter.frames);
+              chapter.frames.forEach((frame, frameIdx) => {
+                console.log(`Frame ${frameIdx}:`, frame);
+                console.log(`startTime: ${frame.startTime}, duration: ${frame.duration}`);
+              });
+            });
+            setStoryboardData(parsedData);
+          } catch (error) {
+            console.error('Failed to parse storyboard data:', error);
+          }
+        }
       } catch (error) {
         console.error(error);
       }
