@@ -3,11 +3,11 @@
 ## エピソードラベリング
 
 ```
-function label_episodes(episodes):
+function label_episodes(episodes, base_word):
     labeled_episodes = []
     
     for i, episode in enumerate(episodes):
-        labels = assign_episode_labels(episode, i, len(episodes))
+        labels = assign_episode_labels(episode, i, len(episodes), base_word)
         labeled_episodes.append({
             "episode": episode,
             "labels": labels,
@@ -16,17 +16,20 @@ function label_episodes(episodes):
     
     return labeled_episodes
 
-function assign_episode_labels(episode, position, total_episodes):
+function assign_episode_labels(episode, position, total_episodes, base_word):
     prompt = f"""
     以下のエピソードに適切なラベルを割り当ててください：
     エピソード: {episode}
     位置: {position + 1}/{total_episodes}
+    基本単語: {base_word}
     
     必須ラベル：
     1. 物語要素タイプ：
        - ミーム（情報や概念が人から人へと伝播・複製される現象）
        - ヒステリー（集団心理や社会現象として広がる感情的反応）
        - ミラクル（個人的で一回性の特別な体験や出来事）
+       
+       重要：基本単語「{base_word}」に最も近い意味や本質を持つエピソードは「ミラクル」として分類してください。
     
     2. 時間軸タイプ：
        - 現在進行（メイン時間軸）
@@ -171,19 +174,22 @@ function track_character_evolution(episode_data, previous_timeline):
 ## 最終物語生成
 
 ```
-function create_final_connected_story(bridged_episodes, character_timeline, theme):
+function create_final_connected_story(bridged_episodes, character_timeline, theme, base_word):
     prompt = f"""
     以下の補完済みエピソードとキャラクター経緯から最終的な物語を生成してください：
     
     補完済みエピソード: {bridged_episodes}
     キャラクター経緯: {character_timeline}
     テーマ: {theme}
+    基本単語: {base_word}
     
     最終物語の要件：
     - 全てのエピソード（補完含む）を時系列順に配置
     - ミーム・ヒステリー・ミラクルを適切に配分
     - 人格の一貫性と状態の変化を反映
     - 時間飛躍や視点変更を自然に組み込む
+    - 基本単語「{base_word}」をミラクル要素と関連付ける
+    - ミラクルエピソードは基本単語の本質的な意味と深く結びつける
     - 必ず完結させる
     
     出力形式: "完結した連結物語"
@@ -196,9 +202,9 @@ function create_final_connected_story(bridged_episodes, character_timeline, them
 ## メインシステム
 
 ```
-function connect_episodes_with_bridges(episodes, story_theme):
+function connect_episodes_with_bridges(episodes, story_theme, base_word):
     # 1. エピソードにラベルを付与
-    labeled_episodes = label_episodes(episodes)
+    labeled_episodes = label_episodes(episodes, base_word)
     
     # 2. エピソード間に補完を挿入
     bridged_episodes = create_episode_bridges(labeled_episodes)
@@ -210,7 +216,8 @@ function connect_episodes_with_bridges(episodes, story_theme):
     final_story = create_final_connected_story(
         bridged_episodes, 
         character_timeline, 
-        story_theme
+        story_theme,
+        base_word
     )
     
     return {
@@ -226,13 +233,6 @@ function complete_story_system_with_bridges(base_word, n_abstract):
     
     # エピソードを補完・連結して完結した物語を生成
     story_theme = f"{base_word}をテーマとした物語"
-    result = connect_episodes_with_bridges(episodes, story_theme)
+    result = connect_episodes_with_bridges(episodes, story_theme, base_word)
     
-    return {
-        "original_episodes": episodes,
-        "labeled_episodes": result["labeled_episodes"],
-        "bridged_episodes": result["bridged_episodes"],
-        "character_timeline": result["character_timeline"],
-        "final_story": result["final_story"],
-        "theme": story_theme
-    } 
+    return result["final_story"] 
