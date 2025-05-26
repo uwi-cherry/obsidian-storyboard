@@ -111,7 +111,7 @@ const EditableTable = <T,>({
     window.removeEventListener('mouseup', handleMouseUp);
   };
 
-  const totalWidth = colWidths.reduce((sum, w) => sum + (w || 0), 0) || 1;
+  const totalWidth = colWidths.reduce((sum, w) => (sum || 0) + (w || 0), 0) || 1;
 
   return (
     <div>
@@ -194,18 +194,6 @@ const EditableTable = <T,>({
                         variant: 'secondary' as const,
                         className: 'text-text-faint hover:text-accent text-base px-1 py-0.5 leading-none',
                         menuOptions: [
-                          ...(onMoveRowUp && index > 0 ? [{
-                            label: '行を上に移動',
-                            icon: TABLE_ICONS.moveUp,
-                            onClick: () => onMoveRowUp(index),
-                            variant: 'default' as const
-                          }] : []),
-                          ...(onMoveRowDown && index < data.length - 1 ? [{
-                            label: '行を下に移動',
-                            icon: TABLE_ICONS.moveDown,
-                            onClick: () => onMoveRowDown(index),
-                            variant: 'default' as const
-                          }] : []),
                           ...(onSelectRow ? [{
                             label: isSelected ? '選択を解除' : '選択状態にする',
                             icon: '✓',
@@ -222,6 +210,18 @@ const EditableTable = <T,>({
                                 onClearSelection?.();
                               }
                             },
+                            variant: 'default' as const
+                          }] : []),
+                          ...(onMoveRowUp && index > 0 ? [{
+                            label: '行を上に移動',
+                            icon: TABLE_ICONS.moveUp,
+                            onClick: () => onMoveRowUp(index),
+                            variant: 'default' as const
+                          }] : []),
+                          ...(onMoveRowDown && index < data.length - 1 ? [{
+                            label: '行を下に移動',
+                            icon: TABLE_ICONS.moveDown,
+                            onClick: () => onMoveRowDown(index),
                             variant: 'default' as const
                           }] : []),
                           ...(data.length > 1 ? [{
