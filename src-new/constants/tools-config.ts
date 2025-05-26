@@ -13,6 +13,8 @@ export const TOOL_NAMES = {
   CONVERT_MD_TO_OTIO: 'convert_md_to_otio',
   CONVERT_OTIO_TO_MD: 'convert_otio_to_md',
   
+  INITIALIZE_TIMING: 'initialize_timing',
+  
   CREATE_PAINTER_FILE: 'create_painter_file',
   LOAD_PAINTER_FILE: 'load_painter_file',
   SAVE_PAINTER_FILE: 'save_painter_file',
@@ -33,7 +35,8 @@ export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
 export const TOOL_CATEGORIES = {
   STORYBOARD: 'storyboard',
   PAINTER: 'painter',
-  TIMELINE: 'timeline'
+  TIMELINE: 'timeline',
+  MARKDOWN: 'markdown'
 } as const;
 
 export type ToolCategory = typeof TOOL_CATEGORIES[keyof typeof TOOL_CATEGORIES];
@@ -119,6 +122,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       ai_enabled: false,
       description: "Convert OTIO timeline to Markdown storyboard",
       category: TOOL_CATEGORIES.TIMELINE
+    },
+    {
+      name: TOOL_NAMES.INITIALIZE_TIMING,
+      modulePath: "../../src-new/service-api/api/markdown-tool/initialize-timing",
+      exportName: "initializeTimingTool",
+      ai_enabled: false,
+      description: "Initialize timing information in markdown storyboard",
+      category: TOOL_CATEGORIES.MARKDOWN
     },
     {
       name: TOOL_NAMES.CREATE_PAINTER_FILE,

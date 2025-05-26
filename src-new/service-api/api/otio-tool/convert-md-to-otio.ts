@@ -1,6 +1,7 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
 import type { OtioProject } from '../../../types/otio';
+import { toolRegistry } from '../../core/tool-registry';
 
 namespace Internal {
   export interface ConvertMdToOtioInput {
@@ -38,100 +39,13 @@ namespace Internal {
     };
   }
 
-  // 台詞文字数から時間を計算する関数（1文字あたり0.2秒、最低2秒）
-  function calculateDurationFromText(text: string): number {
-    const charCount = text.replace(/\s/g, '').length; // 空白を除いた文字数
-    return Math.max(charCount * 0.2, 2); // 最低2秒
-  }
 
-  // マークダウンを解析してストーリーボードデータにstartTimeとdurationを設定
-  function processMarkdownWithTiming(markdown: string): string {
-    const lines = markdown.split('\n');
-    const processedLines: string[] = [];
-    let currentTime = 0;
-    let inFrame = false;
-    let currentDialogues = '';
-    let frameLines: string[] = [];
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
-      
-      if (line.startsWith('####')) {
-        // 前のフレームを完了
-        if (inFrame && frameLines.length > 0) {
-          // 既存の[!INFO]行をチェック
-          let hasTimingInfo = false;
-          let existingStart: number | null = null;
-          let existingDuration: number | null = null;
-          
-          for (const frameLine of frameLines) {
-            const infoMatch = frameLine.match(/^>\s*\[!INFO\]\s*start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
-            if (infoMatch) {
-              existingStart = parseFloat(infoMatch[1]);
-              existingDuration = parseFloat(infoMatch[2]);
-              hasTimingInfo = true;
-              break;
-            }
-          }
-          
-          if (hasTimingInfo && existingStart !== null && existingDuration !== null) {
-            // 既存のタイミング情報を使用
-            processedLines.push(...frameLines);
-            currentTime = existingStart + existingDuration;
-          } else {
-            // 新しいタイミング情報を追加
-            const duration = calculateDurationFromText(currentDialogues);
-            processedLines.push(...frameLines);
-            processedLines.push(`> [!INFO] start: ${currentTime}, duration: ${duration}`);
-            currentTime += duration;
-          }
-        }
-        
-        // 新しいフレーム開始
-        frameLines = [line];
-        currentDialogues = '';
-        inFrame = true;
-      } else if (inFrame) {
-        frameLines.push(line);
-        if (line.trim() && !line.startsWith('>') && !line.match(/^\[(.*)\]\((.*)\)$/)) {
-          // 台詞行
-          currentDialogues += (currentDialogues ? '\n' : '') + line;
-        }
-      } else {
-        processedLines.push(line);
-      }
-    }
-    
-    // 最後のフレームを処理
-    if (inFrame && frameLines.length > 0) {
-      let hasTimingInfo = false;
-      let existingStart: number | null = null;
-      let existingDuration: number | null = null;
-      
-      for (const frameLine of frameLines) {
-        const infoMatch = frameLine.match(/^>\s*\[!INFO\]\s*start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
-        if (infoMatch) {
-          existingStart = parseFloat(infoMatch[1]);
-          existingDuration = parseFloat(infoMatch[2]);
-          hasTimingInfo = true;
-          break;
-        }
-      }
-      
-      if (hasTimingInfo) {
-        processedLines.push(...frameLines);
-      } else {
-        const duration = calculateDurationFromText(currentDialogues);
-        processedLines.push(...frameLines);
-        processedLines.push(`> [!INFO] start: ${currentTime}, duration: ${duration}`);
-      }
-    }
-    
-    return processedLines.join('\n');
-  }
 
   export async function executeConvertMdToOtio(args: ConvertMdToOtioInput): Promise<string> {
     const { app, file } = args;
+
+    // まず時間情報を初期化
+    await toolRegistry.executeTool('initialize_timing', { app, file });
 
     // マークダウンファイルを読み込み
     const markdownContent = await app.vault.read(file);
@@ -168,8 +82,8 @@ namespace Internal {
     }
     
     const cleanMarkdown = markdownLines.join('\n').trim();
-    // タイミング情報を追加したマークダウンを生成
-    const processedMarkdown = processMarkdownWithTiming(cleanMarkdown);
+    // 時間情報は既に初期化済みなのでそのまま使用
+    const processedMarkdown = cleanMarkdown;
     const jsonContent = jsonLines.join('\n').trim();
     
     let otioProject: OtioProject;
