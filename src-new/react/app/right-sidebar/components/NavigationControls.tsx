@@ -321,7 +321,7 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
           className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
           title={t('CREATE_PSD')}
         >
-          psd (new)
+          .psd (new)
         </button>
         <button
           onClick={onOpenPsdPainter}

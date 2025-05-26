@@ -1,6 +1,6 @@
 import React from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
-import { LayoutDirection } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
+import { LayoutDirection, usePainterLayoutStore } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
 
 interface ToolProps {
   tool: string;
@@ -47,12 +47,31 @@ export default function ToolProperties({
   setRotation,
   layoutDirection
 }: ToolProps) {
+  const { setLayoutDirection } = usePainterLayoutStore();
+
   const containerClass = layoutDirection === 'horizontal'
     ? "p-2 bg-secondary border-r border-modifier-border w-[250px] flex flex-col gap-2"
     : "p-2 bg-secondary border-r border-modifier-border h-[80px] flex flex-row gap-4 items-center";
 
   return (
     <div className={containerClass}>
+      {tool === 'settings' && (
+        <div className="flex flex-col gap-2">
+          {/* レイアウト設定セクション */}
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">{t('LAYOUT_SETTINGS')}:</div>
+            <select
+              className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
+              value={layoutDirection}
+              onChange={e => setLayoutDirection(e.target.value as LayoutDirection)}
+            >
+              <option value="horizontal">{t('LAYOUT_HORIZONTAL')}</option>
+              <option value="vertical">{t('LAYOUT_VERTICAL')}</option>
+            </select>
+          </div>
+        </div>
+      )}
+
       {['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(tool) && (
         <div className="flex flex-col gap-2">
           <div className="flex flex-col gap-1">
