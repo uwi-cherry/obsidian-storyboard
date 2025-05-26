@@ -61,11 +61,13 @@ const EditableTable = <T,>({
   const resizingCol = useRef<number | null>(null);
   const startX = useRef<number>(0);
   const startWidth = useRef<number>(0);
+  const startNextWidth = useRef<number>(0);
 
   const handleMouseDown = (colIdx: number, e: React.MouseEvent) => {
     resizingCol.current = colIdx;
     startX.current = e.clientX;
-    startWidth.current = colWidths[colIdx] || 0;
+    startWidth.current = colWidths[colIdx] || 300;
+    startNextWidth.current = colWidths[colIdx + 1] || 300;
     document.body.style.cursor = 'col-resize';
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseup', handleMouseUp);
@@ -76,10 +78,18 @@ const EditableTable = <T,>({
     const delta = e.clientX - startX.current;
     setColWidths((prev) => {
       const next = [...prev];
-      const base = startWidth.current;
       const colIndex = resizingCol.current;
-      if (colIndex !== null) {
-        next[colIndex] = Math.max(80, base + delta);
+      if (colIndex !== null && colIndex < columns.length - 1) {
+        const nextColIndex = colIndex + 1;
+        
+        // 現在の列の新しい幅を計算（最小80px）
+        const newCurrentWidth = Math.max(80, startWidth.current + delta);
+        // 右隣の列の新しい幅を計算（最小80px）
+        const newNextWidth = Math.max(80, startNextWidth.current - delta);
+        
+        // 両方の列の幅を更新
+        next[colIndex] = newCurrentWidth;
+        next[nextColIndex] = newNextWidth;
       }
       return next;
     });
@@ -93,12 +103,13 @@ const EditableTable = <T,>({
   };
 
   return (
-      <table className="w-full border-collapse border border-modifier-border mb-0 table-fixed">
+    <div className="overflow-x-auto">
+      <table className="border-collapse border border-modifier-border mb-0" style={{ width: 'max-content', minWidth: '100%' }}>
         <colgroup>
           {columns.map((col, i) => (
-            <col key={String(col.key)} className={colWidths[i] ? `w-[${colWidths[i]}px] min-w-[80px]` : ''} style={colWidths[i] ? { width: colWidths[i] + 'px', minWidth: '80px' } : {}} />
+            <col key={String(col.key)} style={colWidths[i] ? { width: colWidths[i] + 'px', minWidth: '80px' } : { width: '300px', minWidth: '80px' }} />
           ))}
-          <col style={{ width: '1%', minWidth: '40px' }} />
+          <col style={{ width: '40px', minWidth: '40px' }} />
         </colgroup>
         <thead>
           {headerTop}
@@ -230,6 +241,7 @@ const EditableTable = <T,>({
           )}
         </tbody>
       </table>
+    </div>
   );
 };
 
