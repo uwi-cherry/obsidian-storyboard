@@ -28,7 +28,11 @@ export const TOOL_NAMES = {
   SET_LAYER_BLEND_MODE: 'set_layer_blend_mode',
   SET_LAYER_CLIPPING: 'set_layer_clipping',
   RENAME_LAYER: 'rename_layer',
-  TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility'
+  TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility',
+  GENERATE_TEXT: 'generate_text',
+  GENERATE_IMAGE: 'generate_image',
+  GENERATE_VIDEO: 'generate_video',
+  INPAINT_IMAGE: 'inpaint_image'
 } as const;
 
 export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
@@ -234,6 +238,38 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "toggleLayerVisibilityTool",
       ai_enabled: false,
       description: "Toggle layer visibility in painter view",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.GENERATE_TEXT,
+      modulePath: "../../src-new/service-api/api/ai-tool/generate-text",
+      exportName: "generateTextTool",
+      ai_enabled: false,
+      description: "Generate text via AI agent",
+      category: TOOL_CATEGORIES.MARKDOWN
+    },
+    {
+      name: TOOL_NAMES.GENERATE_IMAGE,
+      modulePath: "../../src-new/service-api/api/ai-tool/generate-image",
+      exportName: "generateImageTool",
+      ai_enabled: false,
+      description: "Generate image via AI",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.GENERATE_VIDEO,
+      modulePath: "../../src-new/service-api/api/ai-tool/generate-video",
+      exportName: "generateVideoTool",
+      ai_enabled: false,
+      description: "Generate video via AI",
+      category: TOOL_CATEGORIES.TIMELINE
+    },
+    {
+      name: TOOL_NAMES.INPAINT_IMAGE,
+      modulePath: "../../src-new/service-api/api/ai-tool/inpaint-image",
+      exportName: "inpaintImageTool",
+      ai_enabled: false,
+      description: "Inpaint image via AI",
       category: TOOL_CATEGORIES.PAINTER
     }
   ],
