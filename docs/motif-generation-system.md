@@ -51,11 +51,10 @@ function validate_concept(concept, constraints):
     出力形式: "調整された概念（または元の概念そのまま）"
     """
     
-    response = llm_call(prompt)
+    response = generate_text(prompt)
     return response.strip()
 ```
 
-### LLM呼び出し関数
 
 #### list_contrastive_items(concept)
 ```
@@ -73,7 +72,7 @@ function list_contrastive_items(concept):
     出力形式: ["項目1", "項目2", "項目3", ...]
     """
     
-    response = llm_call(prompt)
+    response = generate_text(prompt)
     return parse_list(response)
 ```
 
@@ -95,7 +94,7 @@ function extract_commonality(items):
     出力形式: "抽象化された概念"
     """
     
-    response = llm_call(prompt)
+    response = generate_text(prompt)
     return response.strip()
 ```
 
@@ -121,7 +120,7 @@ function concretize_maximally(concept):
     出力形式: "最大限具体化された概念"
     """
     
-    response = llm_call(prompt)
+    response = generate_text(prompt)
     return response.strip()
 ```
 
@@ -146,11 +145,20 @@ function create_character_profiles(personalities, motifs):
     return character_profiles
 
 function combine_character_elements(personality, motif):
-    # LLM呼び出しで性格とモチーフを統合したキャラクター設定を生成
-    return llm_call("統合されたキャラクター設定を生成", {
-        personality: personality,
-        motif: motif
-    })
+    prompt = f"""
+    以下の性格とモチーフを組み合わせて、統合されたキャラクター設定を生成してください：
+    
+    性格: {personality}
+    モチーフ: {motif}
+    
+    性格の特徴とモチーフの要素を自然に融合させ、
+    一貫性のあるキャラクター像を作成してください。
+    
+    出力形式: "統合されたキャラクター設定"
+    """
+    
+    response = generate_text(prompt)
+    return response.strip()
 ```
 
 ### 2. エピソード生成
@@ -171,11 +179,20 @@ function create_episodes(character_profiles, story_worldviews):
     return episodes
 
 function combine_story_elements(character, worldview):
-    # LLM呼び出しでキャラクターと世界観を統合したエピソードを生成
-    return llm_call("統合されたエピソードを生成", {
-        character: character,
-        worldview: worldview
-    })
+    prompt = f"""
+    以下のキャラクターと世界観を組み合わせて、具体的なエピソードを生成してください：
+    
+    キャラクター: {character}
+    世界観: {worldview}
+    
+    キャラクターの特性を活かし、世界観の設定を背景として、
+    具体的な出来事やシーンを含むエピソードを作成してください。
+    
+    出力形式: "具体的なエピソード"
+    """
+    
+    response = generate_text(prompt)
+    return response.strip()
 ```
 
 ### 3. 全体統合システム
