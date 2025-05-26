@@ -72,7 +72,7 @@ const IconButtonGroup: React.FC<IconButtonGroupProps> = ({
             onClick={button.onClick}
             disabled={button.disabled}
             title={button.title}
-            dangerouslySetInnerHTML={{ __html: button.icon }}
+            dangerouslySetInnerHTML={{ __html: button.icon.replace(/\n/g, '') }}
           />
         );
       })}

@@ -32,6 +32,7 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
   app,
   onImageUrlChange,
 }) => {
+  const activeExtension = app?.workspace?.getActiveFile()?.extension;
   const handleConvertToStoryboard = async () => {
     const activeFile = app.workspace.getActiveFile();
     if (!activeFile) return;
@@ -297,21 +298,21 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
             onClick: handleConvertToStoryboard,
             title: 'STORYBOARDに変換',
             variant: 'accent',
-            className: !isPsdPainterOpen ? '' : 'hidden',
+            className: !isPsdPainterOpen && activeExtension !== 'storyboard' ? '' : 'hidden',
           },
           {
             icon: TIMELINE_ICON_SVG,
             onClick: handleConvertToOtio,
             title: 'OTIOに変換',
             variant: 'accent',
-            className: !isPsdPainterOpen ? '' : 'hidden',
+            className: !isPsdPainterOpen && activeExtension !== 'otio' ? '' : 'hidden',
           },
           {
             icon: DOCUMENT_ICON_SVG,
             onClick: handleConvertToMarkdown,
             title: 'MDに変換',
             variant: 'accent',
-            className: !isPsdPainterOpen ? '' : 'hidden',
+            className: !isPsdPainterOpen && activeExtension !== 'md' ? '' : 'hidden',
           },
         ]}
       />

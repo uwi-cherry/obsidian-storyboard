@@ -107,7 +107,7 @@ export default function ChatBox() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full border-t border-modifier-border bg-primary mb-6">
+    <div className="flex flex-col h-full w-full border-t border-modifier-border bg-primary mb-[30px]">
       
       <div className="flex-1 overflow-y-auto p-2 space-y-2">
         {messages.map((msg, idx) => (
