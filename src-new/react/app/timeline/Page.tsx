@@ -3,13 +3,16 @@ import type { App, TFile } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import type { OtioProject, OtioClip, OtioTrack } from '../../../types/otio';
 import type { StoryboardData } from '../../../types/storyboard';
+import VideoPreview from '../../components/VideoPreview';
+import TimelineSeekBar from '../../components/TimelineSeekBar';
+import DraggableTimelineTrack from '../../components/DraggableTimelineTrack';
 
 interface TimelineReactViewProps {
   app: App;
   file: TFile | null;
 }
 
-const PIXELS_PER_SECOND = 20;
+
 
 // マークダウン解析関数
 function parseMarkdownToStoryboard(markdown: string): StoryboardData {
@@ -148,6 +151,8 @@ function createTrack(name: string): OtioTrack {
 export default function TimelineReactView({ app, file }: TimelineReactViewProps) {
   const [project, setProject] = useState<OtioProject | null>(null);
   const [storyboardData, setStoryboardData] = useState<StoryboardData | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
   const bgmSegments = useMemo(() => {
     if (!storyboardData) return [] as { bgmPrompt: string; startTime: number; duration: number }[];
@@ -256,6 +261,65 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     handleProjectChange(newProject);
   };
 
+  const handleClipMove = (trackIdx: number, clipIdx: number, newStartTime: number) => {
+    if (!project) return;
+    
+    const newProject = JSON.parse(JSON.stringify(project)) as OtioProject;
+    const clip = newProject.timeline.tracks[trackIdx].children[clipIdx] as OtioClip;
+    clip.source_range.start_time = newStartTime;
+    
+    setProject(newProject);
+    handleProjectChange(newProject);
+  };
+
+  const handleFileDrop = (trackIdx: number, files: FileList, dropTime: number) => {
+    if (!project) return;
+    
+    const newProject = JSON.parse(JSON.stringify(project)) as OtioProject;
+    
+    Array.from(files).forEach((file, index) => {
+      const filePath = file.name; // 実際の実装では適切なパス処理が必要
+      const startTime = dropTime + (index * 5); // 5秒間隔で配置
+      const duration = 5; // デフォルト5秒
+      
+      const newClip = createClip(filePath, startTime, duration);
+      newProject.timeline.tracks[trackIdx].children.push(newClip);
+    });
+    
+    setProject(newProject);
+    handleProjectChange(newProject);
+  };
+
+  // 総再生時間を計算
+  const totalDuration = React.useMemo(() => {
+    if (!project || !storyboardData) return 60; // デフォルト60秒
+    
+    const trackDuration = Math.max(
+      ...project.timeline.tracks.flatMap(track =>
+        track.children.map((clip: OtioClip) => 
+          clip.source_range.start_time + clip.source_range.duration
+        )
+      ),
+      0
+    );
+    
+    const storyboardDuration = Math.max(
+      ...storyboardData.chapters.flatMap(chapter =>
+        chapter.frames.map(frame => 
+          (frame.startTime || 0) + (frame.duration || 0)
+        )
+      ),
+      0
+    );
+    
+    return Math.max(trackDuration, storyboardDuration, 60);
+  }, [project, storyboardData]);
+
+  // 画面に収まるようにpixelsPerSecondを動的に計算
+  const pixelsPerSecond = React.useMemo(() => {
+    return 20; // 固定値
+  }, []);
+
   if (!project) {
     return (
       <div className="timeline-view p-4">
@@ -266,157 +330,98 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   }
 
   return (
-    <div className="timeline-view p-4 space-y-6 text-text-normal">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold">Timeline View (OTIO)</h2>
-        <div className="text-sm text-text-muted">
-          Project: {project.name}
-        </div>
+    <>
+      <VideoPreview 
+        project={project}
+        storyboardData={storyboardData}
+        currentTime={currentTime}
+        onTimeUpdate={setCurrentTime}
+      />
+      
+      <div style={{ overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
+        <DraggableTimelineTrack
+          track={{
+            name: 'BGM',
+            kind: 'Track',
+            children: bgmSegments.map(seg => ({
+              name: seg.bgmPrompt,
+              kind: 'Clip',
+              media_reference: {
+                name: seg.bgmPrompt,
+                target_url: seg.bgmPrompt,
+                available_range: { start_time: 0, duration: seg.duration },
+                metadata: {}
+              },
+              source_range: { start_time: seg.startTime, duration: seg.duration },
+              effects: [],
+              markers: [],
+              metadata: {}
+            })),
+            source_range: { start_time: 0, duration: 0 },
+            effects: [],
+            markers: [],
+            metadata: {}
+          }}
+          trackIndex={-1}
+          currentTime={currentTime}
+          pixelsPerSecond={pixelsPerSecond}
+          onClipChange={() => {}}
+          onClipMove={() => {}}
+          onAddClip={() => {}}
+          onTimeSeek={setCurrentTime}
+        />
+        
+        <DraggableTimelineTrack
+          track={{
+            name: 'ストーリー',
+            kind: 'Track',
+            children: storyboardData?.chapters.flatMap(chapter => chapter.frames).map(frame => ({
+              name: frame.speaker,
+              kind: 'Clip',
+              media_reference: {
+                name: frame.speaker,
+                target_url: frame.speaker,
+                available_range: { start_time: 0, duration: frame.duration || 0 },
+                metadata: {}
+              },
+              source_range: { start_time: frame.startTime || 0, duration: frame.duration || 0 },
+              effects: [],
+              markers: [],
+              metadata: {}
+            })) || [],
+            source_range: { start_time: 0, duration: 0 },
+            effects: [],
+            markers: [],
+            metadata: {}
+          }}
+          trackIndex={-2}
+          currentTime={currentTime}
+          pixelsPerSecond={pixelsPerSecond}
+          onClipChange={() => {}}
+          onClipMove={() => {}}
+          onAddClip={() => {}}
+          onTimeSeek={setCurrentTime}
+        />
+        
+        {project.timeline.tracks.map((track, tIdx) => (
+          <DraggableTimelineTrack
+            key={tIdx}
+            track={track}
+            trackIndex={tIdx}
+            currentTime={currentTime}
+            pixelsPerSecond={pixelsPerSecond}
+            onClipChange={handleClipChange}
+            onClipMove={handleClipMove}
+            onAddClip={handleAddClip}
+            onTimeSeek={setCurrentTime}
+            onFileDrop={handleFileDrop}
+          />
+        ))}
       </div>
       
-      <div className="flex justify-end mb-2">
-        <button
-          className="px-3 py-1 text-sm bg-accent text-on-accent rounded hover:bg-accent-hover"
-          onClick={handleAddTrack}
-        >
-          トラックを追加
-        </button>
-      </div>
-      
-        {/* BGMトラック */}
-        <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
-          <div className="font-semibold text-sm text-green-400">BGM</div>
-          <div className="relative h-6 bg-primary border border-modifier-border rounded overflow-hidden">
-            {bgmSegments.length > 0 ? (
-              bgmSegments.map((seg, idx) => (
-                <div
-                  key={idx}
-                  className="absolute top-0 h-full bg-green-600 text-white text-center text-xs truncate flex items-center justify-center border-r border-green-400"
-                  style={{
-                    left: `${seg.startTime * PIXELS_PER_SECOND}px`,
-                    width: `${seg.duration * PIXELS_PER_SECOND}px`
-                  }}
-                  title={seg.bgmPrompt}
-                >
-                  {seg.bgmPrompt}
-                </div>
-              ))
-            ) : (
-              <div className="flex items-center justify-center h-full text-xs text-text-muted">
-                BGMデータなし
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ストーリーボードトラック */}
-        <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
-          <div className="font-semibold text-sm text-purple-400">ストーリーボード</div>
-          <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
-            {storyboardData ? (
-              storyboardData.chapters.flatMap(chapter =>
-                chapter.frames
-              ).map((frame, idx) => (
-                <div
-                  key={idx}
-                  className="absolute top-0 h-full bg-purple-500 text-white text-center text-xs truncate flex items-center justify-center border-r border-purple-400"
-                  style={{
-                    left: `${(frame.startTime || 0) * PIXELS_PER_SECOND}px`,
-                    width: `${(frame.duration || 0) * PIXELS_PER_SECOND}px`
-                  }}
-                  title={`${frame.speaker}: ${frame.dialogues}`}
-                >
-                  {frame.speaker}
-                </div>
-              ))
-            ) : (
-              <div className="flex items-center justify-center h-full text-xs text-text-muted">
-                ストーリーボードデータなし
-              </div>
-            )}
-          </div>
-        </div>
-      
-      {project.timeline.tracks.map((track, tIdx) => (
-        <div
-          key={tIdx}
-          className="bg-secondary border border-modifier-border rounded p-3 space-y-2"
-        >
-          <div className="flex items-center justify-between">
-            <div className="font-semibold text-sm">{track.name}</div>
-            <button
-              className="px-2 py-1 text-xs bg-accent text-on-accent rounded hover:bg-accent-hover"
-              onClick={() => handleAddClip(tIdx)}
-            >
-              クリップを追加
-            </button>
-          </div>
-          
-          <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
-            {track.children.map((clip: OtioClip, cIdx: number) => (
-              <div
-                key={cIdx}
-                className="absolute top-0 h-full bg-accent text-on-accent text-center text-xs truncate flex items-center justify-center"
-                style={{
-                  left: `${clip.source_range.start_time * PIXELS_PER_SECOND}px`,
-                  width: `${clip.source_range.duration * PIXELS_PER_SECOND}px`
-                }}
-              >
-                {clip.media_reference.target_url.split('/').pop() || 'Untitled'}
-              </div>
-            ))}
-          </div>
-          
-          <table className="w-full text-xs mt-2">
-            <thead>
-              <tr className="border-b border-modifier-border">
-                <th className="text-left p-2">ファイル</th>
-                <th className="text-left p-2">開始時間</th>
-                <th className="text-left p-2">長さ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {track.children.map((clip: OtioClip, cIdx: number) => (
-                <tr key={cIdx} className="border-b border-modifier-border">
-                  <td className="p-2">
-                    <input
-                      className="w-full p-1 text-xs border border-modifier-border rounded bg-primary text-text-normal"
-                      value={clip.media_reference.target_url}
-                      onChange={e => handleClipChange(tIdx, cIdx, 'path', e.target.value)}
-                      placeholder="ファイルパスを入力"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      type="number"
-                      className="w-full p-1 text-xs border border-modifier-border rounded bg-primary text-text-normal"
-                      value={clip.source_range.start_time}
-                      onChange={e => handleClipChange(tIdx, cIdx, 'start', e.target.value)}
-                      step="0.1"
-                    />
-                  </td>
-                  <td className="p-2">
-                    <input
-                      type="number"
-                      className="w-full p-1 text-xs border border-modifier-border rounded bg-primary text-text-normal"
-                      value={clip.source_range.duration}
-                      onChange={e => handleClipChange(tIdx, cIdx, 'duration', e.target.value)}
-                      step="0.1"
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ))}
-      
-      {project.timeline.tracks.length === 0 && (
-        <div className="text-center text-text-muted py-8">
-          <p>トラックがありません</p>
-          <p className="text-sm">「トラックを追加」ボタンをクリックして開始してください</p>
-        </div>
-      )}
-    </div>
+      <button onClick={handleAddTrack} className="mt-2 px-3 py-1 text-sm bg-accent text-on-accent rounded hover:bg-accent-hover">
+        トラックを追加
+      </button>
+    </>
   );
 }
