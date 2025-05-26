@@ -58,11 +58,17 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
         {TOOLS.map(btn => (
           <button
             key={btn.id}
-            className={`w-10 h-10 border-none rounded cursor-pointer flex items-center justify-center transition-colors ${
+            className={`w-10 h-10 border-none rounded cursor-pointer flex items-center justify-center transition-all duration-200 ${
               tool === btn.id 
-                ? 'bg-accent text-on-accent shadow-md border-2 border-accent-hover' 
-                : 'bg-primary text-text-normal hover:bg-modifier-hover'
+                ? 'shadow-lg scale-110 ring-2 ring-opacity-50' 
+                : 'bg-primary text-text-normal hover:bg-modifier-hover hover:scale-105'
             }`}
+            style={tool === btn.id ? {
+              backgroundColor: '#3b82f6',
+              color: '#ffffff',
+              borderWidth: '2px',
+              borderColor: '#2563eb',
+            } as React.CSSProperties : {}}
             title={btn.title}
             onClick={() => onChange(btn.id)}
             dangerouslySetInnerHTML={{ __html: btn.icon }}
