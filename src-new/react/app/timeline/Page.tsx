@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import type { App, TFile } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import type { OtioProject, OtioClip, OtioTrack } from '../../../types/otio';
@@ -149,6 +149,15 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   const [project, setProject] = useState<OtioProject | null>(null);
   const [storyboardData, setStoryboardData] = useState<StoryboardData | null>(null);
 
+  const bgmSegments = useMemo(() => {
+    if (!storyboardData) return [] as { bgmPrompt: string; startTime: number; duration: number }[];
+    return storyboardData.chapters.map(ch => {
+      const start = Math.min(...ch.frames.map(f => f.startTime ?? 0));
+      const end = Math.max(...ch.frames.map(f => (f.startTime ?? 0) + (f.duration ?? 0)));
+      return { bgmPrompt: ch.bgmPrompt ?? '', startTime: start, duration: end - start };
+    });
+  }, [storyboardData]);
+
   useEffect(() => {
     if (!file) return;
 
@@ -274,33 +283,59 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         </button>
       </div>
       
-      {/* ストーリーボードトラック */}
-      <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
-        <div className="font-semibold text-sm text-purple-400">ストーリーボード</div>
-        <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
-          {storyboardData ? (
-            storyboardData.chapters.flatMap(chapter => 
-              chapter.frames
-            ).map((frame, idx) => (
-              <div
-                key={idx}
-                className="absolute top-0 h-full bg-purple-500 text-white text-center text-xs truncate flex items-center justify-center border-r border-purple-400"
-                style={{
-                  left: `${(frame.startTime || 0) * PIXELS_PER_SECOND}px`,
-                  width: `${(frame.duration || 0) * PIXELS_PER_SECOND}px`
-                }}
-                title={`${frame.speaker}: ${frame.dialogues}`}
-              >
-                {frame.speaker}
+        {/* BGMトラック */}
+        <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
+          <div className="font-semibold text-sm text-green-400">BGM</div>
+          <div className="relative h-6 bg-primary border border-modifier-border rounded overflow-hidden">
+            {bgmSegments.length > 0 ? (
+              bgmSegments.map((seg, idx) => (
+                <div
+                  key={idx}
+                  className="absolute top-0 h-full bg-green-600 text-white text-center text-xs truncate flex items-center justify-center border-r border-green-400"
+                  style={{
+                    left: `${seg.startTime * PIXELS_PER_SECOND}px`,
+                    width: `${seg.duration * PIXELS_PER_SECOND}px`
+                  }}
+                  title={seg.bgmPrompt}
+                >
+                  {seg.bgmPrompt}
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full text-xs text-text-muted">
+                BGMデータなし
               </div>
-            ))
-          ) : (
-            <div className="flex items-center justify-center h-full text-xs text-text-muted">
-              ストーリーボードデータなし
-            </div>
-          )}
+            )}
+          </div>
         </div>
-      </div>
+
+        {/* ストーリーボードトラック */}
+        <div className="bg-secondary border border-modifier-border rounded p-3 space-y-2">
+          <div className="font-semibold text-sm text-purple-400">ストーリーボード</div>
+          <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
+            {storyboardData ? (
+              storyboardData.chapters.flatMap(chapter =>
+                chapter.frames
+              ).map((frame, idx) => (
+                <div
+                  key={idx}
+                  className="absolute top-0 h-full bg-purple-500 text-white text-center text-xs truncate flex items-center justify-center border-r border-purple-400"
+                  style={{
+                    left: `${(frame.startTime || 0) * PIXELS_PER_SECOND}px`,
+                    width: `${(frame.duration || 0) * PIXELS_PER_SECOND}px`
+                  }}
+                  title={`${frame.speaker}: ${frame.dialogues}`}
+                >
+                  {frame.speaker}
+                </div>
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full text-xs text-text-muted">
+                ストーリーボードデータなし
+              </div>
+            )}
+          </div>
+        </div>
       
       {project.timeline.tracks.map((track, tIdx) => (
         <div
