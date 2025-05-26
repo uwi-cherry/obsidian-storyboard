@@ -59,6 +59,9 @@ export interface PainterView {
   // Painterビュー固有のプロパティ
   layers?: Layer[];
   currentLayerIndex?: number;
+  
+  // タイトル更新メソッド
+  updateTitle?: (canvasWidth?: number, canvasHeight?: number, zoom?: number) => void;
 }
 
 export interface PainterViewData {

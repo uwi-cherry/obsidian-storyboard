@@ -15,6 +15,7 @@ interface CanvasProps {
   rotation: number;
   containerRef: React.RefObject<HTMLDivElement>;
   selectionState: SelectionState;
+  canvasSize?: { width: number; height: number };
   onSelectionStart?: () => void;
   onSelectionUpdate?: () => void;
   onSelectionEnd?: () => void;
@@ -27,6 +28,7 @@ export default function Canvas({
   rotation,
   containerRef,
   selectionState,
+  canvasSize: propCanvasSize,
   onSelectionStart,
   onSelectionUpdate,
   onSelectionEnd
@@ -84,7 +86,10 @@ export default function Canvas({
   }, [pointer.tool]);
 
   useEffect(() => {
-    if (view?._painterData?.canvasWidth && view?._painterData?.canvasHeight) {
+    if (propCanvasSize) {
+      // CanvasContainerから渡されたサイズを優先
+      setCanvasSize(propCanvasSize);
+    } else if (view?._painterData?.canvasWidth && view?._painterData?.canvasHeight) {
       setCanvasSize({
         width: view._painterData.canvasWidth,
         height: view._painterData.canvasHeight
@@ -95,7 +100,30 @@ export default function Canvas({
         height: layers[0].canvas.height || 600
       });
     }
-  }, [view, layers]);
+  }, [propCanvasSize, view, layers]);
+
+  // キャンバス要素のサイズを更新
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      canvas.width = canvasSize.width;
+      canvas.height = canvasSize.height;
+    }
+  }, [canvasSize]);
+
+  // ズームが変更された時にタイトルを更新
+  useEffect(() => {
+    if (view && view.updateTitle) {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect();
+        const actualZoom = (rect.width / canvasSize.width) * zoom;
+        view.updateTitle(canvasSize.width, canvasSize.height, Math.round(actualZoom));
+      } else {
+        view.updateTitle(canvasSize.width, canvasSize.height, zoom);
+      }
+    }
+  }, [zoom, canvasSize, view]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -832,7 +860,6 @@ export default function Canvas({
           className="border border-modifier-border max-w-full max-h-full"
           style={{
             display: 'block',
-            objectFit: 'contain',
             transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom / 100}) rotate(${rotation}deg)`
           }}
           onPointerDown={handlePointerDown}

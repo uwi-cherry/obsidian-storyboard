@@ -28,6 +28,17 @@ export default function PainterPage({ view, app }: PainterPageProps) {
   const [zoom, setZoom] = useState<number>(100);
   const [rotation, setRotation] = useState<number>(0);
   const { layoutDirection } = usePainterLayoutStore();
+
+  // ズームが変更された時にタイトルを更新
+  useEffect(() => {
+    if (view && view._painterData && view.updateTitle) {
+      view.updateTitle(
+        view._painterData.canvasWidth,
+        view._painterData.canvasHeight,
+        zoom
+      );
+    }
+  }, [zoom, view]);
   
   const [layers, setLayers] = useState<Layer[]>([]);
   const [currentLayerIndex, setCurrentLayerIndex] = useState<number>(0);
@@ -146,6 +157,9 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           // zustandストアを更新
           useLayersStore.getState().initializeLayers(layersWithCanvas);
           useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
+          
+          // タイトルを更新
+          view.updateTitle?.(psdData.width, psdData.height, zoom);
           
           console.log('✅ PSDファイル読み込み完了:', layersWithCanvas.length, 'レイヤー');
           

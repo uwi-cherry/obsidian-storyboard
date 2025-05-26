@@ -2,6 +2,7 @@ import { FileView, TFile, WorkspaceLeaf, Menu } from 'obsidian';
 import { Root } from 'react-dom/client';
 import { t } from '../../constants/obsidian-i18n';
 import { toolRegistry } from '../../service-api/core/tool-registry';
+import { setDisplayText } from '../utils/view-title-updater';
 
 export class PainterView extends FileView {
   public reactRoot: Root | null = null;
@@ -18,6 +19,22 @@ export class PainterView extends FileView {
 
   getDisplayText(): string {
     return this.file?.basename || 'Untitled';
+  }
+
+  updateTitle(canvasWidth?: number, canvasHeight?: number, zoom?: number): void {
+    if (!this.file) return;
+    
+    let title = this.file.basename;
+    
+    if (canvasWidth && canvasHeight) {
+      title += ` (${canvasWidth}x${canvasHeight})`;
+    }
+    
+    if (zoom) {
+      title += ` ${zoom}%`;
+    }
+    
+    setDisplayText(this, title);
   }
 
   getState(): { file: string | null } {
@@ -76,6 +93,9 @@ export class PainterView extends FileView {
     }
 
     this.file = file;
+    
+    // タイトルを更新（ファイル名 + サイズ + 拡大率）
+    this.updateTitle();
     
     this.renderReact();
   }

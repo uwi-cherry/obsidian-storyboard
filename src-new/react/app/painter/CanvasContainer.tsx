@@ -94,6 +94,9 @@ export default function CanvasContainer({
     if (view && view._painterData) {
       view._painterData.canvasWidth = width;
       view._painterData.canvasHeight = height;
+      
+      // タイトルを更新
+      view.updateTitle?.(width, height, zoom);
     }
 
     // レイヤーの画像処理
@@ -324,6 +327,7 @@ export default function CanvasContainer({
           rotation={rotation}
           containerRef={containerRef}
           selectionState={selectionState}
+          canvasSize={canvasSize}
           onSelectionStart={handleSelectionStart}
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}
