@@ -349,6 +349,29 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
       </div>
       
       <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0">
+        {project.timeline.tracks.map((track, tIdx) => (
+          <DraggableTimelineTrack
+            key={tIdx}
+            track={track}
+            trackIndex={tIdx}
+            currentTime={currentTime}
+            pixelsPerSecond={pixelsPerSecond}
+            onClipChange={handleClipChange}
+            onClipMove={handleClipMove}
+            onAddClip={handleAddClip}
+            onTimeSeek={setCurrentTime}
+            onFileDrop={handleFileDrop}
+          />
+        ))}
+        
+        <div className="flex-shrink-0 p-2">
+          <button onClick={handleAddTrack} className="px-3 py-1 text-sm bg-accent text-on-accent rounded hover:bg-accent-hover">
+            トラックを追加
+          </button>
+        </div>
+      </div>
+      
+      <div className="flex-shrink-0 overflow-x-auto">
         <DraggableTimelineTrack
           track={{
             name: 'BGM',
@@ -412,27 +435,6 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           onAddClip={() => {}}
           onTimeSeek={setCurrentTime}
         />
-        
-        {project.timeline.tracks.map((track, tIdx) => (
-          <DraggableTimelineTrack
-            key={tIdx}
-            track={track}
-            trackIndex={tIdx}
-            currentTime={currentTime}
-            pixelsPerSecond={pixelsPerSecond}
-            onClipChange={handleClipChange}
-            onClipMove={handleClipMove}
-            onAddClip={handleAddClip}
-            onTimeSeek={setCurrentTime}
-            onFileDrop={handleFileDrop}
-          />
-        ))}
-      </div>
-      
-      <div className="flex-shrink-0 p-2">
-        <button onClick={handleAddTrack} className="px-3 py-1 text-sm bg-accent text-on-accent rounded hover:bg-accent-hover">
-          トラックを追加
-        </button>
       </div>
     </div>
   );
