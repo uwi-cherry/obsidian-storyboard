@@ -51,63 +51,51 @@ namespace Internal {
     let currentTime = 0;
     let inFrame = false;
     let currentDialogues = '';
-    let currentSpeaker = '';
-    let frameStartIndex = -1;
+    let frameLines: string[] = [];
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
       
       if (line.startsWith('####')) {
-        // 前のフレームを処理
-        if (inFrame && currentDialogues.trim()) {
-          const duration = calculateDurationFromText(currentDialogues);
-          // [!INFO]行を探して確認
-          let infoLineFound = false;
+        // 前のフレームを完了
+        if (inFrame && frameLines.length > 0) {
+          // 既存の[!INFO]行をチェック
+          let hasTimingInfo = false;
           let existingStart: number | null = null;
           let existingDuration: number | null = null;
           
-          for (let j = frameStartIndex; j < i; j++) {
-            const infoMatch = processedLines[j].match(/^>\s*\[!INFO\]\s*start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
+          for (const frameLine of frameLines) {
+            const infoMatch = frameLine.match(/^>\s*\[!INFO\]\s*start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
             if (infoMatch) {
               existingStart = parseFloat(infoMatch[1]);
               existingDuration = parseFloat(infoMatch[2]);
-              infoLineFound = true;
+              hasTimingInfo = true;
               break;
             }
           }
           
-          if (infoLineFound && existingStart !== null && existingDuration !== null) {
-            // 既に設定されている場合はその値を使用
+          if (hasTimingInfo && existingStart !== null && existingDuration !== null) {
+            // 既存のタイミング情報を使用
+            processedLines.push(...frameLines);
             currentTime = existingStart + existingDuration;
           } else {
-            // 設定されていない場合は新規追加
+            // 新しいタイミング情報を追加
+            const duration = calculateDurationFromText(currentDialogues);
+            processedLines.push(...frameLines);
             processedLines.push(`> [!INFO] start: ${currentTime}, duration: ${duration}`);
             currentTime += duration;
           }
         }
         
         // 新しいフレーム開始
-        currentSpeaker = line.replace(/^####\s*/, '');
+        frameLines = [line];
         currentDialogues = '';
         inFrame = true;
-        frameStartIndex = processedLines.length;
-        processedLines.push(line);
       } else if (inFrame) {
-        if (line.match(/^>\s*\[!INFO\]/)) {
-          // [!INFO]行はそのまま保持
-          processedLines.push(line);
-        } else if (line.match(/^\[(.*)\]\((.*)\)$/)) {
-          // 画像行
-          processedLines.push(line);
-        } else if (line.startsWith('>')) {
-          // プロンプト行
-          processedLines.push(line);
-        } else if (line.trim()) {
+        frameLines.push(line);
+        if (line.trim() && !line.startsWith('>') && !line.match(/^\[(.*)\]\((.*)\)$/)) {
           // 台詞行
           currentDialogues += (currentDialogues ? '\n' : '') + line;
-          processedLines.push(line);
-        } else {
-          processedLines.push(line);
         }
       } else {
         processedLines.push(line);
@@ -115,9 +103,28 @@ namespace Internal {
     }
     
     // 最後のフレームを処理
-    if (inFrame && currentDialogues.trim()) {
-      const duration = calculateDurationFromText(currentDialogues);
-      processedLines.push(`> [!INFO] start: ${currentTime}, duration: ${duration}`);
+    if (inFrame && frameLines.length > 0) {
+      let hasTimingInfo = false;
+      let existingStart: number | null = null;
+      let existingDuration: number | null = null;
+      
+      for (const frameLine of frameLines) {
+        const infoMatch = frameLine.match(/^>\s*\[!INFO\]\s*start:\s*(\d+(?:\.\d+)?),\s*duration:\s*(\d+(?:\.\d+)?)/);
+        if (infoMatch) {
+          existingStart = parseFloat(infoMatch[1]);
+          existingDuration = parseFloat(infoMatch[2]);
+          hasTimingInfo = true;
+          break;
+        }
+      }
+      
+      if (hasTimingInfo) {
+        processedLines.push(...frameLines);
+      } else {
+        const duration = calculateDurationFromText(currentDialogues);
+        processedLines.push(...frameLines);
+        processedLines.push(`> [!INFO] start: ${currentTime}, duration: ${duration}`);
+      }
     }
     
     return processedLines.join('\n');

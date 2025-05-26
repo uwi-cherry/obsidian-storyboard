@@ -32,9 +32,13 @@ namespace Internal {
     // マークダウンファイルを構築
     let markdownContent = '';
     
-    // マークダウン部分を追加（JSONブロックを除外）
+    // マークダウン部分を追加（[!INFO]行を除外してプロンプト欄への混入を防ぐ）
     if (sourceMarkdown) {
-      markdownContent = sourceMarkdown.trim();
+      const lines = sourceMarkdown.split('\n');
+      const filteredLines = lines.filter((line: string) => 
+        !line.match(/^>\s*\[!INFO\]\s*start:\s*\d+(?:\.\d+)?,\s*duration:\s*\d+(?:\.\d+)?/)
+      );
+      markdownContent = filteredLines.join('\n').trim();
     }
     
     // JSONブロックを別途追加

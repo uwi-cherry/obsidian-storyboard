@@ -280,7 +280,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         <div className="relative h-10 bg-primary border border-modifier-border rounded overflow-hidden">
           {storyboardData ? (
             storyboardData.chapters.flatMap(chapter => 
-              chapter.frames.filter(frame => frame.startTime !== undefined && frame.duration !== undefined)
+              chapter.frames
             ).map((frame, idx) => (
               <div
                 key={idx}
