@@ -113,6 +113,7 @@ namespace Internal {
           hidden: !l.visible,
           opacity: l.opacity,
           blendMode: l.blendMode,
+          clipping: l.clippingMask || false,
           left: 0,
           top: 0
         };

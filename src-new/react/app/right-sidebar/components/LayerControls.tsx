@@ -73,6 +73,18 @@ export default function LayerControls() {
     }
   };
 
+  const toggleClipping = async (index: number) => {
+    try {
+      const current = layers[index]?.clippingMask ?? false;
+      await toolRegistry.executeTool('set_layer_clipping', {
+        index,
+        clippingMask: !current
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const startRenaming = (index: number) => {
     setEditingLayerIndex(index);
     setEditingLayerName(layers[index].name);
@@ -222,6 +234,16 @@ export default function LayerControls() {
                   toggleVisibility(idx);
                 }}
               />
+              <div
+                className={`w-4 h-4 border border-modifier-border rounded relative cursor-pointer ${layer.clippingMask ? 'bg-accent' : 'bg-transparent'}`}
+                onClick={e => {
+                  e.stopPropagation();
+                  toggleClipping(idx);
+                }}
+                title={t('CLIPPING_MASK')}
+              >
+                <span className="absolute inset-0 flex items-center justify-center" dangerouslySetInnerHTML={{ __html: LAYER_ICONS.clip }} />
+              </div>
               <div className="flex-1">
                 {editingLayerIndex === idx ? (
                   <input

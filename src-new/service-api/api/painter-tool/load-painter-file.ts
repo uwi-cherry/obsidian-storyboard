@@ -110,6 +110,7 @@ export async function executeLoadPainterFile(args: LoadPainterFileInput): Promis
           visible: !layer.hidden,
           opacity: layer.opacity !== undefined ? layer.opacity : 1,
           blendMode: layer.blendMode ?? 'normal',
+          clippingMask: layer.clipping ?? false,
           width: psd.width,
           height: psd.height,
           ...(isDom ? { canvasDataUrl } : { canvas: layer.canvas })

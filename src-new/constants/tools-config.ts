@@ -26,6 +26,7 @@ export const TOOL_NAMES = {
   REMOVE_LAYER: 'remove_layer',
   SET_LAYER_OPACITY: 'set_layer_opacity',
   SET_LAYER_BLEND_MODE: 'set_layer_blend_mode',
+  SET_LAYER_CLIPPING: 'set_layer_clipping',
   RENAME_LAYER: 'rename_layer',
   TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility'
 } as const;
@@ -209,6 +210,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "setLayerBlendModeTool",
       ai_enabled: false,
       description: "Set layer blend mode in painter view",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.SET_LAYER_CLIPPING,
+      modulePath: "../../src-new/service-api/api/layer-tool/set-layer-clipping",
+      exportName: "setLayerClippingTool",
+      ai_enabled: false,
+      description: "Set layer clipping in painter view",
       category: TOOL_CATEGORIES.PAINTER
     },
     {

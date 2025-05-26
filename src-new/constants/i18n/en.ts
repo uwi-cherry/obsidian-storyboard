@@ -94,6 +94,7 @@ const en: I18nStrings = {
   BLEND_MODE_SATURATION: 'Saturation',
   BLEND_MODE_COLOR: 'Color',
   BLEND_MODE_LUMINOSITY: 'Luminosity',
+  CLIPPING_MASK: 'Clipping Mask'
 };
 
 export default en;

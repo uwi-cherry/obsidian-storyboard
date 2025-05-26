@@ -5,6 +5,7 @@ export interface Layer {
   visible: boolean;
   opacity: number;
   blendMode: string;
+  clippingMask?: boolean;
   canvas: HTMLCanvasElement;
   width?: number;
   height?: number;
@@ -16,6 +17,7 @@ export interface PsdLayerData {
   visible: boolean;
   opacity: number;
   blendMode: string;
+  clippingMask?: boolean;
   width: number;
   height: number;
   canvasDataUrl?: string;

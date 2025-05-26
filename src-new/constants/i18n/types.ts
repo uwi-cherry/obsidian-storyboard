@@ -94,4 +94,5 @@ export interface I18nStrings {
   BLEND_MODE_SATURATION: string;
   BLEND_MODE_COLOR: string;
   BLEND_MODE_LUMINOSITY: string;
+  CLIPPING_MASK: string;
 }
