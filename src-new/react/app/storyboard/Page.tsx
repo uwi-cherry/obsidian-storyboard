@@ -259,31 +259,29 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [app, storyboard]);
 
-    // 選択されたフレームの変更を監視してストーリーボードのデータを更新
+      // 選択されたフレームの変更を監視してストーリーボードのデータを更新
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
   const selectedRowIndex = useSelectedRowIndexStore((state) => state.selectedRowIndex);
 
-  // selectedFrameが変更された時にストーリーボードのデータを更新
-  // ただし、現在のフレームが空の場合のみ（新規作成時のみ）
+  // NavigationControlsでファイル更新後の再読み込み
   useEffect(() => {
-    if (selectedFrame && selectedRowIndex !== null) {
-      let globalIndex = 0;
-      for (let chapterIndex = 0; chapterIndex < storyboard.chapters.length; chapterIndex++) {
-        const chapter = storyboard.chapters[chapterIndex];
-        for (let frameIndex = 0; frameIndex < chapter.frames.length; frameIndex++) {
-          if (globalIndex === selectedRowIndex) {
-            const currentFrame = chapter.frames[frameIndex];
-            // 現在のフレームのimageUrlが空の場合のみ更新（新規作成時）
-            if (!currentFrame.imageUrl && selectedFrame.imageUrl) {
-              handleCellChange(chapterIndex, frameIndex, 'imageUrl', selectedFrame.imageUrl);
-            }
-            return;
-          }
-          globalIndex++;
-        }
+    const reloadData = async () => {
+      if (!file || !selectedFrame?.imageUrl) return;
+      
+      try {
+        const result = await toolRegistry.executeTool('load_storyboard_data', {
+          app,
+          file
+        });
+        const newData = JSON.parse(result);
+        setStoryboard(newData);
+      } catch (error) {
+        console.error('Failed to reload storyboard data:', error);
       }
-    }
-  }, [selectedFrame, selectedRowIndex, handleCellChange, storyboard.chapters]);
+    };
+
+    reloadData();
+  }, [selectedFrame?.imageUrl, app, file, setStoryboard]);
 
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {
