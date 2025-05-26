@@ -1,5 +1,5 @@
 const SVG_BASE = 'xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor"';
-const STROKE_ATTRS = 'stroke-width="2" stroke-linecap="round" stroke-linejoin="round"';
+const STROKE_ATTRS = 'stroke-width="1" stroke-linecap="round" stroke-linejoin="round"';
 const VIEWBOX = '0 0 24 24';
 
 const OBSIDIAN_SVG = `${SVG_BASE} viewBox="${VIEWBOX}" ${STROKE_ATTRS}`;
