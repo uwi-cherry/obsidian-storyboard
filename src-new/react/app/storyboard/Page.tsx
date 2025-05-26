@@ -259,11 +259,12 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     }
   }, [app, storyboard]);
 
-  // 選択されたフレームの変更を監視してストーリーボードのデータを更新
+    // 選択されたフレームの変更を監視してストーリーボードのデータを更新
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
   const selectedRowIndex = useSelectedRowIndexStore((state) => state.selectedRowIndex);
 
   // selectedFrameが変更された時にストーリーボードのデータを更新
+  // ただし、現在のフレームが空の場合のみ（新規作成時のみ）
   useEffect(() => {
     if (selectedFrame && selectedRowIndex !== null) {
       let globalIndex = 0;
@@ -271,9 +272,9 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         const chapter = storyboard.chapters[chapterIndex];
         for (let frameIndex = 0; frameIndex < chapter.frames.length; frameIndex++) {
           if (globalIndex === selectedRowIndex) {
-            // 現在のフレームと選択されたフレームが異なる場合のみ更新
             const currentFrame = chapter.frames[frameIndex];
-            if (currentFrame.imageUrl !== selectedFrame.imageUrl) {
+            // 現在のフレームのimageUrlが空の場合のみ更新（新規作成時）
+            if (!currentFrame.imageUrl && selectedFrame.imageUrl) {
               handleCellChange(chapterIndex, frameIndex, 'imageUrl', selectedFrame.imageUrl);
             }
             return;
@@ -282,7 +283,7 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         }
       }
     }
-  }, [selectedFrame, selectedRowIndex, handleCellChange]);
+  }, [selectedFrame, selectedRowIndex, handleCellChange, storyboard.chapters]);
 
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {
