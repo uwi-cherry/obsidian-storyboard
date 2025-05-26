@@ -235,11 +235,5 @@ function motif_generation_system(
     # 3. エピソードの生成
     episodes = create_episodes(character_profiles, story_worldviews)
     
-    return {
-        personalities: personalities,
-        motifs: motifs,
-        story_worldviews: story_worldviews,
-        character_profiles: character_profiles,
-        episodes: episodes
-    }
+    return episodes
 ```
