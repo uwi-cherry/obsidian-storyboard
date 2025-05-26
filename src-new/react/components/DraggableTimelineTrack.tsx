@@ -50,15 +50,15 @@ export default function DraggableTimelineTrack({
       
       if (dragState.isResizing) {
         if (dragState.resizeEdge === 'left') {
-          // 左端のリサイズ：開始時間を変更し、長さを調整
-          const newStartTime = Math.max(0, dragState.startTime + deltaTime);
-          const endTime = dragState.startTime + dragState.startDuration;
-          const newDuration = Math.max(0.1, endTime - newStartTime);
+          // 左端のリサイズ：右端（終了時間）を固定し、左端（開始時間）を移動
+          const fixedEndTime = dragState.startTime + dragState.startDuration;
+          const newStartTime = Math.max(0, Math.min(fixedEndTime - 0.1, dragState.startTime + deltaTime));
+          const newDuration = fixedEndTime - newStartTime;
           
           onClipChange(trackIndex, dragState.clipIndex, 'start', newStartTime.toString());
           onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
         } else if (dragState.resizeEdge === 'right') {
-          // 右端のリサイズ：長さのみを変更
+          // 右端のリサイズ：左端（開始時間）を固定し、長さを変更
           const newDuration = Math.max(0.1, dragState.startDuration + deltaTime);
           onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
         }
