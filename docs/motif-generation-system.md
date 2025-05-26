@@ -197,7 +197,7 @@ function combine_story_elements(character, worldview):
 ### 3. 全体統合システム
 
 ```
-function motif_generation_system(
+function episodes_generation_system(
     base_personality, 
     base_motif, 
     base_story, 
