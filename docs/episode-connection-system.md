@@ -2,6 +2,8 @@
 
 ## エピソードラベリング
 
+各エピソードに物語要素タイプと時間軸タイプのラベルを付与します。
+
 ```
 function label_episodes(episodes, base_word):
     labeled_episodes = []
@@ -23,19 +25,23 @@ function assign_episode_labels(episode, position, total_episodes, base_word):
     位置: {position + 1}/{total_episodes}
     基本単語: {base_word}
     
-    必須ラベル：
-    1. 物語要素タイプ：
-       - ミーム（情報や概念が人から人へと伝播・複製される現象）
-       - ヒステリー（集団心理や社会現象として広がる感情的反応）
-       - ミラクル（個人的で一回性の特別な体験や出来事）
-       
-       重要：基本単語「{base_word}」に最も近い意味や本質を持つエピソードは「ミラクル」として分類してください。
+    物語要素タイプ：
+    - ミーム（情報や概念が人から人へと伝播・複製される現象）
+    - ヒステリー（集団心理や社会現象として広がる感情的反応）
+    - ミラクル（個人的で一回性の特別な体験や出来事）
     
-    2. 時間軸タイプ：
-       - 現在進行（メイン時間軸）
-       - 過去編（回想・前日譚）
-       - 未来予告（予知・予言）
-       - 並行時間（同時進行の別視点）
+    分類基準：
+    - キャラクター・人格・構造を生む要素 → ミーム
+    - 世界観・状態・群衆に埋没する要素 → ヒステリー
+    - ストーリー・輝き・両者の衝突で成立する要素 → ミラクル
+    
+    時間軸タイプ：
+    - 現在進行（メイン時間軸）
+    - 過去編（回想・前日譚）
+    - 未来予告（予知・予言）
+    - 並行時間（同時進行の別視点）
+    
+    重要：基本単語「{base_word}」に最も近い意味や本質を持つエピソードは「ミラクル」として分類してください。
     
     出力形式:
     物語要素: "ミーム/ヒステリー/ミラクル"
@@ -51,7 +57,9 @@ function assign_episode_labels(episode, position, total_episodes, base_word):
     }
 ```
 
-## エピソード間補完システム
+## エピソード間補完
+
+隣接するエピソード間に橋渡しを生成し、時間操作や視点変更を使って強引に接続します。
 
 ```
 function create_episode_bridges(labeled_episodes):
@@ -61,7 +69,6 @@ function create_episode_bridges(labeled_episodes):
         current_episode = labeled_episodes[i]
         bridged_episodes.append(current_episode)
         
-        # 次のエピソードがある場合、補完を生成
         if i < len(labeled_episodes) - 1:
             next_episode = labeled_episodes[i + 1]
             bridge = create_bridge_between_episodes(current_episode, next_episode)
@@ -82,13 +89,12 @@ function create_bridge_between_episodes(current_episode, next_episode):
     内容: {next_episode["episode"]}
     ラベル: {next_episode["labels"]}
     
-    補完方法（必要に応じて使用）：
+    補完方法：
     - 時間飛躍：「3年後」「その夜」「翌朝」など
     - 視点変更：別キャラクターの視点
     - 過去編挿入：「それより前の話」
     - 並行描写：「同じ頃、別の場所では」
     - 因果説明：「なぜそうなったのか」
-    - 状態変化：人格は維持、状況は変化
     
     無理やりでも必ず2つのエピソードを繋げてください。
     論理的でなくても構いません。時間を飛ばしたり戻したりして強引に接続してください。
@@ -115,17 +121,16 @@ function create_bridge_between_episodes(current_episode, next_episode):
     }
 ```
 
-## 状態・人格分離管理
+## キャラクター状態管理
+
+人格（不変）と状態（可変）を分離して管理します。
 
 ```
 function manage_character_continuity(bridged_episodes):
     character_timeline = []
     
     for episode_data in bridged_episodes:
-        character_state = track_character_evolution(
-            episode_data, 
-            character_timeline
-        )
+        character_state = track_character_evolution(episode_data, character_timeline)
         character_timeline.append(character_state)
     
     return character_timeline
@@ -136,10 +141,7 @@ function track_character_evolution(episode_data, previous_timeline):
     
     エピソード: {episode_data["episode"]}
     ラベル: {episode_data["labels"]}
-    
     これまでの経緯: {previous_timeline[-3:] if previous_timeline else "なし"}
-    
-    分離管理の要件：
     
     人格（変化しない要素）：
     - 価値観、信念、感情の癖
@@ -173,6 +175,8 @@ function track_character_evolution(episode_data, previous_timeline):
 
 ## 最終物語生成
 
+補完されたエピソードを統合して完結した物語を生成します。
+
 ```
 function create_final_connected_story(bridged_episodes, character_timeline, theme, base_word):
     prompt = f"""
@@ -200,6 +204,8 @@ function create_final_connected_story(bridged_episodes, character_timeline, them
 ```
 
 ## メインシステム
+
+全体を統合して一つの完結した物語を生成します。
 
 ```
 function connect_episodes_with_bridges(episodes, story_theme, base_word):
