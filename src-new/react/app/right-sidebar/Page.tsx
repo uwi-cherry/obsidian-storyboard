@@ -172,9 +172,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     }
   };
 
-  const handleExportImage = () => {
-    
-  };
 
   const currentImageUrl = selectedFrame?.imageUrl || null;
   return (
@@ -184,7 +181,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         currentImageUrl={currentImageUrl}
         onBackToStoryboard={handleBackToStoryboard}
         onOpenPsdPainter={handleOpenPsdPainter}
-        onExportImage={handleExportImage}
         app={app || ({} as App)}
         onImageUrlChange={handleImageChange}
       />

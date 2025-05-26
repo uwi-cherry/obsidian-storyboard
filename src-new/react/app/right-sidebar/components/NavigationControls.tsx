@@ -1,5 +1,5 @@
 import React from 'react';
-import { Notice, App, Menu, TFile, MarkdownView } from 'obsidian';
+import { Notice, App, TFile, MarkdownView } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboard-factory';
@@ -8,9 +8,9 @@ import IconButtonGroup from '../../../components/IconButtonGroup';
 import {
   PSD_ICON_SVG,
   PAINTER_ICON_SVG,
-  STORYBOARD_TOGGLE_ICON_SVG,
   STORYBOARD_ICON_SVG,
   TIMELINE_ICON_SVG,
+  DOCUMENT_ICON_SVG,
 } from '../../../../constants/icons';
 
 interface NavigationControlsProps {
@@ -18,7 +18,6 @@ interface NavigationControlsProps {
   currentImageUrl: string | null;
   onBackToStoryboard: () => void;
   onOpenPsdPainter: () => void;
-  onExportImage: () => void;
   app: App;
   onImageUrlChange: (newUrl: string | null) => void;
 }
@@ -28,84 +27,34 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
   currentImageUrl,
   onBackToStoryboard,
   onOpenPsdPainter,
-  onExportImage,
   app,
   onImageUrlChange,
 }) => {
-  const handleModeSwitch = async (evt: React.MouseEvent) => {
-    try {
-      console.log('handleModeSwitch called');
-      const activeFile = app.workspace.getActiveFile();
-      if (!activeFile) {
-        console.log('No active file');
-        return;
-      }
+  const handleConvertToStoryboard = async () => {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+    if (activeFile.extension === 'md') {
+      await convertFile('rename_file_extension', 'storyboard', 'STORYBOARD');
+    } else if (activeFile.extension === 'otio') {
+      await convertToStoryboard();
+    }
+  };
 
-      const currentExtension = activeFile.extension;
-      console.log('Current file extension:', currentExtension);
-      const menu = new Menu();
+  const handleConvertToOtio = async () => {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+    if (activeFile.extension === 'md' || activeFile.extension === 'storyboard') {
+      await convertFile('convert_md_to_otio', 'otio', 'OTIO');
+    }
+  };
 
-      // 現在のファイル形式に応じて変換オプションを追加
-      if (currentExtension === 'md') {
-        menu.addItem(item =>
-          item
-            .setTitle('STORYBOARDに変換')
-            .setIcon('storyboard')
-            .onClick(async () => {
-              await convertFile('rename_file_extension', 'storyboard', 'STORYBOARD');
-            })
-        );
-        menu.addItem(item =>
-          item
-            .setTitle('OTIOに変換')
-            .setIcon('timeline')
-            .onClick(async () => {
-              await convertFile('convert_md_to_otio', 'otio', 'OTIO');
-            })
-        );
-      } else if (currentExtension === 'storyboard') {
-        menu.addItem(item =>
-          item
-            .setTitle('MDに変換')
-            .setIcon('document')
-            .onClick(async () => {
-              await convertFile('rename_file_extension', 'md', 'Markdown');
-            })
-        );
-        menu.addItem(item =>
-          item
-            .setTitle('OTIOに変換')
-            .setIcon('timeline')
-            .onClick(async () => {
-              await convertFile('convert_md_to_otio', 'otio', 'OTIO');
-            })
-        );
-      } else if (currentExtension === 'otio') {
-        menu.addItem(item =>
-          item
-            .setTitle('MDに変換')
-            .setIcon('document')
-            .onClick(async () => {
-              await convertFile('convert_otio_to_md', 'md', 'Markdown');
-            })
-        );
-        menu.addItem(item =>
-          item
-            .setTitle('STORYBOARDに変換')
-            .setIcon('storyboard')
-            .onClick(async () => {
-              await convertToStoryboard();
-            })
-        );
-      } else {
-        console.log('Unsupported file format:', currentExtension);
-        return;
-      }
-
-      console.log('Showing menu');
-      menu.showAtMouseEvent(evt.nativeEvent);
-    } catch (error) {
-      console.error('Menu display failed:', error);
+  const handleConvertToMarkdown = async () => {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+    if (activeFile.extension === 'storyboard') {
+      await convertFile('rename_file_extension', 'md', 'Markdown');
+    } else if (activeFile.extension === 'otio') {
+      await convertFile('convert_otio_to_md', 'md', 'Markdown');
     }
   };
 
@@ -336,10 +285,29 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
             variant: 'accent',
             className: currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden',
           },
+        ]}
+      />
+      <IconButtonGroup
+        gap="gap-2"
+        buttons={[
           {
-            icon: STORYBOARD_TOGGLE_ICON_SVG,
-            onClick: handleModeSwitch,
-            title: 'モード切替',
+            icon: STORYBOARD_ICON_SVG,
+            onClick: handleConvertToStoryboard,
+            title: 'STORYBOARDに変換',
+            variant: 'accent',
+            className: !isPsdPainterOpen ? '' : 'hidden',
+          },
+          {
+            icon: TIMELINE_ICON_SVG,
+            onClick: handleConvertToOtio,
+            title: 'OTIOに変換',
+            variant: 'accent',
+            className: !isPsdPainterOpen ? '' : 'hidden',
+          },
+          {
+            icon: DOCUMENT_ICON_SVG,
+            onClick: handleConvertToMarkdown,
+            title: 'MDに変換',
             variant: 'accent',
             className: !isPsdPainterOpen ? '' : 'hidden',
           },
@@ -352,13 +320,6 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
             icon: STORYBOARD_ICON_SVG,
             onClick: onBackToStoryboard,
             title: t('BACK_TO_STORYBOARD'),
-            variant: 'accent',
-            className: isPsdPainterOpen ? '' : 'hidden',
-          },
-          {
-            icon: TIMELINE_ICON_SVG,
-            onClick: onExportImage,
-            title: t('EXPORT_IMAGE'),
             variant: 'accent',
             className: isPsdPainterOpen ? '' : 'hidden',
           },

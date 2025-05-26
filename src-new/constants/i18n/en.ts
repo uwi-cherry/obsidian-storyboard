@@ -95,7 +95,10 @@ const en: I18nStrings = {
   BLEND_MODE_SATURATION: 'Saturation',
   BLEND_MODE_COLOR: 'Color',
   BLEND_MODE_LUMINOSITY: 'Luminosity',
-  CLIPPING_MASK: 'Clipping Mask'
+  CLIPPING_MASK: 'Clipping Mask',
+  EDIT_MENU: 'Edit',
+  FILE_MENU: 'File',
+  EXPORT_MERGED_IMAGE: 'Export flattened image'
 };
 
 export default en;
