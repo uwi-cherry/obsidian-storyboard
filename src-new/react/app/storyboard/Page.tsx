@@ -11,9 +11,9 @@ import CharacterEditModal from './CharacterEditModal';
 import ImageInputCell from './ImageInputCell';
 import PreviewCell from './PreviewCell';
 import SpeakerDialogueCell from './SpeakerDialogueCell';
-import { useSelectedRowIndexStore } from '../../../obsidian-api/zustand/store/selected-row-index-store';
-import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
-import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
+import { useSelectedRowIndexStore } from '../../../zustand/store/selected-row-index-store';
+import { useSelectedFrameStore } from '../../../zustand/store/selected-frame-store';
+import { useLayersStore } from '../../../zustand/storage/layers-store';
 
 interface StoryboardReactViewProps {
   app: App;

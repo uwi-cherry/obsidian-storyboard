@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { subscribeWithSelector } from 'zustand/middleware';
-import { Layer } from '../../../types/painter-types';
-import { toolRegistry } from '../../../service-api/core/tool-registry';
+import { Layer } from '../../types/painter-types';
+import { toolRegistry } from '../../service-api/core/tool-registry';
 import { TFile } from 'obsidian';
 import { AdaptiveDebouncer } from '../adaptive-debouncer';
 

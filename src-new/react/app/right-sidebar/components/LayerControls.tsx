@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
 import { LAYER_ICONS, BUTTON_ICONS } from '../../../../constants/icons';
-import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-store';
-import { useCurrentLayerIndexStore } from '../../../../obsidian-api/zustand/store/current-layer-index-store';
+import { useLayersStore } from '../../../../zustand/storage/layers-store';
+import { useCurrentLayerIndexStore } from '../../../../zustand/store/current-layer-index-store';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 
 export default function LayerControls() {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import type { App } from 'obsidian';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
-import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
-import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
-import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
+import { useLayersStore } from '../../../zustand/storage/layers-store';
+import { useCurrentLayerIndexStore } from '../../../zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from '../../../zustand/store/painter-history-store';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import { usePainterLayoutStore } from '../../../obsidian-api/zustand/storage/painter-layout-store';
+import { usePainterLayoutStore } from '../../../zustand/storage/painter-layout-store';
 import type { Layer, PainterView } from 'src-new/types/painter-types';
 import CanvasContainer from './CanvasContainer';
 import Toolbar from './Toolbar';

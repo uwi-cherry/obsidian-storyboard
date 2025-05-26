@@ -1,5 +1,5 @@
 import React from 'react';
-import { LayoutDirection } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
+import { LayoutDirection } from '../../../../zustand/storage/painter-layout-store';
 
 interface ActionPropertiesProps {
   handlers: {

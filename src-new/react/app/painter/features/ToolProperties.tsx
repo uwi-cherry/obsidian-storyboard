@@ -1,6 +1,6 @@
 import React from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
-import { LayoutDirection, usePainterLayoutStore } from '../../../../obsidian-api/zustand/storage/painter-layout-store';
+import { LayoutDirection, usePainterLayoutStore } from '../../../../zustand/storage/painter-layout-store';
 
 interface ToolProps {
   tool: string;

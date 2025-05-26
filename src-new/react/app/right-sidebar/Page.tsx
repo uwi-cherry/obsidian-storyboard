@@ -6,10 +6,10 @@ import LayerControls from './components/LayerControls';
 import ChatBox from './components/ChatBox';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import { useSelectedFrameStore } from '../../../obsidian-api/zustand/store/selected-frame-store';
-import { useSelectedRowIndexStore } from '../../../obsidian-api/zustand/store/selected-row-index-store';
-import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
-import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
+import { useSelectedFrameStore } from '../../../zustand/store/selected-frame-store';
+import { useSelectedRowIndexStore } from '../../../zustand/store/selected-row-index-store';
+import { useLayersStore } from '../../../zustand/storage/layers-store';
+import { useCurrentLayerIndexStore } from '../../../zustand/store/current-layer-index-store';
 import type { Layer } from '../../../types/painter-types';
 
 interface RightSidebarReactViewProps {

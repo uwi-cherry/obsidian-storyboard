@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { useLayersStore } from '../../../../obsidian-api/zustand/storage/layers-store';
-import { usePainterHistoryStore } from '../../../../obsidian-api/zustand/store/painter-history-store';
+import { useLayersStore } from '../../../../zustand/storage/layers-store';
+import { usePainterHistoryStore } from '../../../../zustand/store/painter-history-store';
 import type { Layer } from 'src-new/types/painter-types';
 
 interface SelectionRect {

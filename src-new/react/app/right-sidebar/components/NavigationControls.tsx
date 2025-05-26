@@ -4,8 +4,8 @@ import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboard-factory';
 import { toggleStoryboardViewTool } from '../../../../service-api/api/storyboard-tool/toggle-storyboard-view';
-import { useSelectedRowIndexStore } from '../../../../obsidian-api/zustand/store/selected-row-index-store';
-import { useSelectedFrameStore } from '../../../../obsidian-api/zustand/store/selected-frame-store';
+import { useSelectedRowIndexStore } from '../../../../zustand/store/selected-row-index-store';
+import { useSelectedFrameStore } from '../../../../zustand/store/selected-frame-store';
 
 interface NavigationControlsProps {
   isPsdPainterOpen: boolean;

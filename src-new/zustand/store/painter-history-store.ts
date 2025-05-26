@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { Layer } from '../../../types/painter-types';
-import { MAX_HISTORY_SIZE } from '../../../constants/constants';
+import { Layer } from '../../types/painter-types';
+import { MAX_HISTORY_SIZE } from '../../constants/constants';
 
 interface HistorySnapshot {
   layers: Layer[];

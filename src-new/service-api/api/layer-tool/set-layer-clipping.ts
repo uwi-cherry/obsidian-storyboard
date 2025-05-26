@@ -1,5 +1,5 @@
 import { Tool } from '../../core/tool';
-import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
+import { useLayersStore } from '../../../zustand/storage/layers-store';
 
 namespace Internal {
   export interface SetLayerClippingInput {

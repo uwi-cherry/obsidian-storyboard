@@ -1,9 +1,9 @@
 import { Layer } from 'src-new/types/painter-types';
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
-import { useLayersStore } from '../../../obsidian-api/zustand/storage/layers-store';
-import { useCurrentLayerIndexStore } from '../../../obsidian-api/zustand/store/current-layer-index-store';
-import { usePainterHistoryStore } from '../../../obsidian-api/zustand/store/painter-history-store';
+import { useLayersStore } from '../../../zustand/storage/layers-store';
+import { useCurrentLayerIndexStore } from '../../../zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from '../../../zustand/store/painter-history-store';
 
 namespace Internal {
   export interface AddLayerInput {

@@ -1,7 +1,7 @@
 import React from 'react';
 import { TOOL_ICONS } from 'src-new/constants/icons';
 import { t } from 'src-new/constants/obsidian-i18n';
-import { usePainterLayoutStore } from 'src-new/obsidian-api/zustand/storage/painter-layout-store';
+import { usePainterLayoutStore } from 'src-new/zustand/storage/painter-layout-store';
 
 interface ToolbarProps {
   tool: string;

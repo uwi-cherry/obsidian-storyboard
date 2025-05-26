@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { PainterView } from 'src-new/types/painter-types';
-import { usePainterLayoutStore } from 'src-new/obsidian-api/zustand/storage/painter-layout-store';
+import { usePainterLayoutStore } from 'src-new/zustand/storage/painter-layout-store';
 import { PainterPointer } from 'src-new/react/hooks/usePainterPointer';
 import useSelectionState, { SelectionState } from 'src-new/react/hooks/useSelectionState';
 import ActionProperties from './features/ActionProperties';
@@ -10,9 +10,9 @@ import ColorProperties from './features/ColorProperties';
 import ToolProperties from './features/ToolProperties';
 
 import TransformEditOverlay from './features/TransformEditOverlay';
-import { useLayersStore } from 'src-new/obsidian-api/zustand/storage/layers-store';
-import { useCurrentLayerIndexStore } from 'src-new/obsidian-api/zustand/store/current-layer-index-store';
-import { usePainterHistoryStore } from 'src-new/obsidian-api/zustand/store/painter-history-store';
+import { useLayersStore } from 'src-new/zustand/storage/layers-store';
+import { useCurrentLayerIndexStore } from 'src-new/zustand/store/current-layer-index-store';
+import { usePainterHistoryStore } from 'src-new/zustand/store/painter-history-store';
 
 interface SelectionRect {
   x: number;
