@@ -4,6 +4,7 @@ import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboard-factory';
 import { toggleStoryboardViewTool } from '../../../../service-api/api/storyboard-tool/toggle-storyboard-view';
+import { useSelectedRowIndexStore } from '../../../../obsidian-api/zustand/store/selected-row-index-store';
 import IconButtonGroup from '../../../components/IconButtonGroup';
 import {
   PSD_ICON_SVG,
@@ -307,6 +308,49 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
       });
       console.log('PSD creation result:', result);
       const parsedResult = JSON.parse(result);
+      
+      // ストーリーボードのImageInputCellと同じように直接データを更新
+      const selectedRowIndex = useSelectedRowIndexStore.getState().selectedRowIndex;
+      const activeFile = app.workspace.getActiveFile();
+      
+      if (selectedRowIndex !== null && activeFile && activeFile.extension === 'storyboard') {
+        try {
+          // 現在のストーリーボードデータを読み込み
+          const loadResult = await toolRegistry.executeTool('load_storyboard_data', {
+            app,
+            file: activeFile
+          });
+          const storyboardData = JSON.parse(loadResult);
+          
+          // 選択された行のimageUrlを更新
+          let globalIndex = 0;
+          let found = false;
+          for (let chapterIndex = 0; chapterIndex < storyboardData.chapters.length; chapterIndex++) {
+            const chapter = storyboardData.chapters[chapterIndex];
+            for (let frameIndex = 0; frameIndex < chapter.frames.length; frameIndex++) {
+              if (globalIndex === selectedRowIndex) {
+                chapter.frames[frameIndex].imageUrl = parsedResult.filePath;
+                found = true;
+                break;
+              }
+              globalIndex++;
+            }
+            if (found) break;
+          }
+          
+          // 更新されたデータを保存
+          if (found) {
+            await toolRegistry.executeTool('save_storyboard_data', {
+              app,
+              file: activeFile,
+              data: JSON.stringify(storyboardData)
+            });
+            console.log('Storyboard data updated with new PSD path');
+          }
+        } catch (error) {
+          console.error('Failed to update storyboard data:', error);
+        }
+      }
       
       onImageUrlChange(parsedResult.filePath);
       onOpenPsdPainter();
