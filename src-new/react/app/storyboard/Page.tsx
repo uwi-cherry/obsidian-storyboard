@@ -257,35 +257,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   // 選択されたフレームの変更を監視してストーリーボードのデータを更新
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
   const selectedRowIndex = useSelectedRowIndexStore((state) => state.selectedRowIndex);
-  
-  useEffect(() => {
-    if (selectedFrame && selectedRowIndex !== null) {
-      // グローバルインデックスから章とフレームのインデックスを計算
-      let targetChapterIndex = 0;
-      let idxInChapter = selectedRowIndex;
-      for (let i = 0; i < storyboard.chapters.length; i++) {
-        if (idxInChapter < storyboard.chapters[i].frames.length) {
-          targetChapterIndex = i;
-          break;
-        }
-        idxInChapter -= storyboard.chapters[i].frames.length;
-      }
-      
-      // 現在のフレームと選択されたフレームを比較して、変更があれば更新
-      const currentFrame = storyboard.chapters[targetChapterIndex]?.frames[idxInChapter];
-      if (currentFrame && 
-          (currentFrame.imageUrl !== selectedFrame.imageUrl || 
-           currentFrame.imagePrompt !== selectedFrame.imagePrompt)) {
-        
-        if (currentFrame.imageUrl !== selectedFrame.imageUrl) {
-          handleCellChange(targetChapterIndex, idxInChapter, 'imageUrl', selectedFrame.imageUrl || '');
-        }
-        if (currentFrame.imagePrompt !== selectedFrame.imagePrompt) {
-          handleCellChange(targetChapterIndex, idxInChapter, 'imagePrompt', selectedFrame.imagePrompt || '');
-        }
-      }
-    }
-  }, [selectedFrame, selectedRowIndex, storyboard, handleCellChange]);
 
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {

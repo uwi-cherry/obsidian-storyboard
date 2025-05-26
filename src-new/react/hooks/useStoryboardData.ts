@@ -40,6 +40,7 @@ export default function useStoryboardData(
       key: keyof StoryboardFrame,
       value: StoryboardFrame[keyof StoryboardFrame],
     ) => {
+
       updateData(prev => {
         const chapters = prev.chapters.map((ch, cIdx) => {
           if (cIdx !== chapterIndex) return ch;

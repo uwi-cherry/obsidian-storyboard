@@ -106,9 +106,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     };
   }, [imageUrl, app]);
 
-  const handleImagePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    onImagePromptChange(e.target.value);
-  };
+
 
   const handlePromptKeyDown = useTextareaArrowNav(textareaRef, {
     onArrowUp: focusPrevCellPrompt,
