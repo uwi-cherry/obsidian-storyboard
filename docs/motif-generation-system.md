@@ -2,9 +2,9 @@
 
 ## 基本アルゴリズム
 
-### refine関数
+### iterative_divergence関数
 ```
-function refine(G, n_abstract, constraints):
+function iterative_divergence(G, n_abstract, constraints):
     G[0] = G
 
     # 抽象化プロセス
