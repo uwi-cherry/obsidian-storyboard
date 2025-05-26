@@ -23,7 +23,7 @@ interface StoryboardReactViewProps {
 const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) => {
   const [initialData, setInitialData] = useState<StoryboardData>({
     title: '',
-    chapters: [{ bgmPrompt: '第1章', frames: [] }],
+    chapters: [{ bgmPrompt: 'calm acoustic guitar, soft piano, peaceful ambient, instrumental', frames: [] }],
     characters: []
   });
   const [isLoading, setIsLoading] = useState(true);

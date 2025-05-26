@@ -151,7 +151,7 @@ namespace Internal {
       const emptyData: StoryboardData = {
         title: '',
         chapters: [{ 
-          bgmPrompt: '第1章', 
+          bgmPrompt: 'calm acoustic guitar, soft piano, peaceful ambient, instrumental', 
           frames: [{ 
             dialogues: '', 
             speaker: '', 

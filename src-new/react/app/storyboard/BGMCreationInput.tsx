@@ -58,12 +58,15 @@ const BGMCreationInput: React.FC<BGMCreationInputProps> = ({
                   onChange={handleChange}
                 />
                 {onSubmit && (
-                  <button
-                    className="p-1 bg-accent text-on-accent rounded text-xs hover:bg-accent-hover"
-                    onClick={() => onSubmit('')}
-                  >
-                    {t('ADD_SILENT_SECTION')}
-                  </button>
+                  <>
+                    <span className="text-sm text-text-muted">または</span>
+                    <button
+                      className="p-1 bg-accent text-on-accent rounded text-xs hover:bg-accent-hover"
+                      onClick={() => onSubmit('')}
+                    >
+                      {t('ADD_SILENT_SECTION')}
+                    </button>
+                  </>
                 )}
               </div>
             </td>
