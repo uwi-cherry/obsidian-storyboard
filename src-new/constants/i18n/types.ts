@@ -67,6 +67,7 @@ export interface I18nStrings {
   EXPORT_VIDEO: string;
   NEW_CHAPTER_BGM_LABEL: string;
   NEW_CHAPTER_BGM_PLACEHOLDER: string;
+  ADD_SILENT_SECTION: string;
   OPEN_PSD: string;
   LAYER: string;
   UNDO: string;

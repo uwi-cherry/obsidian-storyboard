@@ -67,6 +67,7 @@ const ja: I18nStrings = {
   EXPORT_VIDEO: '動画出力',
   NEW_CHAPTER_BGM_LABEL: 'BGM',
   NEW_CHAPTER_BGM_PLACEHOLDER: '新しいBGMプロンプトを追加',
+  ADD_SILENT_SECTION: '無音セクションを追加',
   OPEN_PSD: 'PSDペインターを開く',
   LAYER: 'レイヤー',
   UNDO: '元に戻す',

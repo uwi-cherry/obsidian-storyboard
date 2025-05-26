@@ -66,6 +66,7 @@ const en: I18nStrings = {
   EXPORT_VIDEO: 'Export video',
   NEW_CHAPTER_BGM_LABEL: 'BGM',
   NEW_CHAPTER_BGM_PLACEHOLDER: 'Add new BGM prompt',
+  ADD_SILENT_SECTION: 'Add silent section',
   OPEN_PSD: 'Open PSD Painter',
   BACKGROUND: 'Background',
   LAYER: 'Layer',
