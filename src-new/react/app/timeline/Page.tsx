@@ -174,9 +174,9 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         });
         const projectData = JSON.parse(result);
         
-        // デフォルトで20個のトラックを追加
+        // デフォルトで10個のトラックを追加
         if (projectData.timeline.tracks.length === 0) {
-          for (let i = 1; i <= 20; i++) {
+          for (let i = 1; i < 10; i++) {
             projectData.timeline.tracks.push(createTrack(`Track ${i}`));
           }
         }
