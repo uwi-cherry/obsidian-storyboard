@@ -32,80 +32,34 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
   app,
   onImageUrlChange,
 }) => {
-  const handleModeSwitch = async (evt: React.MouseEvent) => {
-    try {
-      console.log('handleModeSwitch called');
-      const activeFile = app.workspace.getActiveFile();
-      if (!activeFile) {
-        console.log('No active file');
-        return;
-      }
+  const handleConvertToStoryboard = async () => {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+    
+    if (activeFile.extension === 'md') {
+      await convertFile('rename_file_extension', 'storyboard', 'STORYBOARD');
+    } else if (activeFile.extension === 'otio') {
+      await convertToStoryboard();
+    }
+  };
 
-      const currentExtension = activeFile.extension;
-      console.log('Current file extension:', currentExtension);
-      const menu = new Menu();
+  const handleConvertToMd = async () => {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+    
+    if (activeFile.extension === 'storyboard') {
+      await convertFile('rename_file_extension', 'md', 'Markdown');
+    } else if (activeFile.extension === 'otio') {
+      await convertFile('convert_otio_to_md', 'md', 'Markdown');
+    }
+  };
 
-      // 現在のファイル形式に応じて変換オプションを追加
-      if (currentExtension === 'md') {
-        menu.addItem(item =>
-          item
-            .setTitle('STORYBOARDに変換')
-            .setIcon('storyboard')
-            .onClick(async () => {
-              await convertFile('rename_file_extension', 'storyboard', 'STORYBOARD');
-            })
-        );
-        menu.addItem(item =>
-          item
-            .setTitle('OTIOに変換')
-            .setIcon('timeline')
-            .onClick(async () => {
-              await convertFile('convert_md_to_otio', 'otio', 'OTIO');
-            })
-        );
-      } else if (currentExtension === 'storyboard') {
-        menu.addItem(item =>
-          item
-            .setTitle('MDに変換')
-            .setIcon('document')
-            .onClick(async () => {
-              await convertFile('rename_file_extension', 'md', 'Markdown');
-            })
-        );
-        menu.addItem(item =>
-          item
-            .setTitle('OTIOに変換')
-            .setIcon('timeline')
-            .onClick(async () => {
-              await convertFile('convert_md_to_otio', 'otio', 'OTIO');
-            })
-        );
-      } else if (currentExtension === 'otio') {
-        menu.addItem(item =>
-          item
-            .setTitle('MDに変換')
-            .setIcon('document')
-            .onClick(async () => {
-              await convertFile('convert_otio_to_md', 'md', 'Markdown');
-            })
-        );
-        menu.addItem(item =>
-          item
-            .setTitle('STORYBOARDに変換')
-            .setIcon('storyboard')
-            .onClick(async () => {
-              await convertToStoryboard();
-            })
-        );
-      } else {
-        console.log('Unsupported file format:', currentExtension);
-        return;
-      }
-
-      console.log('Showing menu');
-      menu.showAtMouseEvent(evt.nativeEvent);
-    } catch (error) {
-      console.error('Menu display failed:', error);
+  const handleConvertToOtio = async () => {
+    const activeFile = app.workspace.getActiveFile();
+    if (!activeFile) return;
+    
+    if (activeFile.extension === 'md' || activeFile.extension === 'storyboard') {
+      await convertFile('convert_md_to_otio', 'otio', 'OTIO');
     }
   };
 
@@ -387,9 +341,23 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
             className: currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden',
           },
           {
-            icon: STORYBOARD_TOGGLE_ICON_SVG,
-            onClick: handleModeSwitch,
-            title: 'モード切替',
+            icon: STORYBOARD_ICON_SVG,
+            onClick: handleConvertToStoryboard,
+            title: 'STORYBOARDに変換',
+            variant: 'accent',
+            className: !isPsdPainterOpen ? '' : 'hidden',
+          },
+          {
+            icon: 'document',
+            onClick: handleConvertToMd,
+            title: 'MDに変換',
+            variant: 'accent',
+            className: !isPsdPainterOpen ? '' : 'hidden',
+          },
+          {
+            icon: TIMELINE_ICON_SVG,
+            onClick: handleConvertToOtio,
+            title: 'OTIOに変換',
             variant: 'accent',
             className: !isPsdPainterOpen ? '' : 'hidden',
           },
