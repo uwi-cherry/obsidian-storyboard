@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import type { OtioClip, OtioTrack } from '../../types/otio';
 
 interface DraggableTimelineTrackProps {
@@ -19,6 +19,7 @@ interface DragState {
   clipIndex: number;
   startX: number;
   startTime: number;
+  startDuration: number;
   isResizing?: boolean;
   resizeEdge?: 'left' | 'right';
 }
@@ -39,16 +40,58 @@ export default function DraggableTimelineTrack({
   const [isDragOver, setIsDragOver] = useState(false);
   const trackRef = useRef<HTMLDivElement>(null);
 
+  // グローバルマウスイベントの処理
+  useEffect(() => {
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      if (!dragState || !dragState.isDragging) return;
+      
+      const deltaX = e.clientX - dragState.startX;
+      const deltaTime = deltaX / pixelsPerSecond;
+      
+      if (dragState.isResizing) {
+        if (dragState.resizeEdge === 'left') {
+          // 左端のリサイズ：開始時間を変更し、長さを調整
+          const newStartTime = Math.max(0, dragState.startTime + deltaTime);
+          const endTime = dragState.startTime + dragState.startDuration;
+          const newDuration = Math.max(0.1, endTime - newStartTime);
+          
+          onClipChange(trackIndex, dragState.clipIndex, 'start', newStartTime.toString());
+          onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
+        } else if (dragState.resizeEdge === 'right') {
+          // 右端のリサイズ：長さのみを変更
+          const newDuration = Math.max(0.1, dragState.startDuration + deltaTime);
+          onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
+        }
+      } else {
+        // 移動：開始時間のみを変更
+        const newStartTime = Math.max(0, dragState.startTime + deltaTime);
+        onClipMove(trackIndex, dragState.clipIndex, newStartTime);
+      }
+    };
+
+    const handleGlobalMouseUp = () => {
+      setDragState(null);
+    };
+
+    if (dragState?.isDragging) {
+      document.addEventListener('mousemove', handleGlobalMouseMove);
+      document.addEventListener('mouseup', handleGlobalMouseUp);
+      
+      return () => {
+        document.removeEventListener('mousemove', handleGlobalMouseMove);
+        document.removeEventListener('mouseup', handleGlobalMouseUp);
+      };
+    }
+  }, [dragState, pixelsPerSecond, trackIndex, onClipChange, onClipMove]);
+
   const handleClipMouseDown = (e: React.MouseEvent, clipIndex: number) => {
     e.preventDefault();
     e.stopPropagation();
     
     const clip = track.children[clipIndex] as OtioClip;
     const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const clipWidth = clip.source_range.duration * pixelsPerSecond;
-    const clipLeft = clip.source_range.start_time * pixelsPerSecond;
-    const relativeX = x - clipLeft;
+    const relativeX = e.clientX - rect.left;
+    const clipWidth = rect.width;
     
     // 端から10px以内なら長さ変更、それ以外は移動
     if (relativeX < 10) {
@@ -57,6 +100,7 @@ export default function DraggableTimelineTrack({
         clipIndex,
         startX: e.clientX,
         startTime: clip.source_range.start_time,
+        startDuration: clip.source_range.duration,
         isResizing: true,
         resizeEdge: 'left'
       });
@@ -66,6 +110,7 @@ export default function DraggableTimelineTrack({
         clipIndex,
         startX: e.clientX,
         startTime: clip.source_range.start_time,
+        startDuration: clip.source_range.duration,
         isResizing: true,
         resizeEdge: 'right'
       });
@@ -74,38 +119,10 @@ export default function DraggableTimelineTrack({
         isDragging: true,
         clipIndex,
         startX: e.clientX,
-        startTime: clip.source_range.start_time
+        startTime: clip.source_range.start_time,
+        startDuration: clip.source_range.duration
       });
     }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!dragState || !dragState.isDragging) return;
-    
-    const deltaX = e.clientX - dragState.startX;
-    const deltaTime = deltaX / pixelsPerSecond;
-    
-    if (dragState.isResizing) {
-      const clip = track.children[dragState.clipIndex] as OtioClip;
-      if (dragState.resizeEdge === 'left') {
-        const newStartTime = Math.max(0, dragState.startTime + deltaTime);
-        const newDuration = clip.source_range.duration - (newStartTime - clip.source_range.start_time);
-        if (newDuration > 0.1) {
-          onClipChange(trackIndex, dragState.clipIndex, 'start', newStartTime.toString());
-          onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
-        }
-      } else if (dragState.resizeEdge === 'right') {
-        const newDuration = Math.max(0.1, clip.source_range.duration + deltaTime);
-        onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
-      }
-    } else {
-      const newStartTime = Math.max(0, dragState.startTime + deltaTime);
-      onClipMove(trackIndex, dragState.clipIndex, newStartTime);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setDragState(null);
   };
 
   const handleTrackClick = (e: React.MouseEvent) => {
@@ -143,7 +160,15 @@ export default function DraggableTimelineTrack({
     }
   };
 
-    return (
+  // カーソルスタイルを動的に決定
+  const getClipCursor = (clipIndex: number, mouseX: number) => {
+    if (dragState?.clipIndex === clipIndex && dragState.isResizing) {
+      return dragState.resizeEdge === 'left' ? 'w-resize' : 'e-resize';
+    }
+    return 'move';
+  };
+
+  return (
     <div className="flex items-center">
       <span className="text-text-normal flex-shrink-0" style={{ width: '200px' }}>{track.name}</span>
       <button 
@@ -158,9 +183,6 @@ export default function DraggableTimelineTrack({
           isDragOver ? 'border-accent border-dashed border-2' : 'border-modifier-border'
         }`}
         onClick={handleTrackClick}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
@@ -173,22 +195,36 @@ export default function DraggableTimelineTrack({
         {track.children.map((clip: OtioClip, clipIndex: number) => (
           <div
             key={clipIndex}
-            className={`absolute top-0.5 h-7 bg-secondary text-text-normal text-xs flex items-center justify-center border rounded-sm ${
+            className={`absolute top-0.5 h-7 bg-secondary text-text-normal text-xs flex items-center justify-center border rounded-sm select-none ${
               dragState?.clipIndex === clipIndex 
                 ? 'border-accent bg-accent bg-opacity-20 z-20' 
-                : 'border-modifier-border cursor-move'
+                : 'border-modifier-border'
             }`}
             style={{
               left: `${clip.source_range.start_time * pixelsPerSecond}px`,
               width: `${clip.source_range.duration * pixelsPerSecond}px`,
-              cursor: dragState?.isResizing ? (dragState.resizeEdge === 'left' ? 'w-resize' : 'e-resize') : 'move'
+              cursor: dragState?.clipIndex === clipIndex && dragState.isResizing 
+                ? (dragState.resizeEdge === 'left' ? 'w-resize' : 'e-resize') 
+                : 'move'
             }}
             onMouseDown={(e) => handleClipMouseDown(e, clipIndex)}
             title={`${clip.media_reference.target_url} (${clip.source_range.start_time}s - ${clip.source_range.start_time + clip.source_range.duration}s)`}
           >
-            <span className="px-1 truncate">
+            <span className="px-1 truncate pointer-events-none">
               {clip.media_reference.target_url.split('/').pop() || 'Untitled'}
             </span>
+            
+            {/* 左端のリサイズハンドル */}
+            <div 
+              className="absolute left-0 top-0 w-2 h-full cursor-w-resize opacity-0 hover:opacity-100 bg-accent"
+              style={{ width: '10px' }}
+            />
+            
+            {/* 右端のリサイズハンドル */}
+            <div 
+              className="absolute right-0 top-0 w-2 h-full cursor-e-resize opacity-0 hover:opacity-100 bg-accent"
+              style={{ width: '10px' }}
+            />
           </div>
         ))}
         
