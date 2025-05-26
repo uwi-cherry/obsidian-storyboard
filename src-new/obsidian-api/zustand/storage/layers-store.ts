@@ -36,15 +36,12 @@ const autoSave = new AdaptiveDebouncer(async (layers: Layer[], currentPsdFile: T
     const app = (window as any).app;
     
     if (app) {
-      console.log('💾 自動保存開始:', currentPsdFile.path);
-      
       await toolRegistry.executeTool('save_painter_file', {
         app,
         file: currentPsdFile,
         layers
       });
       
-      console.log('✅ 自動保存完了:', currentPsdFile.path);
     } else {
       console.warn('⚠️ Obsidian appインスタンスが見つかりません');
     }

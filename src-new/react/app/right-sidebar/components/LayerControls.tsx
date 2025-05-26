@@ -112,7 +112,6 @@ export default function LayerControls() {
 
   const changeOpacity = async (opacity: number) => {
     try {
-      console.log('changeOpacity: input=', opacity, 'normalized=', opacity / 100);
       await toolRegistry.executeTool('set_layer_opacity', {
         index: currentLayerIndex,
         opacity: opacity / 100
@@ -188,7 +187,6 @@ export default function LayerControls() {
             onChange={e => {
               const sliderValue = parseInt(e.target.value, 10);
               const opacity = Math.round((sliderValue / 10) ** 2);
-              console.log('LayerControls: sliderValue=', sliderValue, 'opacity=', opacity);
               changeOpacity(opacity);
             }}
             className="flex-1 h-1 bg-modifier-border rounded outline-none"

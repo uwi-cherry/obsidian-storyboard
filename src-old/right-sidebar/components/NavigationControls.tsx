@@ -35,7 +35,6 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
         try {
             // ffmpegのバージョン情報を取得
             const ffmpeg = await import('@ffmpeg/core');
-            console.log('FFmpeg version:', ffmpeg.version);
             new Notice('FFmpeg is available!');
         } catch (error) {
             console.error('FFmpeg test failed:', error);

@@ -172,20 +172,9 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         
         // ストーリーボードデータを取得（source_markdownから）
         const sourceMarkdown = projectData.timeline.metadata?.source_markdown;
-        console.log('Source markdown:', sourceMarkdown);
         if (sourceMarkdown) {
           try {
             const parsedData = parseMarkdownToStoryboard(sourceMarkdown);
-            console.log('Parsed storyboard data:', parsedData);
-            console.log('Chapters:', parsedData.chapters);
-            parsedData.chapters.forEach((chapter, idx) => {
-              console.log(`Chapter ${idx}:`, chapter);
-              console.log(`Frames:`, chapter.frames);
-              chapter.frames.forEach((frame, frameIdx) => {
-                console.log(`Frame ${frameIdx}:`, frame);
-                console.log(`startTime: ${frame.startTime}, duration: ${frame.duration}`);
-              });
-            });
             setStoryboardData(parsedData);
           } catch (error) {
             console.error('Failed to parse storyboard data:', error);

@@ -105,7 +105,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         useLayersStore.getState().initializeLayers(layers);
         useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
         
-        console.log('✅ PSDファイルのレイヤーを読み込みました:', currentPsdFile.path, layers.length, 'layers');
       } catch (error) {
         console.error('❌ PSDファイルの読み込みに失敗しました:', error);
       }
