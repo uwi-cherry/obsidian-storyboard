@@ -328,28 +328,28 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
           className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
           title={t('OPEN_PSD')}
         >
-          psd (open)
+          .psd (open)
         </button>
         <button
           onClick={handleConvertToMd}
           className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!isPsdPainterOpen ? '' : 'hidden'}`}
           title="MDに変換"
         >
-          md
+          .md
         </button>
         <button
           onClick={handleConvertToStoryboard}
           className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!isPsdPainterOpen ? '' : 'hidden'}`}
           title="STORYBOARDに変換"
         >
-          storyboard
+          .storyboard
         </button>
         <button
           onClick={handleConvertToOtio}
           className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!isPsdPainterOpen ? '' : 'hidden'}`}
           title="OTIOに変換"
         >
-          otio
+          .otio
         </button>
       </div>
       <div className="flex gap-2">
