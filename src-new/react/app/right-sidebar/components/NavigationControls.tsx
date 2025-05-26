@@ -6,14 +6,6 @@ import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboar
 import { toggleStoryboardViewTool } from '../../../../service-api/api/storyboard-tool/toggle-storyboard-view';
 import { useSelectedRowIndexStore } from '../../../../obsidian-api/zustand/store/selected-row-index-store';
 import { useSelectedFrameStore } from '../../../../obsidian-api/zustand/store/selected-frame-store';
-import IconButtonGroup from '../../../components/IconButtonGroup';
-import {
-  PSD_ICON_SVG,
-  PAINTER_ICON_SVG,
-  STORYBOARD_TOGGLE_ICON_SVG,
-  STORYBOARD_ICON_SVG,
-  TIMELINE_ICON_SVG,
-} from '../../../../constants/icons';
 
 interface NavigationControlsProps {
   isPsdPainterOpen: boolean;
@@ -323,58 +315,52 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
 
   return (
     <div className="flex flex-col gap-2 mb-4">
-      <IconButtonGroup
-        gap="gap-2"
-        buttons={[
-          {
-            icon: PSD_ICON_SVG,
-            onClick: handleCreateNewPsd,
-            title: t('CREATE_PSD'),
-            variant: 'accent',
-            className: !currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden',
-          },
-          {
-            icon: PAINTER_ICON_SVG,
-            onClick: onOpenPsdPainter,
-            title: t('OPEN_PSD'),
-            variant: 'accent',
-            className: currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden',
-          },
-          {
-            icon: STORYBOARD_ICON_SVG,
-            onClick: handleConvertToStoryboard,
-            title: 'STORYBOARDに変換',
-            variant: 'accent',
-            className: !isPsdPainterOpen ? '' : 'hidden',
-          },
-          {
-            icon: 'document',
-            onClick: handleConvertToMd,
-            title: 'MDに変換',
-            variant: 'accent',
-            className: !isPsdPainterOpen ? '' : 'hidden',
-          },
-          {
-            icon: TIMELINE_ICON_SVG,
-            onClick: handleConvertToOtio,
-            title: 'OTIOに変換',
-            variant: 'accent',
-            className: !isPsdPainterOpen ? '' : 'hidden',
-          },
-        ]}
-      />
-      <IconButtonGroup
-        gap="gap-2"
-        buttons={[
-          {
-            icon: STORYBOARD_ICON_SVG,
-            onClick: onBackToStoryboard,
-            title: t('BACK_TO_STORYBOARD'),
-            variant: 'accent',
-            className: isPsdPainterOpen ? '' : 'hidden',
-          },
-        ]}
-      />
+      <div className="flex gap-2">
+        <button
+          onClick={handleCreateNewPsd}
+          className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
+          title={t('CREATE_PSD')}
+        >
+          psd (new)
+        </button>
+        <button
+          onClick={onOpenPsdPainter}
+          className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
+          title={t('OPEN_PSD')}
+        >
+          psd (open)
+        </button>
+        <button
+          onClick={handleConvertToMd}
+          className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!isPsdPainterOpen ? '' : 'hidden'}`}
+          title="MDに変換"
+        >
+          md
+        </button>
+        <button
+          onClick={handleConvertToStoryboard}
+          className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!isPsdPainterOpen ? '' : 'hidden'}`}
+          title="STORYBOARDに変換"
+        >
+          storyboard
+        </button>
+        <button
+          onClick={handleConvertToOtio}
+          className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!isPsdPainterOpen ? '' : 'hidden'}`}
+          title="OTIOに変換"
+        >
+          otio
+        </button>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={onBackToStoryboard}
+          className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${isPsdPainterOpen ? '' : 'hidden'}`}
+          title={t('BACK_TO_STORYBOARD')}
+        >
+          .storyboard
+        </button>
+      </div>
     </div>
   );
 }; 
