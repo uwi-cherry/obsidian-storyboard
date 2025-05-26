@@ -154,10 +154,14 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
       const imageFile = app.vault.getAbstractFileByPath(path);
       if (imageFile instanceof TFile) {
         try {
+          const storyboardDir = app.workspace.getActiveFile()?.parent?.path || '';
+          const psdDir = storyboardDir ? `${storyboardDir}/psd` : undefined;
           
           const result = await toolRegistry.executeTool('create_painter_file', { 
             app, 
-            imageFile 
+            imageFile,
+            targetDir: psdDir,
+            baseFileName: imageFile.basename
           });
           const parsedResult = JSON.parse(result);
           path = parsedResult.filePath;
@@ -175,7 +179,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     setThumbnail(null);
     lastModifiedRef.current = null;
     
-    onImageUrlChange('');
+    onImageUrlChange(null);
   };
 
   const handleAiGenerate = async () => {
