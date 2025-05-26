@@ -22,6 +22,8 @@ interface DragState {
   startDuration: number;
   isResizing?: boolean;
   resizeEdge?: 'left' | 'right';
+  currentStartTime?: number;
+  currentDuration?: number;
 }
 
 export default function DraggableTimelineTrack({
@@ -55,21 +57,45 @@ export default function DraggableTimelineTrack({
           const newStartTime = Math.max(0, Math.min(fixedEndTime - 0.1, dragState.startTime + deltaTime));
           const newDuration = fixedEndTime - newStartTime;
           
-          onClipChange(trackIndex, dragState.clipIndex, 'start', newStartTime.toString());
-          onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
+          setDragState(prev => prev ? {
+            ...prev,
+            currentStartTime: newStartTime,
+            currentDuration: newDuration
+          } : null);
         } else if (dragState.resizeEdge === 'right') {
           // 右端のリサイズ：左端（開始時間）を固定し、長さを変更
           const newDuration = Math.max(0.1, dragState.startDuration + deltaTime);
-          onClipChange(trackIndex, dragState.clipIndex, 'duration', newDuration.toString());
+          setDragState(prev => prev ? {
+            ...prev,
+            currentDuration: newDuration
+          } : null);
         }
       } else {
         // 移動：開始時間のみを変更
         const newStartTime = Math.max(0, dragState.startTime + deltaTime);
-        onClipMove(trackIndex, dragState.clipIndex, newStartTime);
+        setDragState(prev => prev ? {
+          ...prev,
+          currentStartTime: newStartTime
+        } : null);
       }
     };
 
     const handleGlobalMouseUp = () => {
+      if (dragState && dragState.isDragging) {
+        // ドラッグ終了時に実際の値を更新
+        if (dragState.isResizing) {
+          if (dragState.currentStartTime !== undefined) {
+            onClipChange(trackIndex, dragState.clipIndex, 'start', dragState.currentStartTime.toString());
+          }
+          if (dragState.currentDuration !== undefined) {
+            onClipChange(trackIndex, dragState.clipIndex, 'duration', dragState.currentDuration.toString());
+          }
+        } else {
+          if (dragState.currentStartTime !== undefined) {
+            onClipMove(trackIndex, dragState.clipIndex, dragState.currentStartTime);
+          }
+        }
+      }
       setDragState(null);
     };
 
@@ -104,7 +130,7 @@ export default function DraggableTimelineTrack({
         isResizing: true,
         resizeEdge: 'left'
       });
-    } else if (relativeX > clipWidth - 10) {
+          } else if (relativeX > clipWidth - 10) {
       setDragState({
         isDragging: true,
         clipIndex,
@@ -114,7 +140,7 @@ export default function DraggableTimelineTrack({
         isResizing: true,
         resizeEdge: 'right'
       });
-    } else {
+          } else {
       setDragState({
         isDragging: true,
         clipIndex,
@@ -192,7 +218,17 @@ export default function DraggableTimelineTrack({
           style={{ left: `${currentTime * pixelsPerSecond}px` }}
         />
         
-        {track.children.map((clip: OtioClip, clipIndex: number) => (
+        {track.children.map((clip: OtioClip, clipIndex: number) => {
+          // ドラッグ中の場合は一時的な値を使用
+          const isDraggingThis = dragState?.clipIndex === clipIndex && dragState?.isDragging;
+          const displayStartTime = isDraggingThis && dragState.currentStartTime !== undefined 
+            ? dragState.currentStartTime 
+            : clip.source_range.start_time;
+          const displayDuration = isDraggingThis && dragState.currentDuration !== undefined 
+            ? dragState.currentDuration 
+            : clip.source_range.duration;
+          
+          return (
           <div
             key={clipIndex}
             className={`absolute top-0.5 h-7 bg-secondary text-text-normal text-xs flex items-center justify-center border rounded-sm select-none ${
@@ -201,8 +237,8 @@ export default function DraggableTimelineTrack({
                 : 'border-modifier-border'
             }`}
             style={{
-              left: `${clip.source_range.start_time * pixelsPerSecond}px`,
-              width: `${clip.source_range.duration * pixelsPerSecond}px`,
+              left: `${displayStartTime * pixelsPerSecond}px`,
+              width: `${displayDuration * pixelsPerSecond}px`,
               cursor: dragState?.clipIndex === clipIndex && dragState.isResizing 
                 ? (dragState.resizeEdge === 'left' ? 'w-resize' : 'e-resize') 
                 : 'move'
@@ -216,17 +252,46 @@ export default function DraggableTimelineTrack({
             
             {/* 左端のリサイズハンドル */}
             <div 
-              className="absolute left-0 top-0 w-2 h-full cursor-w-resize opacity-0 hover:opacity-100 bg-accent"
+              className="absolute left-0 top-0 h-full cursor-w-resize opacity-0 hover:opacity-100 bg-accent z-30"
               style={{ width: '10px' }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                setDragState({
+                  isDragging: true,
+                  clipIndex,
+                  startX: e.clientX,
+                  startTime: clip.source_range.start_time,
+                  startDuration: clip.source_range.duration,
+                  isResizing: true,
+                  resizeEdge: 'left'
+                });
+              }}
             />
             
             {/* 右端のリサイズハンドル */}
             <div 
-              className="absolute right-0 top-0 w-2 h-full cursor-e-resize opacity-0 hover:opacity-100 bg-accent"
+              className="absolute right-0 top-0 h-full cursor-e-resize opacity-0 hover:opacity-100 bg-accent z-30"
               style={{ width: '10px' }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                setDragState({
+                  isDragging: true,
+                  clipIndex,
+                  startX: e.clientX,
+                  startTime: clip.source_range.start_time,
+                  startDuration: clip.source_range.duration,
+                  isResizing: true,
+                  resizeEdge: 'right'
+                });
+              }}
             />
           </div>
-        ))}
+          );
+        })}
         
         {isDragOver && (
           <div className="absolute inset-0 flex items-center justify-center bg-accent bg-opacity-10 border-2 border-dashed border-accent">
