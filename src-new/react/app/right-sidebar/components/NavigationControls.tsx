@@ -4,6 +4,14 @@ import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
 import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboard-factory';
 import { toggleStoryboardViewTool } from '../../../../service-api/api/storyboard-tool/toggle-storyboard-view';
+import IconButtonGroup from '../../../components/IconButtonGroup';
+import {
+  PSD_ICON_SVG,
+  PAINTER_ICON_SVG,
+  STORYBOARD_TOGGLE_ICON_SVG,
+  STORYBOARD_ICON_SVG,
+  TIMELINE_ICON_SVG,
+} from '../../../../constants/icons';
 
 interface NavigationControlsProps {
   isPsdPainterOpen: boolean;
@@ -310,42 +318,52 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
   };
 
   return (
-    <div className="flex gap-2 flex-col mb-4">
-      <div className="flex gap-2">
-        <button
-          className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${!currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
-          onClick={handleCreateNewPsd}
-        >
-          {t('CREATE_PSD')}
-        </button>
-        <button
-          className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
-          onClick={onOpenPsdPainter}
-        >
-          {t('OPEN_PSD')}
-        </button>
-        <button
-          className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${!isPsdPainterOpen ? '' : 'hidden'}`}
-          onClick={handleModeSwitch}
-        >
-          モード切替
-        </button>
-      </div>
-
-      <div className="flex gap-2">
-        <button
-          className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${isPsdPainterOpen ? '' : 'hidden'}`}
-          onClick={onBackToStoryboard}
-        >
-          {t('BACK_TO_STORYBOARD')}
-        </button>
-        <button
-          className={`flex-1 p-1 bg-accent text-on-accent rounded cursor-pointer text-xs hover:bg-accent-hover ${isPsdPainterOpen ? '' : 'hidden'}`}
-          onClick={onExportImage}
-        >
-          {t('EXPORT_IMAGE')}
-        </button>
-      </div>
+    <div className="flex flex-col gap-2 mb-4">
+      <IconButtonGroup
+        gap="gap-2"
+        buttons={[
+          {
+            icon: PSD_ICON_SVG,
+            onClick: handleCreateNewPsd,
+            title: t('CREATE_PSD'),
+            variant: 'accent',
+            className: !currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden',
+          },
+          {
+            icon: PAINTER_ICON_SVG,
+            onClick: onOpenPsdPainter,
+            title: t('OPEN_PSD'),
+            variant: 'accent',
+            className: currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden',
+          },
+          {
+            icon: STORYBOARD_TOGGLE_ICON_SVG,
+            onClick: handleModeSwitch,
+            title: 'モード切替',
+            variant: 'accent',
+            className: !isPsdPainterOpen ? '' : 'hidden',
+          },
+        ]}
+      />
+      <IconButtonGroup
+        gap="gap-2"
+        buttons={[
+          {
+            icon: STORYBOARD_ICON_SVG,
+            onClick: onBackToStoryboard,
+            title: t('BACK_TO_STORYBOARD'),
+            variant: 'accent',
+            className: isPsdPainterOpen ? '' : 'hidden',
+          },
+          {
+            icon: TIMELINE_ICON_SVG,
+            onClick: onExportImage,
+            title: t('EXPORT_IMAGE'),
+            variant: 'accent',
+            className: isPsdPainterOpen ? '' : 'hidden',
+          },
+        ]}
+      />
     </div>
   );
 }; 

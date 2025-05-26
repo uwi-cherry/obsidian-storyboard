@@ -111,14 +111,19 @@ const EditableTable = <T,>({
     window.removeEventListener('mouseup', handleMouseUp);
   };
 
+  const totalWidth = colWidths.reduce((sum, w) => sum + (w || 0), 0) || 1;
+
   return (
-    <div className="overflow-x-auto">
-      <table className="border-collapse border border-modifier-border mb-0" style={{ width: 'max-content', minWidth: '100%' }}>
+    <div>
+      <table className="border-collapse border border-modifier-border mb-0 w-full table-fixed">
         <colgroup>
           {columns.map((col, i) => (
-            <col key={String(col.key)} style={colWidths[i] ? { width: colWidths[i] + 'px', minWidth: '80px' } : { width: '300px', minWidth: '80px' }} />
+            <col
+              key={String(col.key)}
+              style={{ width: ((colWidths[i] || 0) / totalWidth) * 100 + '%' }}
+            />
           ))}
-          <col style={{ width: '40px', minWidth: '40px' }} />
+          <col style={{ width: '40px' }} />
         </colgroup>
         <thead>
           {headerTop}
@@ -126,8 +131,8 @@ const EditableTable = <T,>({
             {columns.map((col, i) => (
               <th
                 key={String(col.key)}
-                className={`border border-modifier-border px-4 py-2 text-left relative group select-none ${colWidths[i] ? `w-[${colWidths[i]}px] min-w-[80px]` : ''}`}
-                style={colWidths[i] ? { width: colWidths[i] + 'px', minWidth: '80px' } : {}}
+                className="border border-modifier-border px-4 py-2 text-left relative group select-none"
+                style={{ width: ((colWidths[i] || 0) / totalWidth) * 100 + '%' }}
               >
                 <div className="flex items-center justify-between">
                   <span>{col.header}</span>
