@@ -229,21 +229,28 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   const handleClipChange = (tIdx: number, cIdx: number, field: 'path' | 'start' | 'duration', value: string) => {
     if (!project) return;
     
-    const newProject = JSON.parse(JSON.stringify(project)) as OtioProject;
-    const clip = newProject.timeline.tracks[tIdx].children[cIdx] as OtioClip;
-    
-    if (field === 'path') {
-      clip.media_reference.target_url = value;
-      clip.media_reference.name = value.split('/').pop() || 'Untitled';
-      clip.name = clip.media_reference.name;
-    } else if (field === 'start') {
-      clip.source_range.start_time = parseFloat(value) || 0;
-    } else {
-      clip.source_range.duration = parseFloat(value) || 0;
-    }
-    
-    setProject(newProject);
-    handleProjectChange(newProject);
+    // 最新のprojectを使用して更新を行う
+    setProject(currentProject => {
+      if (!currentProject) return currentProject;
+      
+      const newProject = JSON.parse(JSON.stringify(currentProject)) as OtioProject;
+      const clip = newProject.timeline.tracks[tIdx].children[cIdx] as OtioClip;
+      
+      if (field === 'path') {
+        clip.media_reference.target_url = value;
+        clip.media_reference.name = value.split('/').pop() || 'Untitled';
+        clip.name = clip.media_reference.name;
+      } else if (field === 'start') {
+        clip.source_range.start_time = parseFloat(value) || 0;
+      } else {
+        clip.source_range.duration = parseFloat(value) || 0;
+      }
+      
+      // 非同期でファイル保存を実行（状態更新とは分離）
+      handleProjectChange(newProject);
+      
+      return newProject;
+    });
   };
 
   const handleAddClip = (tIdx: number) => {
@@ -278,6 +285,24 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     
     setProject(newProject);
     handleProjectChange(newProject);
+  };
+
+  const handleClipResize = (trackIdx: number, clipIdx: number, newStartTime: number, newDuration: number) => {
+    if (!project) return;
+    
+    setProject(currentProject => {
+      if (!currentProject) return currentProject;
+      
+      const newProject = JSON.parse(JSON.stringify(currentProject)) as OtioProject;
+      const clip = newProject.timeline.tracks[trackIdx].children[clipIdx] as OtioClip;
+      clip.source_range.start_time = newStartTime;
+      clip.source_range.duration = newDuration;
+      
+      // 非同期でファイル保存を実行
+      handleProjectChange(newProject);
+      
+      return newProject;
+    });
   };
 
   const handleFileDrop = (trackIdx: number, files: FileList, dropTime: number) => {
@@ -358,6 +383,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
             pixelsPerSecond={pixelsPerSecond}
             onClipChange={handleClipChange}
             onClipMove={handleClipMove}
+            onClipResize={handleClipResize}
             onAddClip={handleAddClip}
             onTimeSeek={setCurrentTime}
             onFileDrop={handleFileDrop}
@@ -400,6 +426,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           pixelsPerSecond={pixelsPerSecond}
           onClipChange={() => {}}
           onClipMove={() => {}}
+          onClipResize={() => {}}
           onAddClip={() => {}}
           onTimeSeek={setCurrentTime}
         />
@@ -432,6 +459,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           pixelsPerSecond={pixelsPerSecond}
           onClipChange={() => {}}
           onClipMove={() => {}}
+          onClipResize={() => {}}
           onAddClip={() => {}}
           onTimeSeek={setCurrentTime}
         />
