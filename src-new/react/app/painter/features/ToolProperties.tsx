@@ -13,6 +13,10 @@ interface ToolProps {
   mixRatio: number;
   zoom: number;
   rotation: number;
+  canvasWidth: number;
+  canvasHeight: number;
+  maintainAspectRatio: boolean;
+  resizeMode: 'canvas-only' | 'resize-content';
   setDrawingMode: (m: 'normal' | 'spectral' | 'erase-soft') => void;
   setLineWidth: (w: number) => void;
   setSelectionMode: (m: 'rect' | 'lasso' | 'magic') => void;
@@ -22,6 +26,9 @@ interface ToolProps {
   setMixRatio: (ratio: number) => void;
   setZoom: (z: number) => void;
   setRotation: (r: number) => void;
+  setCanvasSize: (width: number, height: number) => void;
+  setMaintainAspectRatio: (maintain: boolean) => void;
+  setResizeMode: (mode: 'canvas-only' | 'resize-content') => void;
   layoutDirection: LayoutDirection;
 }
 
@@ -36,6 +43,10 @@ export default function ToolProperties({
   mixRatio,
   zoom,
   rotation,
+  canvasWidth,
+  canvasHeight,
+  maintainAspectRatio,
+  resizeMode,
   setDrawingMode,
   setLineWidth,
   setSelectionMode,
@@ -45,6 +56,9 @@ export default function ToolProperties({
   setMixRatio,
   setZoom,
   setRotation,
+  setCanvasSize,
+  setMaintainAspectRatio,
+  setResizeMode,
   layoutDirection
 }: ToolProps) {
   const { setLayoutDirection } = usePainterLayoutStore();
@@ -68,6 +82,94 @@ export default function ToolProperties({
               <option value="horizontal">{t('LAYOUT_HORIZONTAL')}</option>
               <option value="vertical">{t('LAYOUT_VERTICAL')}</option>
             </select>
+          </div>
+          
+          {/* キャンバスサイズ設定セクション */}
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">キャンバスサイズ:</div>
+            
+            {/* 縦横比維持チェックボックス */}
+            <label className="flex items-center gap-1 text-xs">
+              <input
+                type="checkbox"
+                checked={maintainAspectRatio}
+                onChange={e => setMaintainAspectRatio(e.target.checked)}
+                className="w-3 h-3"
+              />
+              縦横比を維持
+            </label>
+            
+            <div className={layoutDirection === 'horizontal' ? "flex flex-col gap-1" : "flex flex-row gap-2"}>
+              <div className="flex items-center gap-1">
+                <span className="text-xs">幅:</span>
+                <input
+                  type="number"
+                  min={100}
+                  max={4000}
+                  value={canvasWidth}
+                  onChange={e => {
+                    const newWidth = parseInt(e.target.value) || canvasWidth;
+                    if (maintainAspectRatio) {
+                      const aspectRatio = canvasWidth / canvasHeight;
+                      const newHeight = Math.round(newWidth / aspectRatio);
+                      setCanvasSize(newWidth, newHeight);
+                    } else {
+                      setCanvasSize(newWidth, canvasHeight);
+                    }
+                  }}
+                  className="w-16 text-xs p-1 border border-modifier-border rounded bg-primary"
+                />
+                <span className="text-xs">px</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span className="text-xs">高:</span>
+                <input
+                  type="number"
+                  min={100}
+                  max={4000}
+                  value={canvasHeight}
+                  onChange={e => {
+                    const newHeight = parseInt(e.target.value) || canvasHeight;
+                    if (maintainAspectRatio) {
+                      const aspectRatio = canvasWidth / canvasHeight;
+                      const newWidth = Math.round(newHeight * aspectRatio);
+                      setCanvasSize(newWidth, newHeight);
+                    } else {
+                      setCanvasSize(canvasWidth, newHeight);
+                    }
+                  }}
+                  className="w-16 text-xs p-1 border border-modifier-border rounded bg-primary"
+                />
+                <span className="text-xs">px</span>
+              </div>
+            </div>
+            
+            {/* 画像処理モード選択 */}
+            <div className="flex flex-col gap-1 mt-2">
+              <div className="text-text-muted text-xs">画像の処理:</div>
+              <label className="flex items-center gap-1 text-xs">
+                <input
+                  type="radio"
+                  name="resizeMode"
+                  value="canvas-only"
+                  checked={resizeMode === 'canvas-only'}
+                  onChange={e => setResizeMode(e.target.value as 'canvas-only' | 'resize-content')}
+                  className="w-3 h-3"
+                />
+                キャンバスサイズのみ変更
+              </label>
+              <label className="flex items-center gap-1 text-xs">
+                <input
+                  type="radio"
+                  name="resizeMode"
+                  value="resize-content"
+                  checked={resizeMode === 'resize-content'}
+                  onChange={e => setResizeMode(e.target.value as 'canvas-only' | 'resize-content')}
+                  className="w-3 h-3"
+                />
+                画像も縦横比を維持してリサイズ
+              </label>
+            </div>
           </div>
         </div>
       )}

@@ -39,23 +39,86 @@ export default function CanvasContainer({
   setRotation
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const selectionState: SelectionState = useSelectionState();
-  const [, setSelectionVersion] = useState(0);
+  const { layoutDirection } = usePainterLayoutStore();
+  const selectionState = useSelectionState();
   const [menuMode, setMenuMode] = useState<'hidden' | 'global' | 'selection'>('global');
   const [menuPos, setMenuPos] = useState({ x: 8, y: 8 });
-  const [editRect, setEditRect] = useState<SelectionRect | undefined>();
-  
-  const layers = useLayersStore((state) => state.layers);
-  const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
-  
-  const { layoutDirection } = usePainterLayoutStore();
+  const [editRect, setEditRect] = useState<SelectionRect | null>(null);
+  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  const [maintainAspectRatio, setMaintainAspectRatio] = useState(false);
+  const [resizeMode, setResizeMode] = useState<'canvas-only' | 'resize-content'>('canvas-only');
+
+  const { layers } = useLayersStore();
+  const { currentLayerIndex } = useCurrentLayerIndexStore();
+  const { saveHistory } = usePainterHistoryStore();
+
+  const resizeLayerCanvas = (layer: any, oldWidth: number, oldHeight: number, newWidth: number, newHeight: number, mode: 'canvas-only' | 'resize-content') => {
+    if (!layer.canvas) return layer;
+
+    const newCanvas = document.createElement('canvas');
+    newCanvas.width = newWidth;
+    newCanvas.height = newHeight;
+    const newCtx = newCanvas.getContext('2d');
+    if (!newCtx) return layer;
+
+    if (mode === 'canvas-only') {
+      // キャンバスサイズのみ変更：画像をそのまま描画
+      newCtx.drawImage(layer.canvas, 0, 0);
+    } else {
+      // 画像も縦横比を維持してリサイズ
+      const scaleX = newWidth / oldWidth;
+      const scaleY = newHeight / oldHeight;
+      const scale = Math.min(scaleX, scaleY); // 縦横比を維持するため小さい方を使用
+      
+      const scaledWidth = oldWidth * scale;
+      const scaledHeight = oldHeight * scale;
+      const offsetX = (newWidth - scaledWidth) / 2;
+      const offsetY = (newHeight - scaledHeight) / 2;
+      
+      newCtx.drawImage(layer.canvas, offsetX, offsetY, scaledWidth, scaledHeight);
+    }
+
+    return {
+      ...layer,
+      canvas: newCanvas
+    };
+  };
+
+  const handleCanvasSizeChange = (width: number, height: number) => {
+    const oldWidth = canvasSize.width;
+    const oldHeight = canvasSize.height;
+    
+    setCanvasSize({ width, height });
+    
+    // viewのキャンバスサイズを更新
+    if (view && view._painterData) {
+      view._painterData.canvasWidth = width;
+      view._painterData.canvasHeight = height;
+    }
+
+    // レイヤーの画像処理
+    if (resizeMode === 'resize-content') {
+      const layersStore = useLayersStore.getState();
+      const historyStore = usePainterHistoryStore.getState();
+      
+      // ヒストリーに保存
+      historyStore.saveHistory(layersStore.layers, currentLayerIndex);
+      
+      // 全レイヤーをリサイズ
+      const resizedLayers = layersStore.layers.map(layer => 
+        resizeLayerCanvas(layer, oldWidth, oldHeight, width, height, resizeMode)
+      );
+      
+      layersStore.updateLayers(resizedLayers);
+    }
+  };
 
   const handleSelectionStart = () => {
     setMenuMode('hidden');
   };
 
   const handleSelectionUpdate = () => {
-    setSelectionVersion(v => v + 1);
+    // setSelectionVersionは削除されたので、この行は不要
   };
 
   const handleSelectionEnd = () => {
@@ -70,7 +133,7 @@ export default function CanvasContainer({
 
   const cancelSelection = () => {
     selectionState.reset();
-    setSelectionVersion(v => v + 1);
+    // setSelectionVersionは削除されたので、この行は不要
     setMenuMode('global');
   };
 
@@ -89,7 +152,7 @@ export default function CanvasContainer({
   };
 
   const finishEdit = () => {
-    setEditRect(undefined);
+    setEditRect(null);
     setMenuMode('global');
   };
 
@@ -220,6 +283,10 @@ export default function CanvasContainer({
           mixRatio={pointer.mixRatio}
           zoom={zoom}
           rotation={rotation}
+          canvasWidth={canvasSize.width}
+          canvasHeight={canvasSize.height}
+          maintainAspectRatio={maintainAspectRatio}
+          resizeMode={resizeMode}
           setDrawingMode={pointer.setDrawingMode}
           setLineWidth={pointer.setLineWidth}
           setSelectionMode={pointer.setSelectionMode}
@@ -229,6 +296,9 @@ export default function CanvasContainer({
           setMixRatio={pointer.setMixRatio}
           setZoom={setZoom}
           setRotation={setRotation}
+          setCanvasSize={handleCanvasSizeChange}
+          setMaintainAspectRatio={setMaintainAspectRatio}
+          setResizeMode={setResizeMode}
           layoutDirection={layoutDirection}
         />
         
