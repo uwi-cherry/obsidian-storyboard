@@ -18,7 +18,6 @@ interface NavigationControlsProps {
   currentImageUrl: string | null;
   onBackToStoryboard: () => void;
   onOpenPsdPainter: () => void;
-  onExportImage: () => void;
   app: App;
   onImageUrlChange: (newUrl: string | null) => void;
 }
@@ -28,7 +27,6 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
   currentImageUrl,
   onBackToStoryboard,
   onOpenPsdPainter,
-  onExportImage,
   app,
   onImageUrlChange,
 }) => {
@@ -322,13 +320,6 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
             icon: STORYBOARD_ICON_SVG,
             onClick: onBackToStoryboard,
             title: t('BACK_TO_STORYBOARD'),
-            variant: 'accent',
-            className: isPsdPainterOpen ? '' : 'hidden',
-          },
-          {
-            icon: TIMELINE_ICON_SVG,
-            onClick: onExportImage,
-            title: t('EXPORT_IMAGE'),
             variant: 'accent',
             className: isPsdPainterOpen ? '' : 'hidden',
           },

@@ -96,4 +96,7 @@ export interface I18nStrings {
   BLEND_MODE_COLOR: string;
   BLEND_MODE_LUMINOSITY: string;
   CLIPPING_MASK: string;
+  EDIT_MENU: string;
+  FILE_MENU: string;
+  EXPORT_MERGED_IMAGE: string;
 }

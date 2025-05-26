@@ -1,4 +1,4 @@
-import { FileView, TFile, WorkspaceLeaf } from 'obsidian';
+import { FileView, TFile, WorkspaceLeaf, Menu } from 'obsidian';
 import { Root } from 'react-dom/client';
 import { t } from '../../constants/obsidian-i18n';
 import { toolRegistry } from '../../service-api/core/tool-registry';
@@ -27,25 +27,44 @@ export class PainterView extends FileView {
   }
 
   async setState(state: { file: string | null }) {
-      const redoBtn = this.addAction('arrow-right', t('REDO'), async () => {
-        try {
-          await toolRegistry.executeTool('redo_painter', {});
-        } catch (error) {
-          console.error(error);
-        }
-      }) as HTMLElement;
-    redoBtn.querySelector('svg')?.remove();
-    redoBtn.textContent = t('REDO');
+    const editBtn = this.addAction('', t('EDIT_MENU'), async (evt) => {
+      const menu = new Menu();
+      menu.addItem((item) =>
+        item.setTitle(t('UNDO')).onClick(async () => {
+          try {
+            await toolRegistry.executeTool('undo_painter', {});
+          } catch (error) {
+            console.error(error);
+          }
+        })
+      );
+      menu.addItem((item) =>
+        item.setTitle(t('REDO')).onClick(async () => {
+          try {
+            await toolRegistry.executeTool('redo_painter', {});
+          } catch (error) {
+            console.error(error);
+          }
+        })
+      );
+      menu.showAtMouseEvent(evt);
+    }) as HTMLElement;
+    editBtn.querySelector('svg')?.remove();
+    editBtn.textContent = t('EDIT_MENU');
 
-      const undoBtn = this.addAction('arrow-left', t('UNDO'), async () => {
-        try {
-          await toolRegistry.executeTool('undo_painter', {});
-        } catch (error) {
-          console.error(error);
-        }
-      }) as HTMLElement;
-    undoBtn.querySelector('svg')?.remove();
-    undoBtn.textContent = t('UNDO');
+    const fileBtn = this.addAction('', t('FILE_MENU'), async (evt) => {
+      const menu = new Menu();
+      menu.addItem((item) =>
+        item
+          .setTitle(t('EXPORT_MERGED_IMAGE'))
+          .onClick(() => {
+            // TODO: implement export logic
+          })
+      );
+      menu.showAtMouseEvent(evt);
+    }) as HTMLElement;
+    fileBtn.querySelector('svg')?.remove();
+    fileBtn.textContent = t('FILE_MENU');
 
     if (!state.file) {
       return;
