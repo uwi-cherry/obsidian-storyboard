@@ -22,7 +22,7 @@ export default function ColorProperties({ color, setColor, layoutDirection }: Co
 
   const containerClass = layoutDirection === 'horizontal'
     ? 'p-2 bg-secondary border-r border-modifier-border w-[250px] flex flex-col items-center gap-2'
-    : 'p-2 bg-secondary border-r border-modifier-border h-[120px] flex flex-row items-center gap-2';
+    : 'p-2 bg-secondary border-b border-modifier-border flex flex-row items-center gap-2';
 
   const handleWheelChange = (h: number, s: number, l: number) => {
     setHsl({ h, s: s * 100, l });

@@ -51,17 +51,17 @@ export default function ToolProperties({
 
   const containerClass = layoutDirection === 'horizontal'
     ? "p-2 bg-secondary border-r border-modifier-border w-[250px] flex flex-col gap-2"
-    : "p-2 bg-secondary border-r border-modifier-border h-[80px] flex flex-row gap-4 items-center";
+    : "p-2 bg-secondary border-b border-modifier-border flex flex-row gap-4 items-center flex-wrap";
 
   return (
     <div className={containerClass}>
       {tool === 'settings' && (
-        <div className="flex flex-col gap-2">
+        <div className={layoutDirection === 'horizontal' ? "flex flex-col gap-2" : "flex flex-row gap-2 items-center"}>
           {/* レイアウト設定セクション */}
           <div className="flex flex-col gap-1">
             <div className="text-text-muted text-xs">{t('LAYOUT_SETTINGS')}:</div>
             <select
-              className="w-full text-xs p-1 border border-modifier-border rounded bg-primary"
+              className={layoutDirection === 'horizontal' ? "w-full text-xs p-1 border border-modifier-border rounded bg-primary" : "text-xs p-1 border border-modifier-border rounded bg-primary"}
               value={layoutDirection}
               onChange={e => setLayoutDirection(e.target.value as LayoutDirection)}
             >

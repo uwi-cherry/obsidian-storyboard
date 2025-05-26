@@ -31,7 +31,7 @@ const ActionProperties: React.FC<ActionPropertiesProps> = ({
   } else {
     containerClasses = layoutDirection === 'horizontal'
       ? `${baseClasses} border-r border-l-0 border-t-0 border-b-0 w-[250px] flex-col`
-      : `${baseClasses} border-r border-l-0 border-t-0 border-b-0 h-[80px] flex-row items-center`;
+      : `${baseClasses} border-b border-l-0 border-t-0 border-r-0 flex-row items-center`;
   }
 
   const buttonClasses = "px-2 py-1 text-xs bg-primary hover:bg-modifier-hover text-text-normal rounded border-none cursor-pointer";
