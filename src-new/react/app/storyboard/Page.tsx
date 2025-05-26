@@ -120,10 +120,15 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
     targetDir?: string
   ): Promise<TFile> => {
     try {
+      // ストーリーボードのディレクトリを取得
+      const storyboardDir = targetDir || app.workspace.getActiveFile()?.parent?.path || '';
+      const psdDir = storyboardDir ? `${storyboardDir}/psd` : undefined;
       
       const result = await toolRegistry.executeTool('create_painter_file', { 
         app, 
-        imageFile 
+        imageFile,
+        targetDir: psdDir,
+        baseFileName: imageFile ? imageFile.basename : 'untitled-illustration'
       });
       const parsedResult = JSON.parse(result);
       
@@ -257,6 +262,27 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   // 選択されたフレームの変更を監視してストーリーボードのデータを更新
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
   const selectedRowIndex = useSelectedRowIndexStore((state) => state.selectedRowIndex);
+
+  // selectedFrameが変更された時にストーリーボードのデータを更新
+  useEffect(() => {
+    if (selectedFrame && selectedRowIndex !== null) {
+      let globalIndex = 0;
+      for (let chapterIndex = 0; chapterIndex < storyboard.chapters.length; chapterIndex++) {
+        const chapter = storyboard.chapters[chapterIndex];
+        for (let frameIndex = 0; frameIndex < chapter.frames.length; frameIndex++) {
+          if (globalIndex === selectedRowIndex) {
+            // 現在のフレームと選択されたフレームが異なる場合のみ更新
+            const currentFrame = chapter.frames[frameIndex];
+            if (currentFrame.imageUrl !== selectedFrame.imageUrl) {
+              handleCellChange(chapterIndex, frameIndex, 'imageUrl', selectedFrame.imageUrl);
+            }
+            return;
+          }
+          globalIndex++;
+        }
+      }
+    }
+  }, [selectedFrame, selectedRowIndex, handleCellChange]);
 
   useEffect(() => {
     if (storyboard.chapters.length > prevChapterCount.current) {

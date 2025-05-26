@@ -5,6 +5,7 @@ import { toolRegistry } from '../../../../service-api/core/tool-registry';
 import { StoryboardFactory } from '../../../../obsidian-api/storyboard/storyboard-factory';
 import { toggleStoryboardViewTool } from '../../../../service-api/api/storyboard-tool/toggle-storyboard-view';
 import { useSelectedRowIndexStore } from '../../../../obsidian-api/zustand/store/selected-row-index-store';
+import { useSelectedFrameStore } from '../../../../obsidian-api/zustand/store/selected-frame-store';
 import IconButtonGroup from '../../../components/IconButtonGroup';
 import {
   PSD_ICON_SVG,
@@ -346,6 +347,13 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
               data: JSON.stringify(storyboardData)
             });
             console.log('Storyboard data updated with new PSD path');
+            
+            // Zustandストアを更新してストーリーボードの再描画を促す
+            const selectedFrame = useSelectedFrameStore.getState().selectedFrame;
+            if (selectedFrame) {
+              const updatedFrame = { ...selectedFrame, imageUrl: parsedResult.filePath };
+              useSelectedFrameStore.getState().setSelectedFrame(updatedFrame);
+            }
           }
         } catch (error) {
           console.error('Failed to update storyboard data:', error);
