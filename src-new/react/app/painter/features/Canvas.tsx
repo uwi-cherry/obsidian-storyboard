@@ -120,10 +120,9 @@ export default function Canvas({
     if (layers && layers.length > 0) {
       layers.forEach((layer: Layer, index: number) => {
         if (layer.visible && layer.canvas) {
-          
           const originalAlpha = ctx.globalAlpha;
           ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
-          
+
           const originalCompositeOperation = ctx.globalCompositeOperation;
           if (layer.blendMode && layer.blendMode !== 'normal') {
             try {
@@ -132,13 +131,26 @@ export default function Canvas({
               console.error(e);
             }
           }
-          
+
           try {
-            ctx.drawImage(layer.canvas, 0, 0);
+            if (layer.clippingMask && index > 0) {
+              const temp = document.createElement('canvas');
+              temp.width = layer.canvas.width;
+              temp.height = layer.canvas.height;
+              const tctx = temp.getContext('2d');
+              if (tctx) {
+                tctx.drawImage(layer.canvas, 0, 0);
+                tctx.globalCompositeOperation = 'destination-in';
+                tctx.drawImage(layers[index - 1].canvas, 0, 0);
+                ctx.drawImage(temp, 0, 0);
+              }
+            } else {
+              ctx.drawImage(layer.canvas, 0, 0);
+            }
           } catch (error) {
             console.error(error);
           }
-          
+
           ctx.globalAlpha = originalAlpha;
           ctx.globalCompositeOperation = originalCompositeOperation;
         }

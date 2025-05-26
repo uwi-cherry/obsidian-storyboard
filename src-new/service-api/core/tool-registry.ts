@@ -23,6 +23,7 @@ import { generateThumbnailTool } from '../api/painter-tool/generate-thumbnail';
 import { removeLayerTool } from '../api/layer-tool/remove-layer';
 import { setLayerOpacityTool } from '../api/layer-tool/set-layer-opacity';
 import { setLayerBlendModeTool } from '../api/layer-tool/set-layer-blend-mode';
+import { setLayerClippingTool } from '../api/layer-tool/set-layer-clipping';
 import { renameLayerTool } from '../api/layer-tool/rename-layer';
 import { toggleLayerVisibilityTool } from '../api/layer-tool/toggle-layer-visibility';
 import { addLayerTool } from '../api/layer-tool/add-layer';
@@ -54,6 +55,7 @@ namespace Internal {
     [TOOL_NAMES.REMOVE_LAYER]: removeLayerTool,
     [TOOL_NAMES.SET_LAYER_OPACITY]: setLayerOpacityTool,
     [TOOL_NAMES.SET_LAYER_BLEND_MODE]: setLayerBlendModeTool,
+    [TOOL_NAMES.SET_LAYER_CLIPPING]: setLayerClippingTool,
     [TOOL_NAMES.RENAME_LAYER]: renameLayerTool,
     [TOOL_NAMES.TOGGLE_LAYER_VISIBILITY]: toggleLayerVisibilityTool
   };

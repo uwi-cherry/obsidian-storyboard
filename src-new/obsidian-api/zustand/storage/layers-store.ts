@@ -15,6 +15,7 @@ interface LayersState {
   toggleLayerVisibility: (index: number) => void;
   setLayerOpacity: (index: number, opacity: number) => void;
   setLayerBlendMode: (index: number, blendMode: string) => void;
+  setLayerClippingMask: (index: number, clipping: boolean) => void;
   renameLayer: (index: number, name: string) => void;
   clearLayers: () => void;
   setCurrentPsdFile: (file: TFile | null) => void;
@@ -107,11 +108,23 @@ export const useLayersStore = create<LayersState>()(
     
     setLayerBlendMode: (index, blendMode) => {
       set((state) => ({
-        layers: state.layers.map((layer, i) => 
+        layers: state.layers.map((layer, i) =>
           i === index ? { ...layer, blendMode } : layer
         )
       }));
       // 自動保存をトリガー
+      const state = get();
+      if (state.layers.length > 0) {
+        autoSave.execute(state.layers, state.currentPsdFile);
+      }
+    },
+
+    setLayerClippingMask: (index, clipping) => {
+      set((state) => ({
+        layers: state.layers.map((layer, i) =>
+          i === index ? { ...layer, clippingMask: clipping } : layer
+        )
+      }));
       const state = get();
       if (state.layers.length > 0) {
         autoSave.execute(state.layers, state.currentPsdFile);

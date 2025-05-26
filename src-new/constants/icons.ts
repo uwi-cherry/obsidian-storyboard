@@ -45,6 +45,11 @@ const FOLD_ICON_PATH = `
   <polyline points="9 6 15 12 9 18"/>
 `;
 
+const CLIPPING_ICON_PATH = `
+  <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+  <rect x="8" y="8" width="8" height="8"/>
+`;
+
 const TABLE_ICON_PATHS = {
   moveUp: `<polyline points="6 14 12 8 18 14"/>`,
   moveDown: `<polyline points="6 10 12 16 18 10"/>`,
@@ -148,7 +153,8 @@ export const TABLE_ICONS = {
 
 export const LAYER_ICONS = {
   add: `<svg ${REACT_SVG}>${ADD_ICON_PATH}</svg>`,
-  delete: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.delete}</svg>`
+  delete: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.delete}</svg>`,
+  clip: `<svg ${REACT_SVG}>${CLIPPING_ICON_PATH}</svg>`
 };
 
 export const TOOL_ICONS = {

@@ -94,6 +94,7 @@ const ja: I18nStrings = {
   BLEND_MODE_SATURATION: '彩度',
   BLEND_MODE_COLOR: 'カラー',
   BLEND_MODE_LUMINOSITY: '輝度',
+  CLIPPING_MASK: 'クリッピングマスク'
 };
 
 export default ja;

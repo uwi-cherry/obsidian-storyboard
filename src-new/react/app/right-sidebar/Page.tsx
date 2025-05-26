@@ -95,6 +95,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
             visible: layerData.visible,
             opacity: layerData.opacity,
             blendMode: layerData.blendMode,
+            clippingMask: layerData.clippingMask,
             canvas: canvas
           };
         }));
