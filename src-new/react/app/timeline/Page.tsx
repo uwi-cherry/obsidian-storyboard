@@ -3,9 +3,9 @@ import type { App, TFile } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import type { OtioProject, OtioClip, OtioTrack } from '../../../types/otio';
 import type { StoryboardData } from '../../../types/storyboard';
-import VideoPreview from '../../components/VideoPreview';
-import TimelineSeekBar from '../../components/TimelineSeekBar';
-import DraggableTimelineTrack from '../../components/DraggableTimelineTrack';
+import VideoPreview from './VideoPreview';
+import TimelineSeekBar from './TimelineSeekBar';
+import DraggableTimelineTrack from './DraggableTimelineTrack';
 
 interface TimelineReactViewProps {
   app: App;

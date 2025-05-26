@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import type { OtioClip, OtioTrack } from '../../types/otio';
+import type { OtioClip, OtioTrack } from '../../../types/otio';
 import TimelineClip from './TimelineClip';
 
 interface DraggableTimelineTrackProps {

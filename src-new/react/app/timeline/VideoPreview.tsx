@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import etro from 'etro';
-import type { OtioProject, OtioClip } from '../../types/otio';
-import type { StoryboardData } from '../../types/storyboard';
+import type { OtioProject, OtioClip } from '../../../types/otio';
+import type { StoryboardData } from '../../../types/storyboard';
 
 interface VideoPreviewProps {
   project: OtioProject | null;

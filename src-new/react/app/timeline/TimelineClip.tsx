@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { OtioClip } from '../../types/otio';
+import type { OtioClip } from '../../../types/otio';
 
 interface TimelineClipProps {
   clip: OtioClip;
