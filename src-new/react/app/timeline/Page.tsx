@@ -173,6 +173,14 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           file
         });
         const projectData = JSON.parse(result);
+        
+        // デフォルトで20個のトラックを追加
+        if (projectData.timeline.tracks.length === 0) {
+          for (let i = 1; i <= 20; i++) {
+            projectData.timeline.tracks.push(createTrack(`Track ${i}`));
+          }
+        }
+        
         setProject(projectData);
         
         // ストーリーボードデータを取得（source_markdownから）
@@ -330,15 +338,17 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   }
 
   return (
-    <>
-      <VideoPreview 
-        project={project}
-        storyboardData={storyboardData}
-        currentTime={currentTime}
-        onTimeUpdate={setCurrentTime}
-      />
+    <div className="flex flex-col" style={{ height: 'calc(100vh - 100px)' }}>
+      <div className="flex-shrink-0">
+        <VideoPreview 
+          project={project}
+          storyboardData={storyboardData}
+          currentTime={currentTime}
+          onTimeUpdate={setCurrentTime}
+        />
+      </div>
       
-      <div style={{ overflowX: 'auto', maxHeight: '400px', overflowY: 'auto' }}>
+      <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0">
         <DraggableTimelineTrack
           track={{
             name: 'BGM',
@@ -419,9 +429,11 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         ))}
       </div>
       
-      <button onClick={handleAddTrack} className="mt-2 px-3 py-1 text-sm bg-accent text-on-accent rounded hover:bg-accent-hover">
-        トラックを追加
-      </button>
-    </>
+      <div className="flex-shrink-0 p-2">
+        <button onClick={handleAddTrack} className="px-3 py-1 text-sm bg-accent text-on-accent rounded hover:bg-accent-hover">
+          トラックを追加
+        </button>
+      </div>
+    </div>
   );
 }

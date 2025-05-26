@@ -277,7 +277,7 @@ export default function VideoPreview({
           <canvas 
             ref={canvasRef}
             className="block"
-            style={{ width: '480px', height: '270px' }}
+            style={{ width: '800px', height: '450px' }}
           />
           
           {isLoading && (

@@ -145,7 +145,7 @@ export default function DraggableTimelineTrack({
 
     return (
     <div className="flex items-center">
-      <span className="w-24 text-text-normal flex-shrink-0">{track.name}</span>
+      <span className="text-text-normal flex-shrink-0" style={{ width: '200px' }}>{track.name}</span>
       <button 
         onClick={() => onAddClip(trackIndex)} 
         className="mr-2 px-2 py-1 text-xs bg-accent text-on-accent rounded hover:bg-accent-hover"
