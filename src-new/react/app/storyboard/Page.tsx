@@ -451,15 +451,6 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         columnsCount={columns.length}
         isNewChapter={true}
       />
-      <button
-        className="mt-2 p-1 bg-accent text-on-accent rounded text-xs hover:bg-accent-hover"
-        onClick={() => {
-          addChapter('');
-          setOpenChapters(prev => [...prev, true]);
-        }}
-      >
-        {t('ADD_SILENT_SECTION')}
-      </button>
     </>
   );
 };
