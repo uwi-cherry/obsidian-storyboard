@@ -197,13 +197,43 @@ function combine_story_elements(character, worldview):
 ### 3. 全体統合システム
 
 ```
+function generate_three_elements(base_word):
+    prompt = f"""
+    以下の単語から、三つの異なる要素を生成してください：
+    単語: {base_word}
+    
+    1. 性格要素（人間の性格特性を表現し、行動パターンや思考傾向を含む）
+    2. モチーフ要素（視覚的または象徴的な要素を含み、創作における象徴性がある）
+    3. ストーリー要素（物語の設定や世界観を表現し、時間・場所・状況が含まれる）
+    
+    単語の持つ特性や印象を活かしながら、それぞれ異なる観点から要素を生成してください。
+    
+    出力形式: 
+    性格: "性格要素"
+    モチーフ: "モチーフ要素"
+    ストーリー: "ストーリー要素"
+    """
+    
+    response = generate_text(prompt)
+    lines = response.strip().split('\n')
+    
+    personality = lines[0].replace('性格: ', '').strip('"')
+    motif = lines[1].replace('モチーフ: ', '').strip('"')
+    story = lines[2].replace('ストーリー: ', '').strip('"')
+    
+    return [personality, motif, story]
+
 function episodes_generation_system(
-    base_personality, 
-    base_motif, 
-    base_story, 
+    base_word, 
     n_abstract
 ):
-    # 1. 基本要素の生成
+    # 1. 一つの単語から三つの基本要素を生成
+    base_elements = generate_three_elements(base_word)
+    base_personality = base_elements[0]
+    base_motif = base_elements[1]
+    base_story = base_elements[2]
+    
+    # 2. 基本要素から異質なバリエーションを生成
     personality_constraints = """
     - 人間の性格特性を表現している
     - 行動パターンや思考傾向を含む
@@ -229,10 +259,10 @@ function episodes_generation_system(
     motifs = refine(base_motif, n_abstract, motif_constraints)
     story_worldviews = refine(base_story, n_abstract, story_constraints)
     
-    # 2. キャラクター設定の生成（Gの要素数分）
+    # 3. キャラクター設定の生成（Gの要素数分）
     character_profiles = create_character_profiles(personalities, motifs)
     
-    # 3. エピソードの生成
+    # 4. エピソードの生成
     episodes = create_episodes(character_profiles, story_worldviews)
     
     return episodes
