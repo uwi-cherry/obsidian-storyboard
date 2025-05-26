@@ -55,7 +55,6 @@ function validate_concept(concept, constraints):
     return response.strip()
 ```
 
-
 #### list_contrastive_items(concept)
 ```
 function list_contrastive_items(concept):
