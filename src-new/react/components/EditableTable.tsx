@@ -57,10 +57,14 @@ const EditableTable = <T,>({
   
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
     Array.from({ length: columns.length }, (_, index) => {
-      // 話者・台詞カラム（dialogues）を大きく、プロンプトカラム（preview）を小さく
-      if (index === 1) return 400; // 話者・台詞カラム
-      if (index === 2) return 250; // プロンプトカラム
-      return 300; // その他のカラム
+      // 黄金比（φ ≈ 1.618）を使った美しい比率
+      const promptWidth = 250; // プロンプトカラムをベース
+      const goldenRatio = 1.618;
+      
+      if (index === 0) return Math.round(promptWidth * goldenRatio); // 画像カラム: 405px（プロンプトの1.6倍）
+      if (index === 1) return Math.round(promptWidth * goldenRatio); // 話者・台詞カラム: 405px（プロンプトの1.6倍）
+      if (index === 2) return promptWidth; // プロンプトカラム: 250px（ベース）
+      return Math.round(promptWidth * goldenRatio); // その他: 405px
     })
   );
   const resizingCol = useRef<number | null>(null);
