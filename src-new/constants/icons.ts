@@ -45,6 +45,11 @@ const FOLD_ICON_PATH = `
   <polyline points="9 6 15 12 9 18"/>
 `;
 
+const DOCUMENT_ICON_PATH = `
+  <path d="M6 2h8l6 6v14H6z"/>
+  <polyline points="14 2 14 8 20 8"/>
+`;
+
 const CLIPPING_ICON_PATH = `
   <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
   <rect x="8" y="8" width="8" height="8"/>
@@ -131,7 +136,8 @@ export const OBSIDIAN_ICONS = {
   STORYBOARD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${STORYBOARD_ICON_PATH}</svg>`,
   STORYBOARD_TOGGLE_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${STORYBOARD_TOGGLE_ICON_PATH}</svg>`,
   ADD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${ADD_ICON_PATH}</svg>`,
-  FOLD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${FOLD_ICON_PATH}</svg>`
+  FOLD_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${FOLD_ICON_PATH}</svg>`,
+  DOCUMENT_ICON_SVG: `<svg ${OBSIDIAN_SVG}>${DOCUMENT_ICON_PATH}</svg>`
 };
 
 export const PSD_ICON_SVG = `<svg ${REACT_SVG}>${PSD_ICON_PATH}</svg>`;
@@ -141,6 +147,7 @@ export const STORYBOARD_ICON_SVG = `<svg ${REACT_SVG}>${STORYBOARD_ICON_PATH}</s
 export const STORYBOARD_TOGGLE_ICON_SVG = `<svg ${REACT_SVG}>${STORYBOARD_TOGGLE_ICON_PATH}</svg>`;
 export const FOLD_ICON_SVG = `<svg ${REACT_SVG}>${FOLD_ICON_PATH}</svg>`;
 export const ADD_ICON_SVG = `<svg ${REACT_SVG}>${ADD_ICON_PATH}</svg>`;
+export const DOCUMENT_ICON_SVG = `<svg ${REACT_SVG}>${DOCUMENT_ICON_PATH}</svg>`;
 
 export const TABLE_ICONS = {
   moveUp: `<svg ${REACT_SVG}>${TABLE_ICON_PATHS.moveUp}</svg>`,
