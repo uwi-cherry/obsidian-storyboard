@@ -4,7 +4,7 @@
 
 ### refine関数
 ```
-function refine(G, n_abstract):
+function refine(G, n_abstract, constraints):
     G[0] = G
 
     # 抽象化プロセス
@@ -16,10 +16,44 @@ function refine(G, n_abstract):
     for i = 1 to n_abstract:
         G[i] = concretize_maximally(G[i])    # 可能な限り最も具体化
 
+    # 最終的に制約チェック
+    G = validate_concepts(G, constraints)
+
     return G # 初期値+抽象化を繰り返した数だけ要素が存在します！
 ```
 
 
+### 制約チェック関数
+
+#### validate_concepts(concepts, constraints)
+```
+function validate_concepts(concepts, constraints):
+    validated_concepts = []
+    
+    for concept in concepts:
+        validated_concept = validate_concept(concept, constraints)
+        validated_concepts.append(validated_concept)
+    
+    return validated_concepts
+
+function validate_concept(concept, constraints):
+    prompt = f"""
+    以下の概念が指定された制約から極端に離れている場合のみ調整してください：
+    概念: {concept}
+    
+    制約チェック項目：
+    {constraints}
+    
+    概念が制約から極端に逸脱している場合のみ、最小限の調整を行ってください。
+    軽微な違いや曖昧な部分については、元の概念をそのまま保持してください。
+    よほど明らかに制約に合わない場合以外は、何も変更しないでください。
+    
+    出力形式: "調整された概念（または元の概念そのまま）"
+    """
+    
+    response = llm_call(prompt)
+    return response.strip()
+```
 
 ### LLM呼び出し関数
 
@@ -154,9 +188,30 @@ function motif_generation_system(
     n_abstract
 ):
     # 1. 基本要素の生成
-    personalities = refine(base_personality, n_abstract)
-    motifs = refine(base_motif, n_abstract)
-    story_worldviews = refine(base_story, n_abstract)
+    personality_constraints = """
+    - 人間の性格特性を表現している
+    - 行動パターンや思考傾向を含む
+    - 観察可能な特徴がある
+    - 一貫性のある人格を形成する
+    """
+    
+    motif_constraints = """
+    - 視覚的または象徴的な要素を含む
+    - 創作における象徴性がある
+    - 具体的なイメージを喚起する
+    - テーマ性や意味性を持つ
+    """
+    
+    story_constraints = """
+    - 物語の設定や世界観を表現している
+    - 時間・場所・状況が含まれる
+    - ストーリー展開の基盤となる
+    - 登場人物が活動できる環境である
+    """
+    
+    personalities = refine(base_personality, n_abstract, personality_constraints)
+    motifs = refine(base_motif, n_abstract, motif_constraints)
+    story_worldviews = refine(base_story, n_abstract, story_constraints)
     
     # 2. キャラクター設定の生成（Gの要素数分）
     character_profiles = create_character_profiles(personalities, motifs)
