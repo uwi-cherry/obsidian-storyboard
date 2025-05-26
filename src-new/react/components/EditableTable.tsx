@@ -56,7 +56,12 @@ const EditableTable = <T,>({
 }: EditableTableProps<T>) => {
   
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
-    Array.from({ length: columns.length }, () => 300)
+    Array.from({ length: columns.length }, (_, index) => {
+      // 話者・台詞カラム（dialogues）を大きく、プロンプトカラム（preview）を小さく
+      if (index === 1) return 400; // 話者・台詞カラム
+      if (index === 2) return 250; // プロンプトカラム
+      return 300; // その他のカラム
+    })
   );
   const resizingCol = useRef<number | null>(null);
   const startX = useRef<number>(0);
