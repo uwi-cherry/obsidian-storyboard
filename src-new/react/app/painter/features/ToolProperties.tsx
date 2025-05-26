@@ -15,6 +15,7 @@ interface ToolProps {
   rotation: number;
   canvasWidth: number;
   canvasHeight: number;
+  actualZoom?: number;
   maintainAspectRatio: boolean;
   resizeMode: 'canvas-only' | 'resize-content';
   setDrawingMode: (m: 'normal' | 'spectral' | 'erase-soft') => void;
@@ -45,6 +46,7 @@ export default function ToolProperties({
   rotation,
   canvasWidth,
   canvasHeight,
+  actualZoom,
   maintainAspectRatio,
   resizeMode,
   setDrawingMode,
@@ -106,6 +108,7 @@ export default function ToolProperties({
                   type="number"
                   min={100}
                   max={4000}
+                  step={10}
                   value={canvasWidth}
                   onChange={e => {
                     const newWidth = parseInt(e.target.value) || canvasWidth;
@@ -117,7 +120,8 @@ export default function ToolProperties({
                       setCanvasSize(newWidth, canvasHeight);
                     }
                   }}
-                  className="w-16 text-xs p-1 border border-modifier-border rounded bg-primary"
+                  className="w-20 text-xs p-1 border border-modifier-border rounded bg-primary"
+                  style={{ appearance: 'auto', MozAppearance: 'textfield' }}
                 />
                 <span className="text-xs">px</span>
               </div>
@@ -127,6 +131,7 @@ export default function ToolProperties({
                   type="number"
                   min={100}
                   max={4000}
+                  step={10}
                   value={canvasHeight}
                   onChange={e => {
                     const newHeight = parseInt(e.target.value) || canvasHeight;
@@ -138,7 +143,7 @@ export default function ToolProperties({
                       setCanvasSize(canvasWidth, newHeight);
                     }
                   }}
-                  className="w-16 text-xs p-1 border border-modifier-border rounded bg-primary"
+                  className="w-20 text-xs p-1 border border-modifier-border rounded bg-primary"
                 />
                 <span className="text-xs">px</span>
               </div>
@@ -269,7 +274,7 @@ export default function ToolProperties({
       {tool === 'hand' && (
         <div className={layoutDirection === 'horizontal' ? "flex flex-col gap-2" : "flex flex-row gap-4"}>
           <div className="flex flex-col gap-1">
-            <div className="text-text-muted text-xs">{t('ZOOM_LEVEL')}: {zoom}%</div>
+            <div className="text-text-muted text-xs">{t('ZOOM_LEVEL')}: {actualZoom !== undefined ? actualZoom : zoom}%</div>
             <input
               type="range"
               min={10}

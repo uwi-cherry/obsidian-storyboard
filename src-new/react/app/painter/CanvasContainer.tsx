@@ -47,6 +47,7 @@ export default function CanvasContainer({
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [maintainAspectRatio, setMaintainAspectRatio] = useState(false);
   const [resizeMode, setResizeMode] = useState<'canvas-only' | 'resize-content'>('canvas-only');
+  const [actualZoom, setActualZoom] = useState<number>(zoom);
 
   const { layers } = useLayersStore();
   const { currentLayerIndex } = useCurrentLayerIndexStore();
@@ -288,6 +289,7 @@ export default function CanvasContainer({
           rotation={rotation}
           canvasWidth={canvasSize.width}
           canvasHeight={canvasSize.height}
+          actualZoom={actualZoom}
           maintainAspectRatio={maintainAspectRatio}
           resizeMode={resizeMode}
           setDrawingMode={pointer.setDrawingMode}
@@ -328,6 +330,7 @@ export default function CanvasContainer({
           containerRef={containerRef}
           selectionState={selectionState}
           canvasSize={canvasSize}
+          onActualZoomChange={setActualZoom}
           onSelectionStart={handleSelectionStart}
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}

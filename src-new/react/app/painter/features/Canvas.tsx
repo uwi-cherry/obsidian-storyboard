@@ -16,6 +16,7 @@ interface CanvasProps {
   containerRef: React.RefObject<HTMLDivElement>;
   selectionState: SelectionState;
   canvasSize?: { width: number; height: number };
+  onActualZoomChange?: (actualZoom: number) => void;
   onSelectionStart?: () => void;
   onSelectionUpdate?: () => void;
   onSelectionEnd?: () => void;
@@ -29,6 +30,7 @@ export default function Canvas({
   containerRef,
   selectionState,
   canvasSize: propCanvasSize,
+  onActualZoomChange,
   onSelectionStart,
   onSelectionUpdate,
   onSelectionEnd
@@ -113,17 +115,30 @@ export default function Canvas({
 
   // ズームが変更された時にタイトルを更新
   useEffect(() => {
-    if (view && view.updateTitle) {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const rect = canvas.getBoundingClientRect();
-        const actualZoom = (rect.width / canvasSize.width) * zoom;
-        view.updateTitle(canvasSize.width, canvasSize.height, Math.round(actualZoom));
-      } else {
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const rect = canvas.getBoundingClientRect();
+      const actualZoom = Math.round((rect.width / canvasSize.width) * zoom);
+      
+      // タイトルを更新
+      if (view && view.updateTitle) {
+        view.updateTitle(canvasSize.width, canvasSize.height, actualZoom);
+      }
+      
+      // 実際のズーム値を通知
+      if (onActualZoomChange) {
+        onActualZoomChange(actualZoom);
+      }
+    } else {
+      // キャンバスがない場合は設定値をそのまま使用
+      if (view && view.updateTitle) {
         view.updateTitle(canvasSize.width, canvasSize.height, zoom);
       }
+      if (onActualZoomChange) {
+        onActualZoomChange(zoom);
+      }
     }
-  }, [zoom, canvasSize, view]);
+  }, [zoom, canvasSize, view, onActualZoomChange]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
