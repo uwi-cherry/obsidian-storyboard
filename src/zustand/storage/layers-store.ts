@@ -34,16 +34,16 @@ const autoSave = new AdaptiveDebouncer(async (layers: Layer[], currentPsdFile: T
   try {
     // Obsidianのappインスタンスを取得
     const app = (window as any).app;
-    
+
     if (app) {
       console.log('💾 自動保存開始:', currentPsdFile.path);
-      
+
       await toolRegistry.executeTool('save_painter_file', {
         app,
         file: currentPsdFile,
         layers
       });
-      
+
       console.log('✅ 自動保存完了:', currentPsdFile.path);
     } else {
       console.warn('⚠️ Obsidian appインスタンスが見つかりません');
@@ -57,7 +57,7 @@ export const useLayersStore = create<LayersState>()(
   subscribeWithSelector((set, get) => ({
     layers: [],
     currentPsdFile: null,
-    
+
     updateLayers: (layers) => {
       set({ layers });
       // setLayersは自動保存を実行
@@ -66,23 +66,23 @@ export const useLayersStore = create<LayersState>()(
         autoSave.execute(state.layers, state.currentPsdFile);
       }
     },
-    
+
     initializeLayers: (layers) => {
       // initializeLayersは自動保存を実行しない
       set({ layers });
     },
-    
+
     addLayer: (layer) => set((state) => ({
       layers: [...state.layers, layer]
     })),
-    
+
     removeLayer: (index) => set((state) => ({
       layers: state.layers.filter((_, i) => i !== index)
     })),
-    
+
     toggleLayerVisibility: (index) => {
       set((state) => ({
-        layers: state.layers.map((layer, i) => 
+        layers: state.layers.map((layer, i) =>
           i === index ? { ...layer, visible: !layer.visible } : layer
         )
       }));
@@ -92,10 +92,10 @@ export const useLayersStore = create<LayersState>()(
         autoSave.execute(state.layers, state.currentPsdFile);
       }
     },
-    
+
     setLayerOpacity: (index, opacity) => {
       set((state) => ({
-        layers: state.layers.map((layer, i) => 
+        layers: state.layers.map((layer, i) =>
           i === index ? { ...layer, opacity } : layer
         )
       }));
@@ -105,7 +105,7 @@ export const useLayersStore = create<LayersState>()(
         autoSave.execute(state.layers, state.currentPsdFile);
       }
     },
-    
+
     setLayerBlendMode: (index, blendMode) => {
       set((state) => ({
         layers: state.layers.map((layer, i) =>
@@ -130,10 +130,10 @@ export const useLayersStore = create<LayersState>()(
         autoSave.execute(state.layers, state.currentPsdFile);
       }
     },
-    
+
     renameLayer: (index, name) => {
       set((state) => ({
-        layers: state.layers.map((layer, i) => 
+        layers: state.layers.map((layer, i) =>
           i === index ? { ...layer, name } : layer
         )
       }));
@@ -143,14 +143,14 @@ export const useLayersStore = create<LayersState>()(
         autoSave.execute(state.layers, state.currentPsdFile);
       }
     },
-    
+
     clearLayers: () => set({ layers: [], currentPsdFile: null }),
-    
+
     setCurrentPsdFile: (file) => set({ currentPsdFile: file }),
     clearCurrentPsdFile: () => set({ currentPsdFile: null }),
-    
+
     getCurrentSaveDelay: () => autoSave.getCurrentDelay(),
-    
+
     triggerAutoSave: () => {
       const state = get();
       if (state.layers.length > 0) {

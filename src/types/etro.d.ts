@@ -36,7 +36,7 @@ declare module 'etro' {
 
   export class Movie {
     constructor(options: MovieOptions);
-    
+
     canvas: HTMLCanvasElement;
     width: number;
     height: number;
@@ -47,16 +47,16 @@ declare module 'etro' {
     ready: boolean;
     layers: Layer[];
     effects: Effect[];
-    
+
     addLayer(layer: Layer): void;
     play(options?: { duration?: number; onStart?: () => void }): Promise<void>;
     pause(): void;
     stop(): void;
     seek(time: number): void;
     refresh(): Promise<void>;
-    record(options?: { 
-      frameRate?: number; 
-      duration?: number; 
+    record(options?: {
+      frameRate?: number;
+      duration?: number;
       type?: string;
       video?: boolean;
       audio?: boolean;
@@ -72,7 +72,7 @@ declare module 'etro' {
     width: number;
     height: number;
     effects: Effect[];
-    
+
     addEffect(effect: Effect): Layer;
   }
 
@@ -119,4 +119,4 @@ declare module 'etro' {
   };
 
   export default etro;
-} 
+}

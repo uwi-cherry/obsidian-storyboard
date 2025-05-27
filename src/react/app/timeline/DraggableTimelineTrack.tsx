@@ -58,13 +58,13 @@ export default function DraggableTimelineTrack({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     if (!onFileDrop) return;
-    
+
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const dropTime = x / pixelsPerSecond;
-    
+
     if (e.dataTransfer.files.length > 0) {
       onFileDrop(trackIndex, e.dataTransfer.files, dropTime);
     }
@@ -94,7 +94,7 @@ export default function DraggableTimelineTrack({
         className="hidden"
         onChange={handleFileSelect}
       />
-      <div 
+      <div
         ref={trackRef}
         className={`relative h-8 bg-primary border cursor-pointer w-full ${
           isDragOver ? 'border-accent border-dashed border-2' : 'border-modifier-border'
@@ -104,11 +104,11 @@ export default function DraggableTimelineTrack({
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <div 
+        <div
           className="absolute top-0 w-0.5 h-full bg-red-500 z-10 pointer-events-none"
           style={{ left: `${currentTime * pixelsPerSecond}px` }}
         />
-        
+
         {track.children.map((clip: OtioClip, clipIndex: number) => (
           <TimelineClip
             key={clipIndex}
@@ -122,7 +122,7 @@ export default function DraggableTimelineTrack({
             onClipResize={onClipResize}
           />
         ))}
-        
+
         {isDragOver && (
           <div className="absolute inset-0 flex items-center justify-center bg-accent bg-opacity-10 border-2 border-dashed border-accent">
             <span className="text-accent font-semibold">ファイルをドロップ</span>
@@ -131,4 +131,4 @@ export default function DraggableTimelineTrack({
       </div>
     </div>
   );
-} 
+}
