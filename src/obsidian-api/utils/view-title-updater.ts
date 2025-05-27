@@ -10,4 +10,4 @@ export function setDisplayText(view: FileView, title: string): void {
   if (titleEl) {
     titleEl.textContent = title;
   }
-} 
+}

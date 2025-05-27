@@ -25,12 +25,12 @@ namespace Internal {
     let currentTime = 0;
     let inChapterSection = false;
     let currentFrame: any = null;
-    
+
     const result: string[] = [];
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
+
       // チャプター開始の検出
       if (line.startsWith('### ') && !line.startsWith('### キャラクター')) {
         inChapterSection = true;
@@ -38,14 +38,14 @@ namespace Internal {
         result.push(line);
         continue;
       }
-      
+
       // キャラクターセクションの検出
       if (line.startsWith('### キャラクター')) {
         inChapterSection = false;
         result.push(line);
         continue;
       }
-      
+
       if (inChapterSection) {
         // フレーム開始の検出
         if (line.startsWith('#### ')) {
@@ -56,21 +56,21 @@ namespace Internal {
           result.push(line);
           continue;
         }
-        
+
         // INFO行の処理
         const calloutInfoMatch = line.match(/^>\s*\[!INFO\]\s*(.*)$/);
         if (calloutInfoMatch && currentFrame) {
           const existingContent = calloutInfoMatch[1].trim();
-          
+
           // 台詞から時間を計算
-          const duration = currentFrame.dialogues ? 
+          const duration = currentFrame.dialogues ?
             calculateDurationFromText(currentFrame.dialogues) : 2;
-          
+
           const infoLine = `> [!INFO] start: ${currentTime}, duration: ${duration}`;
           result.push(infoLine);
           currentFrame.hasInfo = true;
           currentTime += duration;
-          
+
           // 既存のプロンプト内容を保持
           if (existingContent && !existingContent.match(/start:\s*\d+.*duration:\s*\d+/)) {
             // プロンプト行として追加
@@ -81,7 +81,7 @@ namespace Internal {
               }
             });
           }
-          
+
           // 続くプロンプト行を処理
           while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
             i++;
@@ -92,7 +92,7 @@ namespace Internal {
           }
           continue;
         }
-        
+
         // 通常の行の処理
         if (currentFrame && !line.startsWith('>') && line.trim()) {
           // 画像リンクでない場合は台詞として扱う
@@ -102,10 +102,10 @@ namespace Internal {
           }
         }
       }
-      
+
       result.push(line);
     }
-    
+
     return result.join('\n');
   }
 
@@ -115,29 +115,29 @@ namespace Internal {
     // OTIOファイルを読み込み
     const otioContent = await app.vault.read(file);
     const otioProject: OtioProject = JSON.parse(otioContent);
-    
+
     // マークダウン部分を取得
     const sourceMarkdown = otioProject.timeline.metadata?.source_markdown || '';
-    
+
     // OTIO部分を取得（source_markdownを除く）
     const otioForJson = JSON.parse(JSON.stringify(otioProject));
     if (otioForJson.timeline.metadata) {
       delete otioForJson.timeline.metadata.source_markdown;
     }
-    
+
     // マークダウンファイルを構築
     let markdownContent = '';
-    
+
     // マークダウン部分を追加（時間情報を更新）
     if (sourceMarkdown) {
       markdownContent = updateTimingInMarkdown(sourceMarkdown);
     }
-    
+
     // JSONブロックを別途追加
-    if (Object.keys(otioForJson.timeline.metadata || {}).length > 0 || 
+    if (Object.keys(otioForJson.timeline.metadata || {}).length > 0 ||
         otioForJson.timeline.tracks.length > 0 ||
         Object.keys(otioForJson.metadata || {}).length > 0) {
-      
+
       // マークダウンとJSONを完全に分離
       if (markdownContent) {
         markdownContent += '\n\n';
@@ -146,16 +146,16 @@ namespace Internal {
       markdownContent += JSON.stringify(otioForJson, null, 2);
       markdownContent += '\n```';
     }
-    
+
     // 元のファイルをマークダウンに置き換え
     const parentPath = file.parent?.path || '';
     const baseName = file.basename;
     const mdPath = parentPath ? normalizePath(`${parentPath}/${baseName}.md`) : `${baseName}.md`;
-    
+
     // 元のファイルを削除してからマークダウンファイルを作成
     await app.vault.delete(file);
     const mdFile = await app.vault.create(mdPath, markdownContent);
-    
+
     const result: ConvertOtioToMdOutput = {
       filePath: mdFile.path,
       message: `OTIOをマークダウンに変換しました: ${mdFile.name}`
@@ -177,4 +177,4 @@ export const convertOtioToMdTool: Tool<Internal.ConvertOtioToMdInput> = {
     required: ['app', 'file']
   },
   execute: Internal.executeConvertOtioToMd
-}; 
+};

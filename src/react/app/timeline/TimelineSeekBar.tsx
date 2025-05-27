@@ -8,12 +8,12 @@ interface TimelineSeekBarProps {
   width: number;
 }
 
-export default function TimelineSeekBar({ 
-  currentTime, 
-  duration, 
-  onSeek, 
+export default function TimelineSeekBar({
+  currentTime,
+  duration,
+  onSeek,
   pixelsPerSecond,
-  width 
+  width
 }: TimelineSeekBarProps) {
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -32,7 +32,7 @@ export default function TimelineSeekBar({
   const generateTimeMarks = () => {
     const marks = [];
     const interval = Math.max(5, Math.ceil(duration / 10)); // 最大10個の目盛り
-    
+
     for (let time = 0; time <= duration; time += interval) {
       const x = time * pixelsPerSecond;
       if (x <= width) {
@@ -55,9 +55,9 @@ export default function TimelineSeekBar({
   return (
     <div className="timeline-seekbar bg-secondary border border-modifier-border rounded p-2 mb-4">
       <div className="text-sm font-semibold mb-2 text-text-normal">タイムライン</div>
-      
+
       {/* 時間軸 */}
-      <div 
+      <div
         className="relative h-8 bg-primary border border-modifier-border rounded overflow-hidden cursor-pointer select-none"
         style={{ width: `${width}px` }}
         onClick={handleClick}
@@ -65,16 +65,16 @@ export default function TimelineSeekBar({
       >
         {/* 時間目盛り */}
         {generateTimeMarks()}
-        
+
         {/* 現在時間インジケーター */}
-        <div 
+        <div
           className="absolute top-0 w-1 h-full bg-red-500 z-20 pointer-events-none"
           style={{ left: `${currentTime * pixelsPerSecond}px` }}
         >
           {/* プレイヘッド */}
           <div className="absolute -top-1 -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-md" />
         </div>
-        
+
         {/* 背景グリッド */}
         <div className="absolute inset-0 opacity-20">
           {Array.from({ length: Math.ceil(duration / 1) }, (_, i) => (
@@ -86,7 +86,7 @@ export default function TimelineSeekBar({
           ))}
         </div>
       </div>
-      
+
       {/* 時間表示 */}
       <div className="flex justify-between items-center mt-2 text-xs text-text-muted">
         <span>
@@ -98,4 +98,4 @@ export default function TimelineSeekBar({
       </div>
     </div>
   );
-} 
+}

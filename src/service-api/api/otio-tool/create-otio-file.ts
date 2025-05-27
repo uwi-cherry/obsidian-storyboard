@@ -38,7 +38,7 @@ namespace Internal {
   export async function executeCreateOtioFile(args: CreateOtioFileInput): Promise<string> {
     const { app, filename = 'untitled' } = args;
 
-    let baseName = filename.endsWith('.otio') ? filename.slice(0, -5) : filename;
+    const baseName = filename.endsWith('.otio') ? filename.slice(0, -5) : filename;
     let counter = 1;
     let path = normalizePath(`${baseName}.otio`);
     while (app.vault.getAbstractFileByPath(path)) {

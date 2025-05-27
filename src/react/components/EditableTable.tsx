@@ -25,15 +25,15 @@ export interface EditableTableProps<T> {
   onInsertRowBelow?: (rowIndex: number) => void;
   onMoveRowTo?: (fromIndex: number, toIndex: number) => void;
   showAddRow?: boolean;
-  
+
   onRowClick?: (row: T, rowIndex: number) => void;
-  
+
   headerTop?: React.ReactNode;
-  
+
   selectedRowIndexes?: number[];
-  
+
   onSelectRow?: (rowIndex: number, isSelected: boolean) => void;
-  
+
   onClearSelection?: () => void;
 }
 
@@ -54,13 +54,13 @@ const EditableTable = <T,>({
   onSelectRow,
   onClearSelection,
 }: EditableTableProps<T>) => {
-  
+
   const [colWidths, setColWidths] = useState<(number | undefined)[]>(
     Array.from({ length: columns.length }, (_, index) => {
       // 黄金比（φ ≈ 1.618）を使った美しい比率
       const promptWidth = 250; // プロンプトカラムをベース
       const goldenRatio = 1.618;
-      
+
       if (index === 0) return Math.round(promptWidth * goldenRatio); // 画像カラム: 405px（プロンプトの1.6倍）
       if (index === 1) return Math.round(promptWidth * goldenRatio); // 話者・台詞カラム: 405px（プロンプトの1.6倍）
       if (index === 2) return promptWidth; // プロンプトカラム: 250px（ベース）
@@ -90,12 +90,12 @@ const EditableTable = <T,>({
       const colIndex = resizingCol.current;
       if (colIndex !== null && colIndex < columns.length - 1) {
         const nextColIndex = colIndex + 1;
-        
+
         // 現在の列の新しい幅を計算（最小80px）
         const newCurrentWidth = Math.max(80, startWidth.current + delta);
         // 右隣の列の新しい幅を計算（最小80px）
         const newNextWidth = Math.max(80, startNextWidth.current - delta);
-        
+
         // 両方の列の幅を更新
         next[colIndex] = newCurrentWidth;
         next[nextColIndex] = newNextWidth;
@@ -136,7 +136,7 @@ const EditableTable = <T,>({
               >
                 <div className="flex items-center justify-between">
                   <span>{col.header}</span>
-                  
+
                   {i < columns.length - 1 && (
                     <div
                       className="absolute right-0 top-0 h-full w-2 cursor-col-resize z-10 bg-transparent hover:bg-accent-hover transition"
@@ -205,7 +205,7 @@ const EditableTable = <T,>({
                             icon: '→',
                             onClick: () => {
                               if (selectedRowIndexes && selectedRowIndexes.length > 0) {
-                                
+
                                 onMoveRowTo(selectedRowIndexes[0], index);
                                 onClearSelection?.();
                               }
@@ -259,4 +259,4 @@ const EditableTable = <T,>({
   );
 };
 
-export default EditableTable; 
+export default EditableTable;

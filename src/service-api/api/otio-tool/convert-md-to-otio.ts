@@ -49,28 +49,28 @@ namespace Internal {
 
     // マークダウンファイルを読み込み
     const markdownContent = await app.vault.read(file);
-    
+
     // JSONブロックを抽出・分離
     const lines = markdownContent.split('\n');
     const markdownLines: string[] = [];
     const jsonLines: string[] = [];
     let inJsonBlock = false;
     let foundJsonBlock = false;
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
+
       if (line.trim() === '```json') {
         inJsonBlock = true;
         foundJsonBlock = true;
         continue;
       }
-      
+
       if (inJsonBlock && line.trim() === '```') {
         inJsonBlock = false;
         continue;
       }
-      
+
       if (inJsonBlock) {
         jsonLines.push(line);
       } else {
@@ -80,14 +80,14 @@ namespace Internal {
         }
       }
     }
-    
+
     const cleanMarkdown = markdownLines.join('\n').trim();
     // 時間情報は既に初期化済みなのでそのまま使用
     const processedMarkdown = cleanMarkdown;
     const jsonContent = jsonLines.join('\n').trim();
-    
+
     let otioProject: OtioProject;
-    
+
     if (jsonContent) {
       // 既存のJSONを使用してマークダウンを埋め込み
       try {
@@ -102,18 +102,18 @@ namespace Internal {
       // JSONがない場合は空プロジェクトを作成
       otioProject = createEmptyOtioProject(processedMarkdown);
     }
-    
+
     // 元のファイルをOTIOに置き換え
     const parentPath = file.parent?.path || '';
     const baseName = file.basename;
     const otioPath = parentPath ? normalizePath(`${parentPath}/${baseName}.otio`) : `${baseName}.otio`;
-    
+
     const otioContent = JSON.stringify(otioProject, null, 2);
-    
+
     // 元のファイルを削除してからOTIOファイルを作成
     await app.vault.delete(file);
     const otioFile = await app.vault.create(otioPath, otioContent);
-    
+
     const result: ConvertMdToOtioOutput = {
       filePath: otioFile.path,
       message: `マークダウンをOTIOに変換しました: ${otioFile.name}`
@@ -135,4 +135,4 @@ export const convertMdToOtioTool: Tool<Internal.ConvertMdToOtioInput> = {
     required: ['app', 'file']
   },
   execute: Internal.executeConvertMdToOtio
-}; 
+};
