@@ -1,6 +1,8 @@
 import esbuild from "esbuild";
 import process from "process";
 import builtins from "builtin-modules";
+import fs from "fs";
+import path from "path";
 
 const banner =
 `/*
@@ -39,6 +41,40 @@ const context = await esbuild.context({
 	treeShaking: true,
 	outfile: "main.js",
 	minify: prod,
+	loader: {
+		'.wasm': 'binary',
+		'.js': 'jsx',
+		'.tsx': 'tsx',
+	},
+	plugins: [
+		{
+			name: 'copy-ffmpeg-core',
+			setup(build) {
+				build.onEnd(async () => {
+					const ffmpegCorePath = path.join('node_modules', '@ffmpeg', 'core', 'dist', 'umd');
+					const outputPath = path.join('dist', 'ffmpeg-core');
+
+					// 出力ディレクトリを作成
+					if (!fs.existsSync('dist')) {
+						fs.mkdirSync('dist');
+					}
+					if (!fs.existsSync(outputPath)) {
+						fs.mkdirSync(outputPath, { recursive: true });
+					}
+
+					// コアファイルをコピー
+					fs.copyFileSync(
+						path.join(ffmpegCorePath, 'ffmpeg-core.js'),
+						path.join(outputPath, 'ffmpeg-core.js')
+					);
+					fs.copyFileSync(
+						path.join(ffmpegCorePath, 'ffmpeg-core.wasm'),
+						path.join(outputPath, 'ffmpeg-core.wasm')
+					);
+				});
+			}
+		}
+	]
 });
 
 if (prod) {
