@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import type { App, TFile } from 'obsidian';
+import { normalizePath } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import type { OtioProject, OtioClip, OtioTrack } from '../../../types/otio';
 import type { StoryboardData } from '../../../types/storyboard';
@@ -253,13 +254,46 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     });
   };
 
-  const handleAddClip = (tIdx: number) => {
+  const importFileToVault = async (file: File): Promise<string> => {
+    const vaultFiles = app.vault.getFiles();
+    const found = vaultFiles.find(f => f.name === file.name);
+    if (found) {
+      return found.path;
+    }
+
+    const arrayBuffer = await file.arrayBuffer();
+    const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
+    const assetsDir = activeDir ? normalizePath(`${activeDir}/assets`) : 'assets';
+    try {
+      if (!app.vault.getAbstractFileByPath(assetsDir)) {
+        await app.vault.createFolder(assetsDir);
+      }
+    } catch {
+      /* ignore */
+    }
+    const path = normalizePath(`${assetsDir}/${file.name}`);
+    const newFile = await app.vault.createBinary(path, arrayBuffer);
+    return newFile.path;
+  };
+
+  const handleAddClip = async (tIdx: number, files: FileList) => {
     if (!project) return;
-    
-    const newClip = createClip('', 0, 5);
+
     const newProject = JSON.parse(JSON.stringify(project)) as OtioProject;
-    newProject.timeline.tracks[tIdx].children.push(newClip);
-    
+    let startTime = Math.max(
+      ...newProject.timeline.tracks[tIdx].children.map(c =>
+        c.source_range.start_time + c.source_range.duration
+      ),
+      0
+    );
+
+    for (const file of Array.from(files)) {
+      const filePath = await importFileToVault(file);
+      const newClip = createClip(filePath, startTime, 5);
+      newProject.timeline.tracks[tIdx].children.push(newClip);
+      startTime += newClip.source_range.duration;
+    }
+
     setProject(newProject);
     handleProjectChange(newProject);
   };
@@ -305,20 +339,20 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     });
   };
 
-  const handleFileDrop = (trackIdx: number, files: FileList, dropTime: number) => {
+  const handleFileDrop = async (trackIdx: number, files: FileList, dropTime: number) => {
     if (!project) return;
-    
+
     const newProject = JSON.parse(JSON.stringify(project)) as OtioProject;
-    
-    Array.from(files).forEach((file, index) => {
-      const filePath = file.name; // 実際の実装では適切なパス処理が必要
-      const startTime = dropTime + (index * 5); // 5秒間隔で配置
-      const duration = 5; // デフォルト5秒
-      
+    let startTime = dropTime;
+
+    for (const file of Array.from(files)) {
+      const filePath = await importFileToVault(file);
+      const duration = 5;
       const newClip = createClip(filePath, startTime, duration);
       newProject.timeline.tracks[trackIdx].children.push(newClip);
-    });
-    
+      startTime += duration;
+    }
+
     setProject(newProject);
     handleProjectChange(newProject);
   };
@@ -427,7 +461,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           onClipChange={() => {}}
           onClipMove={() => {}}
           onClipResize={() => {}}
-          onAddClip={() => {}}
+          onAddClip={(_, __) => {}}
           onTimeSeek={setCurrentTime}
         />
         
@@ -460,7 +494,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           onClipChange={() => {}}
           onClipMove={() => {}}
           onClipResize={() => {}}
-          onAddClip={() => {}}
+          onAddClip={(_, __) => {}}
           onTimeSeek={setCurrentTime}
         />
       </div>

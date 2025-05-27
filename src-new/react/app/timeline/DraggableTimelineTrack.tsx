@@ -11,7 +11,7 @@ interface DraggableTimelineTrackProps {
   onClipChange: (trackIdx: number, clipIdx: number, field: 'path' | 'start' | 'duration', value: string) => void;
   onClipMove: (trackIdx: number, clipIdx: number, newStartTime: number) => void;
   onClipResize?: (trackIdx: number, clipIdx: number, newStartTime: number, newDuration: number) => void;
-  onAddClip: (trackIdx: number) => void;
+  onAddClip: (trackIdx: number, files: FileList) => void;
   onTimeSeek: (time: number) => void;
   onFileDrop?: (trackIdx: number, files: FileList, dropTime: number) => void;
 }
@@ -34,6 +34,7 @@ export default function DraggableTimelineTrack({
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedClipIndex, setSelectedClipIndex] = useState<number | null>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleTrackClick = (e: React.MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -69,15 +70,30 @@ export default function DraggableTimelineTrack({
     }
   };
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      onAddClip(trackIndex, files);
+    }
+    e.target.value = '';
+  };
+
     return (
     <div className="flex items-center">
       <span className="text-text-normal flex-shrink-0" style={{ width: '200px' }}>{track.name}</span>
-      <button 
-        onClick={() => onAddClip(trackIndex)} 
+      <button
+        onClick={() => fileInputRef.current?.click()}
         className="mr-2 px-2 py-1 text-xs bg-accent text-on-accent rounded hover:bg-accent-hover"
       >
         +
       </button>
+      <input
+        ref={fileInputRef}
+        type="file"
+        multiple
+        className="hidden"
+        onChange={handleFileSelect}
+      />
       <div 
         ref={trackRef}
         className={`relative h-8 bg-primary border cursor-pointer w-full ${
