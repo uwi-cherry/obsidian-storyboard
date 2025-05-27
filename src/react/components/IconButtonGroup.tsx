@@ -1,13 +1,6 @@
 import React from 'react';
 import MenuIconButton from './MenuIconButton';
-
-interface MenuOption {
-	label: string;
-	icon?: string;
-	onClick: () => void;
-	disabled?: boolean;
-	variant?: 'default' | 'danger';
-}
+import type { MenuOption } from '../../types/ui';
 
 interface IconButton {
 	icon: string;

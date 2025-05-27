@@ -1,9 +1,6 @@
 import { Tool } from '../../core/tool';
-
-export interface Attachment {
-  type: 'image' | 'mask' | 'reference';
-  url: string;
-}
+import type { Attachment as AttachmentType } from '../../../types/ui';
+export type Attachment = AttachmentType;
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant' | 'function';

@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import type { Plugin } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { ADD_ICON_SVG, TABLE_ICONS } from '../../../../constants/icons';
+import type { Attachment } from '../../../../types/ui';
 
 interface ChatBoxProps {
   plugin?: Plugin;
@@ -13,11 +14,6 @@ interface Message {
   attachments?: Attachment[];
 }
 
-interface Attachment {
-  url: string;
-  data: string;
-  type: 'image' | 'mask' | 'reference';
-}
 
 export default function ChatBox() {
   const [messages, setMessages] = useState<Message[]>([]);

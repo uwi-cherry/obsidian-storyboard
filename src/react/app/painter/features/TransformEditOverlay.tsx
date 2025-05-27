@@ -2,13 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLayersStore } from '../../../../zustand/storage/layers-store';
 import { usePainterHistoryStore } from '../../../../zustand/store/painter-history-store';
 import type { Layer } from '../../../../types/painter-types';
-
-interface SelectionRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+import type { SelectionRect } from '../../../../types/ui';
 
 interface TransformEditOverlayProps {
   rect: SelectionRect;

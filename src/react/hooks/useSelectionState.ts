@@ -1,13 +1,8 @@
 import { useRef } from 'react';
+import type { SelectionRect } from '../../types/ui';
 
 export type SelectionMode = 'rect' | 'lasso' | 'magic';
 
-export interface SelectionRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 export interface SelectionState {
   mode: SelectionMode;
