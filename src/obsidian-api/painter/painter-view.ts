@@ -73,7 +73,7 @@ export class PainterView extends FileView {
       // TODO: implement export logic
     }) as HTMLElement;
     fileBtn.querySelector('svg')?.remove();
-    fileBtn.textContent = t('FILE_MENU');
+    fileBtn.textContent = t('EXPORT_MERGED_IMAGE');
 
     if (!state.file) {
       return;
