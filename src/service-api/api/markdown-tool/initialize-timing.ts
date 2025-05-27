@@ -19,12 +19,12 @@ namespace Internal {
     let currentTime = 0;
     let inChapterSection = false;
     let currentFrame: any = null;
-    
+
     const result: string[] = [];
-    
+
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
-      
+
       // チャプター開始の検出
       if (line.startsWith('### ') && !line.startsWith('### キャラクター')) {
         inChapterSection = true;
@@ -32,14 +32,14 @@ namespace Internal {
         result.push(line);
         continue;
       }
-      
+
       // キャラクターセクションの検出
       if (line.startsWith('### キャラクター')) {
         inChapterSection = false;
         result.push(line);
         continue;
       }
-      
+
       if (inChapterSection) {
         // フレーム開始の検出
         if (line.startsWith('#### ')) {
@@ -50,21 +50,21 @@ namespace Internal {
           result.push(line);
           continue;
         }
-        
+
         // INFO行の処理
         const calloutInfoMatch = line.match(/^>\s*\[!INFO\]\s*(.*)$/);
         if (calloutInfoMatch && currentFrame) {
           const existingContent = calloutInfoMatch[1].trim();
-          
+
           // 台詞から時間を計算
-          const duration = currentFrame.dialogues ? 
+          const duration = currentFrame.dialogues ?
             calculateDurationFromText(currentFrame.dialogues) : 2;
-          
+
           const infoLine = `> [!INFO] start: ${currentTime}, duration: ${duration}`;
           result.push(infoLine);
           currentFrame.hasInfo = true;
           currentTime += duration;
-          
+
           // 既存のプロンプト内容を保持
           if (existingContent && !existingContent.match(/start:\s*\d+.*duration:\s*\d+/)) {
             // プロンプト行として追加
@@ -75,7 +75,7 @@ namespace Internal {
               }
             });
           }
-          
+
           // 続くプロンプト行を処理
           while (i + 1 < lines.length && lines[i + 1].trimStart().startsWith('>')) {
             i++;
@@ -86,7 +86,7 @@ namespace Internal {
           }
           continue;
         }
-        
+
         // 通常の行の処理
         if (currentFrame && !line.startsWith('>') && line.trim()) {
           // 画像リンクでない場合は台詞として扱う
@@ -96,20 +96,20 @@ namespace Internal {
           }
         }
       }
-      
+
       result.push(line);
     }
-    
+
     return result.join('\n');
   }
 
   export async function executeInitializeTiming(args: InitializeTimingInput): Promise<string> {
     const { app, file } = args;
-    
+
     const markdownContent = await app.vault.read(file);
     const updatedContent = initializeTimingInMarkdown(markdownContent);
     await app.vault.modify(file, updatedContent);
-    
+
     return `マークダウンファイル "${file.name}" の時間情報を初期化しました`;
   }
 }
@@ -126,4 +126,4 @@ export const initializeTimingTool: Tool<Internal.InitializeTimingInput> = {
     required: ['app', 'file']
   },
   execute: Internal.executeInitializeTiming
-}; 
+};

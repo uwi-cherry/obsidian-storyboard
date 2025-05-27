@@ -10,11 +10,11 @@ interface VideoPreviewProps {
   onTimeUpdate?: (time: number) => void;
 }
 
-export default function VideoPreview({ 
-  project, 
-  storyboardData, 
-  currentTime, 
-  onTimeUpdate 
+export default function VideoPreview({
+  project,
+  storyboardData,
+  currentTime,
+  onTimeUpdate
 }: VideoPreviewProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const movieRef = useRef<any>(null);
@@ -34,7 +34,7 @@ export default function VideoPreview({
     const movie = new etro.Movie({
       canvas: canvas
     });
-    
+
     // ムービーのサイズを設定
     movie.width = 320;
     movie.height = 180;
@@ -104,7 +104,7 @@ export default function VideoPreview({
                 const videoElement = document.createElement('video');
                 videoElement.src = clip.media_reference.target_url;
                 videoElement.crossOrigin = 'anonymous';
-                
+
                 const videoLayer = new etro.layer.Video({
                   startTime: clip.source_range.start_time,
                   duration: clip.source_range.duration,
@@ -161,9 +161,9 @@ export default function VideoPreview({
   // ストーリーボードのシーン情報を取得
   const scenes = React.useMemo(() => {
     if (!storyboardData) return [];
-    
+
     return storyboardData.chapters.flatMap(chapter =>
-      chapter.frames.filter(frame => 
+      chapter.frames.filter(frame =>
         frame.startTime !== undefined && frame.duration !== undefined
       ).map(frame => ({
         startTime: frame.startTime!,
@@ -177,8 +177,8 @@ export default function VideoPreview({
 
   // 現在のシーンインデックスを更新
   React.useEffect(() => {
-    const sceneIndex = scenes.findIndex(scene => 
-      currentTime >= scene.startTime && 
+    const sceneIndex = scenes.findIndex(scene =>
+      currentTime >= scene.startTime &&
       currentTime < scene.startTime + scene.duration
     );
     if (sceneIndex !== -1) {
@@ -239,7 +239,7 @@ export default function VideoPreview({
     const x = e.clientX - rect.left;
     const percentage = x / rect.width;
     const newTime = percentage * duration;
-    
+
     movieRef.current.currentTime = newTime;
     movieRef.current.refresh();
     onTimeUpdate?.(newTime);
@@ -248,7 +248,7 @@ export default function VideoPreview({
   return (
     <div className="video-preview bg-secondary border border-modifier-border rounded p-4">
       <h3 className="text-lg font-semibold mb-2">プレビュー</h3>
-      
+
       {/* キャンバス */}
       <div className="relative bg-black rounded overflow-hidden">
           {/* シーンナビゲーションボタン */}
@@ -262,7 +262,7 @@ export default function VideoPreview({
               <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
             </svg>
           </button>
-          
+
           <button
             onClick={handleNextScene}
             disabled={currentSceneIndex >= scenes.length - 1}
@@ -274,18 +274,18 @@ export default function VideoPreview({
             </svg>
           </button>
 
-          <canvas 
+          <canvas
             ref={canvasRef}
             className="block"
             style={{ width: '800px', height: '450px' }}
           />
-          
+
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
               <div className="text-white">読み込み中...</div>
             </div>
           )}
-          
+
           {/* 現在のシーン情報 */}
           {scenes.length > 0 && scenes[currentSceneIndex] && (
             <div className="absolute bottom-2 left-2 right-2 bg-black bg-opacity-70 text-white p-2 rounded text-sm">
@@ -309,18 +309,18 @@ export default function VideoPreview({
             >
               {isPlaying ? '一時停止' : '再生'}
             </button>
-            
+
             <span className="text-sm text-text-muted">
               {currentTime.toFixed(1)}s / {duration.toFixed(1)}s
             </span>
           </div>
 
           {/* シークバー */}
-          <div 
+          <div
             className="w-full h-2 bg-primary border border-modifier-border rounded cursor-pointer"
             onClick={handleSeek}
           >
-            <div 
+            <div
               className="h-full bg-accent rounded"
               style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
             />
@@ -328,4 +328,4 @@ export default function VideoPreview({
       </div>
     </div>
   );
-} 
+}
