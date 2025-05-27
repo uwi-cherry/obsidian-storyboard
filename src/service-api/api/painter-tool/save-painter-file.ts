@@ -24,7 +24,7 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
   
   const src = layer.canvas as HTMLCanvasElement | { data?: Uint8ClampedArray };
   
-  if (src?.data && src.data instanceof Uint8ClampedArray) {
+  if (src && 'data' in src && src.data instanceof Uint8ClampedArray) {
     try {
       const imageData = new ImageData(src.data, canvas.width, canvas.height);
       ctx.putImageData(imageData, 0, 0);
@@ -32,9 +32,9 @@ function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasEl
       ctx.fillStyle = 'white';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
-  } else if (src && typeof src.getContext === 'function') {
+  } else if (src && 'getContext' in src && typeof src.getContext === 'function') {
     try {
-      ctx.drawImage(src, 0, 0);
+      ctx.drawImage(src as HTMLCanvasElement, 0, 0);
     } catch (error) {
       console.error(error);
     }
