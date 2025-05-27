@@ -13,13 +13,7 @@ import TransformEditOverlay from './features/TransformEditOverlay';
 import { useLayersStore } from '../../../zustand/storage/layers-store';
 import { useCurrentLayerIndexStore } from '../../../zustand/store/current-layer-index-store';
 import { usePainterHistoryStore } from '../../../zustand/store/painter-history-store';
-
-interface SelectionRect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+import type { SelectionRect } from '../../../types/ui';
 
 interface Props {
   pointer: PainterPointer;

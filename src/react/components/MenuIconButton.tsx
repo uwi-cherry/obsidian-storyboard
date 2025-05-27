@@ -1,12 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-
-interface MenuOption {
-  label: string;
-  icon?: string;
-  onClick: () => void;
-  disabled?: boolean;
-  variant?: 'default' | 'danger';
-}
+import type { MenuOption } from '../../types/ui';
 
 interface MenuIconButtonProps {
   icon: string;
