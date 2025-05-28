@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC, ChangeEvent } from 'react';
 import { t } from '../../../constants/obsidian-i18n';
 
 interface BGMCreationInputProps {
@@ -13,7 +13,7 @@ interface BGMCreationInputProps {
   isNewChapter?: boolean;
 }
 
-const BGMCreationInput: React.FC<BGMCreationInputProps> = ({
+const BGMCreationInput: FC<BGMCreationInputProps> = ({
   value,
   onChange,
   onDelete,
@@ -24,7 +24,7 @@ const BGMCreationInput: React.FC<BGMCreationInputProps> = ({
   columnsCount,
   isNewChapter = false
 }) => {
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     onChange(newValue);
     

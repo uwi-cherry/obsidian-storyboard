@@ -1,11 +1,12 @@
-import React, { forwardRef } from 'react';
+import { forwardRef } from 'react';
+import type { KeyboardEvent } from 'react';
 
 interface TextAreaFieldProps {
   value?: string;
   onChange: (newValue: string) => void;
   placeholder?: string;
   className?: string;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
+  onKeyDown?: (e: KeyboardEvent<HTMLTextAreaElement>) => void;
 }
 
 const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(({

@@ -1,5 +1,6 @@
 import { App, normalizePath, Notice, TFile } from 'obsidian';
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { FC, ChangeEvent } from 'react';
 import { BUTTON_ICONS } from '../../../constants/icons';
 import { t } from '../../../constants/obsidian-i18n';
 import IconButtonGroup from '../../components/IconButtonGroup';
@@ -29,7 +30,7 @@ interface ImageInputCellProps {
   refCallback?: (el: HTMLTextAreaElement | null) => void;
 }
 
-const ImageInputCell: React.FC<ImageInputCellProps> = ({
+const ImageInputCell: FC<ImageInputCellProps> = ({
   imageUrl,
   imagePrompt,
   onImageUrlChange,
@@ -123,7 +124,7 @@ const ImageInputCell: React.FC<ImageInputCellProps> = ({
     }
   };
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

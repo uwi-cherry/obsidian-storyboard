@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { MouseEvent, DragEvent, ChangeEvent } from 'react';
 import type { UsdClip, UsdTrack } from '../../../types/usd';
 import TimelineClip from './TimelineClip';
 
@@ -36,7 +37,7 @@ export default function DraggableTimelineTrack({
   const trackRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleTrackClick = (e: React.MouseEvent) => {
+  const handleTrackClick = (e: MouseEvent) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const time = x / pixelsPerSecond;
@@ -45,17 +46,17 @@ export default function DraggableTimelineTrack({
   };
 
   // ファイルドロップ処理
-  const handleDragOver = (e: React.DragEvent) => {
+  const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
   };
 
-  const handleDragLeave = (e: React.DragEvent) => {
+  const handleDragLeave = (e: DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
 
@@ -70,7 +71,7 @@ export default function DraggableTimelineTrack({
     }
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
       onAddClip(trackIndex, files);

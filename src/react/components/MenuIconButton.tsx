@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
+import type { FC, MouseEvent } from 'react';
 import type { MenuOption } from '../../types/ui';
 
 interface MenuIconButtonProps {
@@ -10,7 +11,7 @@ interface MenuIconButtonProps {
   variant?: 'primary' | 'accent' | 'secondary' | 'danger';
 }
 
-const MenuIconButton: React.FC<MenuIconButtonProps> = ({
+const MenuIconButton: FC<MenuIconButtonProps> = ({
   icon,
   title,
   options,
@@ -40,14 +41,14 @@ const MenuIconButton: React.FC<MenuIconButtonProps> = ({
     return 'text-gray-700 hover:bg-gray-100';
   };
 
-  const toggleMenu = (e: React.MouseEvent) => {
+  const toggleMenu = (e: MouseEvent) => {
     e.stopPropagation();
     if (!disabled) {
       setIsOpen(!isOpen);
     }
   };
 
-  const handleOptionClick = (option: MenuOption, e: React.MouseEvent) => {
+  const handleOptionClick = (option: MenuOption, e: MouseEvent) => {
     e.stopPropagation();
     if (!option.disabled) {
       option.onClick();

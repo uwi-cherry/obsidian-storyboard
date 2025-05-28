@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { t } from '../../../constants/obsidian-i18n';
 import TextAreaField from '../../components/TextAreaField';
 
@@ -7,7 +7,7 @@ interface PreviewCellProps {
   onPromptChange: (newVal: string) => void;
 }
 
-const PreviewCell: React.FC<PreviewCellProps> = ({
+const PreviewCell: FC<PreviewCellProps> = ({
   prompt,
   onPromptChange,
 }) => {

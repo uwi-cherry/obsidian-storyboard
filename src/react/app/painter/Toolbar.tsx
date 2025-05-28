@@ -1,4 +1,4 @@
-import React from 'react';
+import type { CSSProperties } from 'react';
 import { TOOL_ICONS } from '../../../constants/icons';
 import { t } from '../../../constants/obsidian-i18n';
 import { usePainterLayoutStore } from '../../../zustand/storage/painter-layout-store';
@@ -46,7 +46,7 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
               color: '#ffffff',
               borderWidth: '2px',
               borderColor: '#2563eb',
-            } as React.CSSProperties : {}}
+            } as CSSProperties : {}}
             title={btn.title}
             onClick={() => onChange(btn.id)}
             dangerouslySetInnerHTML={{ __html: btn.icon }}

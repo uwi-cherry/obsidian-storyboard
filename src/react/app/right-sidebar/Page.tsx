@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { App, TFile, ItemView } from 'obsidian';
 import type { RightSidebarView } from '../../../obsidian-api/right-sidebar/right-sidebar-view';
 import { NavigationControls } from './components/NavigationControls';

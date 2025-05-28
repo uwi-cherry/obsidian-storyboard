@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 
 interface ThumbnailViewerProps {
 	src: string | null;
@@ -11,7 +11,7 @@ interface ThumbnailViewerProps {
 	clearButtonTitle?: string;
 }
 
-const ThumbnailViewer: React.FC<ThumbnailViewerProps> = ({
+const ThumbnailViewer: FC<ThumbnailViewerProps> = ({
 	src,
 	alt = '',
 	title = '',

@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import type { ReactNode, FC } from 'react';
 
 interface ModalProps {
   open: boolean;
@@ -11,7 +11,7 @@ interface ModalProps {
   className?: string;
 }
 
-const Modal: React.FC<ModalProps> = ({
+const Modal: FC<ModalProps> = ({
   open,
   onClose,
   title,
