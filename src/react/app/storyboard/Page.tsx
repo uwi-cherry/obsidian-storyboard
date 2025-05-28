@@ -263,6 +263,33 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
   const selectedRowIndex = useSelectedRowIndexStore((state) => state.selectedRowIndex);
 
+  // 選択されたフレームの話者名を設定する関数
+  const handleSetSpeaker = useCallback((speakerName: string) => {
+    if (!selectedFrame) return;
+    
+    // 現在選択されているフレームの話者名を更新
+    let globalIndex = 0;
+    let targetChapterIndex = -1;
+    let targetFrameIndex = -1;
+    
+    for (let chapterIndex = 0; chapterIndex < storyboard.chapters.length; chapterIndex++) {
+      const chapter = storyboard.chapters[chapterIndex];
+      for (let frameIndex = 0; frameIndex < chapter.frames.length; frameIndex++) {
+        if (globalIndex === selectedRowIndex) {
+          targetChapterIndex = chapterIndex;
+          targetFrameIndex = frameIndex;
+          break;
+        }
+        globalIndex++;
+      }
+      if (targetChapterIndex !== -1) break;
+    }
+    
+    if (targetChapterIndex !== -1 && targetFrameIndex !== -1) {
+      handleCellChange(targetChapterIndex, targetFrameIndex, 'speaker', speakerName);
+    }
+  }, [selectedFrame, selectedRowIndex, storyboard.chapters, handleCellChange]);
+
   // NavigationControlsでファイル更新後の再読み込み
   useEffect(() => {
     const reloadData = async () => {
@@ -359,6 +386,8 @@ const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) 
         frames={storyboard.chapters.flatMap(ch => ch.frames)}
         onClose={() => setCharModalOpen(false)}
         onSave={saveCharacters}
+        selectedFrame={selectedFrame}
+        onSetSpeaker={handleSetSpeaker}
       />
       {storyboard.chapters.map((chapter, cIdx) => (
         <details

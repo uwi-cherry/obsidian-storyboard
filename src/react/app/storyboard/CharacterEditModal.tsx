@@ -5,13 +5,25 @@ import IconButtonGroup from '../../components/IconButtonGroup';
 import Modal from '../../components/Modal';
 import { CharacterInfo, StoryboardFrame } from '../../../types/storyboard';
 
-const CharacterEditModal: React.FC<{
+interface CharacterEditModalProps {
   open: boolean;
   characters: CharacterInfo[];
   frames: StoryboardFrame[];  
   onClose: () => void;
   onSave: (chars: CharacterInfo[]) => void;
-}> = ({ open, characters, frames, onClose, onSave }) => {
+  selectedFrame?: StoryboardFrame | null;
+  onSetSpeaker?: (speakerName: string) => void;
+}
+
+const CharacterEditModal: React.FC<CharacterEditModalProps> = ({ 
+  open, 
+  characters, 
+  frames, 
+  onClose, 
+  onSave, 
+  selectedFrame, 
+  onSetSpeaker 
+}) => {
   const [editChars, setEditChars] = useState<CharacterInfo[]>(characters);
   const [selectedIdx, setSelectedIdx] = useState(0);
 
@@ -55,7 +67,14 @@ const CharacterEditModal: React.FC<{
       <button className="text-muted px-2 py-1 border border-modifier-border rounded" onClick={onClose}>
         {t('CANCEL')}
       </button>
-      <button className="text-on-accent bg-accent px-2 py-1 rounded" onClick={() => { onSave(editChars); onClose(); }}>
+      <button className="text-on-accent bg-accent px-2 py-1 rounded" onClick={() => { 
+        onSave(editChars); 
+        // 選択されたキャラクターがあり、現在フレームが選択されている場合、話者名を設定
+        if (selectedFrame && onSetSpeaker && selectedChar.name.trim()) {
+          onSetSpeaker(selectedChar.name.trim());
+        }
+        onClose(); 
+      }}>
         {t('SAVE')}
       </button>
     </>
