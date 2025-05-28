@@ -44,6 +44,9 @@ export class PainterView extends FileView {
   }
 
   async setState(state: { file: string | null }) {
+    // Clear existing action buttons to prevent duplication
+    this.headerEl.querySelector('.view-actions')?.empty();
+    
     const editBtn = this.addAction('', t('EDIT_MENU'), async (evt) => {
       const menu = new Menu();
       menu.addItem((item) =>
