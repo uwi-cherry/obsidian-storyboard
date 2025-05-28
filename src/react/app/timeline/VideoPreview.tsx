@@ -1,13 +1,25 @@
 import React, { useRef, useEffect, useState } from 'react';
 import etro from 'etro';
 import type { TimelineProject, UsdClip } from '../../../types/usd';
-import type { StoryboardData } from '../../../types/storyboard';
+import type {
+  StoryboardData,
+  StoryboardChapter,
+  StoryboardFrame,
+} from '../../../types/storyboard';
 
 interface VideoPreviewProps {
   project: TimelineProject | null;
   storyboardData: StoryboardData | null;
   currentTime: number;
   onTimeUpdate?: (time: number) => void;
+}
+
+interface SceneInfo {
+  startTime: number;
+  duration: number;
+  speaker: string;
+  dialogues: string;
+  imageUrl?: string;
 }
 
 export default function VideoPreview({
@@ -159,20 +171,27 @@ export default function VideoPreview({
   }, [currentTime, isPlaying]);
 
   // ストーリーボードのシーン情報を取得
-  const scenes = React.useMemo(() => {
+  const scenes = React.useMemo<SceneInfo[]>(() => {
     if (!storyboardData) return [];
 
-    return storyboardData.chapters.flatMap(chapter =>
-      chapter.frames.filter(frame =>
-        frame.startTime !== undefined && frame.duration !== undefined
-      ).map(frame => ({
-        startTime: frame.startTime!,
-        duration: frame.duration!,
-        speaker: frame.speaker,
-        dialogues: frame.dialogues,
-        imageUrl: frame.imageUrl
-      }))
-    ).sort((a, b) => a.startTime - b.startTime);
+    const sceneLists = storyboardData.chapters.map((chapter: StoryboardChapter) =>
+      chapter.frames
+        .filter(
+          (frame: StoryboardFrame) =>
+            frame.startTime !== undefined && frame.duration !== undefined
+        )
+        .map((frame: StoryboardFrame) => ({
+          startTime: frame.startTime!,
+          duration: frame.duration!,
+          speaker: frame.speaker,
+          dialogues: frame.dialogues,
+          imageUrl: frame.imageUrl,
+        }))
+    );
+
+    return sceneLists
+      .reduce<SceneInfo[]>((acc, list) => acc.concat(list), [])
+      .sort((a, b) => a.startTime - b.startTime);
   }, [storyboardData]);
 
   // 現在のシーンインデックスを更新
