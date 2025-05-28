@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import { Notice, App, Menu, TFile, MarkdownView } from 'obsidian';
 import { t } from '../../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../../service-api/core/tool-registry';
@@ -85,7 +85,10 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
         console.log('Original file path:', activeFile.path);
         console.log('Parent path:', activeFile.parent?.path);
         console.log('Base name:', activeFile.basename);
-        console.log('All vault files:', app.vault.getFiles().map(f => f.path));
+        console.log(
+          'All vault files:',
+          app.vault.getFiles().map((f: TFile) => f.path)
+        );
         
         if (newFilePath) {
           const newFile = app.vault.getAbstractFileByPath(newFilePath);
@@ -149,7 +152,10 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
         // 変換後のファイルを開く
         const newFilePath = parsedResult.filePath;
         console.log('New file path:', newFilePath);
-        console.log('All vault files:', app.vault.getFiles().map(f => f.path));
+        console.log(
+          'All vault files:',
+          app.vault.getFiles().map((f: TFile) => f.path)
+        );
         if (newFilePath) {
           const newFile = app.vault.getAbstractFileByPath(newFilePath);
           console.log('Found file object:', newFile);
