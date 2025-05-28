@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC } from 'react';
 import { LayoutDirection } from '../../../../zustand/storage/painter-layout-store';
 
 interface ActionPropertiesProps {
@@ -14,7 +14,7 @@ interface ActionPropertiesProps {
   layoutDirection?: LayoutDirection;
 }
 
-const ActionProperties: React.FC<ActionPropertiesProps> = ({ 
+const ActionProperties: FC<ActionPropertiesProps> = ({
   handlers, 
   mode = 'global',
   position = { x: 8, y: 8 },

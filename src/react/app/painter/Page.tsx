@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import type { App } from 'obsidian';
 import usePainterPointer, { PainterTool } from '../../hooks/usePainterPointer';
 import { useLayersStore } from '../../../zustand/storage/layers-store';

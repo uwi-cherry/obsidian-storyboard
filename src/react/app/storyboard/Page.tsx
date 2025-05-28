@@ -1,5 +1,6 @@
 import { App, TFile, Notice } from 'obsidian';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { FC } from 'react';
 import { FOLD_ICON_SVG } from '../../../constants/icons';
 import EditableTable, { ColumnDef } from '../../components/EditableTable';
 import { t } from '../../../constants/obsidian-i18n';
@@ -20,7 +21,7 @@ interface StoryboardReactViewProps {
   file: TFile | null;
 }
 
-const StoryboardReactView: React.FC<StoryboardReactViewProps> = ({ app, file }) => {
+const StoryboardReactView: FC<StoryboardReactViewProps> = ({ app, file }) => {
   const [initialData, setInitialData] = useState<StoryboardData>({
     title: '',
     chapters: [{ bgmPrompt: 'calm acoustic guitar, soft piano, peaceful ambient, instrumental', frames: [] }],

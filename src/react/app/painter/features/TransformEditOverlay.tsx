@@ -1,4 +1,5 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { PointerEvent } from 'react';
 import { useLayersStore } from '../../../../zustand/storage/layers-store';
 import { usePainterHistoryStore } from '../../../../zustand/store/painter-history-store';
 import type { Layer } from '../../../../types/painter-types';
@@ -133,12 +134,12 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     onFinish();
   };
 
-  const onPointerDown = (e: React.PointerEvent) => {
+  const onPointerDown = (e: PointerEvent) => {
     draggingRef.current = true;
     dragStartRef.current = { x: e.clientX, y: e.clientY };
   };
 
-  const onHandleDown = (e: React.PointerEvent) => {
+  const onHandleDown = (e: PointerEvent) => {
     e.stopPropagation();
     if (!overlayCanvasRef.current) return;
     handleDraggingRef.current = true;

@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
+import type { FC, MouseEvent } from 'react';
 import etro from 'etro';
 import type { TimelineProject, UsdClip } from '../../../types/usd';
 import type {
@@ -22,12 +23,12 @@ interface SceneInfo {
   imageUrl?: string;
 }
 
-export default function VideoPreview({
+const VideoPreview: FC<VideoPreviewProps> = ({
   project,
   storyboardData,
   currentTime,
   onTimeUpdate
-}: VideoPreviewProps) {
+}) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const movieRef = useRef<any>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -171,7 +172,7 @@ export default function VideoPreview({
   }, [currentTime, isPlaying]);
 
   // ストーリーボードのシーン情報を取得
-  const scenes = React.useMemo<SceneInfo[]>(() => {
+  const scenes = useMemo<SceneInfo[]>(() => {
     if (!storyboardData) return [];
 
     const sceneLists = storyboardData.chapters.map((chapter: StoryboardChapter) =>
@@ -195,7 +196,7 @@ export default function VideoPreview({
   }, [storyboardData]);
 
   // 現在のシーンインデックスを更新
-  React.useEffect(() => {
+  useEffect(() => {
     const sceneIndex = scenes.findIndex(scene =>
       currentTime >= scene.startTime &&
       currentTime < scene.startTime + scene.duration
@@ -251,7 +252,7 @@ export default function VideoPreview({
     }
   };
 
-  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleSeek = (e: MouseEvent<HTMLDivElement>) => {
     if (!movieRef.current) return;
 
     const rect = e.currentTarget.getBoundingClientRect();
@@ -347,4 +348,6 @@ export default function VideoPreview({
       </div>
     </div>
   );
-}
+};
+
+export default VideoPreview;

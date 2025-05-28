@@ -1,4 +1,5 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
+import type { FC, ReactNode, MouseEvent } from 'react';
 import { TABLE_ICONS, ADD_ICON_SVG } from '../../constants/icons';
 import IconButtonGroup from './IconButtonGroup';
 
@@ -11,7 +12,7 @@ export interface ColumnDef<T> {
     onCellChangeForRow: (columnKey: keyof T, newValue: T[keyof T]) => void,
     rowIndex: number,
     extra?: unknown
-  ) => React.ReactNode;
+  ) => ReactNode;
 }
 
 export interface EditableTableProps<T> {
@@ -28,7 +29,7 @@ export interface EditableTableProps<T> {
 
   onRowClick?: (row: T, rowIndex: number) => void;
 
-  headerTop?: React.ReactNode;
+  headerTop?: ReactNode;
 
   selectedRowIndexes?: number[];
 
@@ -72,7 +73,7 @@ const EditableTable = <T,>({
   const startWidth = useRef<number>(0);
   const startNextWidth = useRef<number>(0);
 
-  const handleMouseDown = (colIdx: number, e: React.MouseEvent) => {
+  const handleMouseDown = (colIdx: number, e: MouseEvent) => {
     resizingCol.current = colIdx;
     startX.current = e.clientX;
     startWidth.current = colWidths[colIdx] || 300;
@@ -180,7 +181,7 @@ const EditableTable = <T,>({
                     buttons={[
                       ...(onInsertRowBelow ? [{
                         icon: TABLE_ICONS.add,
-                        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
+                        onClick: (e: MouseEvent<HTMLButtonElement>) => {
                           e.stopPropagation();
                           onInsertRowBelow(index);
                         },

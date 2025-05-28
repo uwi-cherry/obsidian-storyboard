@@ -1,4 +1,5 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
+import type { MouseEvent } from 'react';
 import { hslToRgb } from './color';
 
 interface ColorWheelProps {
@@ -104,7 +105,7 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     return null;
   }
 
-  function updateColorFromEvent(e: React.MouseEvent<HTMLCanvasElement>, area: 'hue' | 'sl') {
+  function updateColorFromEvent(e: MouseEvent<HTMLCanvasElement>, area: 'hue' | 'sl') {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left - size / 2;
     const y = e.clientY - rect.top - size / 2;
@@ -128,7 +129,7 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     }
   }
 
-  function handleMouseDown(e: React.MouseEvent<HTMLCanvasElement>) {
+  function handleMouseDown(e: MouseEvent<HTMLCanvasElement>) {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left - size / 2;
     const y = e.clientY - rect.top - size / 2;
@@ -138,7 +139,7 @@ export default function ColorWheel({ hue, saturation, lightness, onChange, size 
     updateColorFromEvent(e, area);
   }
 
-  function handleMouseMove(e: React.MouseEvent<HTMLCanvasElement>) {
+  function handleMouseMove(e: MouseEvent<HTMLCanvasElement>) {
     if (!activeRef.current) return;
     updateColorFromEvent(e, activeRef.current);
   }

@@ -1,4 +1,4 @@
-import React from 'react';
+import type { FC, MouseEvent } from 'react';
 
 interface TimelineSeekBarProps {
   currentTime: number;
@@ -8,21 +8,21 @@ interface TimelineSeekBarProps {
   width: number;
 }
 
-export default function TimelineSeekBar({
+const TimelineSeekBar: FC<TimelineSeekBarProps> = ({
   currentTime,
   duration,
   onSeek,
   pixelsPerSecond,
   width
-}: TimelineSeekBarProps) {
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+}: TimelineSeekBarProps) => {
+  const handleClick = (e: MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const time = x / pixelsPerSecond;
     onSeek(Math.max(0, Math.min(duration, time)));
   };
 
-  const handleDrag = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleDrag = (e: MouseEvent<HTMLDivElement>) => {
     if (e.buttons === 1) { // 左クリックが押されている間
       handleClick(e);
     }
@@ -98,4 +98,6 @@ export default function TimelineSeekBar({
       </div>
     </div>
   );
-}
+};
+
+export default TimelineSeekBar;

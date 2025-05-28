@@ -1,4 +1,5 @@
-import React, { useRef, useState } from 'react';
+import { useRef, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { t } from '../../../../constants/obsidian-i18n';
 import { LAYER_ICONS, BUTTON_ICONS } from '../../../../constants/icons';
 import { useLayersStore } from '../../../../zustand/storage/layers-store';
@@ -13,7 +14,7 @@ export default function LayerControls() {
   const [editingLayerIndex, setEditingLayerIndex] = useState<number | null>(null);
   const [editingLayerName, setEditingLayerName] = useState<string>('');
 
-  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileSelect = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     try {
