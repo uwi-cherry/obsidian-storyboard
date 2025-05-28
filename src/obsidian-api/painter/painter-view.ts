@@ -7,6 +7,7 @@ import { setDisplayText } from '../utils/view-title-updater';
 export class PainterView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;
+  private actionsAdded = false;
 
   constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
     super(leaf);
@@ -43,10 +44,14 @@ export class PainterView extends FileView {
     };
   }
 
-  async setState(state: { file: string | null }) {
-    // Clear existing action buttons to prevent duplication
-    this.headerEl.querySelector('.view-actions')?.empty();
-    
+  async onOpen(): Promise<void> {
+    if (!this.actionsAdded) {
+      this.addActionButtons();
+      this.actionsAdded = true;
+    }
+  }
+
+  private addActionButtons(): void {
     const editBtn = this.addAction('', t('EDIT_MENU'), async (evt) => {
       const menu = new Menu();
       menu.addItem((item) =>
@@ -72,12 +77,14 @@ export class PainterView extends FileView {
     editBtn.querySelector('svg')?.remove();
     editBtn.textContent = t('EDIT_MENU');
 
-    const fileBtn = this.addAction('', t('EXPORT_MERGED_IMAGE'), async (evt) => {
+    const fileBtn = this.addAction('', t('EXPORT_MERGED_IMAGE'), async () => {
       // TODO: implement export logic
     }) as HTMLElement;
     fileBtn.querySelector('svg')?.remove();
     fileBtn.textContent = t('EXPORT_MERGED_IMAGE');
+  }
 
+  async setState(state: { file: string | null }) {
     if (!state.file) {
       return;
     }
