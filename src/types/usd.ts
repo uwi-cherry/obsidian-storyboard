@@ -94,7 +94,7 @@ export interface UsdProject {
 }
 
 // Simplified project structure for timeline UI compatibility
-export interface TimelineProject {
+export type TimelineProject = {
   schemaIdentifier: string; // "usd" 
   schemaVersion: string; // "1.0"
   name: string;
