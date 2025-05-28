@@ -109,43 +109,37 @@ namespace Internal {
     return result.join('\n');
   }
 
+  /**
+   * USDAファイルからマークダウンコンテンツを抽出
+   */
+  function extractMarkdownFromUsda(usdaContent: string): string {
+    const customLayerDataMatch = usdaContent.match(/customLayerData\s*=\s*\{([\s\S]*?)\}/);
+    if (!customLayerDataMatch) return '';
+    
+    const customLayerData = customLayerDataMatch[1];
+    const originalContentMatch = customLayerData.match(/string\s+originalContent\s*=\s*"((?:[^"\\]|\\.)*)"/);
+    if (!originalContentMatch) return '';
+    
+    // エスケープを元に戻す
+    return originalContentMatch[1]
+      .replace(/\\n/g, '\n')
+      .replace(/\\"/g, '"')
+      .replace(/\\\\/g, '\\');
+  }
+
   export async function executeConvertUsdToMd(args: ConvertUsdToMdInput): Promise<string> {
     const { app, file } = args;
 
-    // USDファイルを読み込み
+    // USDAファイルを読み込み
     const usdContent = await app.vault.read(file);
-    const usdProject: UsdProject = JSON.parse(usdContent);
 
     // マークダウン部分を取得
-    const sourceMarkdown = usdProject.stage.metadata?.source_markdown || '';
+    const sourceMarkdown = extractMarkdownFromUsda(usdContent);
 
-    // USD部分を取得（source_markdownを除く）
-    const usdForJson = JSON.parse(JSON.stringify(usdProject));
-    if (usdForJson.stage.metadata) {
-      delete usdForJson.stage.metadata.source_markdown;
-    }
-
-    // マークダウンファイルを構築
-    let markdownContent = '';
-
-    // マークダウン部分を追加（時間情報を更新）
-    if (sourceMarkdown) {
-      markdownContent = updateTimingInMarkdown(sourceMarkdown);
-    }
-
-    // JSONブロックを別途追加
-    if (Object.keys(usdForJson.stage.metadata || {}).length > 0 ||
-        usdForJson.stage.tracks.length > 0 ||
-        Object.keys(usdForJson.metadata || {}).length > 0) {
-
-      // マークダウンとJSONを完全に分離
-      if (markdownContent) {
-        markdownContent += '\n\n';
-      }
-      markdownContent += '```json\n';
-      markdownContent += JSON.stringify(usdForJson, null, 2);
-      markdownContent += '\n```';
-    }
+    // マークダウンファイルを構築（時間情報を更新）
+    const markdownContent = sourceMarkdown ? 
+      updateTimingInMarkdown(sourceMarkdown) : 
+      '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
 
     // 元のファイルをマークダウンに置き換え
     const parentPath = file.parent?.path || '';

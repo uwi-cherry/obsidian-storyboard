@@ -1,7 +1,6 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import { TOOL_NAMES } from '../../../constants/tools-config';
-import type { UsdProject } from '../../../types/usd';
 
 namespace Internal {
   export interface LoadUsdFileInput {
@@ -9,46 +8,47 @@ namespace Internal {
     file: TFile;
   }
 
-  function createEmptyProject(): UsdProject {
-    return {
-      USD_SCHEMA: 'Stage.1',
-      schema_version: 1,
-      name: 'New Project',
-      stage: {
-        name: 'Main Stage',
-        type: 'Stage',
-        tracks: [],
-        global_start_time: { value: 0, rate: 30 },
-        global_end_time: { value: 0, rate: 30 },
-        metadata: {}
-      },
-      metadata: {
-        timeCodesPerSecond: 30,
-        resolution: { width: 1920, height: 1080 },
-        upAxis: 'Y',
-        metersPerUnit: 1.0
-      }
-    };
+  /**
+   * USDAファイルからマークダウンコンテンツを抽出
+   */
+  function extractMarkdownFromUsda(usdaContent: string): string | null {
+    const customLayerDataMatch = usdaContent.match(/customLayerData\s*=\s*\{([\s\S]*?)\}/);
+    if (!customLayerDataMatch) return null;
+    
+    const customLayerData = customLayerDataMatch[1];
+    const originalContentMatch = customLayerData.match(/string\s+originalContent\s*=\s*"((?:[^"\\]|\\.)*)"/);
+    if (!originalContentMatch) return null;
+    
+    // エスケープを元に戻す
+    return originalContentMatch[1]
+      .replace(/\\n/g, '\n')
+      .replace(/\\"/g, '"')
+      .replace(/\\\\/g, '\\');
+  }
+
+  function createEmptyUsda(): string {
+    return `#usda 1.0
+(
+    defaultPrim = "Main Stage"
+    upAxis = "Y"
+    metersPerUnit = 1
+    timeCodesPerSecond = 30
+)
+
+def Xform "Main Stage" {
+}`;
   }
 
   export async function executeLoadUsdFile(args: LoadUsdFileInput): Promise<string> {
     const { app, file } = args;
-    const content = await app.vault.read(file);
-    let project: UsdProject;
+    let content = await app.vault.read(file);
 
     if (!content.trim()) {
-      project = createEmptyProject();
-      await app.vault.modify(file, JSON.stringify(project, null, 2));
-      return JSON.stringify(project);
+      content = createEmptyUsda();
+      await app.vault.modify(file, content);
     }
 
-    project = JSON.parse(content);
-    if (!project.metadata) {
-      project.metadata = createEmptyProject().metadata;
-    }
-    
-
-    return JSON.stringify(project);
+    return content;
   }
 }
 

@@ -14,26 +14,17 @@ namespace Internal {
     message: string;
   }
 
-  function createEmptyProject(): UsdProject {
-    return {
-      USD_SCHEMA: 'Stage.1',
-      schema_version: 1,
-      name: 'New Project',
-      stage: {
-        name: 'Main Stage',
-        type: 'Stage',
-        tracks: [],
-        global_start_time: { value: 0, rate: 30 },
-        global_end_time: { value: 0, rate: 30 },
-        metadata: {}
-      },
-      metadata: {
-        timeCodesPerSecond: 30,
-        resolution: { width: 1920, height: 1080 },
-        upAxis: 'Y',
-        metersPerUnit: 1.0
-      }
-    };
+  function createEmptyUsdaContent(): string {
+    return `#usda 1.0
+(
+    defaultPrim = "Main Stage"
+    upAxis = "Y"
+    metersPerUnit = 1
+    timeCodesPerSecond = 30
+)
+
+def Xform "Main Stage" {
+}`;
   }
 
   export async function executeCreateUsdFile(args: CreateUsdFileInput): Promise<string> {
@@ -47,8 +38,7 @@ namespace Internal {
       counter++;
     }
 
-    const project = createEmptyProject();
-    const content = JSON.stringify(project, null, 2);
+    const content = createEmptyUsdaContent();
     const file = await app.vault.create(path, content);
 
     const result: CreateUsdFileOutput = {

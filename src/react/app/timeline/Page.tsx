@@ -3,6 +3,7 @@ import type { App, TFile } from 'obsidian';
 import { normalizePath } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import type { TimelineProject, UsdClip, UsdTrack } from '../../../types/usd';
+import { UsdGenerator } from '../../../service-api/api/usd-tool/usd-generator';
 import type { StoryboardData, StoryboardChapter, StoryboardFrame } from '../../../types/storyboard';
 import VideoPreview from './VideoPreview';
 import TimelineSeekBar from './TimelineSeekBar';
@@ -14,6 +15,22 @@ interface TimelineReactViewProps {
 }
 
 
+
+// USDAファイルからマークダウンコンテンツを抽出
+function extractMarkdownFromUsda(usdaContent: string): string | undefined {
+  const customLayerDataMatch = usdaContent.match(/customLayerData\s*=\s*\{([\s\S]*?)\}/);
+  if (!customLayerDataMatch) return undefined;
+  
+  const customLayerData = customLayerDataMatch[1];
+  const originalContentMatch = customLayerData.match(/string\s+originalContent\s*=\s*"((?:[^"\\]|\\.)*)"/);
+  if (!originalContentMatch) return undefined;
+  
+  // エスケープを元に戻す
+  return originalContentMatch[1]
+    .replace(/\\n/g, '\n')
+    .replace(/\\"/g, '"')
+    .replace(/\\\\/g, '\\');
+}
 
 // マークダウン解析関数
 function parseMarkdownToStoryboard(markdown: string): StoryboardData {
@@ -155,7 +172,24 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
           app,
           file
         });
-        const projectData = JSON.parse(result);
+        
+        // USDAコンテンツからプロジェクトデータを作成
+        const projectData: TimelineProject = {
+          schemaIdentifier: 'usd',
+          schemaVersion: '1.0',
+          name: file.basename,
+          stage: {
+            tracks: [],
+            timeCodesPerSecond: 30,
+            startTimeCode: 0,
+            endTimeCode: 1000
+          },
+          applicationMetadata: {
+            version: '1.0',
+            creator: 'Obsidian Storyboard',
+            sourceMarkdown: extractMarkdownFromUsda(result)
+          }
+        };
         
         // デフォルトで5個のトラックを追加
         if (projectData.stage.tracks.length === 0) {
@@ -166,8 +200,8 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
         
         setProject(projectData);
         
-        // ストーリーボードデータを取得（source_markdownから）
-        const sourceMarkdown = projectData.stage.metadata?.source_markdown;
+        // ストーリーボードデータを取得（applicationMetadataから）
+        const sourceMarkdown = projectData.applicationMetadata.sourceMarkdown;
         console.log('Source markdown:', sourceMarkdown);
         if (sourceMarkdown) {
           try {
@@ -198,10 +232,11 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   const handleProjectChange = async (updated: TimelineProject) => {
     if (!file) return;
     try {
+      const usdaContent = UsdGenerator.generateUsdaContent(updated);
       await toolRegistry.executeTool('save_usd_file', {
         app,
         file,
-        project: updated
+        content: usdaContent
       });
       setProject(updated);
     } catch (error) {

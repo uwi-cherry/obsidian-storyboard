@@ -1,7 +1,8 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
-import type { UsdProject } from '../../../types/usd';
+import type { LegacyUsdProject } from '../../../types/usd';
 import { toolRegistry } from '../../core/tool-registry';
+import { UsdGenerator } from './usd-generator';
 
 namespace Internal {
   export interface ConvertMdToUsdInput {
@@ -16,7 +17,7 @@ namespace Internal {
 
 
 
-  function createEmptyUsdProject(sourceMarkdown: string): UsdProject {
+  function createEmptyUsdProject(sourceMarkdown: string): LegacyUsdProject {
     return {
       USD_SCHEMA: 'Stage.1',
       schema_version: 1,
@@ -87,7 +88,7 @@ namespace Internal {
     const processedMarkdown = cleanMarkdown;
     const jsonContent = jsonLines.join('\n').trim();
 
-    let usdProject: UsdProject;
+    let usdProject: LegacyUsdProject;
 
     if (jsonContent) {
       // 既存のJSONを使用してマークダウンを埋め込み
@@ -109,7 +110,7 @@ namespace Internal {
     const baseName = file.basename;
     const usdPath = parentPath ? normalizePath(`${parentPath}/${baseName}.usda`) : `${baseName}.usda`;
 
-    const usdContent = JSON.stringify(usdProject, null, 2);
+    const usdContent = UsdGenerator.generateUsdaContent(usdProject);
 
     // 元のファイルを削除してからUSDファイルを作成
     await app.vault.delete(file);

@@ -1,47 +1,16 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import { TOOL_NAMES } from '../../../constants/tools-config';
-import type { UsdProject } from '../../../types/usd';
 
 namespace Internal {
   export interface SaveUsdFileInput {
     app: App;
     file: TFile;
-    project: UsdProject;
-  }
-
-  function createEmptyProject(): UsdProject {
-    return {
-      USD_SCHEMA: 'Stage.1',
-      schema_version: 1,
-      name: 'New Project',
-      stage: {
-        name: 'Main Stage',
-        type: 'Stage',
-        tracks: [],
-        global_start_time: { value: 0, rate: 30 },
-        global_end_time: { value: 0, rate: 30 },
-        metadata: {}
-      },
-      metadata: {
-        timeCodesPerSecond: 30,
-        resolution: { width: 1920, height: 1080 },
-        upAxis: 'Y',
-        metersPerUnit: 1.0
-      }
-    };
+    content: string;
   }
 
   export async function executeSaveUsdFile(args: SaveUsdFileInput): Promise<string> {
-    const { app, file, project } = args;
-    const projectToSave: UsdProject = JSON.parse(JSON.stringify(project));
-
-    if (!projectToSave.metadata) {
-      projectToSave.metadata = createEmptyProject().metadata;
-    }
-    
-
-    const content = JSON.stringify(projectToSave, null, 2);
+    const { app, file, content } = args;
     await app.vault.modify(file, content);
     return 'saved';
   }
@@ -55,9 +24,9 @@ export const saveUsdFileTool: Tool<Internal.SaveUsdFileInput> = {
     properties: {
       app: { type: 'object', description: 'Obsidian app instance' },
       file: { type: 'object', description: 'Target file' },
-      project: { type: 'object', description: 'Project data' }
+      content: { type: 'string', description: 'USDA file content' }
     },
-    required: ['app', 'file', 'project']
+    required: ['app', 'file', 'content']
   },
   execute: Internal.executeSaveUsdFile
 };
