@@ -1,10 +1,10 @@
-import React from 'react';
+import type { FC, MouseEvent } from 'react';
 import MenuIconButton from './MenuIconButton';
 import type { MenuOption } from '../../types/ui';
 
 interface IconButton {
 	icon: string;
-	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+      onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
 	title?: string;
 	disabled?: boolean;
 	variant?: 'primary' | 'accent' | 'secondary' | 'danger';
@@ -19,7 +19,7 @@ interface IconButtonGroupProps {
 	direction?: 'horizontal' | 'vertical';
 }
 
-const IconButtonGroup: React.FC<IconButtonGroupProps> = ({
+const IconButtonGroup: FC<IconButtonGroupProps> = ({
 	buttons,
 	className = '',
 	gap = 'gap-2',

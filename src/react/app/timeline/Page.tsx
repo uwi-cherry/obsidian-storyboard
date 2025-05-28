@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
+import type { FC } from 'react';
 import type { App, TFile } from 'obsidian';
 import { normalizePath } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
@@ -160,11 +161,11 @@ function createTrack(name: string): UsdTrack {
   };
 }
 
-export default function TimelineReactView({ app, file }: TimelineReactViewProps) {
+const TimelineReactView: FC<TimelineReactViewProps> = ({ app, file }) => {
   const [project, setProject] = useState<TimelineProject | null>(null);
   const [storyboardData, setStoryboardData] = useState<StoryboardData | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
-  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const bgmSegments = useMemo(() => {
     if (!storyboardData) return [] as { bgmPrompt: string; startTime: number; duration: number }[];
@@ -386,7 +387,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   };
 
   // 総再生時間を計算
-  const totalDuration = React.useMemo(() => {
+  const totalDuration = useMemo(() => {
     if (!project || !storyboardData) return 60; // デフォルト60秒
     
     const trackDuration = Math.max(
@@ -411,7 +412,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   }, [project, storyboardData]);
 
   // 画面に収まるようにpixelsPerSecondを動的に計算
-  const pixelsPerSecond = React.useMemo(() => {
+  const pixelsPerSecond = useMemo(() => {
     return 20; // 固定値
   }, []);
 
@@ -510,4 +511,6 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
       </div>
     </div>
   );
-}
+};
+
+export default TimelineReactView;

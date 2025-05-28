@@ -1,4 +1,5 @@
-import React, { useEffect, useRef } from 'react';
+import { useEffect, useRef } from 'react';
+import type { FC } from 'react';
 import { t } from '../../../constants/obsidian-i18n';
 import TextAreaField from '../../components/TextAreaField';
 import useTextareaArrowNav from '../../hooks/useTextareaArrowNav';
@@ -17,7 +18,7 @@ interface SpeakerDialogueCellProps {
   onEditCharacters?: () => void;
 }
 
-const SpeakerDialogueCell: React.FC<SpeakerDialogueCellProps> = ({
+const SpeakerDialogueCell: FC<SpeakerDialogueCellProps> = ({
   speaker,
   dialogue,
   speakersList,

@@ -94,7 +94,7 @@ export interface UsdProject {
 }
 
 // Simplified project structure for timeline UI compatibility
-export interface TimelineProject {
+export type TimelineProject = {
   schemaIdentifier: string; // "usd" 
   schemaVersion: string; // "1.0"
   name: string;
@@ -160,26 +160,4 @@ export interface SimpleTrack {
 export type UsdClip = SimpleMediaClip;
 export type UsdTrack = SimpleTrack;
 
-// Legacy format for backward compatibility
-export interface LegacyUsdProject {
-  USD_SCHEMA: string;
-  schema_version: number;
-  name: string;
-  stage: {
-    name: string;
-    type: string;
-    tracks: any[];
-    global_start_time: { value: number; rate: number };
-    global_end_time: { value: number; rate: number };
-    metadata: Record<string, any>;
-  };
-  metadata: {
-    timeCodesPerSecond: number;
-    resolution: { width: number; height: number };
-    upAxis: string;
-    metersPerUnit: number;
-  };
-}
-
-// Union type for all USD project formats
-export type AnyUsdProject = UsdProject | LegacyUsdProject | TimelineProject;
+// TimelineProject is already exported as an interface above

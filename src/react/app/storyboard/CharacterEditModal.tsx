@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import type { FC, ChangeEvent } from 'react';
 import { ADD_ICON_SVG, TABLE_ICONS } from '../../../constants/icons';
 import { t } from '../../../constants/obsidian-i18n';
 import IconButtonGroup from '../../components/IconButtonGroup';
@@ -38,7 +39,7 @@ const CharacterEditModal: React.FC<CharacterEditModalProps> = ({
     setSelectedIdx(0);
   }, [characters, open]);
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setSelectedIdx(Number(e.target.value));
   };
   const handleDescriptionChange = (value: string) => {

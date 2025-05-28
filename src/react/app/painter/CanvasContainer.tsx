@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
+import { useState, useRef } from 'react';
 import type { PainterView } from '../../../types/painter-types';
 import { usePainterLayoutStore } from '../../../zustand/storage/painter-layout-store';
 import { PainterPointer } from '../../hooks/usePainterPointer';
 import useSelectionState, { SelectionState } from '../../hooks/useSelectionState';
 import ActionProperties from './features/ActionProperties';
 import Canvas from './features/Canvas';
-import { useRef } from 'react';
 import ColorProperties from './features/ColorProperties';
 import ToolProperties from './features/ToolProperties';
 

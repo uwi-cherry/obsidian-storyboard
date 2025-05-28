@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { LayoutDirection } from '../../../../zustand/storage/painter-layout-store';
 import ColorWheel from '../../../components/color/ColorWheel';
 import { hexToHsl, hslToHex } from '../../../components/color/color';
