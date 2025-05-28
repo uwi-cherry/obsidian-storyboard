@@ -7,6 +7,33 @@ import type { UsdProject, LegacyUsdProject, AnyUsdProject, UsdStage, UsdTrack, U
 export class UsdGenerator {
   
   /**
+   * マークダウンからUSDAブロックを除去
+   */
+  private static removeUsdaBlocks(markdown: string): string {
+    const lines = markdown.split('\n');
+    const result: string[] = [];
+    let inUsdaBlock = false;
+
+    for (const line of lines) {
+      if (line.trim() === '```usda' || line.trim() === '```json') {
+        inUsdaBlock = true;
+        continue;
+      }
+      
+      if (inUsdaBlock && line.trim() === '```') {
+        inUsdaBlock = false;
+        continue;
+      }
+      
+      if (!inUsdaBlock) {
+        result.push(line);
+      }
+    }
+    
+    return result.join('\n').trim();
+  }
+
+  /**
    * USDプロジェクトから実際のUSDAファイル内容を生成
    */
   static generateUsdaContent(project: AnyUsdProject): string {
@@ -60,17 +87,20 @@ export class UsdGenerator {
       lines.push(`    timeCodesPerSecond = ${project.metadata.timeCodesPerSecond}`);
     }
     
-    // マークダウンメタデータをcustomLayerDataに追加
+    // マークダウンメタデータをcustomLayerDataに追加（USDAブロックを除去済み）
     if (project.stage.metadata?.source_markdown) {
-      lines.push('    customLayerData = {');
-      lines.push('        string sourceFormat = "markdown"');
-      lines.push('        string creator = "Obsidian Storyboard"');
-      const escapedMarkdown = project.stage.metadata.source_markdown
-        .replace(/\\/g, '\\\\')
-        .replace(/"/g, '\\"')
-        .replace(/\n/g, '\\n');
-      lines.push(`        string originalContent = "${escapedMarkdown}"`);
-      lines.push('    }');
+      const cleanMarkdown = this.removeUsdaBlocks(project.stage.metadata.source_markdown);
+      if (cleanMarkdown.trim()) {
+        lines.push('    customLayerData = {');
+        lines.push('        string sourceFormat = "markdown"');
+        lines.push('        string creator = "Obsidian Storyboard"');
+        const escapedMarkdown = cleanMarkdown
+          .replace(/\\/g, '\\\\')
+          .replace(/"/g, '\\"')
+          .replace(/\n/g, '\\n');
+        lines.push(`        string originalContent = "${escapedMarkdown}"`);
+        lines.push('    }');
+      }
     }
     
     lines.push(')');

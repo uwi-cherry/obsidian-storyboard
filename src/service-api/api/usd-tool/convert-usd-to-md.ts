@@ -18,6 +18,31 @@ namespace Internal {
     return Math.max(charCount * 0.2, 2); // 最低2秒
   }
 
+  // マークダウンからUSDAブロックを除去する関数
+  function removeUsdaBlocks(markdown: string): string {
+    const lines = markdown.split('\n');
+    const result: string[] = [];
+    let inUsdaBlock = false;
+
+    for (const line of lines) {
+      if (line.trim() === '```usda' || line.trim() === '```json') {
+        inUsdaBlock = true;
+        continue;
+      }
+      
+      if (inUsdaBlock && line.trim() === '```') {
+        inUsdaBlock = false;
+        continue;
+      }
+      
+      if (!inUsdaBlock) {
+        result.push(line);
+      }
+    }
+    
+    return result.join('\n').trim();
+  }
+
   // マークダウンの時間情報を更新する関数
   function updateTimingInMarkdown(markdown: string): string {
     const lines = markdown.split('\n');
@@ -132,15 +157,36 @@ namespace Internal {
     // USDAファイルを読み込み
     const usdContent = await app.vault.read(file);
 
-    // マークダウン部分を取得（USDAメタデータから、または既存のマークダウンから）
-    let markdownContent = extractMarkdownFromUsda(usdContent);
+    // 既存のマークダウンコンテンツを取得を試みる
+    let markdownContent = '';
     
-    // USDAメタデータにマークダウンがない場合、新しいテンプレートを使用
-    if (!markdownContent) {
-      markdownContent = '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
+    // 1. USDAメタデータから抽出を試行
+    const extractedMarkdown = extractMarkdownFromUsda(usdContent);
+    if (extractedMarkdown && extractedMarkdown.trim() !== '') {
+      // USDAブロックを除去してからタイミング更新
+      const cleanMarkdown = removeUsdaBlocks(extractedMarkdown);
+      markdownContent = updateTimingInMarkdown(cleanMarkdown);
     } else {
-      // 時間情報を更新
-      markdownContent = updateTimingInMarkdown(markdownContent);
+      // 2. 対応するマークダウンファイルを探す
+      const parentPath = file.parent?.path || '';
+      const baseName = file.basename;
+      const possibleMdPath = parentPath ? normalizePath(`${parentPath}/${baseName}.md`) : `${baseName}.md`;
+      const existingMdFile = app.vault.getAbstractFileByPath(possibleMdPath);
+      
+      if (existingMdFile instanceof TFile) {
+        try {
+          const existingContent = await app.vault.read(existingMdFile);
+          // USDAブロックを除去してマークダウン部分のみを取得
+          markdownContent = removeUsdaBlocks(existingContent);
+          markdownContent = updateTimingInMarkdown(markdownContent);
+        } catch (error) {
+          console.error('Failed to read existing markdown file:', error);
+          markdownContent = '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
+        }
+      } else {
+        // 3. デフォルトテンプレートを使用
+        markdownContent = '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
+      }
     }
 
     // USDAコンテンツをUSDAブロックとして追加
