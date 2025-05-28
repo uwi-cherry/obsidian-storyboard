@@ -40,6 +40,7 @@ function parseMarkdownToStoryboard(markdown: string): StoryboardData {
   let currentChapter: any = null;
   let inCharacterSection = false;
   let inChapterSection = false;
+  let inCodeBlock = false;
 
   function initializeNewFrame() {
     return {
@@ -63,6 +64,17 @@ function parseMarkdownToStoryboard(markdown: string): StoryboardData {
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trimEnd();
+    
+    // コードブロックの開始・終了を検出
+    if (line.startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+      continue;
+    }
+    
+    // コードブロック内の行は無視
+    if (inCodeBlock) {
+      continue;
+    }
     
     if (line.startsWith('### キャラクター')) {
       inCharacterSection = true;

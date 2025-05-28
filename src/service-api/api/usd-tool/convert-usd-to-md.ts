@@ -1,6 +1,5 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
-import type { UsdProject } from '../../../types/usd';
 
 namespace Internal {
   export interface ConvertUsdToMdInput {
@@ -133,13 +132,21 @@ namespace Internal {
     // USDAファイルを読み込み
     const usdContent = await app.vault.read(file);
 
-    // マークダウン部分を取得
-    const sourceMarkdown = extractMarkdownFromUsda(usdContent);
+    // マークダウン部分を取得（USDAメタデータから、または既存のマークダウンから）
+    let markdownContent = extractMarkdownFromUsda(usdContent);
+    
+    // USDAメタデータにマークダウンがない場合、新しいテンプレートを使用
+    if (!markdownContent) {
+      markdownContent = '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
+    } else {
+      // 時間情報を更新
+      markdownContent = updateTimingInMarkdown(markdownContent);
+    }
 
-    // マークダウンファイルを構築（時間情報を更新）
-    const markdownContent = sourceMarkdown ? 
-      updateTimingInMarkdown(sourceMarkdown) : 
-      '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
+    // USDAコンテンツをUSDAブロックとして追加
+    markdownContent += '\n\n```usda\n';
+    markdownContent += usdContent;
+    markdownContent += '\n```';
 
     // 元のファイルをマークダウンに置き換え
     const parentPath = file.parent?.path || '';

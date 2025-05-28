@@ -13,11 +13,22 @@ namespace Internal {
   }
 
   function parseMarkdownToStoryboard(markdown: string): StoryboardData {
-    // JSONブロックを除去してマークダウンのみを抽出
-    const jsonBlockStart = markdown.indexOf('\n```json\n');
-    const cleanMarkdown = jsonBlockStart !== -1 ? markdown.substring(0, jsonBlockStart) : markdown;
+    // コードブロック（JSON、USDA）を除去してマークダウンのみを抽出
+    const allLines = markdown.split('\n');
+    const cleanLines: string[] = [];
+    let inCodeBlock = false;
+
+    for (const line of allLines) {
+      if (line.trim().startsWith('```')) {
+        inCodeBlock = !inCodeBlock;
+        continue;
+      }
+      if (!inCodeBlock) {
+        cleanLines.push(line);
+      }
+    }
     
-    const lines = cleanMarkdown.split('\n');
+    const lines = cleanLines;
     const data: StoryboardData = { title: '', chapters: [], characters: [] };
     let currentFrame: StoryboardFrame | null = null;
     let currentChapter: StoryboardChapter | null = null;
