@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React from 'react';
 import type { App, TFile } from 'obsidian';
 import { normalizePath } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
@@ -132,12 +132,12 @@ function createTrack(name: string): UsdTrack {
 }
 
 export default function TimelineReactView({ app, file }: TimelineReactViewProps) {
-  const [project, setProject] = useState<TimelineProject | null>(null);
-  const [storyboardData, setStoryboardData] = useState<StoryboardData | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
+  const [project, setProject] = React.useState<TimelineProject | null>(null);
+  const [storyboardData, setStoryboardData] = React.useState<StoryboardData | null>(null);
+  const [currentTime, setCurrentTime] = React.useState(0);
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
 
-  const bgmSegments = useMemo(() => {
+  const bgmSegments = React.useMemo(() => {
     if (!storyboardData) return [] as { bgmPrompt: string; startTime: number; duration: number }[];
     return storyboardData.chapters.map((ch: StoryboardChapter) => {
       const start = Math.min(...ch.frames.map((f: StoryboardFrame) => f.startTime ?? 0));
@@ -146,7 +146,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     });
   }, [storyboardData]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!file) return;
 
     const loadProject = async () => {
