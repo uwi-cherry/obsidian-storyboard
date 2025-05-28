@@ -3,7 +3,7 @@ import type { App, TFile } from 'obsidian';
 import { normalizePath } from 'obsidian';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
 import type { TimelineProject, UsdClip, UsdTrack } from '../../../types/usd';
-import type { StoryboardData } from '../../../types/storyboard';
+import type { StoryboardData, StoryboardChapter, StoryboardFrame } from '../../../types/storyboard';
 import VideoPreview from './VideoPreview';
 import TimelineSeekBar from './TimelineSeekBar';
 import DraggableTimelineTrack from './DraggableTimelineTrack';
@@ -139,9 +139,9 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
 
   const bgmSegments = useMemo(() => {
     if (!storyboardData) return [] as { bgmPrompt: string; startTime: number; duration: number }[];
-    return storyboardData.chapters.map(ch => {
-      const start = Math.min(...ch.frames.map(f => f.startTime ?? 0));
-      const end = Math.max(...ch.frames.map(f => (f.startTime ?? 0) + (f.duration ?? 0)));
+    return storyboardData.chapters.map((ch: StoryboardChapter) => {
+      const start = Math.min(...ch.frames.map((f: StoryboardFrame) => f.startTime ?? 0));
+      const end = Math.max(...ch.frames.map((f: StoryboardFrame) => (f.startTime ?? 0) + (f.duration ?? 0)));
       return { bgmPrompt: ch.bgmPrompt ?? '', startTime: start, duration: end - start };
     });
   }, [storyboardData]);
@@ -213,7 +213,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     if (!project) return;
     
     // 最新のprojectを使用して更新を行う
-    setProject(currentProject => {
+    setProject((currentProject: TimelineProject | null) => {
       if (!currentProject) return currentProject;
       
       const newProject = JSON.parse(JSON.stringify(currentProject)) as TimelineProject;
@@ -237,7 +237,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
 
   const importFileToVault = async (file: File): Promise<string> => {
     const vaultFiles = app.vault.getFiles();
-    const found = vaultFiles.find(f => f.name === file.name);
+    const found = vaultFiles.find((f: TFile) => f.name === file.name);
     if (found) {
       return found.path;
     }
@@ -262,7 +262,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
 
     const newProject = JSON.parse(JSON.stringify(project)) as TimelineProject;
     let startTime = Math.max(
-      ...newProject.stage.tracks[tIdx].clips.map(c =>
+      ...newProject.stage.tracks[tIdx].clips.map((c: UsdClip) =>
         c.startTime + c.duration
       ),
       0
@@ -305,7 +305,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
   const handleClipResize = (trackIdx: number, clipIdx: number, newStartTime: number, newDuration: number) => {
     if (!project) return;
     
-    setProject(currentProject => {
+    setProject((currentProject: TimelineProject | null) => {
       if (!currentProject) return currentProject;
       
       const newProject = JSON.parse(JSON.stringify(currentProject)) as TimelineProject;
@@ -343,8 +343,8 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     if (!project || !storyboardData) return 60; // デフォルト60秒
     
     const trackDuration = Math.max(
-      ...project.stage.tracks.flatMap(track =>
-        track.clips.map((clip: UsdClip) => 
+      ...project.stage.tracks.flatMap((track: UsdTrack) =>
+        track.clips.map((clip: UsdClip) =>
           clip.startTime + clip.duration
         )
       ),
@@ -352,8 +352,8 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
     );
     
     const storyboardDuration = Math.max(
-      ...storyboardData.chapters.flatMap(chapter =>
-        chapter.frames.map(frame => 
+      ...storyboardData.chapters.flatMap((chapter: StoryboardChapter) =>
+        chapter.frames.map((frame: StoryboardFrame) =>
           (frame.startTime || 0) + (frame.duration || 0)
         )
       ),
@@ -389,7 +389,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
       </div>
       
       <div className="flex-1 overflow-x-auto overflow-y-auto min-h-0">
-        {project.stage.tracks.map((track, tIdx) => (
+        {project.stage.tracks.map((track: UsdTrack, tIdx: number) => (
           <DraggableTimelineTrack
             key={tIdx}
             track={track}
@@ -418,7 +418,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
             path: '/BGM',
             name: 'BGM',
             trackType: 'audio',
-            clips: bgmSegments.map(seg => ({
+            clips: bgmSegments.map((seg: { bgmPrompt: string; startTime: number; duration: number }) => ({
               path: `/BGM/clip_${seg.startTime}`,
               name: seg.bgmPrompt,
               assetPath: seg.bgmPrompt,
@@ -442,7 +442,7 @@ export default function TimelineReactView({ app, file }: TimelineReactViewProps)
             path: '/Story',
             name: 'ストーリー',
             trackType: 'video',
-            clips: storyboardData?.chapters.flatMap(chapter => chapter.frames).map(frame => ({
+            clips: storyboardData?.chapters.flatMap((chapter: StoryboardChapter) => chapter.frames).map((frame: StoryboardFrame) => ({
               path: `/Story/clip_${frame.startTime || 0}`,
               name: frame.speaker,
               assetPath: frame.speaker,
