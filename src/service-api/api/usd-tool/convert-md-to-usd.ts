@@ -52,57 +52,50 @@ namespace Internal {
     // マークダウンファイルを読み込み
     const markdownContent = await app.vault.read(file);
 
-    // JSONブロックを抽出・分離
+    // USDAブロックを抽出・分離
     const lines = markdownContent.split('\n');
     const markdownLines: string[] = [];
-    const jsonLines: string[] = [];
-    let inJsonBlock = false;
-    let foundJsonBlock = false;
+    const usdaLines: string[] = [];
+    let inUsdaBlock = false;
+    let foundUsdaBlock = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
-      if (line.trim() === '```json') {
-        inJsonBlock = true;
-        foundJsonBlock = true;
+      if (line.trim() === '```usda') {
+        inUsdaBlock = true;
+        foundUsdaBlock = true;
         continue;
       }
 
-      if (inJsonBlock && line.trim() === '```') {
-        inJsonBlock = false;
+      if (inUsdaBlock && line.trim() === '```') {
+        inUsdaBlock = false;
         continue;
       }
 
-      if (inJsonBlock) {
-        jsonLines.push(line);
+      if (inUsdaBlock) {
+        usdaLines.push(line);
       } else {
-        // JSONブロックが見つかった後の行は無視（JSONブロック以降は含めない）
-        if (!foundJsonBlock) {
+        // USDAブロックが見つかった後の行は無視（USDAブロック以降は含めない）
+        if (!foundUsdaBlock) {
           markdownLines.push(line);
         }
       }
     }
 
     const cleanMarkdown = markdownLines.join('\n').trim();
-    // 時間情報は既に初期化済みなのでそのまま使用
     const processedMarkdown = cleanMarkdown;
-    const jsonContent = jsonLines.join('\n').trim();
+    const usdaContent = usdaLines.join('\n').trim();
 
-    let usdProject: LegacyUsdProject;
+    let finalUsdaContent: string;
 
-    if (jsonContent) {
-      // 既存のJSONを使用してマークダウンを埋め込み
-      try {
-        usdProject = JSON.parse(jsonContent);
-        usdProject.stage.metadata = usdProject.stage.metadata || {};
-        usdProject.stage.metadata.source_markdown = processedMarkdown;
-      } catch (error) {
-        // JSONパースエラーの場合は空プロジェクトを作成
-        usdProject = createEmptyUsdProject(processedMarkdown);
-      }
+    if (usdaContent && usdaContent.startsWith('#usda')) {
+      // 既存のUSDAブロックがある場合、そのまま使用
+      finalUsdaContent = usdaContent;
     } else {
-      // JSONがない場合は空プロジェクトを作成
-      usdProject = createEmptyUsdProject(processedMarkdown);
+      // USDAブロックがない場合、新しいプロジェクトを作成
+      const usdProject = createEmptyUsdProject(processedMarkdown);
+      finalUsdaContent = UsdGenerator.generateUsdaContent(usdProject);
     }
 
     // 元のファイルをUSDに置き換え
@@ -110,7 +103,7 @@ namespace Internal {
     const baseName = file.basename;
     const usdPath = parentPath ? normalizePath(`${parentPath}/${baseName}.usda`) : `${baseName}.usda`;
 
-    const usdContent = UsdGenerator.generateUsdaContent(usdProject);
+    const usdContent = finalUsdaContent;
 
     // 元のファイルを削除してからUSDファイルを作成
     await app.vault.delete(file);
