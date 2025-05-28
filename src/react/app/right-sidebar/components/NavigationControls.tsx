@@ -16,14 +16,14 @@ interface NavigationControlsProps {
   onImageUrlChange: (newUrl: string | null) => void;
 }
 
-export const NavigationControls: React.FC<NavigationControlsProps> = ({
+export function NavigationControls({
   isPsdPainterOpen,
   currentImageUrl,
   onBackToStoryboard,
   onOpenPsdPainter,
   app,
   onImageUrlChange,
-}) => {
+}: NavigationControlsProps) {
   const handleConvertToStoryboard = async () => {
     const activeFile = app.workspace.getActiveFile();
     if (!activeFile) return;
@@ -369,4 +369,4 @@ export const NavigationControls: React.FC<NavigationControlsProps> = ({
       </div>
     </div>
   );
-}; 
+}
