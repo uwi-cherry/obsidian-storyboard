@@ -1,4 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
+import * as React from 'react';
+import { useRef, useEffect, useState, useMemo } from 'react';
 import etro from 'etro';
 import type { TimelineProject, UsdClip } from '../../../types/usd';
 import type {
@@ -171,7 +172,7 @@ export default function VideoPreview({
   }, [currentTime, isPlaying]);
 
   // ストーリーボードのシーン情報を取得
-  const scenes = React.useMemo<SceneInfo[]>(() => {
+  const scenes = useMemo<SceneInfo[]>(() => {
     if (!storyboardData) return [];
 
     const sceneLists = storyboardData.chapters.map((chapter: StoryboardChapter) =>
@@ -195,8 +196,8 @@ export default function VideoPreview({
   }, [storyboardData]);
 
   // 現在のシーンインデックスを更新
-  React.useEffect(() => {
-    const sceneIndex = scenes.findIndex(scene =>
+  useEffect(() => {
+    const sceneIndex = scenes.findIndex((scene: SceneInfo) =>
       currentTime >= scene.startTime &&
       currentTime < scene.startTime + scene.duration
     );
