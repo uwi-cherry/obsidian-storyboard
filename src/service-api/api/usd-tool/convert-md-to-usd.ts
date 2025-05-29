@@ -72,14 +72,11 @@ namespace Internal {
     const markdownLines: string[] = [];
     const usdaLines: string[] = [];
     let inUsdaBlock = false;
-    let foundUsdaBlock = false;
-
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i];
 
       if (line.trim() === '```usda') {
         inUsdaBlock = true;
-        foundUsdaBlock = true;
         continue;
       }
 
@@ -91,10 +88,8 @@ namespace Internal {
       if (inUsdaBlock) {
         usdaLines.push(line);
       } else {
-        // USDAブロックが見つかった後の行は無視（USDAブロック以降は含めない）
-        if (!foundUsdaBlock) {
-          markdownLines.push(line);
-        }
+        // USDAブロック外のMarkdown行はすべて含める
+        markdownLines.push(line);
       }
     }
 
@@ -102,19 +97,23 @@ namespace Internal {
     const processedMarkdown = cleanMarkdown;
     const usdaContent = usdaLines.join('\n').trim();
 
+    console.log('=== DEBUG: markdownLines length ===', markdownLines.length);
+    console.log('=== DEBUG: cleanMarkdown ===');
+    console.log('Content:', cleanMarkdown);
+    console.log('=== DEBUG: processedMarkdown ===');
+    console.log('Content:', processedMarkdown);
+    console.log('Length:', processedMarkdown.length);
+
     let finalUsdaContent: string;
 
-    if (usdaContent && usdaContent.startsWith('#usda')) {
-      // 既存のUSDAブロックがある場合、そのまま使用
-      finalUsdaContent = usdaContent;
-    } else {
-      // USDAブロックがない場合、新しいプロジェクトを作成
-      console.log('=== DEBUG: processedMarkdown ===');
-      console.log('Content:', processedMarkdown);
-      console.log('Contains usda?', processedMarkdown.includes('```usda'));
-      const usdProject = createEmptyUsdProject(processedMarkdown);
-      finalUsdaContent = UsdGenerator.generateUsdaContent(usdProject);
-    }
+    // 常に新しいUSDプロジェクトを作成（既存のUSDAは参考程度）
+    console.log('=== Creating new USD project ===');
+    console.log('processedMarkdown:', processedMarkdown);
+    console.log('Contains usda?', processedMarkdown.includes('```usda'));
+    const usdProject = createEmptyUsdProject(processedMarkdown);
+    console.log('=== USD Project sourceMarkdown ===');
+    console.log(usdProject.applicationMetadata.sourceMarkdown);
+    finalUsdaContent = UsdGenerator.generateUsdaContent(usdProject);
 
     // 元のファイルをUSDに置き換え
     const parentPath = file.parent?.path || '';

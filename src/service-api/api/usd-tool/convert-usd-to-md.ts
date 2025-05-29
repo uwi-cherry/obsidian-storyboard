@@ -137,10 +137,19 @@ namespace Internal {
    * USDAファイルからマークダウンコンテンツを抽出し、USDからcustomLayerDataを削除
    */
   function extractAndRemoveMarkdownFromUsda(usdaContent: string): { markdown: string; cleanUsda: string } {
+    console.log('=== 入力USDコンテンツ ===');
+    console.log(usdaContent.substring(0, 500) + '...');
+    
     const customLayerDataMatch = usdaContent.match(/customLayerData\s*=\s*\{([\s\S]*?)\}/);
-    if (!customLayerDataMatch) return { markdown: '', cleanUsda: usdaContent };
+    if (!customLayerDataMatch) {
+      console.log('customLayerDataが見つかりません');
+      return { markdown: '', cleanUsda: usdaContent };
+    }
     
     const customLayerData = customLayerDataMatch[1];
+    console.log('=== customLayerData ===');
+    console.log(customLayerData);
+    
     const originalContentMatch = customLayerData.match(/string\s+originalContent\s*=\s*"((?:[^"\\]|\\.)*)"/);
     
     let markdown = '';
@@ -150,10 +159,52 @@ namespace Internal {
         .replace(/\\n/g, '\n')
         .replace(/\\"/g, '"')
         .replace(/\\\\/g, '\\');
+      console.log('=== 復元されたMarkdown ===');
+      console.log(markdown);
+    } else {
+      console.log('originalContentが見つかりません');
     }
     
-    // customLayerDataをUSDから削除
-    const cleanUsda = usdaContent.replace(/\s*customLayerData\s*=\s*\{[\s\S]*?\}/, '');
+    // customLayerDataをUSDから削除（行全体を削除）
+    const lines = usdaContent.split('\n');
+    const cleanLines: string[] = [];
+    let inCustomLayerData = false;
+    let braceCount = 0;
+    
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      if (trimmedLine.startsWith('customLayerData')) {
+        inCustomLayerData = true;
+        braceCount = 0;
+        // この行の { をカウント
+        for (const char of line) {
+          if (char === '{') braceCount++;
+          if (char === '}') braceCount--;
+        }
+        // 同じ行で閉じている場合は即座に終了
+        if (braceCount <= 0) {
+          inCustomLayerData = false;
+        }
+        continue;
+      }
+      
+      if (inCustomLayerData) {
+        // { } をカウントして、対応が取れたら終了
+        for (const char of line) {
+          if (char === '{') braceCount++;
+          if (char === '}') braceCount--;
+        }
+        if (braceCount <= 0) {
+          inCustomLayerData = false;
+        }
+        continue;
+      }
+      
+      cleanLines.push(line);
+    }
+    
+    const cleanUsda = cleanLines.join('\n');
     
     return { markdown, cleanUsda };
   }
@@ -171,8 +222,14 @@ namespace Internal {
     
     if (extractedMarkdown && extractedMarkdown.trim() !== '') {
       // USDメタデータからMarkdownが取得できた場合
+      console.log('=== 抽出されたMarkdown ===');
+      console.log(extractedMarkdown);
       const cleanMarkdown = removeUsdaBlocks(extractedMarkdown);
+      console.log('=== USDAブロック除去後 ===');
+      console.log(cleanMarkdown);
       markdownContent = updateTimingInMarkdown(cleanMarkdown);
+      console.log('=== タイミング更新後 ===');
+      console.log(markdownContent);
     } else {
       // 対応するマークダウンファイルを探す
       const parentPath = file.parent?.path || '';
