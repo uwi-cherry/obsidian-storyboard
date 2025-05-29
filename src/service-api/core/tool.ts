@@ -1,4 +1,4 @@
-export interface Tool<TInput = Record<string, unknown>> {
+export interface Tool<TInput = Record<string, unknown>, TOutput = string> {
   
   name: string;
   
@@ -6,5 +6,5 @@ export interface Tool<TInput = Record<string, unknown>> {
   
   parameters: Record<string, unknown>;
   
-  execute: (args: TInput) => Promise<string>;
+  execute: (args: TInput) => Promise<TOutput>;
 }

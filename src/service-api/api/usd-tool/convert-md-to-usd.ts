@@ -104,7 +104,6 @@ namespace Internal {
     console.log('Content:', processedMarkdown);
     console.log('Length:', processedMarkdown.length);
 
-
     // 常に新しいUSDプロジェクトを作成（既存のUSDAは参考程度）
     console.log('=== Creating new USD project ===');
     console.log('processedMarkdown:', processedMarkdown);

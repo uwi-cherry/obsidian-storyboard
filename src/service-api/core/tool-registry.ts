@@ -4,12 +4,9 @@ import { ToolExecutor } from './tool-executor';
 import { TOOLS_CONFIG } from '../../constants/tools-config';
 
 namespace Internal {
-  export const tools = new Map<string, Tool>();
+  export const tools = new Map<string, Tool<any, any>>();
   export const aiEnabledTools = new Set<string>();
   export const config: ToolsConfiguration = TOOLS_CONFIG as ToolsConfiguration;
-
-  // コンフィグから指定されたパスを基に動的にツールを読み込むため、
-  // 事前に静的なツール一覧は保持しない。
 
   export function isValidTool(obj: unknown): obj is Tool {
     return (
@@ -50,7 +47,7 @@ namespace Internal {
     }
   }
 
-  export function registerToolInternal(tool: Tool): void {
+  export function registerToolInternal(tool: Tool<any, any>): void {
     if (tools.has(tool.name)) {
       if (config.config.enableLogging) {
       }
@@ -104,15 +101,15 @@ export class ToolRegistry {
     }
   }
 
-  getTool(name: string): Tool | undefined {
+  getTool(name: string): Tool<any, any> | undefined {
     return ToolExecutor.getTool(name);
   }
 
-  getAllTools(): Tool[] {
+  getAllTools(): Tool<any, any>[] {
     return Array.from(Internal.tools.values());
   }
 
-  getAiEnabledTools(): Tool[] {
+  getAiEnabledTools(): Tool<any, any>[] {
     return this.getAllTools().filter(tool => Internal.aiEnabledTools.has(tool.name));
   }
 
@@ -132,8 +129,11 @@ export class ToolRegistry {
     return ToolExecutor.isAiEnabled(name);
   }
 
-  async executeTool(name: string, args: Record<string, unknown>): Promise<string> {
-    return ToolExecutor.executeTool(name, args);
+  async executeTool<TInput = Record<string, unknown>, TOutput = string>(
+    name: string,
+    args: TInput
+  ): Promise<TOutput> {
+    return ToolExecutor.executeTool<TInput, TOutput>(name, args);
   }
 
   printToolInfo(): void {
