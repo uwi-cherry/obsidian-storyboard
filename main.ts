@@ -20,8 +20,8 @@ export default class MyPlugin extends Plugin {
 
     setAppInstance(this.app);
 
-
-    
+    // ツールの登録完了を待つ
+    await toolRegistry.ready;
     const availableTools = toolRegistry.getRegisteredToolNames();
 
     if (availableTools.length === 0) {
