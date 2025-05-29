@@ -22,23 +22,23 @@ function toCanvas(obj: agPsd.Layer | { canvas?: HTMLCanvasElement; data?: Uint8C
     obj.canvas instanceof HTMLCanvasElement
   ) {
     ctx.drawImage(obj.canvas, 0, 0);
-  } else if (obj && obj.canvas && obj.canvas.data) {
+  } else if (obj && (obj as any).canvas && (obj as any).canvas.data) {
     try {
       const imageData = new ImageData(
-        new Uint8ClampedArray(obj.canvas.data), 
-        obj.canvas.width || width, 
-        obj.canvas.height || height
+        new Uint8ClampedArray((obj as any).canvas.data),
+        (obj as any).canvas.width || width,
+        (obj as any).canvas.height || height
       );
       ctx.putImageData(imageData, 0, 0);
     } catch (error) {
       console.error(error);
     }
-  } else if (obj && obj.data) {
+  } else if (obj && (obj as any).data) {
     try {
       const imageData = new ImageData(
-        new Uint8ClampedArray(obj.data), 
-        obj.width || width, 
-        obj.height || height
+        new Uint8ClampedArray((obj as any).data),
+        (obj as any).width || width,
+        (obj as any).height || height
       );
       ctx.putImageData(imageData, 0, 0);
     } catch (error) {
@@ -76,8 +76,10 @@ namespace Internal {
     defaultWidth: number,
     defaultHeight: number
   ): { canvas: HTMLCanvasElement; width: number; height: number } {
-    const layerWidth = psdLayer.canvas?.width || psdLayer.width || defaultWidth;
-    const layerHeight = psdLayer.canvas?.height || psdLayer.height || defaultHeight;
+    const layerWidth =
+      psdLayer.canvas?.width || (psdLayer as any).width || defaultWidth;
+    const layerHeight =
+      psdLayer.canvas?.height || (psdLayer as any).height || defaultHeight;
     
         
     return { canvas: toCanvas(psdLayer, layerWidth, layerHeight), width: layerWidth, height: layerHeight };

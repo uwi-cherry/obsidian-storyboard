@@ -33,7 +33,7 @@ namespace Internal {
   export const aiEnabledTools = new Set<string>();
   export const config: ToolsConfiguration = TOOLS_CONFIG as ToolsConfiguration;
 
-  export const staticTools: Record<string, Tool> = {
+  export const staticTools: Record<string, Tool<any>> = {
     [TOOL_NAMES.CREATE_STORYBOARD_FILE]: createStoryboardFileTool,
     [TOOL_NAMES.RENAME_FILE_EXTENSION]: renameFileExtensionTool,
     [TOOL_NAMES.TOGGLE_STORYBOARD_VIEW]: toggleStoryboardViewTool,
@@ -61,12 +61,14 @@ namespace Internal {
   };
 
   export function isValidTool(obj: unknown): obj is Tool {
-    return obj && 
-           typeof obj === 'object' && 
-           typeof obj.name === 'string' && 
-           typeof obj.description === 'string' && 
-           obj.parameters && 
-           typeof obj.execute === 'function';
+    return (
+      typeof obj === 'object' &&
+      obj !== null &&
+      typeof (obj as any).name === 'string' &&
+      typeof (obj as any).description === 'string' &&
+      (obj as any).parameters !== undefined &&
+      typeof (obj as any).execute === 'function'
+    );
   }
 
   export function loadToolFromConfig(toolConfig: ToolConfig): void {
