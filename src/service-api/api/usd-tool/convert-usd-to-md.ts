@@ -134,21 +134,28 @@ namespace Internal {
   }
 
   /**
-   * USDAファイルからマークダウンコンテンツを抽出
+   * USDAファイルからマークダウンコンテンツを抽出し、USDからcustomLayerDataを削除
    */
-  function extractMarkdownFromUsda(usdaContent: string): string {
+  function extractAndRemoveMarkdownFromUsda(usdaContent: string): { markdown: string; cleanUsda: string } {
     const customLayerDataMatch = usdaContent.match(/customLayerData\s*=\s*\{([\s\S]*?)\}/);
-    if (!customLayerDataMatch) return '';
+    if (!customLayerDataMatch) return { markdown: '', cleanUsda: usdaContent };
     
     const customLayerData = customLayerDataMatch[1];
     const originalContentMatch = customLayerData.match(/string\s+originalContent\s*=\s*"((?:[^"\\]|\\.)*)"/);
-    if (!originalContentMatch) return '';
     
-    // エスケープを元に戻す
-    return originalContentMatch[1]
-      .replace(/\\n/g, '\n')
-      .replace(/\\"/g, '"')
-      .replace(/\\\\/g, '\\');
+    let markdown = '';
+    if (originalContentMatch) {
+      // エスケープを元に戻す
+      markdown = originalContentMatch[1]
+        .replace(/\\n/g, '\n')
+        .replace(/\\"/g, '"')
+        .replace(/\\\\/g, '\\');
+    }
+    
+    // customLayerDataをUSDから削除
+    const cleanUsda = usdaContent.replace(/\s*customLayerData\s*=\s*\{[\s\S]*?\}/, '');
+    
+    return { markdown, cleanUsda };
   }
 
   export async function executeConvertUsdToMd(args: ConvertUsdToMdInput): Promise<string> {
@@ -157,17 +164,17 @@ namespace Internal {
     // USDAファイルを読み込み
     const usdContent = await app.vault.read(file);
 
-    // 既存のマークダウンコンテンツを取得を試みる
+    // USDからMarkdownを抽出し、クリーンなUSDを取得
+    const { markdown: extractedMarkdown, cleanUsda } = extractAndRemoveMarkdownFromUsda(usdContent);
+    
     let markdownContent = '';
     
-    // 1. USDAメタデータから抽出を試行
-    const extractedMarkdown = extractMarkdownFromUsda(usdContent);
     if (extractedMarkdown && extractedMarkdown.trim() !== '') {
-      // USDAブロックを除去してからタイミング更新
+      // USDメタデータからMarkdownが取得できた場合
       const cleanMarkdown = removeUsdaBlocks(extractedMarkdown);
       markdownContent = updateTimingInMarkdown(cleanMarkdown);
     } else {
-      // 2. 対応するマークダウンファイルを探す
+      // 対応するマークダウンファイルを探す
       const parentPath = file.parent?.path || '';
       const baseName = file.basename;
       const possibleMdPath = parentPath ? normalizePath(`${parentPath}/${baseName}.md`) : `${baseName}.md`;
@@ -184,14 +191,14 @@ namespace Internal {
           markdownContent = '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
         }
       } else {
-        // 3. デフォルトテンプレートを使用
+        // デフォルトテンプレートを使用
         markdownContent = '# 新しいストーリーボード\n\n### キャラクター\n\n### チャプター1';
       }
     }
 
-    // USDAコンテンツをUSDAブロックとして追加
+    // クリーンなUSDAコンテンツをUSDAブロックとして追加
     markdownContent += '\n\n```usda\n';
-    markdownContent += usdContent;
+    markdownContent += cleanUsda;
     markdownContent += '\n```';
 
     // 元のファイルをマークダウンに置き換え

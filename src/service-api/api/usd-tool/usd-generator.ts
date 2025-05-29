@@ -73,11 +73,9 @@ export class UsdGenerator {
       lines.push(`    timeCodesPerSecond = ${project.stage.layerMetadata.timeCodesPerSecond}`);
     }
     
-    // アプリケーションメタデータをcustomLayerDataに追加
+    // 一時的にMarkdownを保存（復元用）
     if (project.applicationMetadata.sourceMarkdown) {
       lines.push('    customLayerData = {');
-      lines.push('        string sourceFormat = "markdown"');
-      lines.push(`        string creator = "${project.applicationMetadata.creator}"`);
       const escapedMarkdown = project.applicationMetadata.sourceMarkdown
         .replace(/\\/g, '\\\\')
         .replace(/"/g, '\\"')
@@ -107,11 +105,9 @@ export class UsdGenerator {
     
     lines.push(`    timeCodesPerSecond = ${project.stage.timeCodesPerSecond}`);
     
-    // アプリケーションメタデータをcustomLayerDataに追加
+    // 一時的にMarkdownを保存（復元用）
     if (project.applicationMetadata.sourceMarkdown) {
       lines.push('    customLayerData = {');
-      lines.push('        string sourceFormat = "markdown"');
-      lines.push(`        string creator = "${project.applicationMetadata.creator}"`);
       const escapedMarkdown = project.applicationMetadata.sourceMarkdown
         .replace(/\\/g, '\\\\')
         .replace(/"/g, '\\"')
