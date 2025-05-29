@@ -3,11 +3,11 @@ import { ToolsConfiguration } from './tool-config-types';
 
 namespace Internal {
   export let config: ToolsConfiguration;
-  export let tools: Map<string, Tool>;
+  export let tools: Map<string, Tool<any, any>>;
   export let aiEnabledTools: Set<string>;
 
   export function initialize(
-    toolsMap: Map<string, Tool>, 
+    toolsMap: Map<string, Tool<any, any>>,
     aiToolsSet: Set<string>, 
     configuration: ToolsConfiguration
   ): void {
@@ -20,14 +20,17 @@ namespace Internal {
 export class ToolExecutor {
   
   static initialize(
-    tools: Map<string, Tool>, 
-    aiEnabledTools: Set<string>, 
+    tools: Map<string, Tool<any, any>>,
+    aiEnabledTools: Set<string>,
     config: ToolsConfiguration
   ): void {
     Internal.initialize(tools, aiEnabledTools, config);
   }
 
-  static async executeTool(name: string, args: Record<string, unknown>): Promise<string> {
+  static async executeTool<TInput = Record<string, unknown>, TOutput = string>(
+    name: string,
+    args: TInput
+  ): Promise<TOutput> {
     const tool = Internal.tools.get(name);
     if (!tool) {
       const availableTools = Array.from(Internal.tools.keys()).join(', ');
@@ -37,7 +40,7 @@ export class ToolExecutor {
     try {
       if (Internal.config.config.enableLogging) {
       }
-      const result = await tool.execute(args);
+      const result = await (tool as Tool<TInput, TOutput>).execute(args);
       if (Internal.config.config.enableLogging) {
       }
       return result;
@@ -56,7 +59,7 @@ export class ToolExecutor {
     return Internal.tools.has(name);
   }
 
-  static getTool(name: string): Tool | undefined {
+  static getTool(name: string): Tool<any, any> | undefined {
     return Internal.tools.get(name);
   }
-} 
+}

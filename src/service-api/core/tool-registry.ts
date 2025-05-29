@@ -29,11 +29,11 @@ import { toggleLayerVisibilityTool } from '../api/layer-tool/toggle-layer-visibi
 import { addLayerTool } from '../api/layer-tool/add-layer';
 
 namespace Internal {
-  export const tools = new Map<string, Tool>();
+  export const tools = new Map<string, Tool<any, any>>();
   export const aiEnabledTools = new Set<string>();
   export const config: ToolsConfiguration = TOOLS_CONFIG as ToolsConfiguration;
 
-  export const staticTools: Record<string, Tool<any>> = {
+  export const staticTools: Record<string, Tool<any, any>> = {
     [TOOL_NAMES.CREATE_STORYBOARD_FILE]: createStoryboardFileTool,
     [TOOL_NAMES.RENAME_FILE_EXTENSION]: renameFileExtensionTool,
     [TOOL_NAMES.TOGGLE_STORYBOARD_VIEW]: toggleStoryboardViewTool,
@@ -99,7 +99,7 @@ namespace Internal {
     }
   }
 
-  export function registerToolInternal(tool: Tool): void {
+  export function registerToolInternal(tool: Tool<any, any>): void {
     if (tools.has(tool.name)) {
       if (config.config.enableLogging) {
       }
@@ -146,15 +146,15 @@ export class ToolRegistry {
     }
   }
 
-  getTool(name: string): Tool | undefined {
+  getTool(name: string): Tool<any, any> | undefined {
     return ToolExecutor.getTool(name);
   }
 
-  getAllTools(): Tool[] {
+  getAllTools(): Tool<any, any>[] {
     return Array.from(Internal.tools.values());
   }
 
-  getAiEnabledTools(): Tool[] {
+  getAiEnabledTools(): Tool<any, any>[] {
     return this.getAllTools().filter(tool => Internal.aiEnabledTools.has(tool.name));
   }
 
@@ -174,8 +174,11 @@ export class ToolRegistry {
     return ToolExecutor.isAiEnabled(name);
   }
 
-  async executeTool(name: string, args: Record<string, unknown>): Promise<string> {
-    return ToolExecutor.executeTool(name, args);
+  async executeTool<TInput = Record<string, unknown>, TOutput = string>(
+    name: string,
+    args: TInput
+  ): Promise<TOutput> {
+    return ToolExecutor.executeTool<TInput, TOutput>(name, args);
   }
 
   printToolInfo(): void {
