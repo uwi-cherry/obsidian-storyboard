@@ -19,8 +19,8 @@ export const usePainterLayoutStore = create<PainterLayoutState>()(
       storage: {
         getItem: async (name: string): Promise<StorageValue<PainterLayoutState> | null> => {
           try {
-            if (typeof window !== 'undefined' && (window as any).storyboardPlugin) {
-              const plugin = (window as any).storyboardPlugin;
+            if (typeof window !== 'undefined' && (window as any).boardPlugin) {
+              const plugin = (window as any).boardPlugin;
               const data = await plugin.loadData() || {};
               const value = data.painterLayoutStore;
               return value || null;
@@ -32,8 +32,8 @@ export const usePainterLayoutStore = create<PainterLayoutState>()(
         },
         setItem: async (name: string, value: StorageValue<PainterLayoutState>) => {
           try {
-            if (typeof window !== 'undefined' && (window as any).storyboardPlugin) {
-              const plugin = (window as any).storyboardPlugin;
+            if (typeof window !== 'undefined' && (window as any).boardPlugin) {
+              const plugin = (window as any).boardPlugin;
               const data = await plugin.loadData() || {};
               data.painterLayoutStore = value;
               await plugin.saveData(data);
@@ -44,8 +44,8 @@ export const usePainterLayoutStore = create<PainterLayoutState>()(
         },
         removeItem: async (name: string) => {
           try {
-            if (typeof window !== 'undefined' && (window as any).storyboardPlugin) {
-              const plugin = (window as any).storyboardPlugin;
+            if (typeof window !== 'undefined' && (window as any).boardPlugin) {
+              const plugin = (window as any).boardPlugin;
               const data = await plugin.loadData() || {};
               delete data.painterLayoutStore;
               await plugin.saveData(data);

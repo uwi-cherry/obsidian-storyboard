@@ -41,11 +41,11 @@ namespace Internal {
 
     try {
       let counter = 1;
-      let fileName = `無題のファイル ${counter}.storyboard`;
+      let fileName = `無題のファイル ${counter}.board`;
       
       while (app.vault.getAbstractFileByPath(fileName)) {
         counter++;
-        fileName = `無題のファイル ${counter}.storyboard`;
+        fileName = `無題のファイル ${counter}.board`;
       }
 
       const file = await app.vault.create(fileName, sampleContent);

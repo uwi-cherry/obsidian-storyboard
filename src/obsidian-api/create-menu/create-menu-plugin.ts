@@ -46,7 +46,7 @@ export class CreateMenuPlugin {
       menu.addItem(item =>
         item
           .setTitle('Storyboard')
-          .setIcon('storyboard')
+          .setIcon('board')
           .onClick(async () => {
             try {
               const result = await toolRegistry.executeTool(TOOL_NAMES.CREATE_STORYBOARD_FILE, { app: this.plugin.app });
@@ -64,7 +64,7 @@ export class CreateMenuPlugin {
                 // JSON parse error is ignored
               }
               const activeLeaf = this.plugin.app.workspace.getLeaf(true);
-              const storyboardFiles = this.plugin.app.vault.getFiles().filter(f => f.extension === 'storyboard');
+              const storyboardFiles = this.plugin.app.vault.getFiles().filter(f => f.extension === 'board');
               if (storyboardFiles.length > 0) {
                 const latestFile = storyboardFiles[storyboardFiles.length - 1];
                 await activeLeaf.openFile(latestFile);

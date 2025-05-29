@@ -53,15 +53,15 @@ namespace Internal {
     const currentMode = factory.getCurrentViewMode(leaf);
 
     if (currentMode === 'markdown') {
-        if (file.extension !== 'storyboard') {
+        if (file.extension !== 'board') {
           const parentPath = file.parent?.path ?? '';
           const baseName = file.basename;
           let counter = 0;
-          let newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}.storyboard` : `${baseName}.storyboard`;
+          let newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}.board` : `${baseName}.board`;
           
           while (app.vault.getAbstractFileByPath(newPath) && app.vault.getAbstractFileByPath(newPath) !== file) {
             counter += 1;
-            newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}-${counter}.storyboard` : `${baseName}-${counter}.storyboard`;
+            newPath = parentPath && parentPath !== '/' ? `${parentPath}/${baseName}-${counter}.board` : `${baseName}-${counter}.board`;
           }
           
           if (newPath !== file.path) {
@@ -75,7 +75,7 @@ namespace Internal {
         await factory.switchToStoryboardViewMode(leaf, app);
         return 'ストーリーボードビューに切り替えました';
       } else {
-        if (file.extension === 'storyboard') {
+        if (file.extension === 'board') {
           const parentPath = file.parent?.path ?? '';
           const baseName = file.basename;
           let counter = 0;

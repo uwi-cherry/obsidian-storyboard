@@ -14,10 +14,10 @@ export class StoryboardPlugin {
   }
 
   initialize(): void {
-    addIcon('storyboard', OBSIDIAN_ICONS.STORYBOARD_ICON_SVG);
-    addIcon('storyboard-toggle', OBSIDIAN_ICONS.STORYBOARD_TOGGLE_ICON_SVG);
+    addIcon('board', OBSIDIAN_ICONS.STORYBOARD_ICON_SVG);
+    addIcon('board-toggle', OBSIDIAN_ICONS.STORYBOARD_TOGGLE_ICON_SVG);
 
-    this.plugin.registerExtensions(['storyboard'], 'markdown');
+    this.plugin.registerExtensions(['board'], 'markdown');
     
     // 絵コンテ切替ボタンは削除（モード切替に統合）
 
@@ -25,9 +25,9 @@ export class StoryboardPlugin {
       const activeLeaf = this.plugin.app.workspace.activeLeaf;
       if (!activeLeaf || !(activeLeaf.view instanceof MarkdownView)) return;
 
-      if (file.extension === 'storyboard') {
+      if (file.extension === 'board') {
         await this.factory.switchToStoryboardViewMode(activeLeaf, this.plugin.app);
-      } else if (this.factory.getCurrentViewMode(activeLeaf) === 'storyboard') {
+      } else if (this.factory.getCurrentViewMode(activeLeaf) === 'board') {
         this.factory.switchToMarkdownViewMode(activeLeaf);
       }
     };

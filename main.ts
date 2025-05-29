@@ -12,7 +12,7 @@ export default class MyPlugin extends Plugin {
   private painterPlugin: PainterPlugin;
   private rightSidebarPlugin: RightSidebarPlugin;
   private timelinePlugin: TimelinePlugin;
-  private storyboardPlugin: StoryboardPlugin;
+  private boardPlugin: StoryboardPlugin;
   private settingsPlugin: SettingsPlugin;
   private createMenuPlugin: CreateMenuPlugin;
 
@@ -31,14 +31,14 @@ export default class MyPlugin extends Plugin {
     this.painterPlugin = new PainterPlugin(this);
     this.rightSidebarPlugin = new RightSidebarPlugin(this);
     this.timelinePlugin = new TimelinePlugin(this);
-    this.storyboardPlugin = new StoryboardPlugin(this);
+    this.boardPlugin = new StoryboardPlugin(this);
     this.settingsPlugin = new SettingsPlugin(this);
     this.createMenuPlugin = new CreateMenuPlugin(this);
 
     this.painterPlugin.initialize();
     this.rightSidebarPlugin.initialize();
     this.timelinePlugin.initialize();
-    this.storyboardPlugin.initialize();
+    this.boardPlugin.initialize();
     await this.settingsPlugin.initialize();
     this.createMenuPlugin.initialize();
 

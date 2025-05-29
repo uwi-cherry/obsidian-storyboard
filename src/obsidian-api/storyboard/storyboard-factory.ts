@@ -7,7 +7,7 @@ import { t } from '../../constants/obsidian-i18n';
 import { TOOL_NAMES } from '../../constants/tools-config';
 
 const viewRoots: WeakMap<WorkspaceLeaf, Root> = new WeakMap();
-const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'storyboard'> = new WeakMap();
+const viewModes: WeakMap<WorkspaceLeaf, 'markdown' | 'board'> = new WeakMap();
 
 export class StoryboardFactory {
 
@@ -15,7 +15,7 @@ export class StoryboardFactory {
     if (!(leaf.view instanceof MarkdownView)) return;
     const view = leaf.view;
     
-    if (view.file?.extension === 'storyboard') {
+    if (view.file?.extension === 'board') {
       viewModes.set(leaf, 'markdown');
     }
   }
@@ -50,7 +50,7 @@ export class StoryboardFactory {
     const file = view.file;
     if (!file) return;
 
-    viewModes.set(leaf, 'storyboard');
+    viewModes.set(leaf, 'board');
 
     const contentEl = view.contentEl;
     Array.from(contentEl.children).forEach(child => (child as HTMLElement).style.display = 'none');
@@ -100,7 +100,7 @@ export class StoryboardFactory {
     }
   }
 
-  getCurrentViewMode(leaf: WorkspaceLeaf): 'markdown' | 'storyboard' {
+  getCurrentViewMode(leaf: WorkspaceLeaf): 'markdown' | 'board' {
     return viewModes.get(leaf) || 'markdown';
   }
 
