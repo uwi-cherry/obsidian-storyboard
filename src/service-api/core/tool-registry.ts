@@ -1,64 +1,15 @@
 import { Tool } from './tool';
 import { ToolsConfiguration, ToolConfig } from './tool-config-types';
 import { ToolExecutor } from './tool-executor';
-import { TOOLS_CONFIG, TOOL_NAMES } from '../../constants/tools-config';
-
-import { createStoryboardFileTool } from '../api/storyboard-tool/create-storyboard-file';
-import { renameFileExtensionTool } from "../api/storyboard-tool/rename-file-extension";
-import { toggleStoryboardViewTool } from '../api/storyboard-tool/toggle-storyboard-view';
-import { loadStoryboardDataTool } from '../api/storyboard-tool/load-storyboard-data';
-import { saveStoryboardDataTool } from '../api/storyboard-tool/save-storyboard-data';
-import { createUsdFileTool } from '../api/usd-tool/create-usd-file';
-import { loadUsdFileTool } from '../api/usd-tool/load-usd-file';
-import { saveUsdFileTool } from '../api/usd-tool/save-usd-file';
-import { convertMdToUsdTool } from '../api/usd-tool/convert-md-to-usd';
-import { convertUsdToMdTool } from '../api/usd-tool/convert-usd-to-md';
-import { initializeTimingTool } from '../api/markdown-tool/initialize-timing';
-import { createPainterFileTool } from '../api/painter-tool/create-painter-file';
-import { undoPainterTool } from '../api/painter-tool/undo-painter';
-import { redoPainterTool } from '../api/painter-tool/redo-painter';
-import { loadPainterFileTool } from '../api/painter-tool/load-painter-file';
-import { savePainterFileTool } from '../api/painter-tool/save-painter-file';
-import { generateThumbnailTool } from '../api/painter-tool/generate-thumbnail';
-import { removeLayerTool } from '../api/layer-tool/remove-layer';
-import { setLayerOpacityTool } from '../api/layer-tool/set-layer-opacity';
-import { setLayerBlendModeTool } from '../api/layer-tool/set-layer-blend-mode';
-import { setLayerClippingTool } from '../api/layer-tool/set-layer-clipping';
-import { renameLayerTool } from '../api/layer-tool/rename-layer';
-import { toggleLayerVisibilityTool } from '../api/layer-tool/toggle-layer-visibility';
-import { addLayerTool } from '../api/layer-tool/add-layer';
+import { TOOLS_CONFIG } from '../../constants/tools-config';
 
 namespace Internal {
   export const tools = new Map<string, Tool>();
   export const aiEnabledTools = new Set<string>();
   export const config: ToolsConfiguration = TOOLS_CONFIG as ToolsConfiguration;
 
-  export const staticTools: Record<string, Tool<any>> = {
-    [TOOL_NAMES.CREATE_STORYBOARD_FILE]: createStoryboardFileTool,
-    [TOOL_NAMES.RENAME_FILE_EXTENSION]: renameFileExtensionTool,
-    [TOOL_NAMES.TOGGLE_STORYBOARD_VIEW]: toggleStoryboardViewTool,
-    [TOOL_NAMES.LOAD_STORYBOARD_DATA]: loadStoryboardDataTool,
-    [TOOL_NAMES.SAVE_STORYBOARD_DATA]: saveStoryboardDataTool,
-    [TOOL_NAMES.CREATE_USD_FILE]: createUsdFileTool,
-    [TOOL_NAMES.LOAD_USD_FILE]: loadUsdFileTool,
-    [TOOL_NAMES.SAVE_USD_FILE]: saveUsdFileTool,
-    [TOOL_NAMES.CONVERT_MD_TO_USD]: convertMdToUsdTool,
-    [TOOL_NAMES.CONVERT_USD_TO_MD]: convertUsdToMdTool,
-    [TOOL_NAMES.INITIALIZE_TIMING]: initializeTimingTool,
-    [TOOL_NAMES.CREATE_PAINTER_FILE]: createPainterFileTool,
-    [TOOL_NAMES.LOAD_PAINTER_FILE]: loadPainterFileTool,
-    [TOOL_NAMES.SAVE_PAINTER_FILE]: savePainterFileTool,
-    [TOOL_NAMES.GENERATE_THUMBNAIL]: generateThumbnailTool,
-    [TOOL_NAMES.UNDO_PAINTER]: undoPainterTool,
-    [TOOL_NAMES.REDO_PAINTER]: redoPainterTool,
-    [TOOL_NAMES.ADD_LAYER]: addLayerTool,
-    [TOOL_NAMES.REMOVE_LAYER]: removeLayerTool,
-    [TOOL_NAMES.SET_LAYER_OPACITY]: setLayerOpacityTool,
-    [TOOL_NAMES.SET_LAYER_BLEND_MODE]: setLayerBlendModeTool,
-    [TOOL_NAMES.SET_LAYER_CLIPPING]: setLayerClippingTool,
-    [TOOL_NAMES.RENAME_LAYER]: renameLayerTool,
-    [TOOL_NAMES.TOGGLE_LAYER_VISIBILITY]: toggleLayerVisibilityTool
-  };
+  // コンフィグから指定されたパスを基に動的にツールを読み込むため、
+  // 事前に静的なツール一覧は保持しない。
 
   export function isValidTool(obj: unknown): obj is Tool {
     return (
@@ -71,25 +22,25 @@ namespace Internal {
     );
   }
 
-  export function loadToolFromConfig(toolConfig: ToolConfig): void {
+  export async function loadToolFromConfig(toolConfig: ToolConfig): Promise<void> {
     try {
-      const toolInstance = staticTools[toolConfig.name];
-      
+      // modulePath は tools-config.ts で定義された相対パス
+      const module = await import(toolConfig.modulePath);
+      const toolInstance: unknown = module[toolConfig.exportName];
+
       if (!toolInstance) {
-        throw new Error(`Tool not found in static tools: ${toolConfig.name}`);
+        throw new Error(`Tool not found: ${toolConfig.exportName} in ${toolConfig.modulePath}`);
       }
 
       if (!isValidTool(toolInstance)) {
         throw new Error(`Invalid tool: ${toolConfig.exportName} for ${toolConfig.name}`);
       }
 
-      if (toolInstance.name !== toolConfig.name) {
-      }
+      const typedTool = toolInstance as Tool;
+      registerToolInternal(typedTool);
 
-      registerToolInternal(toolInstance);
-      
       if (toolConfig.ai_enabled) {
-        aiEnabledTools.add(toolInstance.name);
+        aiEnabledTools.add(typedTool.name);
       }
 
       if (config.config.enableLogging) {
@@ -112,13 +63,20 @@ namespace Internal {
 }
 
 export class ToolRegistry {
+  /**
+   * ツールの登録が完了した際に解決される Promise
+   */
+  readonly ready: Promise<void>;
+
   constructor() {
     if (Internal.config.config.autoRegister) {
-      this.autoRegisterTools();
+      this.ready = this.autoRegisterTools();
+    } else {
+      this.ready = Promise.resolve();
     }
   }
 
-  private autoRegisterTools(): void {
+  private async autoRegisterTools(): Promise<void> {
     if (Internal.config.config.enableLogging) {
     }
     
@@ -127,13 +85,13 @@ export class ToolRegistry {
 
     for (const toolConfig of Internal.config.tools) {
       try {
-        Internal.loadToolFromConfig(toolConfig);
+        await Internal.loadToolFromConfig(toolConfig);
         successCount++;
       } catch (error) {
         errorCount++;
         if (Internal.config.config.enableLogging) {
         }
-        
+
         if (Internal.config.config.failOnError) {
           throw new Error(`Tool registration failed for ${toolConfig.name}: ${error}`);
         }
