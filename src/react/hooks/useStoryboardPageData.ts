@@ -1,0 +1,54 @@
+import { useState, useCallback, useEffect } from 'react';
+import { App, TFile } from 'obsidian';
+import { toolRegistry } from '../../service-api/core/tool-registry';
+import useStoryboardData from './useStoryboardData';
+import { StoryboardData } from '../../types/storyboard';
+
+export default function useStoryboardPageData(app: App, file: TFile | null) {
+  const [initialData, setInitialData] = useState<StoryboardData>({
+    title: '',
+    chapters: [{ bgmPrompt: 'calm acoustic guitar, soft piano, peaceful ambient instrumental', frames: [] }],
+    characters: []
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  const handleDataChange = useCallback(
+    async (updatedData: StoryboardData) => {
+      if (!file) return;
+      try {
+        await toolRegistry.executeTool('save_storyboard_data', {
+          app,
+          file,
+          data: JSON.stringify(updatedData)
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [app, file]
+  );
+
+  const hookData = useStoryboardData(initialData, handleDataChange);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!file) return;
+      try {
+        setIsLoading(true);
+        const result = await toolRegistry.executeTool('load_storyboard_data', {
+          app,
+          file,
+        });
+        setInitialData(JSON.parse(result));
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, [app, file]);
+
+  return { isLoading, handleDataChange, ...hookData };
+}
