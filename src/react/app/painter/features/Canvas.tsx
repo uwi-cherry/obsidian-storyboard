@@ -1,7 +1,8 @@
 import { useRef, useEffect, useState } from 'react';
-import type { PointerEvent } from 'react';
+import type React from 'react';
 import type { PainterPointer } from '../../../hooks/usePainterPointer';
-import type { SelectionState, SelectionRect } from '../../../hooks/useSelectionState';
+import type { SelectionState } from '../../../hooks/useSelectionState';
+import type { SelectionRect } from '../../../../types/ui';
 import type { PainterView } from '../../../../types/painter-types';
 import type { Layer } from '../../../../types/painter-types';
 import { useLayersStore } from '../../../../zustand/storage/layers-store';
@@ -227,7 +228,7 @@ export default function Canvas({
     }
   }, [layers, currentLayerIndex, selectionState, animationTick, canvasSize]);
 
-  const getPointerPos = (e: PointerEvent) => {
+  const getPointerPos = (e: PointerEvent | React.PointerEvent) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
@@ -749,7 +750,7 @@ export default function Canvas({
     };
   };
 
-  const handlePointerDown = (e: PointerEvent) => {
+  const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getPointerPos(e);
 
     const layersStore = useLayersStore.getState();
@@ -800,7 +801,7 @@ export default function Canvas({
     }
   };
 
-  const handlePointerMove = (e: PointerEvent) => {
+  const handlePointerMove = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getPointerPos(e);
 
     if (pointer.tool === 'selection' && selectingRef.current) {
@@ -830,7 +831,7 @@ export default function Canvas({
     }
   };
 
-  const handlePointerUp = (e: PointerEvent) => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (pointer.tool === 'selection') {
       if (pointer.selectionMode === 'magic') {
         onSelectionEnd?.();

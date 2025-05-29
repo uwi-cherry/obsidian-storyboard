@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import type { FC, MouseEvent } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import type { FC } from 'react';
 import type { MenuOption } from '../../types/ui';
 
 interface MenuIconButtonProps {
@@ -41,14 +41,14 @@ const MenuIconButton: FC<MenuIconButtonProps> = ({
     return 'text-gray-700 hover:bg-gray-100';
   };
 
-  const toggleMenu = (e: MouseEvent) => {
+  const toggleMenu = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!disabled) {
       setIsOpen(!isOpen);
     }
   };
 
-  const handleOptionClick = (option: MenuOption, e: MouseEvent) => {
+  const handleOptionClick = (option: MenuOption, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!option.disabled) {
       option.onClick();

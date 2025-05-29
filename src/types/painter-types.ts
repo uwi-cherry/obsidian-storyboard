@@ -54,7 +54,7 @@ export interface PainterView {
   containerEl?: HTMLElement;
   
   // FileViewから継承されるプロパティ
-  file?: TFile;
+  file?: TFile | null;
   
   // Painterビュー固有のプロパティ
   layers?: Layer[];

@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import type { FC, ReactNode, MouseEvent } from 'react';
+import React, { useState, useRef } from 'react';
+import type { FC, ReactNode } from 'react';
 import { TABLE_ICONS, ADD_ICON_SVG } from '../../constants/icons';
 import IconButtonGroup from './IconButtonGroup';
 
@@ -73,7 +73,7 @@ const EditableTable = <T,>({
   const startWidth = useRef<number>(0);
   const startNextWidth = useRef<number>(0);
 
-  const handleMouseDown = (colIdx: number, e: MouseEvent) => {
+  const handleMouseDown = (colIdx: number, e: React.MouseEvent) => {
     resizingCol.current = colIdx;
     startX.current = e.clientX;
     startWidth.current = colWidths[colIdx] || 300;
@@ -181,7 +181,7 @@ const EditableTable = <T,>({
                     buttons={[
                       ...(onInsertRowBelow ? [{
                         icon: TABLE_ICONS.add,
-                        onClick: (e: MouseEvent<HTMLButtonElement>) => {
+                        onClick: (e: React.MouseEvent<HTMLButtonElement>) => {
                           e.stopPropagation();
                           onInsertRowBelow(index);
                         },
