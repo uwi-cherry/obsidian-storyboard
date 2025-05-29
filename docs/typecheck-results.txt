@@ -1,0 +1,190 @@
+src/obsidian-api/painter/painter-factory.ts(21,42): error TS2769: No overload matches this call.
+  The last overload gave the following error.
+    Type 'import("/mnt/c/work/projects/obsidian/.obsidian/plugins/obsidian-storyboard/src/obsidian-api/painter/painter-view").PainterView' is not assignable to type 'import("/mnt/c/work/projects/obsidian/.obsidian/plugins/obsidian-storyboard/src/types/painter-types").PainterView'.
+      Types of property 'file' are incompatible.
+        Type 'TFile | null' is not assignable to type 'TFile | undefined'.
+          Type 'null' is not assignable to type 'TFile | undefined'.
+src/react/app/painter/features/Canvas.tsx(4,31): error TS2614: Module '"../../../hooks/useSelectionState"' has no exported member 'SelectionRect'. Did you mean to use 'import SelectionRect from "../../../hooks/useSelectionState"' instead?
+src/react/app/painter/features/TransformEditOverlay.tsx(97,44): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "pointermove", listener: (this: Window, ev: PointerEvent) => any, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: PointerEvent) => void' is not assignable to parameter of type '(this: Window, ev: PointerEvent) => any'.
+      Types of parameters 'e' and 'ev' are incompatible.
+        Type 'PointerEvent' is missing the following properties from type 'PointerEvent<Element>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: PointerEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(e: PointerEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'e' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'PointerEvent<Element>': pointerId, pressure, tangentialPressure, tiltX, and 28 more.
+src/react/app/painter/features/TransformEditOverlay.tsx(100,49): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "pointermove", listener: (this: Window, ev: PointerEvent) => any, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: PointerEvent) => void' is not assignable to parameter of type '(this: Window, ev: PointerEvent) => any'.
+      Types of parameters 'e' and 'ev' are incompatible.
+        Type 'PointerEvent' is missing the following properties from type 'PointerEvent<Element>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: PointerEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(e: PointerEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'e' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'PointerEvent<Element>': pointerId, pressure, tangentialPressure, tiltX, and 28 more.
+src/react/app/painter/features/TransformEditOverlay.tsx(172,49): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "pointermove", listener: (this: Window, ev: PointerEvent) => any, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(ev: PointerEvent) => void' is not assignable to parameter of type '(this: Window, ev: PointerEvent) => any'.
+      Types of parameters 'ev' and 'ev' are incompatible.
+        Type 'PointerEvent' is missing the following properties from type 'PointerEvent<Element>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(ev: PointerEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(ev: PointerEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'ev' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'PointerEvent<Element>': pointerId, pressure, tangentialPressure, tiltX, and 28 more.
+src/react/app/painter/features/TransformEditOverlay.tsx(176,44): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "pointermove", listener: (this: Window, ev: PointerEvent) => any, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(ev: PointerEvent) => void' is not assignable to parameter of type '(this: Window, ev: PointerEvent) => any'.
+      Types of parameters 'ev' and 'ev' are incompatible.
+        Type 'PointerEvent' is missing the following properties from type 'PointerEvent<Element>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(ev: PointerEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(ev: PointerEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'ev' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'PointerEvent<Element>': pointerId, pressure, tangentialPressure, tiltX, and 28 more.
+src/react/components/EditableTable.tsx(82,42): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "mousemove", listener: (this: Window, ev: MouseEvent) => any, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: MouseEvent) => void' is not assignable to parameter of type '(this: Window, ev: MouseEvent) => any'.
+      Types of parameters 'e' and 'ev' are incompatible.
+        Type 'MouseEvent' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: MouseEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(e: MouseEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'e' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': altKey, button, buttons, clientX, and 18 more.
+src/react/components/EditableTable.tsx(111,45): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "mousemove", listener: (this: Window, ev: MouseEvent) => any, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: MouseEvent) => void' is not assignable to parameter of type '(this: Window, ev: MouseEvent) => any'.
+      Types of parameters 'e' and 'ev' are incompatible.
+        Type 'MouseEvent' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(e: MouseEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(e: MouseEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'e' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': altKey, button, buttons, clientX, and 18 more.
+src/react/components/MenuIconButton.tsx(68,46): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "mousedown", listener: (this: Document, ev: MouseEvent) => any, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type '(this: Document, ev: MouseEvent) => any'.
+      Types of parameters 'event' and 'ev' are incompatible.
+        Type 'MouseEvent' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(event: MouseEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'event' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': altKey, button, buttons, clientX, and 18 more.
+src/react/components/MenuIconButton.tsx(70,51): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(type: "mousedown", listener: (this: Document, ev: MouseEvent) => any, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type '(this: Document, ev: MouseEvent) => any'.
+      Types of parameters 'event' and 'ev' are incompatible.
+        Type 'MouseEvent' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': nativeEvent, isDefaultPrevented, isPropagationStopped, persist
+  Overload 2 of 2, '(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions | undefined): void', gave the following error.
+    Argument of type '(event: MouseEvent) => void' is not assignable to parameter of type 'EventListenerOrEventListenerObject'.
+      Type '(event: MouseEvent) => void' is not assignable to type 'EventListener'.
+        Types of parameters 'event' and 'evt' are incompatible.
+          Type 'Event' is missing the following properties from type 'MouseEvent<Element, MouseEvent>': altKey, button, buttons, clientX, and 18 more.
+src/service-api/api/painter-tool/load-painter-file.ts(25,46): error TS2339: Property 'data' does not exist on type 'HTMLCanvasElement'.
+src/service-api/api/painter-tool/load-painter-file.ts(28,42): error TS2339: Property 'data' does not exist on type 'HTMLCanvasElement'.
+src/service-api/api/painter-tool/load-painter-file.ts(36,25): error TS2339: Property 'data' does not exist on type 'Layer | { canvas?: HTMLCanvasElement | undefined; data?: Uint8ClampedArray<ArrayBufferLike> | undefined; }'.
+  Property 'data' does not exist on type 'Layer'.
+src/service-api/api/painter-tool/load-painter-file.ts(39,35): error TS2339: Property 'data' does not exist on type 'Layer | { canvas?: HTMLCanvasElement | undefined; data?: Uint8ClampedArray<ArrayBufferLike> | undefined; }'.
+  Property 'data' does not exist on type 'Layer'.
+src/service-api/api/painter-tool/load-painter-file.ts(40,13): error TS2339: Property 'width' does not exist on type 'Layer | { canvas?: HTMLCanvasElement | undefined; data?: Uint8ClampedArray<ArrayBufferLike> | undefined; }'.
+  Property 'width' does not exist on type 'Layer'.
+src/service-api/api/painter-tool/load-painter-file.ts(41,13): error TS2339: Property 'height' does not exist on type 'Layer | { canvas?: HTMLCanvasElement | undefined; data?: Uint8ClampedArray<ArrayBufferLike> | undefined; }'.
+  Property 'height' does not exist on type 'Layer'.
+src/service-api/api/painter-tool/load-painter-file.ts(79,59): error TS2339: Property 'width' does not exist on type 'Layer'.
+src/service-api/api/painter-tool/load-painter-file.ts(80,61): error TS2339: Property 'height' does not exist on type 'Layer'.
+src/service-api/api/usd-tool/usd-generator.ts(243,15): error TS2339: Property 'type' does not exist on type 'SimpleTrack'.
+src/service-api/api/usd-tool/usd-generator.ts(244,60): error TS2339: Property 'type' does not exist on type 'SimpleTrack'.
+src/service-api/api/usd-tool/usd-generator.ts(248,11): error TS2339: Property 'children' does not exist on type 'SimpleTrack'.
+src/service-api/api/usd-tool/usd-generator.ts(248,28): error TS7006: Parameter 'clip' implicitly has an 'any' type.
+src/service-api/api/usd-tool/usd-generator.ts(267,14): error TS2339: Property 'type' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(268,58): error TS2339: Property 'type' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(272,14): error TS2339: Property 'asset_reference' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(273,58): error TS2339: Property 'asset_reference' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(274,16): error TS2339: Property 'asset_reference' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(275,61): error TS2339: Property 'asset_reference' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(280,14): error TS2339: Property 'source_range' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(281,58): error TS2339: Property 'source_range' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(282,57): error TS2339: Property 'source_range' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(286,14): error TS2339: Property 'variants' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(286,31): error TS2339: Property 'variants' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(287,60): error TS2339: Property 'variants' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(287,73): error TS7006: Parameter 'v' implicitly has an 'any' type.
+src/service-api/api/usd-tool/usd-generator.ts(291,14): error TS2339: Property 'attributes' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(291,33): error TS2339: Property 'attributes' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(292,12): error TS2339: Property 'attributes' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(301,14): error TS2339: Property 'metadata' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(301,43): error TS2339: Property 'metadata' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(303,27): error TS2339: Property 'metadata' does not exist on type 'SimpleMediaClip'.
+src/service-api/api/usd-tool/usd-generator.ts(325,9): error TS2353: Object literal may only specify known properties, and 'name' does not exist in type 'UsdStage'.
+src/service-api/core/tool-registry.ts(37,5): error TS2418: Type of computed property's value is 'Tool<CreateStoryboardFileInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'CreateStoryboardFileInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'CreateStoryboardFileInput'.
+src/service-api/core/tool-registry.ts(38,5): error TS2418: Type of computed property's value is 'Tool<RenameFileExtensionInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'RenameFileExtensionInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'RenameFileExtensionInput'.
+src/service-api/core/tool-registry.ts(39,5): error TS2418: Type of computed property's value is 'Tool<ToggleStoryboardViewInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'ToggleStoryboardViewInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'ToggleStoryboardViewInput'.
+src/service-api/core/tool-registry.ts(40,5): error TS2418: Type of computed property's value is 'Tool<LoadStoryboardDataInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'LoadStoryboardDataInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'LoadStoryboardDataInput'.
+src/service-api/core/tool-registry.ts(41,5): error TS2418: Type of computed property's value is 'Tool<SaveStoryboardDataInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'SaveStoryboardDataInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SaveStoryboardDataInput'.
+src/service-api/core/tool-registry.ts(42,5): error TS2418: Type of computed property's value is 'Tool<CreateUsdFileInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'CreateUsdFileInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'CreateUsdFileInput'.
+src/service-api/core/tool-registry.ts(43,5): error TS2418: Type of computed property's value is 'Tool<LoadUsdFileInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'LoadUsdFileInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'LoadUsdFileInput'.
+src/service-api/core/tool-registry.ts(44,5): error TS2418: Type of computed property's value is 'Tool<SaveUsdFileInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'SaveUsdFileInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SaveUsdFileInput'.
+src/service-api/core/tool-registry.ts(45,5): error TS2418: Type of computed property's value is 'Tool<ConvertMdToUsdInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'ConvertMdToUsdInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'ConvertMdToUsdInput'.
+src/service-api/core/tool-registry.ts(46,5): error TS2418: Type of computed property's value is 'Tool<ConvertUsdToMdInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'ConvertUsdToMdInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'ConvertUsdToMdInput'.
+src/service-api/core/tool-registry.ts(47,5): error TS2418: Type of computed property's value is 'Tool<InitializeTimingInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'InitializeTimingInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'InitializeTimingInput'.
+src/service-api/core/tool-registry.ts(48,5): error TS2418: Type of computed property's value is 'Tool<CreatePainterFileInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'CreatePainterFileInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'CreatePainterFileInput'.
+src/service-api/core/tool-registry.ts(49,5): error TS2418: Type of computed property's value is 'Tool<LoadPainterFileInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'LoadPainterFileInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'LoadPainterFileInput'.
+src/service-api/core/tool-registry.ts(50,5): error TS2418: Type of computed property's value is 'Tool<SavePainterFileInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'SavePainterFileInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SavePainterFileInput'.
+src/service-api/core/tool-registry.ts(51,5): error TS2418: Type of computed property's value is 'Tool<GenerateThumbnailInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'GenerateThumbnailInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'GenerateThumbnailInput'.
+src/service-api/core/tool-registry.ts(55,5): error TS2418: Type of computed property's value is 'Tool<RemoveLayerInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'RemoveLayerInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'RemoveLayerInput'.
+src/service-api/core/tool-registry.ts(56,5): error TS2418: Type of computed property's value is 'Tool<SetLayerOpacityInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'SetLayerOpacityInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SetLayerOpacityInput'.
+src/service-api/core/tool-registry.ts(57,5): error TS2418: Type of computed property's value is 'Tool<SetLayerBlendModeInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'SetLayerBlendModeInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SetLayerBlendModeInput'.
+src/service-api/core/tool-registry.ts(58,5): error TS2418: Type of computed property's value is 'Tool<SetLayerClippingInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'SetLayerClippingInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'SetLayerClippingInput'.
+src/service-api/core/tool-registry.ts(59,5): error TS2418: Type of computed property's value is 'Tool<RenameLayerInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'RenameLayerInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'RenameLayerInput'.
+src/service-api/core/tool-registry.ts(60,5): error TS2418: Type of computed property's value is 'Tool<ToggleLayerVisibilityInput>', which is not assignable to type 'Tool<Record<string, unknown>>'.
+  Type 'ToggleLayerVisibilityInput' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'ToggleLayerVisibilityInput'.
+src/service-api/core/tool-registry.ts(66,23): error TS2339: Property 'name' does not exist on type 'object'.
+src/service-api/core/tool-registry.ts(67,23): error TS2339: Property 'description' does not exist on type 'object'.
+src/service-api/core/tool-registry.ts(68,16): error TS2339: Property 'parameters' does not exist on type 'object'.
+src/service-api/core/tool-registry.ts(69,23): error TS2339: Property 'execute' does not exist on type 'object'.
