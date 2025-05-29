@@ -1,4 +1,4 @@
-import type { UsdProject, LegacyUsdProject, AnyUsdProject, UsdStage, UsdTrack, UsdClip } from '../../../types/usd';
+import type { UsdProject, UsdStage, UsdTrack, UsdClip } from '../../../types/usd';
 
 /**
  * USD形式のファイル生成ユーティリティ
@@ -36,88 +36,22 @@ export class UsdGenerator {
   /**
    * USDプロジェクトから実際のUSDAファイル内容を生成
    */
-  static generateUsdaContent(project: AnyUsdProject): string {
-    const lines: string[] = [];
-    
-    // USDAファイルヘッダ
-    lines.push('#usda 1.0');
-    lines.push('(');
-    
-    // プロジェクトタイプを判定
-    if (this.isLegacyProject(project)) {
-      return this.generateLegacyUsdaContent(project);
-    } else if (this.isTimelineProject(project)) {
+  static generateUsdaContent(project: UsdProject | import('../../../types/usd').TimelineProject): string {
+    if (this.isTimelineProject(project)) {
       return this.generateTimelineUsdaContent(project);
     } else {
-      return this.generateModernUsdaContent(project);
+      return this.generateModernUsdaContent(project as UsdProject);
     }
   }
   
-  /**
-   * レガシープロジェクトかどうかを判定
-   */
-  private static isLegacyProject(project: AnyUsdProject): project is LegacyUsdProject {
-    return 'USD_SCHEMA' in project;
-  }
   
   /**
    * タイムラインプロジェクトかどうかを判定
    */
-  private static isTimelineProject(project: AnyUsdProject): project is import('../../../types/usd').TimelineProject {
+  private static isTimelineProject(project: UsdProject | import('../../../types/usd').TimelineProject): project is import('../../../types/usd').TimelineProject {
     return 'stage' in project && 'tracks' in (project as any).stage;
   }
   
-  /**
-   * レガシー形式のUSDAコンテンツを生成
-   */
-  private static generateLegacyUsdaContent(project: LegacyUsdProject): string {
-    const lines: string[] = [];
-    
-    lines.push('#usda 1.0');
-    lines.push('(');
-    lines.push(`    defaultPrim = "${project.stage.name}"`);
-    
-    if (project.metadata.upAxis) {
-      lines.push(`    upAxis = "${project.metadata.upAxis}"`);
-    }
-    if (project.metadata.metersPerUnit) {
-      lines.push(`    metersPerUnit = ${project.metadata.metersPerUnit}`);
-    }
-    if (project.metadata.timeCodesPerSecond) {
-      lines.push(`    timeCodesPerSecond = ${project.metadata.timeCodesPerSecond}`);
-    }
-    
-    // マークダウンメタデータをcustomLayerDataに追加（USDAブロックを除去済み）
-    if (project.stage.metadata?.source_markdown) {
-      const cleanMarkdown = this.removeUsdaBlocks(project.stage.metadata.source_markdown);
-      if (cleanMarkdown.trim()) {
-        lines.push('    customLayerData = {');
-        lines.push('        string sourceFormat = "markdown"');
-        lines.push('        string creator = "Obsidian Storyboard"');
-        const escapedMarkdown = cleanMarkdown
-          .replace(/\\/g, '\\\\')
-          .replace(/"/g, '\\"')
-          .replace(/\n/g, '\\n');
-        lines.push(`        string originalContent = "${escapedMarkdown}"`);
-        lines.push('    }');
-      }
-    }
-    
-    lines.push(')');
-    lines.push('');
-    
-    // ステージ定義
-    lines.push(`def Xform "${project.stage.name}" {`);
-    
-    // トラック（子プリム）を生成
-    project.stage.tracks.forEach(track => {
-      lines.push(...this.generateLegacyTrackPrim(track, 1));
-    });
-    
-    lines.push('}');
-    
-    return lines.join('\n');
-  }
   
   /**
    * モダン形式のUSDAコンテンツを生成
@@ -202,25 +136,6 @@ export class UsdGenerator {
     return lines.join('\n');
   }
   
-  /**
-   * レガシー形式のトラックプリムを生成
-   */
-  private static generateLegacyTrackPrim(track: any, indentLevel: number): string[] {
-    const indent = '    '.repeat(indentLevel);
-    const lines: string[] = [];
-    
-    lines.push(`${indent}def Xform "${track.name || 'Track'}" {`);
-    
-    // トラックのメタデータを属性として追加
-    if (track.type) {
-      lines.push(`${indent}    string trackType = "${track.type}"`);
-    }
-    
-    // 空のトラック（子プリムはなし）
-    lines.push(`${indent}}`);
-    
-    return lines;
-  }
   
   /**
    * シンプルトラックプリムを生成

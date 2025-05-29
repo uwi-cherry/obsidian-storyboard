@@ -1,6 +1,6 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
-import type { LegacyUsdProject } from '../../../types/usd';
+import type { UsdProject } from '../../../types/usd';
 import { toolRegistry } from '../../core/tool-registry';
 import { UsdGenerator } from './usd-generator';
 
@@ -17,26 +17,41 @@ namespace Internal {
 
 
 
-  function createEmptyUsdProject(sourceMarkdown: string): LegacyUsdProject {
+  function createEmptyUsdProject(sourceMarkdown: string): UsdProject {
     return {
-      USD_SCHEMA: 'Stage.1',
-      schema_version: 1,
+      schemaIdentifier: 'usd',
+      schemaVersion: '1.0',
       name: 'Converted Project',
       stage: {
-        name: 'Main Stage',
-        type: 'Stage',
-        tracks: [],
-        global_start_time: { value: 0, rate: 30 },
-        global_end_time: { value: 0, rate: 30 },
-        metadata: {
-          source_markdown: sourceMarkdown
-        }
-      },
-      metadata: {
+        rootPrim: {
+          path: '/Root',
+          typeName: 'Xform',
+          specifier: 'def',
+          attributes: {},
+          relationships: {},
+          children: [],
+          metadata: {}
+        },
+        layerMetadata: {
+          defaultPrim: 'Root',
+          upAxis: 'Y',
+          metersPerUnit: 1.0,
+          timeCodesPerSecond: 30,
+          startTimeCode: 0,
+          endTimeCode: 0
+        },
         timeCodesPerSecond: 30,
-        resolution: { width: 1920, height: 1080 },
-        upAxis: 'Y',
-        metersPerUnit: 1.0
+        startTimeCode: 0,
+        endTimeCode: 0
+      },
+      applicationMetadata: {
+        version: '1.0',
+        creator: 'Obsidian Storyboard',
+        resolution: {
+          width: 1920,
+          height: 1080
+        },
+        sourceMarkdown: sourceMarkdown
       }
     };
   }
@@ -94,6 +109,9 @@ namespace Internal {
       finalUsdaContent = usdaContent;
     } else {
       // USDAブロックがない場合、新しいプロジェクトを作成
+      console.log('=== DEBUG: processedMarkdown ===');
+      console.log('Content:', processedMarkdown);
+      console.log('Contains usda?', processedMarkdown.includes('```usda'));
       const usdProject = createEmptyUsdProject(processedMarkdown);
       finalUsdaContent = UsdGenerator.generateUsdaContent(usdProject);
     }

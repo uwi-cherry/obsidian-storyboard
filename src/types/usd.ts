@@ -160,4 +160,5 @@ export interface SimpleTrack {
 export type UsdClip = SimpleMediaClip;
 export type UsdTrack = SimpleTrack;
 
+
 // TimelineProject is already exported as an interface above
