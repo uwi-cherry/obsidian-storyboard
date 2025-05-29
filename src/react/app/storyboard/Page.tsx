@@ -5,8 +5,8 @@ import { FOLD_ICON_SVG } from '../../../constants/icons';
 import EditableTable, { ColumnDef } from '../../components/EditableTable';
 import { t } from '../../../constants/obsidian-i18n';
 import { toolRegistry } from '../../../service-api/core/tool-registry';
-import useStoryboardData from '../../hooks/useStoryboardData';
-import { StoryboardData, StoryboardFrame } from '../../../types/storyboard';
+import useStoryboardPageData from '../../hooks/useStoryboardPageData';
+import { StoryboardFrame } from '../../../types/storyboard';
 import BGMCreationInput from './BGMCreationInput';
 import CharacterEditModal from './CharacterEditModal';
 import ImageInputCell from './ImageInputCell';
@@ -22,50 +22,10 @@ interface StoryboardReactViewProps {
 }
 
 const StoryboardReactView: FC<StoryboardReactViewProps> = ({ app, file }) => {
-  const [initialData, setInitialData] = useState<StoryboardData>({
-    title: '',
-    chapters: [{ bgmPrompt: 'calm acoustic guitar, soft piano, peaceful ambient, instrumental', frames: [] }],
-    characters: []
-  });
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const loadData = async () => {
-      if (!file) return;
-      
-      try {
-        setIsLoading(true);
-        const result = await toolRegistry.executeTool('load_storyboard_data', {
-          app,
-          file
-        });
-        setInitialData(JSON.parse(result));
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadData();
-  }, [app, file]);
-
-  const handleDataChange = async (updatedData: StoryboardData) => {
-    if (!file) return;
-    
-    try {
-      await toolRegistry.executeTool('save_storyboard_data', {
-        app,
-        file,
-        data: JSON.stringify(updatedData)
-      });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const {
+    isLoading,
     storyboard,
+    handleDataChange,
     handleCellChange,
     addRow,
     deleteRow,
@@ -78,26 +38,26 @@ const StoryboardReactView: FC<StoryboardReactViewProps> = ({ app, file }) => {
     uniqueSpeakers,
     allCharacters,
     setStoryboard,
-  } = useStoryboardData(initialData, handleDataChange);
+  } = useStoryboardPageData(app, file);
 
   const [charModalOpen, setCharModalOpen] = useState(false);
   const [openChapters, setOpenChapters] = useState<boolean[]>(
-    initialData.chapters.map(() => true)
+    storyboard.chapters.map(() => true)
   );
   const [newChapterBgm, setNewChapterBgm] = useState('');
   
   const [selectedRowPositions, setSelectedRowPositions] = useState<{chapterIndex: number, rowIndex: number}[]>([]);
 
   const bgmRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const prevChapterCount = useRef(initialData.chapters.length);
+  const prevChapterCount = useRef(storyboard.chapters.length);
 
   const dialogueRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
   
   const promptRefs = useRef<(HTMLTextAreaElement | null)[]>([]);
 
   useEffect(() => {
-    setOpenChapters(initialData.chapters.map(() => true));
-  }, [initialData]);
+    setOpenChapters(storyboard.chapters.map(() => true));
+  }, [storyboard.chapters.length]);
 
   const generateThumbnail = async (app: App, file: TFile): Promise<string | null> => {
     try {
