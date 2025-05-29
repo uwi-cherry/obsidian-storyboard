@@ -200,7 +200,6 @@ export default function Canvas({
           ctx.globalCompositeOperation = originalCompositeOperation;
         }
       });
-    } else {
     }
 
     if (selectionState.hasSelection()) {

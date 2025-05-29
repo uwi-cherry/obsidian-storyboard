@@ -69,8 +69,6 @@ namespace Internal {
       }
       if (line.startsWith('### ')) {
         const bgmPrompt = line.replace(/^###\s*/, '');
-        if (inCharacterSection) {
-        }
         if (currentChapter) {
           saveCurrentFrameIfValid();
           data.chapters.push(currentChapter);

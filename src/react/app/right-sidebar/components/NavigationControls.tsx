@@ -57,62 +57,42 @@ export function NavigationControls({
 
   const convertFile = async (toolName: string, targetExtension: string, modeName: string) => {
     try {
-      console.log(`Converting to ${modeName} using tool: ${toolName}`);
       const activeFile = app.workspace.getActiveFile();
       if (!activeFile) {
-        console.log('No active file for conversion');
         return;
       }
-
-      console.log(`Converting file: ${activeFile.path}`);
       
-      let result: string;
-      if (toolName === 'rename_file_extension') {
-        console.log(`Renaming extension to: ${targetExtension}`);
-        result = await toolRegistry.executeTool(toolName, {
-          app,
-          file: activeFile,
-          newExt: targetExtension
-        });
-        
-        console.log('Rename result:', result);
-        const parsedResult = JSON.parse(result);
-        console.log('Parsed result:', parsedResult);
-        
-        // リネーム後のファイルを開く
-        const newFilePath = parsedResult.newPath;
-        console.log('New file path:', newFilePath);
-        console.log('Original file path:', activeFile.path);
-        console.log('Parent path:', activeFile.parent?.path);
-        console.log('Base name:', activeFile.basename);
-        console.log(
-          'All vault files:',
-          app.vault.getFiles().map((f: TFile) => f.path)
-        );
+        let result: string;
+        if (toolName === 'rename_file_extension') {
+          result = await toolRegistry.executeTool(toolName, {
+            app,
+            file: activeFile,
+            newExt: targetExtension
+          });
+
+          const parsedResult = JSON.parse(result);
+
+          // リネーム後のファイルを開く
+          const newFilePath = parsedResult.newPath;
         
         if (newFilePath) {
           const newFile = app.vault.getAbstractFileByPath(newFilePath);
-          console.log('Found file object:', newFile);
-          
+
           if (newFile && newFile instanceof TFile) {
-            console.log('File extension changed to:', newFile.extension);
-            
+
             // ストーリーボードファイルが開かれているMarkdownViewのリーフを探す
             const markdownLeaves = app.workspace.getLeavesOfType('markdown');
-            console.log('Found markdown leaves:', markdownLeaves.length);
-            
+
             let targetLeaf = null;
             for (const leaf of markdownLeaves) {
               if (leaf.view instanceof MarkdownView && leaf.view.file?.path === newFile.path) {
                 targetLeaf = leaf;
-                console.log('Found target leaf with matching file:', leaf);
                 break;
               }
             }
             
             // toggle-storyboard-viewツールを使用してビュー切り替え
             if ((newFile.extension === 'board' || newFile.extension === 'md') && targetLeaf) {
-              console.log('Using toggle-board-view tool for renamed file');
               try {
                 const factory = new StoryboardFactory();
                 const result = await toggleStoryboardViewTool.execute({
@@ -120,49 +100,30 @@ export function NavigationControls({
                   leaf: targetLeaf,
                   factory
                 });
-                console.log('Toggle result:', result);
               } catch (error) {
                 console.error('Failed to toggle view:', error);
                 // フォールバック: file-openイベントを発火
-                console.log('Trying fallback: triggering file-open event');
                 app.workspace.trigger('file-open', newFile);
               }
             } else if (!targetLeaf) {
-              console.log('No target leaf found, triggering file-open event');
               app.workspace.trigger('file-open', newFile);
             }
-            console.log('File extension change completed');
-          } else {
-            console.log('Renamed file not found in vault');
           }
-        } else {
-          console.log('No newPath in result');
         }
       } else {
-        console.log(`Using conversion tool: ${toolName}`);
         result = await toolRegistry.executeTool(toolName, {
           app,
           file: activeFile
         });
-        
-        console.log('Conversion result:', result);
+
         const parsedResult = JSON.parse(result);
-        console.log('Parsed result:', parsedResult);
-        
+
         // 変換後のファイルを開く
         const newFilePath = parsedResult.filePath;
-        console.log('New file path:', newFilePath);
-        console.log(
-          'All vault files:',
-          app.vault.getFiles().map((f: TFile) => f.path)
-        );
         if (newFilePath) {
           const newFile = app.vault.getAbstractFileByPath(newFilePath);
-          console.log('Found file object:', newFile);
           if (newFile && newFile instanceof TFile) {
-            console.log('Opening converted file:', newFile.path);
             const leaf = app.workspace.getLeaf();
-            console.log('Got leaf:', leaf);
             
             // ファイルの拡張子に応じて適切なビューで開く
             if (newFile.extension === 'usda') {
@@ -171,24 +132,17 @@ export function NavigationControls({
                 type: 'timeline-view',
                 state: { file: newFile.path }
               });
-              console.log('USD file opened with timeline view');
             } else {
               // その他のファイルは通常通り開く
               await leaf.openFile(newFile);
-              console.log('File opened successfully');
               
               // ストーリーボードファイルの場合は明示的にストーリーボードビューに切り替え
               if (newFile.extension === 'board') {
-                console.log('Triggering board view switch for converted file:', newFile.path);
                 // file-openイベントを手動で発火
                 app.workspace.trigger('file-open', newFile);
               }
             }
-          } else {
-            console.log('Converted file not found in vault');
           }
-        } else {
-          console.log('No filePath in result');
         }
       }
     } catch (error) {
@@ -198,68 +152,50 @@ export function NavigationControls({
 
   const convertToStoryboard = async () => {
     try {
-      console.log('Converting USD to STORYBOARD (2-step process)');
       const activeFile = app.workspace.getActiveFile();
       if (!activeFile) {
-        console.log('No active file for USD to STORYBOARD conversion');
         return;
       }
 
-      console.log('Step 1: USD → MD');
       // USD → MD → STORYBOARD の2段階変換
       const mdResult = await toolRegistry.executeTool('convert_usd_to_md', {
         app,
         file: activeFile
       });
-      
-      console.log('MD conversion result:', mdResult);
+
       const mdData = JSON.parse(mdResult);
       const mdFile = app.vault.getAbstractFileByPath(mdData.filePath);
-      
+
       if (mdFile) {
-        console.log('Step 2: MD → STORYBOARD');
         const boardResult = await toolRegistry.executeTool('rename_file_extension', {
           app,
           file: mdFile,
           newExt: 'board'
         });
-        
-        console.log('BOARD conversion result:', boardResult);
         const boardData = JSON.parse(boardResult);
-        
+
         const boardFile = app.vault.getAbstractFileByPath(boardData.newPath);
         if (boardFile && boardFile instanceof TFile) {
-          console.log('Opening BOARD file:', boardFile.path);
           const leaf = app.workspace.getLeaf();
           // ストーリーボードファイルは通常通り開く
           await leaf.openFile(boardFile);
-          console.log('STORYBOARD file opened successfully');
-          
+
           // 明示的にストーリーボードビューに切り替え
-          console.log('Triggering board view switch for 2-step conversion:', boardFile.path);
           // file-openイベントを手動で発火
           app.workspace.trigger('file-open', boardFile);
-        } else {
-          console.log('STORYBOARD file not found in vault');
         }
-      } else {
-        console.log('MD file not found after conversion');
-      }
-    } catch (error) {
+      } catch (error) {
       console.error('USD to STORYBOARD conversion failed:', error);
     }
   };
 
   const handleCreateNewPsd = async () => {
     try {
-      console.log('Creating new PSD file');
       const boardPath = app.workspace.getActiveFile()?.parent?.path || '';
-      console.log('Board path:', boardPath);
       
-      const result = await toolRegistry.executeTool('create_painter_file', { 
-        app 
+      const result = await toolRegistry.executeTool('create_painter_file', {
+        app
       });
-      console.log('PSD creation result:', result);
       const parsedResult = JSON.parse(result);
       
       // ストーリーボードのImageInputCellと同じように直接データを更新
@@ -298,7 +234,6 @@ export function NavigationControls({
               file: activeFile,
               data: JSON.stringify(boardData)
             });
-            console.log('Storyboard data updated with new PSD path');
             
             // Zustandストアを更新してストーリーボードの再描画を促す
             const selectedFrame = useSelectedFrameStore.getState().selectedFrame;

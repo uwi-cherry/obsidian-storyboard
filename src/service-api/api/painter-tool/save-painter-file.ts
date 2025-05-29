@@ -94,7 +94,6 @@ namespace Internal {
           const canvas = ensureCanvas(layer, width, height);
         if (canvas instanceof HTMLCanvasElement) {
           ctx.drawImage(canvas, 0, 0);
-        } else {
         }
       } catch (error) {
         console.error(error);

@@ -108,8 +108,6 @@ const StoryboardReactView: FC<StoryboardReactViewProps> = ({ app, file }) => {
             file: psdFile,
           });
           const parsed = JSON.parse(loadResult);
-          if (parsed.layers && parsed.layers.length > 0) {
-          }
         } catch (err) {
           console.error(err);
         }

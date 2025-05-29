@@ -38,15 +38,9 @@ export class ToolExecutor {
     }
     
     try {
-      if (Internal.config.config.enableLogging) {
-      }
       const result = await (tool as Tool<TInput, TOutput>).execute(args);
-      if (Internal.config.config.enableLogging) {
-      }
       return result;
     } catch (error) {
-      if (Internal.config.config.enableLogging) {
-      }
       throw new Error(`Tool execution failed for "${name}": ${error}`);
     }
   }

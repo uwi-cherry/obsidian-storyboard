@@ -40,8 +40,6 @@ namespace Internal {
         aiEnabledTools.add(typedTool.name);
       }
 
-      if (config.config.enableLogging) {
-      }
     } catch (error) {
       throw new Error(`Failed to load ${toolConfig.name}: ${error}`);
     }
@@ -49,13 +47,9 @@ namespace Internal {
 
   export function registerToolInternal(tool: Tool<any, any>): void {
     if (tools.has(tool.name)) {
-      if (config.config.enableLogging) {
-      }
       return;
     }
     tools.set(tool.name, tool);
-    if (config.config.enableLogging) {
-    }
   }
 }
 
@@ -74,8 +68,6 @@ export class ToolRegistry {
   }
 
   private async autoRegisterTools(): Promise<void> {
-    if (Internal.config.config.enableLogging) {
-    }
     
     let successCount = 0;
     let errorCount = 0;
@@ -86,8 +78,6 @@ export class ToolRegistry {
         successCount++;
       } catch (error) {
         errorCount++;
-        if (Internal.config.config.enableLogging) {
-        }
 
         if (Internal.config.config.failOnError) {
           throw new Error(`Tool registration failed for ${toolConfig.name}: ${error}`);
@@ -97,8 +87,6 @@ export class ToolRegistry {
 
     ToolExecutor.initialize(Internal.tools, Internal.aiEnabledTools, Internal.config);
 
-    if (Internal.config.config.enableLogging) {
-    }
   }
 
   getTool(name: string): Tool<any, any> | undefined {
