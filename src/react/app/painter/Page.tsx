@@ -53,13 +53,12 @@ export default function PainterPage({ view, app }: PainterPageProps) {
 
   useEffect(() => {
     if (zustandLayers.length > 0) {
-      console.log('🎨 レイヤー更新:', zustandLayers.length, 'レイヤー', zustandLayers);
       setLayers(zustandLayers);
       if (view) {
         view.layers = zustandLayers;
       }
     } else {
-      console.log('⚠️ レイヤーが空です');
+      
     }
   }, [zustandLayers, view]);
 
@@ -95,7 +94,7 @@ export default function PainterPage({ view, app }: PainterPageProps) {
     processedFileRef.current.add(fileKey);
     isProcessingRef.current = true;
     
-    console.log('📂 PSDファイル処理開始:', view.file.path);
+
 
     const processFile = async () => {
       try {
@@ -161,12 +160,12 @@ export default function PainterPage({ view, app }: PainterPageProps) {
           // タイトルを更新
           view.updateTitle?.(psdData.width, psdData.height, zoom);
           
-          console.log('✅ PSDファイル読み込み完了:', layersWithCanvas.length, 'レイヤー');
+
           
         } else {
           useLayersStore.getState().clearCurrentPsdFile();
           
-          console.log('📄 非PSDファイル:', view.file?.path);
+
         }
       } catch (error) {
         console.error('❌ ファイル処理エラー:', error);

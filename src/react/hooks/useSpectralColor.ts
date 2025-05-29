@@ -59,7 +59,6 @@ export function mixSpectralColors(color1: string, color2: string, ratio: number)
     return result.startsWith('#') ? result : '#' + result;
   } catch (error) {
     console.error('スペクトラル混色エラー:', error);
-    console.log('フォールバック: 通常混色を使用');
     // エラーの場合は通常混色にフォールバック
     return mixColorsNormal(color1, color2, ratio);
   }

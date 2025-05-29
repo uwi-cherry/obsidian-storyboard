@@ -97,20 +97,8 @@ namespace Internal {
     const processedMarkdown = cleanMarkdown;
     const usdaContent = usdaLines.join('\n').trim();
 
-    console.log('=== DEBUG: markdownLines length ===', markdownLines.length);
-    console.log('=== DEBUG: cleanMarkdown ===');
-    console.log('Content:', cleanMarkdown);
-    console.log('=== DEBUG: processedMarkdown ===');
-    console.log('Content:', processedMarkdown);
-    console.log('Length:', processedMarkdown.length);
-
     // 常に新しいUSDプロジェクトを作成（既存のUSDAは参考程度）
-    console.log('=== Creating new USD project ===');
-    console.log('processedMarkdown:', processedMarkdown);
-    console.log('Contains usda?', processedMarkdown.includes('```usda'));
     const usdProject = createEmptyUsdProject(processedMarkdown);
-    console.log('=== USD Project sourceMarkdown ===');
-    console.log(usdProject.applicationMetadata.sourceMarkdown);
     const finalUsdaContent = UsdGenerator.generateUsdaContent(usdProject);
 
     // 元のファイルをUSDに置き換え
