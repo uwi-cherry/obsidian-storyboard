@@ -1,6 +1,7 @@
-import type { FC } from 'react';
-import { t } from '../../constants/obsidian-i18n';
-import TextAreaField from '../utils/TextAreaField';
+import { FC } from "react";
+import TextAreaField from "src/components/utils/TextAreaField";
+import { t } from "src/constants/obsidian-i18n";
+
 
 interface PreviewCellProps {
   prompt?: string;

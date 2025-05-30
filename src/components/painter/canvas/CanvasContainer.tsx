@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import type { SelectionRect } from '../../types/ui';
+import type { SelectionRect } from '../../../types/ui';
 import { PainterPointer } from 'src/hooks/usePainterPointer';
 import useSelectionState from 'src/hooks/useSelectionState';
 import { useLayersStore } from 'src/storage/layers-store';
@@ -7,11 +7,11 @@ import { usePainterLayoutStore } from 'src/storage/painter-layout-store';
 import { useCurrentLayerIndexStore } from 'src/store/current-layer-index-store';
 import { usePainterHistoryStore } from 'src/store/painter-history-store';
 import { PainterView } from 'src/types/painter-types';
-import ActionProperties from './features/ActionProperties';
-import Canvas from './features/Canvas';
-import ColorProperties from './features/ColorProperties';
-import ToolProperties from './features/ToolProperties';
-import TransformEditOverlay from './features/TransformEditOverlay';
+import ActionProperties from '../edit/ActionProperties';
+import ColorProperties from '../tools/ColorProperties';
+import ToolProperties from '../tools/ToolProperties';
+import TransformEditOverlay from '../edit/TransformEditOverlay';
+import Canvas from './Canvas';
 
 interface Props {
   pointer: PainterPointer;

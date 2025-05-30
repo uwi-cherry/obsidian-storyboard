@@ -10,10 +10,10 @@ import { useSelectedRowIndexStore } from "src/store/selected-row-index-store";
 import { StoryboardFrame } from "src/types/storyboard";
 import EditableTable, { ColumnDef } from "../utils/EditableTable";
 import BGMCreationInput from "./BGMCreationInput";
+import ImageInputCell from "./cell/ImageInputCell";
+import PreviewCell from "./cell/PreviewCell";
+import SpeakerDialogueCell from "./cell/SpeakerDialogueCell";
 import CharacterEditModal from "./CharacterEditModal";
-import ImageInputCell from "./ImageInputCell";
-import PreviewCell from "./PreviewCell";
-import SpeakerDialogueCell from "./SpeakerDialogueCell";
 
 
 interface StoryboardReactViewProps {

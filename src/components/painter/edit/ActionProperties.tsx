@@ -1,5 +1,5 @@
 import type { FC } from 'react';
-import { LayoutDirection } from '../../../../utils/storage/painter-layout-store';
+import { LayoutDirection } from 'src/storage/painter-layout-store';
 
 interface ActionPropertiesProps {
   handlers: {

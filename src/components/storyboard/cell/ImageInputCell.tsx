@@ -1,13 +1,13 @@
 import { App, normalizePath, Notice, TFile } from 'obsidian';
 import { useEffect, useRef, useState } from 'react';
 import type { FC, ChangeEvent } from 'react';
-import { BUTTON_ICONS } from '../../constants/icons';
-import { t } from '../../constants/obsidian-i18n';
-import IconButtonGroup from '../utils/IconButtonGroup';
-import TextAreaField from '../utils/TextAreaField';
-import ThumbnailViewer from '../utils/ThumbnailViewer';
-import useTextareaArrowNav from '../../hooks/useTextareaArrowNav';
-import { toolRegistry } from '../../service/core/tool-registry';
+import IconButtonGroup from 'src/components/utils/IconButtonGroup';
+import TextAreaField from 'src/components/utils/TextAreaField';
+import ThumbnailViewer from 'src/components/utils/ThumbnailViewer';
+import { BUTTON_ICONS } from 'src/constants/icons';
+import { t } from 'src/constants/obsidian-i18n';
+import useTextareaArrowNav from 'src/hooks/useTextareaArrowNav';
+import { toolRegistry } from 'src/service/core/tool-registry';
 
 interface ImageInputCellProps {
   imageUrl?: string;

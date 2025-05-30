@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { App, TFile, ItemView } from 'obsidian';
 import type { RightSidebarView } from '../../app/right-sidebar/right-sidebar-view';
-import { NavigationControls } from './components/NavigationControls';
-import LayerControls from './components/LayerControls';
-import ChatBox from './components/ChatBox';
+import { NavigationControls } from './controls/NavigationControls';
+import LayerControls from './controls/LayerControls';
+import ChatBox from './controls/ChatBox';
 import { toolRegistry } from '../../service/core/tool-registry';
 import type { Layer } from '../../types/painter-types';
 import { useLayersStore } from 'src/storage/layers-store';

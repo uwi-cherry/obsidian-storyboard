@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react';
-import { TOOL_ICONS } from '../../constants/icons';
-import { t } from '../../constants/obsidian-i18n';
+import { TOOL_ICONS } from '../../../constants/icons';
+import { t } from '../../../constants/obsidian-i18n';
 import { usePainterLayoutStore } from 'src/storage/painter-layout-store';
 
 interface ToolbarProps {
