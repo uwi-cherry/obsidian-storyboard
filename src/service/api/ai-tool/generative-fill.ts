@@ -1,9 +1,9 @@
 import { Tool } from '../../core/tool';
 import { App, TFile } from 'obsidian';
 import { toolRegistry } from '../../core/tool-registry';
-import { useLayersStore } from '../../../zustand/storage/layers-store';
-import { useCurrentLayerIndexStore } from '../../../zustand/store/current-layer-index-store';
-import { usePainterHistoryStore } from '../../../zustand/store/painter-history-store';
+import { useLayersStore } from 'src/storage/layers-store';
+import { useCurrentLayerIndexStore } from 'src/store/current-layer-index-store';
+import { usePainterHistoryStore } from 'src/store/painter-history-store';
 
 namespace Internal {
   export interface GenerativeFillInput {

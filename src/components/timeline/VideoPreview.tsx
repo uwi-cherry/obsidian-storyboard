@@ -1,12 +1,12 @@
 import { useRef, useEffect, useState, useMemo } from 'react';
 import type { FC, MouseEvent } from 'react';
-import etro from 'etro';
 import type { TimelineProject, UsdClip } from '../../types/usd';
 import type {
   StoryboardData,
   StoryboardChapter,
   StoryboardFrame,
 } from '../../types/storyboard';
+import etro from 'etro';
 
 interface VideoPreviewProps {
   project: TimelineProject | null;

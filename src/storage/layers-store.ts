@@ -1,4 +1,4 @@
-import { create } from "domain";
+import { create } from "zustand";
 import etro from "etro";
 import { TFile } from "obsidian";
 import { toolRegistry } from "src/service/core/tool-registry";
