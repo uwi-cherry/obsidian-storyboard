@@ -19,6 +19,7 @@ export const TOOL_NAMES = {
   LOAD_PAINTER_FILE: 'load_painter_file',
   SAVE_PAINTER_FILE: 'save_painter_file',
   GENERATE_THUMBNAIL: 'generate_thumbnail',
+  EXPORT_MERGED_IMAGE: 'export_merged_image',
   UNDO_PAINTER: 'undo_painter',
   REDO_PAINTER: 'redo_painter',
   
@@ -159,6 +160,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "savePainterFileTool",
       ai_enabled: false,
       description: "Save PSD file",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.EXPORT_MERGED_IMAGE,
+      modulePath: "../../src/service-api/api/painter-tool/export-merged-image",
+      exportName: "exportMergedImageTool",
+      ai_enabled: false,
+      description: "Export merged image as PNG",
       category: TOOL_CATEGORIES.PAINTER
     },
     {

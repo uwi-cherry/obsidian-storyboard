@@ -78,7 +78,16 @@ export class PainterView extends FileView {
     editBtn.textContent = t('EDIT_MENU');
 
     const fileBtn = this.addAction('', t('EXPORT_MERGED_IMAGE'), async () => {
-      // TODO: implement export logic
+      if (!this._painterData) return;
+      try {
+        await toolRegistry.executeTool('export_merged_image', {
+          app: this.app,
+          layers: this._painterData.layers,
+          fileName: `${this.file?.basename || 'merged'}.png`
+        });
+      } catch (error) {
+        console.error(error);
+      }
     }) as HTMLElement;
     fileBtn.querySelector('svg')?.remove();
     fileBtn.textContent = t('EXPORT_MERGED_IMAGE');
