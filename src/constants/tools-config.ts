@@ -32,7 +32,8 @@ export const TOOL_NAMES = {
   GENERATE_TEXT: 'generate_text',
   GENERATE_IMAGE: 'generate_image',
   GENERATE_VIDEO: 'generate_video',
-  INPAINT_IMAGE: 'inpaint_image'
+  INPAINT_IMAGE: 'inpaint_image',
+  GENERATIVE_FILL: 'generative_fill'
 } as const;
 
 export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
@@ -270,6 +271,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "inpaintImageTool",
       ai_enabled: false,
       description: "Inpaint image via AI",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.GENERATIVE_FILL,
+      modulePath: "../../src/service-api/api/ai-tool/generative-fill",
+      exportName: "generativeFillTool",
+      ai_enabled: false,
+      description: "Generative fill via AI",
       category: TOOL_CATEGORIES.PAINTER
     }
   ],

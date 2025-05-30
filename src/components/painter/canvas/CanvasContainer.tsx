@@ -253,6 +253,77 @@ export default function CanvasContainer({
       ctx.restore();
       layersStore.updateLayers([...layers]);
     },
+    generativeFill: async () => {
+      const plugin: any = (window as any).app?.plugins?.getPlugin('obsidian-storyboard');
+      const settings = plugin?.settingsPlugin?.settings;
+      const provider: 'fal' | 'replicate' = settings?.provider || 'fal';
+      const apiKey: string = provider === 'fal' ? settings?.falApiKey : settings?.replicateApiKey;
+      if (!apiKey) {
+        alert('APIキーが設定されていません');
+        return;
+      }
+      const prompt = window.prompt('生成プロンプトを入力してください');
+      if (!prompt) return;
+
+      const width = canvasSize.width;
+      const height = canvasSize.height;
+
+      const baseCanvas = document.createElement('canvas');
+      baseCanvas.width = width;
+      baseCanvas.height = height;
+      const bctx = baseCanvas.getContext('2d');
+      if (!bctx) return;
+      layers.forEach(layer => {
+        if (layer.visible && layer.canvas) {
+          const alpha = layer.opacity !== undefined ? layer.opacity : 1;
+          const blend = layer.blendMode && layer.blendMode !== 'normal' ? layer.blendMode as GlobalCompositeOperation : 'source-over';
+          bctx.globalAlpha = alpha;
+          bctx.globalCompositeOperation = blend;
+          bctx.drawImage(layer.canvas, 0, 0);
+        }
+      });
+      bctx.globalAlpha = 1;
+      bctx.globalCompositeOperation = 'source-over';
+      const imageDataUrl = baseCanvas.toDataURL('image/png');
+
+      const maskCanvas = document.createElement('canvas');
+      maskCanvas.width = width;
+      maskCanvas.height = height;
+      const mctx = maskCanvas.getContext('2d');
+      if (!mctx) return;
+      mctx.fillStyle = 'black';
+      mctx.fillRect(0, 0, width, height);
+      mctx.fillStyle = 'white';
+      if (selectionState.mode === 'rect' && selectionState.selectionRect) {
+        const r = selectionState.selectionRect;
+        mctx.fillRect(r.x, r.y, r.width, r.height);
+      } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
+        mctx.beginPath();
+        mctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
+        for (let i = 1; i < selectionState.lassoPoints.length; i++) {
+          const p = selectionState.lassoPoints[i];
+          mctx.lineTo(p.x, p.y);
+        }
+        mctx.closePath();
+        mctx.fill();
+      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
+        mctx.fill(selectionState.magicClipPath);
+      } else {
+        mctx.fillRect(0, 0, width, height);
+      }
+      const maskDataUrl = maskCanvas.toDataURL('image/png');
+
+      await toolRegistry.executeTool('generative_fill', {
+        prompt,
+        apiKey,
+        provider,
+        app: (window as any).app,
+        image: imageDataUrl,
+        mask: maskDataUrl,
+        width,
+        height
+      });
+    },
     edit: startEdit,
     cancel: cancelSelection
   };
