@@ -1,4 +1,4 @@
-import { Layer } from "etro";
+import etro from "etro";
 import { useRef, useState, useEffect } from "react";
 import { PainterPointer } from "src/hooks/usePainterPointer";
 import { SelectionState } from "src/hooks/useSelectionState";
@@ -162,7 +162,7 @@ export default function Canvas({
     }
 
     if (layers && layers.length > 0) {
-      layers.forEach((layer: Layer, index: number) => {
+      layers.forEach((layer: import('src/types/painter-types').Layer, index: number) => {
         if (layer.visible && layer.canvas) {
           const originalAlpha = ctx.globalAlpha;
           ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;

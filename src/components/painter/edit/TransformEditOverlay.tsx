@@ -1,4 +1,4 @@
-import { Layer } from "etro";
+import { Layer } from "src/types/painter-types";
 import { useRef, useState, useEffect } from "react";
 import { useLayersStore } from "src/storage/layers-store";
 import { usePainterHistoryStore } from "src/store/painter-history-store";

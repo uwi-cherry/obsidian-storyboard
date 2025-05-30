@@ -1,5 +1,5 @@
 import { create } from "domain";
-import { Layer } from "etro";
+import etro from "etro";
 import { TFile } from "obsidian";
 import { toolRegistry } from "src/service/core/tool-registry";
 import { subscribeWithSelector } from "zustand/middleware";
@@ -7,11 +7,11 @@ import { AdaptiveDebouncer } from "./adaptive-debouncer";
 
 
 interface LayersState {
-  layers: Layer[];
+  layers: import('src/types/painter-types').Layer[];
   currentPsdFile: TFile | null;
-  updateLayers: (layers: Layer[]) => void;
-  initializeLayers: (layers: Layer[]) => void;
-  addLayer: (layer: Layer) => void;
+  updateLayers: (layers: import('src/types/painter-types').Layer[]) => void;
+  initializeLayers: (layers: import('src/types/painter-types').Layer[]) => void;
+  addLayer: (layer: import('src/types/painter-types').Layer) => void;
   removeLayer: (index: number) => void;
   toggleLayerVisibility: (index: number) => void;
   setLayerOpacity: (index: number, opacity: number) => void;

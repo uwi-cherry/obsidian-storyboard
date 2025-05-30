@@ -1,4 +1,4 @@
-import { Layer } from 'etro';
+import { Layer } from 'src/types/painter-types';
 import { MAX_HISTORY_SIZE } from 'src/constants/constants';
 import { create } from 'zustand';
 

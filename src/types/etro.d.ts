@@ -45,10 +45,10 @@ declare module 'etro' {
     paused: boolean;
     ended: boolean;
     ready: boolean;
-    layers: Layer[];
+    layers: EtroLayer[];
     effects: Effect[];
 
-    addLayer(layer: Layer): void;
+    addLayer(layer: EtroLayer): void;
     play(options?: { duration?: number; onStart?: () => void }): Promise<void>;
     pause(): void;
     stop(): void;
@@ -64,7 +64,7 @@ declare module 'etro' {
     }): Promise<Blob>;
   }
 
-  export class Layer {
+  export class EtroLayer {
     startTime: number;
     duration: number;
     x: number;
@@ -73,26 +73,26 @@ declare module 'etro' {
     height: number;
     effects: Effect[];
 
-    addEffect(effect: Effect): Layer;
+    addEffect(effect: Effect): EtroLayer;
   }
 
-  export class VideoLayer extends Layer {
+  export class VideoLayer extends EtroLayer {
     constructor(options: VideoLayerOptions);
     source: HTMLVideoElement | string;
   }
 
-  export class ImageLayer extends Layer {
+  export class ImageLayer extends EtroLayer {
     constructor(options: ImageLayerOptions);
     source: HTMLImageElement | string;
   }
 
-  export class TextLayer extends Layer {
+  export class TextLayer extends EtroLayer {
     constructor(options: TextLayerOptions);
     text: string;
     font: string;
   }
 
-  export class AudioLayer extends Layer {
+  export class AudioLayer extends EtroLayer {
     constructor(options: AudioLayerOptions);
     source: HTMLAudioElement | string;
   }
