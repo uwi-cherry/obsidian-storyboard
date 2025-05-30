@@ -1,4 +1,4 @@
-import { ToolsConfiguration } from '../service-api/core/tool-config-types';
+import { ToolsConfiguration } from '../service/core/tool-config-types';
 
 export const TOOL_NAMES = {
   CREATE_STORYBOARD_FILE: 'create_storyboard_file',
