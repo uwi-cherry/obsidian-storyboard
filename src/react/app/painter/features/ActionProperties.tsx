@@ -5,6 +5,7 @@ interface ActionPropertiesProps {
   handlers: {
     fill: () => void;
     clear: () => void;
+    generativeFill?: () => void;
     edit?: () => void;
     cancel?: () => void;
   };
@@ -52,13 +53,23 @@ const ActionProperties: FC<ActionPropertiesProps> = ({
         塗りつぶし
       </button>
       
-      <button 
+      <button
         className={buttonClasses}
         onClick={handlers.clear}
         title="クリア"
       >
         クリア
       </button>
+
+      {handlers.generativeFill && (
+        <button
+          className={buttonClasses}
+          onClick={handlers.generativeFill}
+          title="ジェネレーティブ塗りつぶし"
+        >
+          生成塗り
+        </button>
+      )}
       
       {handlers.edit && (
         <button 
