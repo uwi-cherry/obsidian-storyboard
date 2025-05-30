@@ -53,7 +53,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
   tools: [
     {
       name: TOOL_NAMES.CREATE_STORYBOARD_FILE,
-      modulePath: "../service/api/storyboard-tool/create-storyboard-file",
+      modulePath: "../api/storyboard-tool/create-storyboard-file",
       exportName: "createStoryboardFileTool",
       ai_enabled: false,
       description: "Create a new storyboard file with sample content",
@@ -61,7 +61,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.RENAME_FILE_EXTENSION,
-      modulePath: "../service/api/storyboard-tool/rename-file-extension",
+      modulePath: "../api/storyboard-tool/rename-file-extension",
       exportName: "renameFileExtensionTool",
       ai_enabled: false,
       description: "Rename file extension with collision avoidance",
@@ -69,7 +69,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.TOGGLE_STORYBOARD_VIEW,
-      modulePath: "../service/api/storyboard-tool/toggle-storyboard-view",
+      modulePath: "../api/storyboard-tool/toggle-storyboard-view",
       exportName: "toggleStoryboardViewTool",
       ai_enabled: false,
       description: "Toggle between markdown and storyboard view",
@@ -77,7 +77,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.LOAD_STORYBOARD_DATA,
-      modulePath: "../service/api/storyboard-tool/load-storyboard-data",
+      modulePath: "../api/storyboard-tool/load-storyboard-data",
       exportName: "loadStoryboardDataTool",
       ai_enabled: false,
       description: "Load storyboard data from file",
@@ -85,7 +85,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.SAVE_STORYBOARD_DATA,
-      modulePath: "../service/api/storyboard-tool/save-storyboard-data",
+      modulePath: "../api/storyboard-tool/save-storyboard-data",
       exportName: "saveStoryboardDataTool",
       ai_enabled: false,
       description: "Save storyboard data to file",
@@ -93,7 +93,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.EXPORT_STORYBOARD_JSON,
-      modulePath: "../service/api/storyboard-tool/export-storyboard-json",
+      modulePath: "../api/storyboard-tool/export-storyboard-json",
       exportName: "exportStoryboardJsonTool",
       ai_enabled: false,
       description: "Export storyboard data as JSON file",
@@ -101,7 +101,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.CREATE_USD_FILE,
-      modulePath: "../service/api/usd-tool/create-usd-file",
+      modulePath: "../api/usd-tool/create-usd-file",
       exportName: "createUsdFileTool",
       ai_enabled: false,
       description: "Create new USD file",
@@ -109,7 +109,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.LOAD_USD_FILE,
-      modulePath: "../service/api/usd-tool/load-usd-file",
+      modulePath: "../api/usd-tool/load-usd-file",
       exportName: "loadUsdFileTool",
       ai_enabled: false,
       description: "Load USD file",
@@ -117,7 +117,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.SAVE_USD_FILE,
-      modulePath: "../service/api/usd-tool/save-usd-file",
+      modulePath: "../api/usd-tool/save-usd-file",
       exportName: "saveUsdFileTool",
       ai_enabled: false,
       description: "Save USD file",
@@ -125,7 +125,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.CONVERT_MD_TO_USD,
-      modulePath: "../service/api/usd-tool/convert-md-to-usd",
+      modulePath: "../api/usd-tool/convert-md-to-usd",
       exportName: "convertMdToUsdTool",
       ai_enabled: false,
       description: "Convert Markdown storyboard to USD stage",
@@ -133,7 +133,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.CONVERT_USD_TO_MD,
-      modulePath: "../service/api/usd-tool/convert-usd-to-md",
+      modulePath: "../api/usd-tool/convert-usd-to-md",
       exportName: "convertUsdToMdTool",
       ai_enabled: false,
       description: "Convert USD stage to Markdown storyboard",
@@ -141,7 +141,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.INITIALIZE_TIMING,
-      modulePath: "../service/api/markdown-tool/initialize-timing",
+      modulePath: "../api/markdown-tool/initialize-timing",
       exportName: "initializeTimingTool",
       ai_enabled: false,
       description: "Initialize timing information in markdown storyboard",
@@ -149,7 +149,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.CREATE_PAINTER_FILE,
-      modulePath: "../service/api/painter-tool/create-painter-file",
+      modulePath: "../api/painter-tool/create-painter-file",
       exportName: "createPainterFileTool",
       ai_enabled: false,
       description: "Create new PSD file",
@@ -157,7 +157,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.LOAD_PAINTER_FILE,
-      modulePath: "../service/api/painter-tool/load-painter-file",
+      modulePath: "../api/painter-tool/load-painter-file",
       exportName: "loadPainterFileTool",
       ai_enabled: false,
       description: "Load PSD file",
@@ -165,7 +165,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.SAVE_PAINTER_FILE,
-      modulePath: "../service/api/painter-tool/save-painter-file",
+      modulePath: "../api/painter-tool/save-painter-file",
       exportName: "savePainterFileTool",
       ai_enabled: false,
       description: "Save PSD file",
@@ -173,7 +173,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.EXPORT_MERGED_IMAGE,
-      modulePath: "../service/api/painter-tool/export-merged-image",
+      modulePath: "../api/painter-tool/export-merged-image",
       exportName: "exportMergedImageTool",
       ai_enabled: false,
       description: "Export merged image as PNG",
@@ -181,7 +181,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.GENERATE_THUMBNAIL,
-      modulePath: "../service/api/painter-tool/generate-thumbnail",
+      modulePath: "../api/painter-tool/generate-thumbnail",
       exportName: "generateThumbnailTool",
       ai_enabled: false,
       description: "Generate thumbnail from PSD file",
@@ -189,7 +189,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.UNDO_PAINTER,
-      modulePath: "../service/api/painter-tool/undo-painter",
+      modulePath: "../api/painter-tool/undo-painter",
       exportName: "undoPainterTool",
       ai_enabled: false,
       description: "Undo painter view",
@@ -197,7 +197,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.REDO_PAINTER,
-      modulePath: "../service/api/painter-tool/redo-painter",
+      modulePath: "../api/painter-tool/redo-painter",
       exportName: "redoPainterTool",
       ai_enabled: false,
       description: "Redo painter view",
@@ -205,7 +205,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.ADD_LAYER,
-      modulePath: "../service/api/layer-tool/add-layer",
+      modulePath: "../api/layer-tool/add-layer",
       exportName: "addLayerTool",
       ai_enabled: false,
       description: "Add new layer to painter view (supports fileData)",
@@ -213,7 +213,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.REMOVE_LAYER,
-      modulePath: "../service/api/layer-tool/remove-layer",
+      modulePath: "../api/layer-tool/remove-layer",
       exportName: "removeLayerTool",
       ai_enabled: false,
       description: "Remove layer from painter view",
@@ -221,7 +221,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.SET_LAYER_OPACITY,
-      modulePath: "../service/api/layer-tool/set-layer-opacity",
+      modulePath: "../api/layer-tool/set-layer-opacity",
       exportName: "setLayerOpacityTool",
       ai_enabled: false,
       description: "Set layer opacity in painter view",
@@ -229,7 +229,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.SET_LAYER_BLEND_MODE,
-      modulePath: "../service/api/layer-tool/set-layer-blend-mode",
+      modulePath: "../api/layer-tool/set-layer-blend-mode",
       exportName: "setLayerBlendModeTool",
       ai_enabled: false,
       description: "Set layer blend mode in painter view",
@@ -237,7 +237,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.SET_LAYER_CLIPPING,
-      modulePath: "../service/api/layer-tool/set-layer-clipping",
+      modulePath: "../api/layer-tool/set-layer-clipping",
       exportName: "setLayerClippingTool",
       ai_enabled: false,
       description: "Set layer clipping in painter view",
@@ -245,7 +245,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.RENAME_LAYER,
-      modulePath: "../service/api/layer-tool/rename-layer",
+      modulePath: "../api/layer-tool/rename-layer",
       exportName: "renameLayerTool",
       ai_enabled: false,
       description: "Rename layer in painter view",
@@ -253,7 +253,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.TOGGLE_LAYER_VISIBILITY,
-      modulePath: "../service/api/layer-tool/toggle-layer-visibility",
+      modulePath: "../api/layer-tool/toggle-layer-visibility",
       exportName: "toggleLayerVisibilityTool",
       ai_enabled: false,
       description: "Toggle layer visibility in painter view",
@@ -261,7 +261,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.GENERATE_TEXT,
-      modulePath: "../service/api/ai-tool/generate-text",
+      modulePath: "../api/ai-tool/generate-text",
       exportName: "generateTextTool",
       ai_enabled: false,
       description: "Generate text via AI agent",
@@ -269,7 +269,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.GENERATE_IMAGE,
-      modulePath: "../service/api/ai-tool/generate-image",
+      modulePath: "../api/ai-tool/generate-image",
       exportName: "generateImageTool",
       ai_enabled: false,
       description: "Generate image via AI",
@@ -277,7 +277,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.GENERATE_VIDEO,
-      modulePath: "../service/api/ai-tool/generate-video",
+      modulePath: "../api/ai-tool/generate-video",
       exportName: "generateVideoTool",
       ai_enabled: false,
       description: "Generate video via AI",
@@ -285,7 +285,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.INPAINT_IMAGE,
-      modulePath: "../service/api/ai-tool/inpaint-image",
+      modulePath: "../api/ai-tool/inpaint-image",
       exportName: "inpaintImageTool",
       ai_enabled: false,
       description: "Inpaint image via AI",
@@ -293,7 +293,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
     },
     {
       name: TOOL_NAMES.GENERATIVE_FILL,
-      modulePath: "../service/api/ai-tool/generative-fill",
+      modulePath: "../api/ai-tool/generative-fill",
       exportName: "generativeFillTool",
       ai_enabled: false,
       description: "Generative fill via AI",
