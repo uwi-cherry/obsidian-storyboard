@@ -7,6 +7,7 @@ import { usePainterLayoutStore } from 'src/storage/painter-layout-store';
 import { useCurrentLayerIndexStore } from 'src/store/current-layer-index-store';
 import { usePainterHistoryStore } from 'src/store/painter-history-store';
 import { PainterView } from 'src/types/painter-types';
+import { toolRegistry } from 'src/service/core/tool-registry';
 import ActionProperties from '../edit/ActionProperties';
 import ColorProperties from '../tools/ColorProperties';
 import ToolProperties from '../tools/ToolProperties';
