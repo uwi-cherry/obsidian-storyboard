@@ -2,6 +2,7 @@ import { Tool } from './tool';
 import { ToolsConfiguration, ToolConfig } from './tool-config-types';
 import { ToolExecutor } from './tool-executor';
 import { TOOLS_CONFIG } from '../../constants/tools-config';
+import { ALL_TOOLS } from './all-tools';
 
 namespace Internal {
   export const tools = new Map<string, Tool<any, any>>();
@@ -20,28 +21,20 @@ namespace Internal {
   }
 
   export async function loadToolFromConfig(toolConfig: ToolConfig): Promise<void> {
-    try {
-      // modulePath は tools-config.ts で定義された相対パス
-      const module = await import(toolConfig.modulePath);
-      const toolInstance: unknown = module[toolConfig.exportName];
+    const toolInstance = ALL_TOOLS.find(t => t.name === toolConfig.name);
 
-      if (!toolInstance) {
-        throw new Error(`Tool not found: ${toolConfig.exportName} in ${toolConfig.modulePath}`);
-      }
+    if (!toolInstance) {
+      throw new Error(`Tool not found: ${toolConfig.name}`);
+    }
 
-      if (!isValidTool(toolInstance)) {
-        throw new Error(`Invalid tool: ${toolConfig.exportName} for ${toolConfig.name}`);
-      }
+    if (!isValidTool(toolInstance)) {
+      throw new Error(`Invalid tool for ${toolConfig.name}`);
+    }
 
-      const typedTool = toolInstance as Tool;
-      registerToolInternal(typedTool);
+    registerToolInternal(toolInstance);
 
-      if (toolConfig.ai_enabled) {
-        aiEnabledTools.add(typedTool.name);
-      }
-
-    } catch (error) {
-      throw new Error(`Failed to load ${toolConfig.name}: ${error}`);
+    if (toolConfig.ai_enabled) {
+      aiEnabledTools.add(toolInstance.name);
     }
   }
 
