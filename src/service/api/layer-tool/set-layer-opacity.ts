@@ -1,5 +1,5 @@
+import { useLayersStore } from 'src/storage/layers-store';
 import { Tool } from '../../core/tool';
-import { useLayersStore } from '../../../utils/storage/layers-store';
 
 namespace Internal {
   export interface SetLayerOpacityInput {
