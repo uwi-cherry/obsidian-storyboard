@@ -6,6 +6,7 @@ export const TOOL_NAMES = {
   TOGGLE_STORYBOARD_VIEW: 'toggle_storyboard_view',
   LOAD_STORYBOARD_DATA: 'load_storyboard_data',
   SAVE_STORYBOARD_DATA: 'save_storyboard_data',
+  EXPORT_STORYBOARD_JSON: 'export_storyboard_json',
 
   CREATE_USD_FILE: 'create_usd_file',
   LOAD_USD_FILE: 'load_usd_file',
@@ -87,6 +88,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "saveStoryboardDataTool",
       ai_enabled: false,
       description: "Save storyboard data to file",
+      category: TOOL_CATEGORIES.STORYBOARD
+    },
+    {
+      name: TOOL_NAMES.EXPORT_STORYBOARD_JSON,
+      modulePath: "../../src/service-api/api/storyboard-tool/export-storyboard-json",
+      exportName: "exportStoryboardJsonTool",
+      ai_enabled: false,
+      description: "Export storyboard data as JSON file",
       category: TOOL_CATEGORIES.STORYBOARD
     },
     {
