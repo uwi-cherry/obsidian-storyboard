@@ -21,6 +21,7 @@ export const TOOL_NAMES = {
   GENERATE_THUMBNAIL: 'generate_thumbnail',
   UNDO_PAINTER: 'undo_painter',
   REDO_PAINTER: 'redo_painter',
+  EXPORT_MERGED_IMAGE: 'export_merged_image',
   
   ADD_LAYER: 'add_layer',
   REMOVE_LAYER: 'remove_layer',
@@ -182,6 +183,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "redoPainterTool",
       ai_enabled: false,
       description: "Redo painter view",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.EXPORT_MERGED_IMAGE,
+      modulePath: "../../src/service-api/api/painter-tool/export-merged-image",
+      exportName: "exportMergedImageTool",
+      ai_enabled: false,
+      description: "Export merged image as PNG",
       category: TOOL_CATEGORIES.PAINTER
     },
     {

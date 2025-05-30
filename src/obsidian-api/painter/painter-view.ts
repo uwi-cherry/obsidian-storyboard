@@ -1,4 +1,5 @@
-import { FileView, TFile, WorkspaceLeaf, Menu } from 'obsidian';
+import { FileView, TFile, WorkspaceLeaf, Menu, Notice } from 'obsidian';
+import type { Layer, PainterData } from '../../types/painter-types';
 import { Root } from 'react-dom/client';
 import { t } from '../../constants/obsidian-i18n';
 import { toolRegistry } from '../../service-api/core/tool-registry';
@@ -8,6 +9,8 @@ export class PainterView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;
   private actionsAdded = false;
+  public layers?: Layer[];
+  public _painterData?: PainterData;
 
   constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
     super(leaf);
@@ -78,7 +81,23 @@ export class PainterView extends FileView {
     editBtn.textContent = t('EDIT_MENU');
 
     const fileBtn = this.addAction('', t('EXPORT_MERGED_IMAGE'), async () => {
-      // TODO: implement export logic
+      if (!this.file) return;
+      const layers = (this as any).layers || this._painterData?.layers || [];
+      try {
+        const result = await toolRegistry.executeTool('export_merged_image', {
+          app: this.app,
+          file: this.file,
+          layers
+        });
+        try {
+          const parsed = JSON.parse(result as unknown as string);
+          if (parsed?.message) new Notice(parsed.message);
+        } catch {
+          /* ignore */
+        }
+      } catch (error) {
+        console.error(error);
+      }
     }) as HTMLElement;
     fileBtn.querySelector('svg')?.remove();
     fileBtn.textContent = t('EXPORT_MERGED_IMAGE');
