@@ -18,7 +18,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@fal-ai/client": "^0.3.4",
+    "@fal-ai/serverless-client": "^0.9.0",
     "@ffmpeg/core": "^0.12.10",
     "ag-psd": "^28.0.1",
     "etro": "^0.12.1",

@@ -5,8 +5,6 @@ import { t } from '../../../constants/obsidian-i18n';
 import { ADD_ICON_SVG, TABLE_ICONS } from '../../../constants/icons';
 import type { Attachment } from '../../../types/ui';
 import { useChatAttachmentsStore } from '../../../store/chat-attachments-store';
-import { toolRegistry } from '../../../service/core/tool-registry';
-import { usePluginSettingsStore } from '../../../store/plugin-settings-store';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -59,35 +57,32 @@ export default function ChatBox() {
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-
+    
     if (!input.trim()) return;
-
+    
     const userMessage = input;
-    const atts = [...attachments];
     setMessages(prev => [
       ...prev,
-      { role: 'user', content: userMessage, attachments: atts },
+      { role: 'user', content: userMessage, attachments },
     ]);
-
+    
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
-
+    
     setInput('');
     clearAttachments();
     setLoading(true);
-
+    
     try {
-      const apiKey = usePluginSettingsStore.getState().falApiKey;
-      const imageUrls = atts.map(a => a.data || a.url);
-      await toolRegistry.executeTool('flux_multi_layer', {
-        prompt: userMessage,
-        apiKey,
-        imageUrls
-      });
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      const response = `AI応答（開発中）: ${userMessage}`;
+      
       setMessages(prev => {
         const updated = [...prev];
         const last = updated[updated.length - 1];
         if (last && last.role === 'assistant') {
-          last.content = 'レイヤーを追加しました';
+          last.content = response;
         }
         return updated;
       });

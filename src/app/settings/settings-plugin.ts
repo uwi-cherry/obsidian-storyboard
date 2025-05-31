@@ -1,7 +1,6 @@
 import { Plugin } from 'obsidian';
 import { StoryboardSettingTab } from './settings-view';
 import { loadSettings, PluginSettings } from './settings-data';
-import { usePluginSettingsStore } from '../../store/plugin-settings-store';
 import { setPluginSettings } from '../../constants/plugin-settings';
 
 export class SettingsPlugin {
