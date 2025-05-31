@@ -207,26 +207,27 @@ export default function Canvas({
       ctx.lineDashOffset = -dashOffsetRef.current;
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 1;
-      if (selectionState.mode === 'rect' && selectionState.selectionRect) {
-        const r = selectionState.selectionRect;
+      
+      // 統一された選択領域の描画
+      if (selectionState.selectionOutline) {
+        ctx.stroke(selectionState.selectionOutline);
+      }
+      
+      // 編集中の一時選択の描画
+      if (selectionState.mode === 'rect' && selectionState.tempRect) {
+        const r = selectionState.tempRect;
         ctx.strokeRect(r.x + 0.5, r.y + 0.5, r.width, r.height);
-      } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 1) {
+      } else if (selectionState.mode === 'lasso' && selectionState.tempLassoPoints.length > 1) {
         ctx.beginPath();
-        ctx.moveTo(selectionState.lassoPoints[0].x + 0.5, selectionState.lassoPoints[0].y + 0.5);
-        for (let i = 1; i < selectionState.lassoPoints.length; i++) {
-          const p = selectionState.lassoPoints[i];
+        ctx.moveTo(selectionState.tempLassoPoints[0].x + 0.5, selectionState.tempLassoPoints[0].y + 0.5);
+        for (let i = 1; i < selectionState.tempLassoPoints.length; i++) {
+          const p = selectionState.tempLassoPoints[i];
           ctx.lineTo(p.x + 0.5, p.y + 0.5);
         }
         ctx.closePath();
         ctx.stroke();
-      } else if (selectionState.mode === 'magic' && selectionState.magicOutline) {
-        ctx.stroke(selectionState.magicOutline);
-      } else if (
-        (selectionState.mode === 'select-pen' || selectionState.mode === 'select-eraser') &&
-        selectionState.maskOutline
-      ) {
-        ctx.stroke(selectionState.maskOutline);
       }
+      
       ctx.restore();
     }
   }, [layers, currentLayerIndex, selectionState, animationTick, canvasSize]);
@@ -737,15 +738,15 @@ export default function Canvas({
     }
 
     if (!hasSelection || minX > maxX || minY > maxY) {
-      selectionState.magicClipPath = undefined;
-      selectionState.magicOutline = undefined;
-      selectionState.magicBounding = undefined;
+      selectionState.selectionClipPath = undefined;
+      selectionState.selectionOutline = undefined;
+      selectionState.selectionBounding = undefined;
       return;
     }
 
-    selectionState.magicClipPath = clipPath;
-    selectionState.magicOutline = outlinePath;
-    selectionState.magicBounding = {
+    selectionState.selectionClipPath = clipPath;
+    selectionState.selectionOutline = outlinePath;
+    selectionState.selectionBounding = {
       x: minX,
       y: minY,
       width: maxX - minX + 1,
@@ -758,13 +759,13 @@ export default function Canvas({
     to: { x: number; y: number },
     mode: 'select-pen' | 'select-eraser'
   ) => {
-    if (!selectionState.maskCanvas) {
-      selectionState.maskCanvas = document.createElement('canvas');
-      selectionState.maskCanvas.width = canvasSize.width;
-      selectionState.maskCanvas.height = canvasSize.height;
+    if (!selectionState.selectionMask) {
+      selectionState.selectionMask = document.createElement('canvas');
+      selectionState.selectionMask.width = canvasSize.width;
+      selectionState.selectionMask.height = canvasSize.height;
     }
 
-    const mctx = selectionState.maskCanvas.getContext('2d');
+    const mctx = selectionState.selectionMask.getContext('2d');
     if (!mctx) return;
 
     mctx.lineCap = 'round';
@@ -786,7 +787,7 @@ export default function Canvas({
 
     mctx.globalCompositeOperation = 'source-over';
 
-    const { width, height } = selectionState.maskCanvas;
+    const { width, height } = selectionState.selectionMask;
     const data = mctx.getImageData(0, 0, width, height).data;
     const clipPath = new Path2D();
     const outlinePath = new Path2D();
@@ -835,15 +836,15 @@ export default function Canvas({
     }
 
     if (!has) {
-      selectionState.maskClipPath = undefined;
-      selectionState.maskOutline = undefined;
-      selectionState.maskBounding = undefined;
+      selectionState.selectionClipPath = undefined;
+      selectionState.selectionOutline = undefined;
+      selectionState.selectionBounding = undefined;
       return;
     }
 
-    selectionState.maskClipPath = clipPath;
-    selectionState.maskOutline = outlinePath;
-    selectionState.maskBounding = {
+    selectionState.selectionClipPath = clipPath;
+    selectionState.selectionOutline = outlinePath;
+    selectionState.selectionBounding = {
       x: minX,
       y: minY,
       width: maxX - minX + 1,
@@ -859,7 +860,11 @@ export default function Canvas({
     const historyStore = usePainterHistoryStore.getState();
 
     if (pointer.tool === 'selection') {
-      selectionState.mode = pointer.selectionMode;
+      // 選択モードが変更された場合、新しいモードに設定
+      if (selectionState.mode !== pointer.selectionMode) {
+        selectionState.setMode(pointer.selectionMode);
+      }
+      
       if (pointer.selectionMode === 'magic') {
         selectionState.reset();
         computeMagicSelection(x, y);
@@ -883,17 +888,11 @@ export default function Canvas({
       startXRef.current = x;
       startYRef.current = y;
       if (pointer.selectionMode === 'rect') {
-        selectionState.selectionRect = { x, y, width: 0, height: 0 };
-        selectionState.lassoPoints = [];
-        selectionState.magicClipPath = undefined;
-        selectionState.magicOutline = undefined;
-        selectionState.magicBounding = undefined;
+        selectionState.tempRect = { x, y, width: 0, height: 0 };
+        selectionState.tempLassoPoints = [];
       } else {
-        selectionState.lassoPoints = [{ x, y }];
-        selectionState.selectionRect = undefined;
-        selectionState.magicClipPath = undefined;
-        selectionState.magicOutline = undefined;
-        selectionState.magicBounding = undefined;
+        selectionState.tempLassoPoints = [{ x, y }];
+        selectionState.tempRect = undefined;
       }
       onSelectionUpdate?.();
       onSelectionStart?.();
@@ -922,9 +921,9 @@ export default function Canvas({
         const y0 = Math.min(startYRef.current, y);
         const w = Math.abs(x - startXRef.current);
         const h = Math.abs(y - startYRef.current);
-        selectionState.selectionRect = { x: x0, y: y0, width: w, height: h };
+        selectionState.tempRect = { x: x0, y: y0, width: w, height: h };
       } else if (selectionState.mode === 'lasso') {
-        selectionState.lassoPoints.push({ x, y });
+        selectionState.tempLassoPoints.push({ x, y });
       } else if (
         (selectionState.mode === 'select-pen' || selectionState.mode === 'select-eraser') &&
         lastPosRef.current
@@ -968,15 +967,60 @@ export default function Canvas({
         let valid = false;
         if (selectionState.mode === 'rect') {
           valid = !!(
-            selectionState.selectionRect &&
-            selectionState.selectionRect.width > 2 &&
-            selectionState.selectionRect.height > 2
+            selectionState.tempRect &&
+            selectionState.tempRect.width > 2 &&
+            selectionState.tempRect.height > 2
           );
-        } else {
-          if (selectionState.lassoPoints.length > 2) {
-            selectionState.lassoPoints.push(selectionState.lassoPoints[0]);
+          if (valid && selectionState.tempRect) {
+            // 矩形選択を統一された選択領域に変換
+            const clipPath = new Path2D();
+            clipPath.rect(selectionState.tempRect.x, selectionState.tempRect.y, selectionState.tempRect.width, selectionState.tempRect.height);
+            const outlinePath = new Path2D();
+            outlinePath.rect(selectionState.tempRect.x + 0.5, selectionState.tempRect.y + 0.5, selectionState.tempRect.width, selectionState.tempRect.height);
+            
+            selectionState.selectionClipPath = clipPath;
+            selectionState.selectionOutline = outlinePath;
+            selectionState.selectionBounding = { ...selectionState.tempRect };
+            selectionState.tempRect = undefined;
           }
-          valid = selectionState.lassoPoints.length > 2;
+        } else {
+          if (selectionState.tempLassoPoints.length > 2) {
+            selectionState.tempLassoPoints.push(selectionState.tempLassoPoints[0]);
+          }
+          valid = selectionState.tempLassoPoints.length > 2;
+          if (valid) {
+            // ラッソ選択を統一された選択領域に変換
+            const clipPath = new Path2D();
+            const outlinePath = new Path2D();
+            
+            clipPath.moveTo(selectionState.tempLassoPoints[0].x, selectionState.tempLassoPoints[0].y);
+            outlinePath.moveTo(selectionState.tempLassoPoints[0].x + 0.5, selectionState.tempLassoPoints[0].y + 0.5);
+            
+            let minX = selectionState.tempLassoPoints[0].x, maxX = selectionState.tempLassoPoints[0].x;
+            let minY = selectionState.tempLassoPoints[0].y, maxY = selectionState.tempLassoPoints[0].y;
+            
+            for (let i = 1; i < selectionState.tempLassoPoints.length; i++) {
+              const p = selectionState.tempLassoPoints[i];
+              clipPath.lineTo(p.x, p.y);
+              outlinePath.lineTo(p.x + 0.5, p.y + 0.5);
+              minX = Math.min(minX, p.x);
+              maxX = Math.max(maxX, p.x);
+              minY = Math.min(minY, p.y);
+              maxY = Math.max(maxY, p.y);
+            }
+            clipPath.closePath();
+            outlinePath.closePath();
+            
+            selectionState.selectionClipPath = clipPath;
+            selectionState.selectionOutline = outlinePath;
+            selectionState.selectionBounding = {
+              x: minX,
+              y: minY,
+              width: maxX - minX,
+              height: maxY - minY
+            };
+            selectionState.tempLassoPoints = [];
+          }
         }
         if (!valid) {
           selectionState.reset();

@@ -12,18 +12,21 @@ export type SelectionMode =
 
 export interface SelectionState {
   mode: SelectionMode;
-  selectionRect?: SelectionRect;
-  lassoPoints: { x: number; y: number }[];
-  magicClipPath?: Path2D;
-  magicOutline?: Path2D;
-  magicBounding?: SelectionRect;
-  maskCanvas?: HTMLCanvasElement;
-  maskClipPath?: Path2D;
-  maskOutline?: Path2D;
-  maskBounding?: SelectionRect;
+  
+  // 統一された選択領域表現（マスクベース）
+  selectionMask?: HTMLCanvasElement;
+  selectionClipPath?: Path2D;
+  selectionOutline?: Path2D;
+  selectionBounding?: SelectionRect;
+  
+  // 作業用の一時データ（モード固有の編集中データ）
+  tempRect?: SelectionRect;
+  tempLassoPoints: { x: number; y: number }[];
+  
   reset: () => void;
   hasSelection: () => boolean;
   getBoundingRect: () => SelectionRect | undefined;
+  setMode: (newMode: SelectionMode) => void;
 }
 
 export default function useSelectionState(): SelectionState {
@@ -32,52 +35,36 @@ export default function useSelectionState(): SelectionState {
   if (!stateRef.current) {
     const state: SelectionState = {
       mode: 'rect',
-      selectionRect: undefined,
-      lassoPoints: [],
-      magicClipPath: undefined,
-      magicOutline: undefined,
-      magicBounding: undefined,
-      maskCanvas: undefined,
-      maskClipPath: undefined,
-      maskOutline: undefined,
-      maskBounding: undefined,
+      
+      // 統一された選択領域
+      selectionMask: undefined,
+      selectionClipPath: undefined,
+      selectionOutline: undefined,
+      selectionBounding: undefined,
+      
+      // 作業用の一時データ
+      tempRect: undefined,
+      tempLassoPoints: [],
+      
       reset() {
-        state.selectionRect = undefined;
-        state.lassoPoints = [];
-        state.magicClipPath = undefined;
-        state.magicOutline = undefined;
-        state.magicBounding = undefined;
-        state.maskCanvas = undefined;
-        state.maskClipPath = undefined;
-        state.maskOutline = undefined;
-        state.maskBounding = undefined;
+        state.selectionMask = undefined;
+        state.selectionClipPath = undefined;
+        state.selectionOutline = undefined;
+        state.selectionBounding = undefined;
+        state.tempRect = undefined;
+        state.tempLassoPoints = [];
       },
       hasSelection(): boolean {
-        return (
-          (state.mode === 'rect' && !!state.selectionRect) ||
-          (state.mode === 'lasso' && state.lassoPoints.length > 0) ||
-          (state.mode === 'magic' && !!state.magicClipPath) ||
-          ((state.mode === 'select-pen' || state.mode === 'select-eraser') && !!state.maskClipPath)
-        );
+        return !!(state.selectionMask || state.selectionClipPath);
       },
       getBoundingRect(): SelectionRect | undefined {
-        if (state.mode === 'rect') {
-          return state.selectionRect;
-        }
-        if (state.mode === 'magic') {
-          return state.magicBounding;
-        }
-        if (state.mode === 'select-pen' || state.mode === 'select-eraser') {
-          return state.maskBounding;
-        }
-        if (state.lassoPoints.length === 0) return undefined;
-        const xs = state.lassoPoints.map(p => p.x);
-        const ys = state.lassoPoints.map(p => p.y);
-        const minX = Math.min(...xs);
-        const maxX = Math.max(...xs);
-        const minY = Math.min(...ys);
-        const maxY = Math.max(...ys);
-        return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+        return state.selectionBounding;
+      },
+      setMode(newMode: SelectionMode): void {
+        state.mode = newMode;
+        // モード変更時は作業用データのみクリア、選択領域は保持
+        state.tempRect = undefined;
+        state.tempLassoPoints = [];
       }
     };
     stateRef.current = state;

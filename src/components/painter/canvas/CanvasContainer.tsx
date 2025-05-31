@@ -224,7 +224,7 @@ export default function CanvasContainer({
           
           // ファイルが見つからない場合、ファイル一覧をデバッグ表示
           const allFiles = app.vault.getFiles();
-          console.log('All files in vault:', allFiles.map(f => f.path));
+          console.log('All files in vault:', allFiles.map((f: any) => f.path));
           return;
         }
 
@@ -275,19 +275,8 @@ export default function CanvasContainer({
 
       ctx.save();
 
-      if (selectionState.mode === 'rect' && selectionState.selectionRect) {
-        const rect = selectionState.selectionRect;
-        ctx.fillStyle = pointer.color;
-        ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
-      } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
-        ctx.beginPath();
-        ctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
-        for (let i = 1; i < selectionState.lassoPoints.length; i++) {
-          const p = selectionState.lassoPoints[i];
-          ctx.lineTo(p.x, p.y);
-        }
-        ctx.closePath();
-        ctx.clip();
+      if (selectionState.selectionClipPath) {
+        ctx.clip(selectionState.selectionClipPath);
         
         const boundingRect = selectionState.getBoundingRect();
         if (boundingRect) {
@@ -296,19 +285,13 @@ export default function CanvasContainer({
         }
       } else if (
         ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
-        (selectionState.magicClipPath || selectionState.maskClipPath)
+        selectionState.selectionClipPath
       ) {
-        const clipPath =
-          selectionState.mode === 'magic'
-            ? selectionState.magicClipPath
-            : selectionState.maskClipPath;
+        const clipPath = selectionState.selectionClipPath;
         if (clipPath) {
           ctx.clip(clipPath);
 
-          const boundingRect =
-            selectionState.mode === 'magic'
-              ? selectionState.magicBounding
-              : selectionState.maskBounding;
+          const boundingRect = selectionState.selectionBounding;
           if (boundingRect) {
             ctx.fillStyle = pointer.color;
             ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
@@ -339,18 +322,8 @@ export default function CanvasContainer({
 
       ctx.save();
 
-      if (selectionState.mode === 'rect' && selectionState.selectionRect) {
-        const rect = selectionState.selectionRect;
-        ctx.clearRect(rect.x, rect.y, rect.width, rect.height);
-      } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
-        ctx.beginPath();
-        ctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
-        for (let i = 1; i < selectionState.lassoPoints.length; i++) {
-          const p = selectionState.lassoPoints[i];
-          ctx.lineTo(p.x, p.y);
-        }
-        ctx.closePath();
-        ctx.clip();
+      if (selectionState.selectionClipPath) {
+        ctx.clip(selectionState.selectionClipPath);
         
         const boundingRect = selectionState.getBoundingRect();
         if (boundingRect) {
@@ -358,19 +331,13 @@ export default function CanvasContainer({
         }
       } else if (
         ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
-        (selectionState.magicClipPath || selectionState.maskClipPath)
+        selectionState.selectionClipPath
       ) {
-        const clipPath =
-          selectionState.mode === 'magic'
-            ? selectionState.magicClipPath
-            : selectionState.maskClipPath;
+        const clipPath = selectionState.selectionClipPath;
         if (clipPath) {
           ctx.clip(clipPath);
 
-          const boundingRect =
-            selectionState.mode === 'magic'
-              ? selectionState.magicBounding
-              : selectionState.maskBounding;
+          const boundingRect = selectionState.selectionBounding;
           if (boundingRect) {
             ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
           }
@@ -435,24 +402,10 @@ export default function CanvasContainer({
               mctx.fillRect(0, 0, width, height);
               mctx.fillStyle = 'white';
               
-              if (selectionState.mode === 'rect' && selectionState.selectionRect) {
-                const r = selectionState.selectionRect;
-                mctx.fillRect(r.x, r.y, r.width, r.height);
-              } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
-                mctx.beginPath();
-                mctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
-                for (let i = 1; i < selectionState.lassoPoints.length; i++) {
-                  const p = selectionState.lassoPoints[i];
-                  mctx.lineTo(p.x, p.y);
-                }
-                mctx.closePath();
-                mctx.fill();
-              } else if (['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode)) {
-                if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-                  mctx.fill(selectionState.magicClipPath);
-                } else if (selectionState.maskCanvas) {
-                  mctx.drawImage(selectionState.maskCanvas, 0, 0);
-                }
+              if (selectionState.selectionClipPath) {
+                mctx.fill(selectionState.selectionClipPath);
+              } else if (selectionState.selectionMask) {
+                mctx.drawImage(selectionState.selectionMask, 0, 0);
               }
               
               const maskDataUrl = maskCanvas.toDataURL('image/png');
