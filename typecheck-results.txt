@@ -2,14 +2,12 @@ npm warn Unknown env config "http-proxy". This will stop working in the next maj
 src/app/painter/painter-view.ts(81,17): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
 src/app/painter/painter-view.ts(85,24): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
 src/components/painter/tools/ColorProperties.tsx(2,33): error TS2307: Cannot find module '../../../../utils/storage/painter-layout-store' or its corresponding type declarations.
-src/components/storyboard/Page.tsx(134,11): error TS2322: Type '{ imageUrl: string | undefined; imagePrompt: string | undefined; onImageUrlChange: (newUrl: string | null) => void; onImagePromptChange: (newImagePrompt: string) => void; app: App; ... 4 more ...; refCallback: (el: HTMLTextAreaElement | null) => void; }' is not assignable to type 'IntrinsicAttributes & ImageInputCellProps'.
-  Property 'generateThumbnail' does not exist on type 'IntrinsicAttributes & ImageInputCellProps'.
-src/components/storyboard/Page.tsx(345,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(351,33): error TS7006: Parameter 'chapter' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(351,42): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(374,33): error TS7006: Parameter 'prev' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(375,57): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(375,61): error TS7006: Parameter 'idx' implicitly has an 'any' type.
+src/components/storyboard/Page.tsx(343,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
+src/components/storyboard/Page.tsx(349,33): error TS7006: Parameter 'chapter' implicitly has an 'any' type.
+src/components/storyboard/Page.tsx(349,42): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
+src/components/storyboard/Page.tsx(372,33): error TS7006: Parameter 'prev' implicitly has an 'any' type.
+src/components/storyboard/Page.tsx(373,57): error TS7006: Parameter 'ch' implicitly has an 'any' type.
+src/components/storyboard/Page.tsx(373,61): error TS7006: Parameter 'idx' implicitly has an 'any' type.
 src/hooks/useSelectionState.ts(2,36): error TS2307: Cannot find module '../../types/ui' or its corresponding type declarations.
 src/hooks/useStoryboardData.ts(2,64): error TS2307: Cannot find module '../../types/storyboard' or its corresponding type declarations.
 src/hooks/useStoryboardData.ts(27,21): error TS7006: Parameter 'prev' implicitly has an 'any' type.
