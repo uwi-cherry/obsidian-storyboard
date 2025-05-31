@@ -8,6 +8,8 @@ import { BUTTON_ICONS } from 'src/constants/icons';
 import { t } from 'src/constants/obsidian-i18n';
 import useTextareaArrowNav from 'src/hooks/useTextareaArrowNav';
 import { toolRegistry } from 'src/service/core/tool-registry';
+import { useSelectedFrameStore } from 'src/store/selected-frame-store';
+import { useSelectedRowIndexStore } from 'src/store/selected-row-index-store';
 
 interface ImageInputCellProps {
   imageUrl?: string;
@@ -17,14 +19,6 @@ interface ImageInputCellProps {
   onImagePromptChange: (newPrompt: string) => void;
   className?: string;
   app: App;
-  generateThumbnail: (app: App, file: TFile) => Promise<string | null>;
-  createPsd: (
-    app: App,
-    imageFile?: TFile,
-    layerName?: string,
-    isOpen?: boolean,
-    targetDir?: string
-  ) => Promise<TFile>;
   focusPrevCellPrompt?: () => void;
   focusNextCellPrompt?: () => void;
   refCallback?: (el: HTMLTextAreaElement | null) => void;
@@ -36,8 +30,6 @@ const ImageInputCell: FC<ImageInputCellProps> = ({
   onImageUrlChange,
   onImagePromptChange,
   app,
-  generateThumbnail,
-  createPsd,
   focusPrevCellPrompt,
   focusNextCellPrompt,
   refCallback,
@@ -46,7 +38,6 @@ const ImageInputCell: FC<ImageInputCellProps> = ({
   const lastModifiedRef = useRef<number | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (refCallback) {
@@ -183,31 +174,73 @@ const ImageInputCell: FC<ImageInputCellProps> = ({
     onImageUrlChange(null);
   };
 
-  const handleAiGenerate = async () => {
-    if (isGenerating) return; 
-
-    if (!imagePrompt || imagePrompt.trim() === '') {
-      new Notice(t('PROMPT_REQUIRED'));
-      return;
+  const handleCreateNewPsd = async () => {
+    try {
+      const result = await toolRegistry.executeTool('create_painter_file', {
+        app
+      });
+      const parsedResult = JSON.parse(result);
+      
+      // ストーリーボードのImageInputCellと同じように直接データを更新
+      const selectedRowIndex = useSelectedRowIndexStore.getState().selectedRowIndex;
+      const activeFile = app.workspace.getActiveFile();
+      
+      if (selectedRowIndex !== null && activeFile && activeFile.extension === 'board') {
+        try {
+          // 現在のストーリーボードデータを読み込み
+          const loadResult = await toolRegistry.executeTool('load_storyboard_data', {
+            app,
+            file: activeFile
+          });
+          const boardData = JSON.parse(loadResult);
+          
+          // 選択された行のimageUrlを更新
+          let globalIndex = 0;
+          let found = false;
+          for (let chapterIndex = 0; chapterIndex < boardData.chapters.length; chapterIndex++) {
+            const chapter = boardData.chapters[chapterIndex];
+            for (let frameIndex = 0; frameIndex < chapter.frames.length; frameIndex++) {
+              if (globalIndex === selectedRowIndex) {
+                chapter.frames[frameIndex].imageUrl = parsedResult.filePath;
+                found = true;
+                break;
+              }
+              globalIndex++;
+            }
+            if (found) break;
+          }
+          
+          // 更新されたデータを保存
+          if (found) {
+            await toolRegistry.executeTool('save_storyboard_data', {
+              app,
+              file: activeFile,
+              data: JSON.stringify(boardData)
+            });
+            
+            // Zustandストアを更新してストーリーボードの再描画を促す
+            const selectedFrame = useSelectedFrameStore.getState().selectedFrame;
+            if (selectedFrame) {
+              const updatedFrame = { ...selectedFrame, imageUrl: parsedResult.filePath };
+              useSelectedFrameStore.getState().setSelectedFrame(updatedFrame);
+            }
+          }
+        } catch (error) {
+          console.error('Failed to update board data:', error);
+        }
+      }
+      
+      onImageUrlChange(parsedResult.filePath);
+    } catch (error) {
+      console.error('PSD creation failed:', error);
     }
-
-    new Notice('AI生成機能は実装予定です');
   };
+
 
   return (
     <>
       <IconButtonGroup
         buttons={[
-          {
-            icon: BUTTON_ICONS.aiGenerate,
-            onClick: (e) => {
-              e.stopPropagation();
-              handleAiGenerate();
-            },
-            title: isGenerating ? t('GENERATING') : t('AI_GENERATE'),
-            disabled: isGenerating,
-            variant: 'accent'
-          },
           {
             icon: BUTTON_ICONS.fileSelect,
             onClick: (e) => {
@@ -216,6 +249,15 @@ const ImageInputCell: FC<ImageInputCellProps> = ({
             },
             title: t('FILE_SELECT'),
             variant: 'primary'
+          },
+          {
+            icon: BUTTON_ICONS.createPsd,
+            onClick: (e) => {
+              e.stopPropagation();
+              handleCreateNewPsd();
+            },
+            title: t('CREATE_PSD'),
+            variant: 'accent'
           }
         ]}
         className="mb-2"

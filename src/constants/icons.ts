@@ -127,7 +127,8 @@ const TOOL_ICON_PATHS = {
 const BUTTON_ICON_PATHS = {
   fileSelect: `<path d="M8 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4"/><path d="M17 17a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h6.5L17 6.5zM4 2a1 1 0 0 0-1 1v12l2.7-2.7a.5.5 0 0 1 .7-.1L10 14l2.6-3.6a.5.5 0 0 1 .9-.1L16 12V6.5h-2A2 2 0 0 1 12 4.5V2z"/>`,
   aiGenerate: `<path d="M7 .3a.9.9 0 0 1 .1 1 8.6 8.6 0 0 0-1 4.1c0 4.8 3.9 8.7 8.8 8.7q.9 0 1.8-.2a.9.9 0 0 1 1 .4.9.9 0 0 1 0 1.1A10 10 0 0 1 10 19C4.5 19 0 14.7 0 9.3 0 5.1 2.5 1.6 6.1.1A.9.9 0 0 1 7 .3M5.8 1.6A8.7 8.7 0 0 0 1.2 9.3c0 4.8 3.9 8.7 8.8 8.7a8.8 8.8 0 0 0 6.2-2.6q-.6.1-1.2.1c-5.5 0-10-4.5-10-10 0-1.4.3-2.7.8-3.9"/><path d="M13 3.8a.3.3 0 0 1 .5 0l.5 1.4c.2.6.7 1.1 1.3 1.3l1.4.5a.3.3 0 0 1 0 .5l-1.4.5a2.1 2.1 0 0 0-1.3 1.3l-.5 1.4a.3.3 0 0 1-.5 0l-.5-1.4a2.1 2.1 0 0 0-1.3-1.3l-1.4-.5a.3.3 0 0 1 0-.5l1.4-.5c.4-.1.7-.5 1.3-1.3zM16.6.1a.2.2 0 0 1 .3 0l.3.9c.1.4.5.7.9.9l.9.3a.2.2 0 0 1 0 .3l-.9.3a1.4 1.4 0 0 0-.9.9l-.3.9a.2.2 0 0 1-.3 0l-.3-.9a1.4 1.4 0 0 0-.9-.9l-.9-.3a.2.2 0 0 1 0-.3l.9-.3c.4-.1.7-.5.9-.9z"/>`,
-  clearPath: `<path d="M2 6h20"/><path d="M19 6v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>`
+  clearPath: `<path d="M2 6h20"/><path d="M19 6v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>`,
+  createPsd: `<rect x="4" y="4" width="16" height="16" rx="2" ry="2"/><line x1="4" y1="10" x2="20" y2="10"/><line x1="10" y1="20" x2="10" y2="10"/><line x1="12" y1="7" x2="12" y2="17"/><line x1="7" y1="12" x2="17" y2="12"/>`
 };
 
 export const OBSIDIAN_ICONS = {
@@ -177,5 +178,6 @@ export const TOOL_ICONS = {
 export const BUTTON_ICONS = {
   fileSelect: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.fileSelect}</svg>`,
   aiGenerate: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.aiGenerate}</svg>`,
-  clearPath: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.clearPath}</svg>`
+  clearPath: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.clearPath}</svg>`,
+  createPsd: `<svg ${REACT_SVG}>${BUTTON_ICON_PATHS.createPsd}</svg>`
 }; 

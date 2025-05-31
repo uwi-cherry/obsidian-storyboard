@@ -190,87 +190,16 @@ export function NavigationControls({
     }
   };
 
-  const handleCreateNewPsd = async () => {
-    try {
-      const boardPath = app.workspace.getActiveFile()?.parent?.path || '';
-      
-      const result = await toolRegistry.executeTool('create_painter_file', {
-        app
-      });
-      const parsedResult = JSON.parse(result);
-      
-      // ストーリーボードのImageInputCellと同じように直接データを更新
-      const selectedRowIndex = useSelectedRowIndexStore.getState().selectedRowIndex;
-      const activeFile = app.workspace.getActiveFile();
-      
-      if (selectedRowIndex !== null && activeFile && activeFile.extension === 'board') {
-        try {
-          // 現在のストーリーボードデータを読み込み
-          const loadResult = await toolRegistry.executeTool('load_storyboard_data', {
-            app,
-            file: activeFile
-          });
-          const boardData = JSON.parse(loadResult);
-          
-          // 選択された行のimageUrlを更新
-          let globalIndex = 0;
-          let found = false;
-          for (let chapterIndex = 0; chapterIndex < boardData.chapters.length; chapterIndex++) {
-            const chapter = boardData.chapters[chapterIndex];
-            for (let frameIndex = 0; frameIndex < chapter.frames.length; frameIndex++) {
-              if (globalIndex === selectedRowIndex) {
-                chapter.frames[frameIndex].imageUrl = parsedResult.filePath;
-                found = true;
-                break;
-              }
-              globalIndex++;
-            }
-            if (found) break;
-          }
-          
-          // 更新されたデータを保存
-          if (found) {
-            await toolRegistry.executeTool('save_storyboard_data', {
-              app,
-              file: activeFile,
-              data: JSON.stringify(boardData)
-            });
-            
-            // Zustandストアを更新してストーリーボードの再描画を促す
-            const selectedFrame = useSelectedFrameStore.getState().selectedFrame;
-            if (selectedFrame) {
-              const updatedFrame = { ...selectedFrame, imageUrl: parsedResult.filePath };
-              useSelectedFrameStore.getState().setSelectedFrame(updatedFrame);
-            }
-          }
-        } catch (error) {
-          console.error('Failed to update board data:', error);
-        }
-      }
-      
-      onImageUrlChange(parsedResult.filePath);
-      onOpenPsdPainter();
-    } catch (error) {
-      console.error('PSD creation failed:', error);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-2 mb-4">
       <div className="flex gap-2">
         <button
-          onClick={handleCreateNewPsd}
-          className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${!currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
-          title={t('CREATE_PSD')}
-        >
-          .psd (new)
-        </button>
-        <button
           onClick={onOpenPsdPainter}
           className={`px-3 py-2 bg-accent text-on-accent hover:bg-accent-hover rounded cursor-pointer ${currentImageUrl?.endsWith('.psd') && !isPsdPainterOpen ? '' : 'hidden'}`}
           title={t('OPEN_PSD')}
         >
-          .psd (open)
+          .psd
         </button>
         <button
           onClick={handleConvertToMd}
