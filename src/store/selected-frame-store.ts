@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { StoryboardFrame } from '../../types/storyboard';
+import type { StoryboardFrame } from '../types/storyboard';
 
 interface SelectedFrameState {
   selectedFrame: StoryboardFrame | null;

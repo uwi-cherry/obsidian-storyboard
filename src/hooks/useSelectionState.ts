@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import type { SelectionRect } from '../../types/ui';
+import type { SelectionRect } from '../types/ui';
 
 export type SelectionMode =
   | 'none'

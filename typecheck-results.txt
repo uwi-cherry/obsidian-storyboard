@@ -1,45 +1,11 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 src/app/painter/painter-view.ts(81,17): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
 src/app/painter/painter-view.ts(85,24): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
 src/components/painter/tools/ColorProperties.tsx(2,33): error TS2307: Cannot find module '../../../../utils/storage/painter-layout-store' or its corresponding type declarations.
 src/components/storyboard/Page.tsx(134,11): error TS2322: Type '{ imageUrl: string | undefined; imagePrompt: string | undefined; onImageUrlChange: (newUrl: string | null) => void; onImagePromptChange: (newImagePrompt: string) => void; app: App; ... 4 more ...; refCallback: (el: HTMLTextAreaElement | null) => void; }' is not assignable to type 'IntrinsicAttributes & ImageInputCellProps'.
   Property 'generateThumbnail' does not exist on type 'IntrinsicAttributes & ImageInputCellProps'.
-src/components/storyboard/Page.tsx(345,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(351,33): error TS7006: Parameter 'chapter' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(351,42): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(374,33): error TS7006: Parameter 'prev' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(375,57): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/components/storyboard/Page.tsx(375,61): error TS7006: Parameter 'idx' implicitly has an 'any' type.
-src/hooks/useSelectionState.ts(2,36): error TS2307: Cannot find module '../../types/ui' or its corresponding type declarations.
-src/hooks/useStoryboardData.ts(2,64): error TS2307: Cannot find module '../../types/storyboard' or its corresponding type declarations.
-src/hooks/useStoryboardData.ts(27,21): error TS7006: Parameter 'prev' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(45,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(45,49): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(47,41): error TS7006: Parameter 'f' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(47,44): error TS7006: Parameter 'fIdx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(62,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(62,49): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(64,53): error TS7006: Parameter '_' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(64,56): error TS7006: Parameter 'idx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(76,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(76,49): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(93,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(93,49): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(112,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(112,49): error TS7006: Parameter 'cIdx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(139,48): error TS7006: Parameter '_' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(139,51): error TS7006: Parameter 'i' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(149,54): error TS7006: Parameter 'c' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(152,27): error TS7006: Parameter 'oldName' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(152,36): error TS7006: Parameter 'idx' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(157,44): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(159,33): error TS7006: Parameter 'frame' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(172,51): error TS7006: Parameter 'c' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(173,49): error TS7006: Parameter 'ch' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(173,69): error TS7006: Parameter 'f' implicitly has an 'any' type.
-src/hooks/useStoryboardData.ts(182,54): error TS7006: Parameter 'c' implicitly has an 'any' type.
 src/service/api/ai-tool/generate-image.ts(3,21): error TS2307: Cannot find module '@fal-ai/client' or its corresponding type declarations.
 src/service/api/storyboard-tool/add-row.ts(21,101): error TS2345: Argument of type '{ app: App; file: TFile; }' is not assignable to parameter of type 'string'.
 src/service/api/storyboard-tool/add-rows-bulk.ts(22,101): error TS2345: Argument of type '{ app: App; file: TFile; }' is not assignable to parameter of type 'string'.
 src/service/api/storyboard-tool/ai-storyboard-agent.ts(22,101): error TS2345: Argument of type '{ app: App; file: TFile; }' is not assignable to parameter of type 'string'.
 src/storage/layers-store.ts(29,55): error TS2304: Cannot find name 'Layer'.
-src/store/selected-frame-store.ts(2,38): error TS2307: Cannot find module '../../types/storyboard' or its corresponding type declarations.
