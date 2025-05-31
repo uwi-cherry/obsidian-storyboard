@@ -1,5 +1,6 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
+import { fal } from '@fal-ai/client';
 
 namespace Internal {
   export interface GenerateImageInput {
@@ -66,116 +67,59 @@ namespace Internal {
   } as const;
 
   export async function executeGenerateImage(args: GenerateImageInput): Promise<string> {
-    const { 
-      prompt, 
-      apiKey, 
-      app, 
-      fileName,
-      imageUrls = [],
-      guidanceScale = 3.5,
-      numImages = 1,
-      aspectRatio = "1:1",
-      seed
-    } = args;
+    const { prompt, apiKey, app, fileName } = args;
+    const endpoint = 'https://api.fal.ai/v1/predictions';
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({ version: 'stable-diffusion', input: { prompt } })
+    });
+    if (!res.ok) throw new Error(`fal.ai API エラー: ${res.status} ${await res.text()}`);
+    const prediction = await res.json();
 
-    try {
-      // Prepare input for FLUX Kontext Max Multi
-      const input: any = {
-        prompt,
-        guidance_scale: guidanceScale,
-        num_images: numImages,
-        aspect_ratio: aspectRatio,
-        output_format: "jpeg"
-      };
-
-      // Add image URLs for multi-image context if provided
-      if (imageUrls.length > 0) {
-        input.image_urls = imageUrls;
-      }
-
-      // Add seed if provided
-      if (seed !== undefined) {
-        input.seed = seed;
-      }
-
-      // Call FLUX Kontext Max Multi API directly
-      const response = await fetch("https://api.fal.ai/v1/subscribe/fal-ai/flux-pro/kontext/max/multi", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${apiKey}`
-        },
-        body: JSON.stringify({
-          input,
-          logs: false
-        })
+    let output: string | undefined;
+    for (;;) {
+      const check = await fetch(`${endpoint}/${prediction.id}`, {
+        headers: { Authorization: `Bearer ${apiKey}` }
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`FLUX API error: ${response.status} ${errorText}`);
+      const status = await check.json();
+      if (status.status === 'succeeded') {
+        output = status.output[0];
+        break;
+      } else if (status.status === 'failed') {
+        throw new Error('画像生成に失敗しました');
       }
-
-      const result = await response.json();
-
-      if (!result.data?.images?.[0]?.url) {
-        throw new Error('画像生成に失敗しました: 結果にURLが含まれていません');
-      }
-
-      const imageUrl = result.data.images[0].url;
-      const generatedSeed = result.data.seed;
-
-      // Download the generated image
-      const imageResponse = await fetch(imageUrl);
-      if (!imageResponse.ok) {
-        throw new Error(`画像のダウンロードに失敗しました: ${imageResponse.status}`);
-      }
-      
-      const arrayBuffer = await imageResponse.arrayBuffer();
-      const uint8Array = new Uint8Array(arrayBuffer);
-
-      // Prepare file path
-      const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
-      const folder = normalizePath(`${activeDir}/assets`);
-      const ext = 'jpg'; // FLUX outputs JPEG
-      let baseName = fileName ?? `flux-generated-${Date.now()}.${ext}`;
-      if (!baseName.endsWith(`.${ext}`)) {
-        baseName = baseName.replace(/\.[^.]*$/, '') + `.${ext}`;
-      }
-      
-      // Ensure assets folder exists
-      try {
-        if (!app.vault.getAbstractFileByPath(folder)) {
-          await app.vault.createFolder(folder);
-        }
-      } catch (error) {
-        console.warn('Failed to create assets folder:', error);
-      }
-
-      // Handle file name conflicts
-      let fullPath = normalizePath(`${folder}/${baseName}`);
-      let counter = 1;
-      while (app.vault.getAbstractFileByPath(fullPath)) {
-        const nameWithoutExt = baseName.replace(/\.[^.]*$/, '');
-        fullPath = normalizePath(`${folder}/${nameWithoutExt}_${counter}.${ext}`);
-        counter++;
-      }
-
-      // Save the image file
-      const imageFile: TFile = await app.vault.createBinary(fullPath, uint8Array);
-      
-      const output: GenerateImageOutput = {
-        filePath: imageFile.path,
-        message: `FLUX画像を生成しました: ${imageFile.path}`,
-        seed: generatedSeed
-      };
-      
-      return JSON.stringify(output);
-
-    } catch (error) {
-      console.error('FLUX image generation error:', error);
-      throw new Error(`画像生成に失敗しました: ${error instanceof Error ? error.message : String(error)}`);
+      await new Promise(r => setTimeout(r, 1000));
     }
+    const b64 = output as string | undefined;
+    if (!b64) throw new Error('画像データが取得できませんでした');
+    const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+
+    const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
+    const folder = normalizePath(`${activeDir}/assets`);
+    const ext = 'png';
+    let baseName = fileName ?? `generated-${Date.now()}.${ext}`;
+    if (!baseName.endsWith(`.${ext}`)) baseName += `.${ext}`;
+    let fullPath = `${folder}/${baseName}`;
+    try {
+      if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
+    } catch {
+      /* ignore */
+    }
+    let i = 1;
+    while (app.vault.getAbstractFileByPath(fullPath)) {
+      fullPath = `${folder}/${Date.now()}_${i}.${ext}`;
+      i++;
+    }
+    const imageFile: TFile = await app.vault.createBinary(fullPath, bin);
+    const result: GenerateImageOutput = {
+      filePath: imageFile.path,
+      message: `画像を生成しました: ${imageFile.path}`
+    };
+    return JSON.stringify(result);
   }
 }
 

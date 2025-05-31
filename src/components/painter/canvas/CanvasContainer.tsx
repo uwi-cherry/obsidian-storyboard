@@ -194,8 +194,8 @@ export default function CanvasContainer({
     }
 
     // Obsidianファイルツリーからのドラッグ&ドロップ
-    const filePath = e.dataTransfer.getData('text/plain');
-    if (filePath) {
+    const dragData = e.dataTransfer.getData('text/plain');
+    if (dragData) {
       try {
         const app = (window as any).app;
         if (!app) {
@@ -203,9 +203,28 @@ export default function CanvasContainer({
           return;
         }
 
+        // Obsidian URIスキームをパースしてファイルパスを取得
+        let filePath = dragData;
+        if (dragData.startsWith('obsidian://')) {
+          const url = new URL(dragData);
+          const fileParam = url.searchParams.get('file');
+          if (fileParam) {
+            filePath = decodeURIComponent(fileParam);
+          } else {
+            console.error('No file parameter in Obsidian URI:', dragData);
+            return;
+          }
+        }
+
         const file = app.vault.getAbstractFileByPath(filePath);
-        if (!file || !(file instanceof (window as any).TFile)) {
-          console.error('File not found or not a TFile:', filePath);
+        console.log('Found file:', file, 'path:', filePath);
+        
+        if (!file) {
+          console.error('File not found:', filePath, 'from dragData:', dragData);
+          
+          // ファイルが見つからない場合、ファイル一覧をデバッグ表示
+          const allFiles = app.vault.getFiles();
+          console.log('All files in vault:', allFiles.map(f => f.path));
           return;
         }
 
@@ -214,6 +233,12 @@ export default function CanvasContainer({
         const extension = file.extension.toLowerCase();
         if (!imageExtensions.includes(extension)) {
           console.warn('Not an image file:', filePath);
+          return;
+        }
+
+        // TFileであることを確認（型チェックを簡素化）
+        if (!file.path || !file.extension) {
+          console.error('Invalid file object:', file);
           return;
         }
 
