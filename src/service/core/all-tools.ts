@@ -16,7 +16,10 @@ import {
   toggleStoryboardViewTool,
   loadStoryboardDataTool,
   saveStoryboardDataTool,
-  exportStoryboardJsonTool
+  exportStoryboardJsonTool,
+  addStoryboardRowTool,
+  addStoryboardRowsBulkTool,
+  runStoryboardAiAgentTool
 } from '../api/storyboard-tool';
 
 import {
@@ -54,6 +57,9 @@ export const ALL_TOOLS: Tool<any, any>[] = [
   loadStoryboardDataTool,
   saveStoryboardDataTool,
   exportStoryboardJsonTool,
+  addStoryboardRowTool,
+  addStoryboardRowsBulkTool,
+  runStoryboardAiAgentTool,
   createUsdFileTool,
   loadUsdFileTool,
   saveUsdFileTool,

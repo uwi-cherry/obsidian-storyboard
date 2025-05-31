@@ -29,5 +29,18 @@ export class StoryboardSettingTab extends PluginSettingTab {
             await saveSettings(this.plugin, this.settings);
           })
       );
+
+    new Setting(containerEl)
+      .setName('作風指示')
+      .setDesc('AIが参考にするスタイル指示')
+      .addTextArea(text =>
+        text
+          .setPlaceholder('例: コミカルで分かりやすいトーン')
+          .setValue(this.settings.styleInstructions || '')
+          .onChange(async (value) => {
+            this.settings.styleInstructions = value;
+            await saveSettings(this.plugin, this.settings);
+          })
+      );
   }
 }

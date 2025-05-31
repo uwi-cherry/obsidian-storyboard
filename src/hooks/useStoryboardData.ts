@@ -55,18 +55,6 @@ export default function useStoryboardData(
     [updateData]
   );
 
-  const addRow = useCallback(
-    (chapterIndex: number) => {
-      const newFrame = createEmptyFrame();
-      updateData(prev => {
-        const chapters = prev.chapters.map((ch, cIdx) =>
-          cIdx === chapterIndex ? { ...ch, frames: [...ch.frames, newFrame] } : ch,
-        );
-        return { ...prev, chapters };
-      });
-    },
-    [updateData]
-  );
 
   const deleteRow = useCallback(
     (chapterIndex: number, rowIndex: number) => {
@@ -199,7 +187,6 @@ export default function useStoryboardData(
     storyboard,
     setStoryboard,
     handleCellChange,
-    addRow,
     deleteRow,
     moveRowUp,
     moveRowDown,
@@ -210,4 +197,4 @@ export default function useStoryboardData(
     uniqueSpeakers,
     allCharacters,
   };
-} 
+}

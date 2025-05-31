@@ -1,9 +1,11 @@
 export interface PluginSettings {
   falApiKey: string;
+  styleInstructions: string;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
   falApiKey: '',
+  styleInstructions: 'コミカルで分かりやすい作風で執筆してください。',
 };
 
 export async function loadSettings(plugin: import('obsidian').Plugin): Promise<PluginSettings> {

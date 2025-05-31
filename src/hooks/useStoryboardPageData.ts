@@ -30,6 +30,29 @@ export default function useStoryboardPageData(app: App, file: TFile | null) {
   );
 
   const hookData = useStoryboardData(initialData, handleDataChange);
+  const { setStoryboard, ...restHookData } = hookData;
+
+  const addRow = useCallback(
+    async (chapterIndex: number, initialText = '') => {
+      if (!file) return;
+      try {
+        await toolRegistry.executeTool('add_storyboard_row', {
+          app,
+          file,
+          chapterIndex,
+          initialText,
+        });
+        const result = await toolRegistry.executeTool('load_storyboard_data', {
+          app,
+          file,
+        });
+        setStoryboard(JSON.parse(result));
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    [app, file, setStoryboard]
+  );
 
   useEffect(() => {
     const loadData = async () => {
@@ -51,5 +74,5 @@ export default function useStoryboardPageData(app: App, file: TFile | null) {
     loadData();
   }, [app, file]);
 
-  return { isLoading, handleDataChange, ...hookData };
+  return { isLoading, handleDataChange, addRow, ...restHookData };
 }

@@ -35,7 +35,10 @@ export const TOOL_NAMES = {
   GENERATE_IMAGE: 'generate_image',
   GENERATE_VIDEO: 'generate_video',
   INPAINT_IMAGE: 'inpaint_image',
-  GENERATIVE_FILL: 'generative_fill'
+  GENERATIVE_FILL: 'generative_fill',
+  ADD_STORYBOARD_ROW: 'add_storyboard_row',
+  ADD_STORYBOARD_ROWS_BULK: 'add_storyboard_rows_bulk',
+  RUN_STORYBOARD_AI_AGENT: 'run_storyboard_ai_agent'
 } as const;
 
 export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
@@ -79,7 +82,7 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       name: TOOL_NAMES.LOAD_STORYBOARD_DATA,
       modulePath: "../api/storyboard-tool/load-storyboard-data",
       exportName: "loadStoryboardDataTool",
-      ai_enabled: false,
+      ai_enabled: true,
       description: "Load storyboard data from file",
       category: TOOL_CATEGORIES.STORYBOARD
     },
@@ -298,6 +301,30 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       ai_enabled: false,
       description: "Generative fill via AI",
       category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.ADD_STORYBOARD_ROW,
+      modulePath: "../api/storyboard-tool/add-row",
+      exportName: "addStoryboardRowTool",
+      ai_enabled: false,
+      description: "Add one row to storyboard with default text",
+      category: TOOL_CATEGORIES.STORYBOARD
+    },
+    {
+      name: TOOL_NAMES.ADD_STORYBOARD_ROWS_BULK,
+      modulePath: "../api/storyboard-tool/add-rows-bulk",
+      exportName: "addStoryboardRowsBulkTool",
+      ai_enabled: false,
+      description: "Add multiple rows to storyboard at once",
+      category: TOOL_CATEGORIES.STORYBOARD
+    },
+    {
+      name: TOOL_NAMES.RUN_STORYBOARD_AI_AGENT,
+      modulePath: "../api/storyboard-tool/ai-storyboard-agent",
+      exportName: "runStoryboardAiAgentTool",
+      ai_enabled: false,
+      description: "Run AI agent to edit storyboard",
+      category: TOOL_CATEGORIES.STORYBOARD
     }
   ],
   config: {
