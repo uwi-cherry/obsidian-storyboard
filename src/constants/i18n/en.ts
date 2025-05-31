@@ -43,6 +43,8 @@ const en: I18nStrings = {
   SELECT_RECT: 'Rectangle',
   SELECT_LASSO: 'Lasso',
   SELECT_MAGIC: 'Magic wand',
+  SELECT_PEN: 'Brush add',
+  SELECT_ERASER: 'Brush erase',
   CANVAS_SIZE: 'Canvas Size',
   ZOOM_LEVEL: 'Zoom',
   ROTATION_ANGLE: 'Rotation',

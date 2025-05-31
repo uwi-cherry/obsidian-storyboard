@@ -1,7 +1,13 @@
 import { useRef } from 'react';
 import type { SelectionRect } from '../../types/ui';
 
-export type SelectionMode = 'none' | 'rect' | 'lasso' | 'magic';
+export type SelectionMode =
+  | 'none'
+  | 'rect'
+  | 'lasso'
+  | 'magic'
+  | 'select-pen'
+  | 'select-eraser';
 
 
 export interface SelectionState {
@@ -11,6 +17,10 @@ export interface SelectionState {
   magicClipPath?: Path2D;
   magicOutline?: Path2D;
   magicBounding?: SelectionRect;
+  maskCanvas?: HTMLCanvasElement;
+  maskClipPath?: Path2D;
+  maskOutline?: Path2D;
+  maskBounding?: SelectionRect;
   reset: () => void;
   hasSelection: () => boolean;
   getBoundingRect: () => SelectionRect | undefined;
@@ -27,18 +37,27 @@ export default function useSelectionState(): SelectionState {
       magicClipPath: undefined,
       magicOutline: undefined,
       magicBounding: undefined,
+      maskCanvas: undefined,
+      maskClipPath: undefined,
+      maskOutline: undefined,
+      maskBounding: undefined,
       reset() {
         state.selectionRect = undefined;
         state.lassoPoints = [];
         state.magicClipPath = undefined;
         state.magicOutline = undefined;
         state.magicBounding = undefined;
+        state.maskCanvas = undefined;
+        state.maskClipPath = undefined;
+        state.maskOutline = undefined;
+        state.maskBounding = undefined;
       },
       hasSelection(): boolean {
         return (
           (state.mode === 'rect' && !!state.selectionRect) ||
           (state.mode === 'lasso' && state.lassoPoints.length > 0) ||
-          (state.mode === 'magic' && !!state.magicClipPath)
+          (state.mode === 'magic' && !!state.magicClipPath) ||
+          ((state.mode === 'select-pen' || state.mode === 'select-eraser') && !!state.maskClipPath)
         );
       },
       getBoundingRect(): SelectionRect | undefined {
@@ -47,6 +66,9 @@ export default function useSelectionState(): SelectionState {
         }
         if (state.mode === 'magic') {
           return state.magicBounding;
+        }
+        if (state.mode === 'select-pen' || state.mode === 'select-eraser') {
+          return state.maskBounding;
         }
         if (state.lassoPoints.length === 0) return undefined;
         const xs = state.lassoPoints.map(p => p.x);

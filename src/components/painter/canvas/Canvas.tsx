@@ -221,6 +221,11 @@ export default function Canvas({
         ctx.stroke();
       } else if (selectionState.mode === 'magic' && selectionState.magicOutline) {
         ctx.stroke(selectionState.magicOutline);
+      } else if (
+        (selectionState.mode === 'select-pen' || selectionState.mode === 'select-eraser') &&
+        selectionState.maskOutline
+      ) {
+        ctx.stroke(selectionState.maskOutline);
       }
       ctx.restore();
     }
@@ -748,6 +753,104 @@ export default function Canvas({
     };
   };
 
+  const updateMaskSelection = (
+    from: { x: number; y: number },
+    to: { x: number; y: number },
+    mode: 'select-pen' | 'select-eraser'
+  ) => {
+    if (!selectionState.maskCanvas) {
+      selectionState.maskCanvas = document.createElement('canvas');
+      selectionState.maskCanvas.width = canvasSize.width;
+      selectionState.maskCanvas.height = canvasSize.height;
+    }
+
+    const mctx = selectionState.maskCanvas.getContext('2d');
+    if (!mctx) return;
+
+    mctx.lineCap = 'round';
+    mctx.lineJoin = 'round';
+    mctx.lineWidth = pointer.lineWidth;
+
+    if (mode === 'select-eraser') {
+      mctx.globalCompositeOperation = 'destination-out';
+      mctx.strokeStyle = 'rgba(0,0,0,1)';
+    } else {
+      mctx.globalCompositeOperation = 'source-over';
+      mctx.strokeStyle = 'rgba(255,255,255,1)';
+    }
+
+    mctx.beginPath();
+    mctx.moveTo(from.x, from.y);
+    mctx.lineTo(to.x, to.y);
+    mctx.stroke();
+
+    mctx.globalCompositeOperation = 'source-over';
+
+    const { width, height } = selectionState.maskCanvas;
+    const data = mctx.getImageData(0, 0, width, height).data;
+    const clipPath = new Path2D();
+    const outlinePath = new Path2D();
+    let minX = width,
+      minY = height,
+      maxX = 0,
+      maxY = 0;
+    let has = false;
+
+    const idx = (x: number, y: number) => (y * width + x) * 4 + 3;
+
+    for (let y = 0; y < height; y++) {
+      let segment = -1;
+      for (let x = 0; x < width; x++) {
+        const alpha = data[idx(x, y)];
+        if (alpha > 0) {
+          has = true;
+          if (x < minX) minX = x;
+          if (x > maxX) maxX = x;
+          if (y < minY) minY = y;
+          if (y > maxY) maxY = y;
+          clipPath.rect(x, y, 1, 1);
+
+          const left = x === 0 ? 0 : data[idx(x - 1, y)];
+          const right = x === width - 1 ? 0 : data[idx(x + 1, y)];
+          const up = y === 0 ? 0 : data[idx(x, y - 1)];
+          const down = y === height - 1 ? 0 : data[idx(x, y + 1)];
+          const edge = !(left && right && up && down);
+          if (edge) {
+            if (segment === -1) segment = x;
+          } else if (segment !== -1) {
+            outlinePath.moveTo(segment + 0.5, y + 0.5);
+            outlinePath.lineTo(x + 0.5, y + 0.5);
+            segment = -1;
+          }
+        } else if (segment !== -1) {
+          outlinePath.moveTo(segment + 0.5, y + 0.5);
+          outlinePath.lineTo(x + 0.5, y + 0.5);
+          segment = -1;
+        }
+      }
+      if (segment !== -1) {
+        outlinePath.moveTo(segment + 0.5, y + 0.5);
+        outlinePath.lineTo(width + 0.5, y + 0.5);
+      }
+    }
+
+    if (!has) {
+      selectionState.maskClipPath = undefined;
+      selectionState.maskOutline = undefined;
+      selectionState.maskBounding = undefined;
+      return;
+    }
+
+    selectionState.maskClipPath = clipPath;
+    selectionState.maskOutline = outlinePath;
+    selectionState.maskBounding = {
+      x: minX,
+      y: minY,
+      width: maxX - minX + 1,
+      height: maxY - minY + 1,
+    };
+  };
+
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getPointerPos(e);
 
@@ -762,6 +865,17 @@ export default function Canvas({
         computeMagicSelection(x, y);
         onSelectionUpdate?.();
         onSelectionEnd?.();
+        startAnimation();
+        return;
+      } else if (
+        pointer.selectionMode === 'select-pen' ||
+        pointer.selectionMode === 'select-eraser'
+      ) {
+        selectingRef.current = true;
+        lastPosRef.current = { x, y };
+        updateMaskSelection({ x, y }, { x, y }, pointer.selectionMode);
+        onSelectionUpdate?.();
+        onSelectionStart?.();
         startAnimation();
         return;
       }
@@ -809,8 +923,14 @@ export default function Canvas({
         const w = Math.abs(x - startXRef.current);
         const h = Math.abs(y - startYRef.current);
         selectionState.selectionRect = { x: x0, y: y0, width: w, height: h };
-      } else {
+      } else if (selectionState.mode === 'lasso') {
         selectionState.lassoPoints.push({ x, y });
+      } else if (
+        (selectionState.mode === 'select-pen' || selectionState.mode === 'select-eraser') &&
+        lastPosRef.current
+      ) {
+        updateMaskSelection(lastPosRef.current, { x, y }, selectionState.mode);
+        lastPosRef.current = { x, y };
       }
       onSelectionUpdate?.();
     } else if (['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(pointer.tool) && drawingRef.current && lastPosRef.current) {
@@ -830,6 +950,7 @@ export default function Canvas({
   };
 
   const handlePointerUp = (e: React.PointerEvent<HTMLCanvasElement>) => {
+    const { x, y } = getPointerPos(e);
     if (pointer.tool === 'selection') {
       if (pointer.selectionMode === 'magic') {
         onSelectionEnd?.();
@@ -837,22 +958,34 @@ export default function Canvas({
       }
       if (!selectingRef.current) return;
       selectingRef.current = false;
-      let valid = false;
-      if (selectionState.mode === 'rect') {
-        valid = !!(selectionState.selectionRect && selectionState.selectionRect.width > 2 && selectionState.selectionRect.height > 2);
-      } else {
-        if (selectionState.lassoPoints.length > 2) {
-          selectionState.lassoPoints.push(selectionState.lassoPoints[0]);
+      if (selectionState.mode === 'select-pen' || selectionState.mode === 'select-eraser') {
+        if (lastPosRef.current) {
+          updateMaskSelection(lastPosRef.current, { x, y }, selectionState.mode);
+          lastPosRef.current = null;
         }
-        valid = selectionState.lassoPoints.length > 2;
-      }
-      if (!valid) {
-        selectionState.reset();
-        stopAnimation();
-        onSelectionUpdate?.();
         onSelectionEnd?.();
       } else {
-        onSelectionEnd?.();
+        let valid = false;
+        if (selectionState.mode === 'rect') {
+          valid = !!(
+            selectionState.selectionRect &&
+            selectionState.selectionRect.width > 2 &&
+            selectionState.selectionRect.height > 2
+          );
+        } else {
+          if (selectionState.lassoPoints.length > 2) {
+            selectionState.lassoPoints.push(selectionState.lassoPoints[0]);
+          }
+          valid = selectionState.lassoPoints.length > 2;
+        }
+        if (!valid) {
+          selectionState.reset();
+          stopAnimation();
+          onSelectionUpdate?.();
+          onSelectionEnd?.();
+        } else {
+          onSelectionEnd?.();
+        }
       }
     } else if (['pen', 'brush', 'paint-brush', 'color-mixer', 'eraser'].includes(pointer.tool)) {
       drawingRef.current = false;

@@ -42,6 +42,7 @@ export default function CanvasContainer({
   const [maintainAspectRatio, setMaintainAspectRatio] = useState(false);
   const [resizeMode, setResizeMode] = useState<'canvas-only' | 'resize-content'>('canvas-only');
   const [actualZoom, setActualZoom] = useState<number>(zoom);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Helper function to convert data URL to Blob
   const dataURLToBlob = async (dataURL: string): Promise<Blob> => {
@@ -161,6 +162,36 @@ export default function CanvasContainer({
     setMenuMode('global');
   };
 
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    if (e.dataTransfer.files.length === 0) return;
+
+    for (const file of Array.from(e.dataTransfer.files)) {
+      try {
+        await toolRegistry.executeTool('add_layer', {
+          name: file.name,
+          fileData: file,
+          width: canvasSize.width,
+          height: canvasSize.height
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
+  };
+
   const actionHandlers = {
     fill: () => {
       const layersStore = useLayersStore.getState();
@@ -198,13 +229,25 @@ export default function CanvasContainer({
           ctx.fillStyle = pointer.color;
           ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
         }
-      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-        ctx.clip(selectionState.magicClipPath);
-        
-        const boundingRect = selectionState.magicBounding;
-        if (boundingRect) {
-          ctx.fillStyle = pointer.color;
-          ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+      } else if (
+        ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
+        (selectionState.magicClipPath || selectionState.maskClipPath)
+      ) {
+        const clipPath =
+          selectionState.mode === 'magic'
+            ? selectionState.magicClipPath
+            : selectionState.maskClipPath;
+        if (clipPath) {
+          ctx.clip(clipPath);
+
+          const boundingRect =
+            selectionState.mode === 'magic'
+              ? selectionState.magicBounding
+              : selectionState.maskBounding;
+          if (boundingRect) {
+            ctx.fillStyle = pointer.color;
+            ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+          }
         }
       } else {
         ctx.fillStyle = pointer.color;
@@ -248,12 +291,24 @@ export default function CanvasContainer({
         if (boundingRect) {
           ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
         }
-      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-        ctx.clip(selectionState.magicClipPath);
-        
-        const boundingRect = selectionState.magicBounding;
-        if (boundingRect) {
-          ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+      } else if (
+        ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
+        (selectionState.magicClipPath || selectionState.maskClipPath)
+      ) {
+        const clipPath =
+          selectionState.mode === 'magic'
+            ? selectionState.magicClipPath
+            : selectionState.maskClipPath;
+        if (clipPath) {
+          ctx.clip(clipPath);
+
+          const boundingRect =
+            selectionState.mode === 'magic'
+              ? selectionState.magicBounding
+              : selectionState.maskBounding;
+          if (boundingRect) {
+            ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+          }
         }
       } else {
         ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
@@ -327,8 +382,12 @@ export default function CanvasContainer({
                 }
                 mctx.closePath();
                 mctx.fill();
-              } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-                mctx.fill(selectionState.magicClipPath);
+              } else if (['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode)) {
+                if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
+                  mctx.fill(selectionState.magicClipPath);
+                } else if (selectionState.maskCanvas) {
+                  mctx.drawImage(selectionState.maskCanvas, 0, 0);
+                }
               }
               
               const maskDataUrl = maskCanvas.toDataURL('image/png');
@@ -417,7 +476,13 @@ export default function CanvasContainer({
         />
       </div>
       
-      <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative" ref={containerRef}>
+      <div
+        className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative"
+        ref={containerRef}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <Canvas
           pointer={pointer}
           view={view}
@@ -431,7 +496,13 @@ export default function CanvasContainer({
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}
         />
-        
+
+        {isDragOver && (
+          <div className="absolute inset-0 flex items-center justify-center bg-accent bg-opacity-10 border-2 border-dashed border-accent pointer-events-none z-50">
+            <span className="text-accent font-semibold">画像をドロップしてレイヤー追加</span>
+          </div>
+        )}
+
         {menuMode === 'selection' && (
           <ActionProperties
             handlers={actionHandlers}

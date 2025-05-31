@@ -2,6 +2,7 @@ import { Plugin } from 'obsidian';
 import { StoryboardSettingTab } from './settings-view';
 import { loadSettings, PluginSettings } from './settings-data';
 import { usePluginSettingsStore } from '../../store/plugin-settings-store';
+import { setPluginSettings } from '../../constants/plugin-settings';
 
 export class SettingsPlugin {
   private plugin: Plugin;
@@ -13,9 +14,11 @@ export class SettingsPlugin {
 
   async initialize(): Promise<void> {
     this.settings = await loadSettings(this.plugin);
-    usePluginSettingsStore.getState().setSettings(this.settings);
-    this.plugin.addSettingTab(
-      new StoryboardSettingTab(this.plugin.app, this.plugin, this.settings)
-    );
+    setPluginSettings(this.settings);
+    this.plugin.addSettingTab(new StoryboardSettingTab(this.plugin.app, this.plugin, this.settings));
+  }
+
+  getSettings(): PluginSettings | null {
+    return this.settings;
   }
 }
