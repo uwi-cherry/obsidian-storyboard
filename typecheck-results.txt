@@ -1,3 +1,4 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 src/app/painter/painter-view.ts(81,17): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
 src/app/painter/painter-view.ts(85,24): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
 src/components/painter/tools/ColorProperties.tsx(2,33): error TS2307: Cannot find module '../../../../utils/storage/painter-layout-store' or its corresponding type declarations.
@@ -37,7 +38,6 @@ src/hooks/useStoryboardData.ts(172,51): error TS7006: Parameter 'c' implicitly h
 src/hooks/useStoryboardData.ts(173,49): error TS7006: Parameter 'ch' implicitly has an 'any' type.
 src/hooks/useStoryboardData.ts(173,69): error TS7006: Parameter 'f' implicitly has an 'any' type.
 src/hooks/useStoryboardData.ts(182,54): error TS7006: Parameter 'c' implicitly has an 'any' type.
-src/service/api/ai-tool/generate-image.ts(3,21): error TS2307: Cannot find module '@fal-ai/client' or its corresponding type declarations.
 src/service/api/storyboard-tool/add-row.ts(21,101): error TS2345: Argument of type '{ app: App; file: TFile; }' is not assignable to parameter of type 'string'.
 src/service/api/storyboard-tool/add-rows-bulk.ts(22,101): error TS2345: Argument of type '{ app: App; file: TFile; }' is not assignable to parameter of type 'string'.
 src/service/api/storyboard-tool/ai-storyboard-agent.ts(22,101): error TS2345: Argument of type '{ app: App; file: TFile; }' is not assignable to parameter of type 'string'.
