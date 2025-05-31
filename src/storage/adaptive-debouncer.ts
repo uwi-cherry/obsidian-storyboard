@@ -1,11 +1,11 @@
 // シンプルなデバウンス処理
-export class AdaptiveDebouncer {
+export class AdaptiveDebouncer<T extends (...args: any[]) => any> {
   private timeout: NodeJS.Timeout | null = null;
   private saveHistory: number[] = []; // 保存実行のタイムスタンプ履歴
 
-  constructor(private func: Function) {}
+  constructor(private func: T) {}
 
-  execute(...args: unknown[]) {
+  execute(...args: Parameters<T>) {
     const now = Date.now();
 
     // 過去1分間の保存履歴をクリーンアップ
