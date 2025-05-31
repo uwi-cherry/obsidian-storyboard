@@ -19,7 +19,7 @@ namespace Internal {
 
   export async function executeAddStoryboardRowsBulk(args: AddStoryboardRowsBulkInput): Promise<string> {
     const { app, file, chapterIndex, texts } = args;
-    const dataStr = await toolRegistry.executeTool<string, string>(TOOL_NAMES.LOAD_STORYBOARD_DATA, { app, file });
+    const dataStr = await toolRegistry.executeTool(TOOL_NAMES.LOAD_STORYBOARD_DATA, { app, file });
     const data = JSON.parse(dataStr) as StoryboardData;
     if (!data.chapters[chapterIndex]) {
       data.chapters[chapterIndex] = { bgmPrompt: '', frames: [] };
