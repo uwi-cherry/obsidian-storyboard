@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { StoryboardData, StoryboardFrame, CharacterInfo } from '../../types/storyboard';
+import { StoryboardData, StoryboardFrame, CharacterInfo } from '../types/storyboard';
 
 export function createEmptyFrame(): StoryboardFrame {
   return {
