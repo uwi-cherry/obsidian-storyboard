@@ -43,6 +43,8 @@ export interface I18nStrings {
   SELECT_RECT: string;
   SELECT_LASSO: string;
   SELECT_MAGIC: string;
+  SELECT_PEN: string;
+  SELECT_ERASER: string;
   CANVAS_SIZE: string;
   ZOOM_LEVEL: string;
   ROTATION_ANGLE: string;

@@ -2,7 +2,12 @@ import { useState } from 'react';
 
 export type PainterTool = 'pen' | 'brush' | 'paint-brush' | 'color-mixer' | 'eraser' | 'selection' | 'hand';
 
-export type SelectionMode = 'rect' | 'lasso' | 'magic';
+export type SelectionMode =
+  | 'rect'
+  | 'lasso'
+  | 'magic'
+  | 'select-pen'
+  | 'select-eraser';
 
 export type BlendMode = 'normal' | 'spectral';
 

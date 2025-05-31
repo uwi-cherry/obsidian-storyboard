@@ -198,13 +198,25 @@ export default function CanvasContainer({
           ctx.fillStyle = pointer.color;
           ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
         }
-      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-        ctx.clip(selectionState.magicClipPath);
-        
-        const boundingRect = selectionState.magicBounding;
-        if (boundingRect) {
-          ctx.fillStyle = pointer.color;
-          ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+      } else if (
+        ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
+        (selectionState.magicClipPath || selectionState.maskClipPath)
+      ) {
+        const clipPath =
+          selectionState.mode === 'magic'
+            ? selectionState.magicClipPath
+            : selectionState.maskClipPath;
+        if (clipPath) {
+          ctx.clip(clipPath);
+
+          const boundingRect =
+            selectionState.mode === 'magic'
+              ? selectionState.magicBounding
+              : selectionState.maskBounding;
+          if (boundingRect) {
+            ctx.fillStyle = pointer.color;
+            ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+          }
         }
       } else {
         ctx.fillStyle = pointer.color;
@@ -248,12 +260,24 @@ export default function CanvasContainer({
         if (boundingRect) {
           ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
         }
-      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-        ctx.clip(selectionState.magicClipPath);
-        
-        const boundingRect = selectionState.magicBounding;
-        if (boundingRect) {
-          ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+      } else if (
+        ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
+        (selectionState.magicClipPath || selectionState.maskClipPath)
+      ) {
+        const clipPath =
+          selectionState.mode === 'magic'
+            ? selectionState.magicClipPath
+            : selectionState.maskClipPath;
+        if (clipPath) {
+          ctx.clip(clipPath);
+
+          const boundingRect =
+            selectionState.mode === 'magic'
+              ? selectionState.magicBounding
+              : selectionState.maskBounding;
+          if (boundingRect) {
+            ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
+          }
         }
       } else {
         ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);
@@ -327,8 +351,12 @@ export default function CanvasContainer({
                 }
                 mctx.closePath();
                 mctx.fill();
-              } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-                mctx.fill(selectionState.magicClipPath);
+              } else if (['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode)) {
+                if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
+                  mctx.fill(selectionState.magicClipPath);
+                } else if (selectionState.maskCanvas) {
+                  mctx.drawImage(selectionState.maskCanvas, 0, 0);
+                }
               }
               
               const maskDataUrl = maskCanvas.toDataURL('image/png');

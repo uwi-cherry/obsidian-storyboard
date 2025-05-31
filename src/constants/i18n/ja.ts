@@ -43,6 +43,8 @@ const ja: I18nStrings = {
   SELECT_RECT: '矩形',
   SELECT_LASSO: '投げ縄',
   SELECT_MAGIC: 'マジックワンド',
+  SELECT_PEN: '選択ブラシ',
+  SELECT_ERASER: '選択消しゴム',
   CANVAS_SIZE: 'キャンバスサイズ',
   ZOOM_LEVEL: '拡大率',
   ROTATION_ANGLE: '回転角',
