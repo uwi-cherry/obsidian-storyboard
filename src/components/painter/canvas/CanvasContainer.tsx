@@ -517,6 +517,7 @@ export default function CanvasContainer({
             rect={editRect}
             layers={layers}
             currentLayerIndex={currentLayerIndex}
+            containerRef={containerRef}
             onFinish={finishEdit}
           />
         )}
