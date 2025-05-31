@@ -5,7 +5,6 @@ namespace Internal {
   export interface GenerateVideoInput {
     prompt: string;
     apiKey: string;
-    provider: 'fal' | 'replicate';
     app: App;
     fileName?: string;
   }
@@ -23,28 +22,25 @@ namespace Internal {
       properties: {
         prompt: { type: 'string', description: 'Prompt text' },
         apiKey: { type: 'string', description: 'API key' },
-        provider: { type: 'string', description: 'Service provider' },
         app: { type: 'object', description: 'Obsidian app instance' },
         fileName: { type: 'string', description: 'File name', nullable: true }
       },
-      required: ['prompt', 'apiKey', 'provider', 'app']
+      required: ['prompt', 'apiKey', 'app']
     }
   } as const;
 
   export async function executeGenerateVideo(args: GenerateVideoInput): Promise<string> {
-    const { prompt, apiKey, provider, app, fileName } = args;
-    const endpoint = provider === 'fal'
-      ? 'https://api.fal.ai/v1/videos/generations'
-      : 'https://api.example.com/v1/videos/generations';
+    const { prompt, apiKey, app, fileName } = args;
+    const endpoint = 'https://api.fal.ai/v1/videos/generations';
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: provider === 'fal' ? `Bearer ${apiKey}` : `Token ${apiKey}`
+        Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({ prompt, n: 1, response_format: 'b64_json' })
     });
-    if (!res.ok) throw new Error(`${provider} 動画生成APIエラー: ${res.status} ${await res.text()}`);
+    if (!res.ok) throw new Error(`fal.ai 動画生成APIエラー: ${res.status} ${await res.text()}`);
     const data = await res.json();
     const b64 = data?.data?.[0]?.b64_json as string | undefined;
     if (!b64) throw new Error('動画データが取得できませんでした');

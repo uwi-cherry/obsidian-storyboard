@@ -8,6 +8,7 @@ import { useCurrentLayerIndexStore } from 'src/store/current-layer-index-store';
 import { usePainterHistoryStore } from 'src/store/painter-history-store';
 import { PainterView } from 'src/types/painter-types';
 import { toolRegistry } from 'src/service/core/tool-registry';
+import { useChatAttachmentsStore } from 'src/store/chat-attachments-store';
 import ActionProperties from '../edit/ActionProperties';
 import ColorProperties from '../tools/ColorProperties';
 import ToolProperties from '../tools/ToolProperties';
@@ -42,9 +43,16 @@ export default function CanvasContainer({
   const [resizeMode, setResizeMode] = useState<'canvas-only' | 'resize-content'>('canvas-only');
   const [actualZoom, setActualZoom] = useState<number>(zoom);
 
+  // Helper function to convert data URL to Blob
+  const dataURLToBlob = async (dataURL: string): Promise<Blob> => {
+    const response = await fetch(dataURL);
+    return response.blob();
+  };
+
   const { layers } = useLayersStore();
   const { currentLayerIndex } = useCurrentLayerIndexStore();
   const { saveHistory } = usePainterHistoryStore();
+  const { addAttachment, clearAttachments } = useChatAttachmentsStore();
 
   const resizeLayerCanvas = (layer: any, oldWidth: number, oldHeight: number, newWidth: number, newHeight: number, mode: 'canvas-only' | 'resize-content') => {
     if (!layer.canvas) return layer;
@@ -255,75 +263,99 @@ export default function CanvasContainer({
       layersStore.updateLayers([...layers]);
     },
     generativeFill: async () => {
-      const plugin: any = (window as any).app?.plugins?.getPlugin('obsidian-storyboard');
-      const settings = plugin?.settingsPlugin?.settings;
-      const provider: 'fal' | 'replicate' = settings?.provider || 'fal';
-      const apiKey: string = provider === 'fal' ? settings?.falApiKey : settings?.replicateApiKey;
-      if (!apiKey) {
-        alert('APIキーが設定されていません');
-        return;
-      }
-      const prompt = window.prompt('生成プロンプトを入力してください');
-      if (!prompt) return;
-
-      const width = canvasSize.width;
-      const height = canvasSize.height;
-
-      const baseCanvas = document.createElement('canvas');
-      baseCanvas.width = width;
-      baseCanvas.height = height;
-      const bctx = baseCanvas.getContext('2d');
-      if (!bctx) return;
-      layers.forEach(layer => {
-        if (layer.visible && layer.canvas) {
-          const alpha = layer.opacity !== undefined ? layer.opacity : 1;
-          const blend = layer.blendMode && layer.blendMode !== 'normal' ? layer.blendMode as GlobalCompositeOperation : 'source-over';
-          bctx.globalAlpha = alpha;
-          bctx.globalCompositeOperation = blend;
-          bctx.drawImage(layer.canvas, 0, 0);
+      try {
+        // AI塗りつぶし: 既存のexport serviceを使ってキャンバスを画像として取得し、チャットボックスに送信
+        
+        // 1. 既存のエクスポートサービスを使ってキャンバス全体をPNG化
+        const exportResult = await toolRegistry.executeTool('export_merged_image', {
+          app: (window as any).app,
+          layers: layers,
+          fileName: `ai-fill-source-${Date.now()}.png`
+        });
+        
+        const exportData = JSON.parse(exportResult);
+        const imageFile = (window as any).app.vault.getAbstractFileByPath(exportData.filePath);
+        
+        if (!imageFile) {
+          alert('画像の生成に失敗しました');
+          return;
         }
-      });
-      bctx.globalAlpha = 1;
-      bctx.globalCompositeOperation = 'source-over';
-      const imageDataUrl = baseCanvas.toDataURL('image/png');
-
-      const maskCanvas = document.createElement('canvas');
-      maskCanvas.width = width;
-      maskCanvas.height = height;
-      const mctx = maskCanvas.getContext('2d');
-      if (!mctx) return;
-      mctx.fillStyle = 'black';
-      mctx.fillRect(0, 0, width, height);
-      mctx.fillStyle = 'white';
-      if (selectionState.mode === 'rect' && selectionState.selectionRect) {
-        const r = selectionState.selectionRect;
-        mctx.fillRect(r.x, r.y, r.width, r.height);
-      } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
-        mctx.beginPath();
-        mctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
-        for (let i = 1; i < selectionState.lassoPoints.length; i++) {
-          const p = selectionState.lassoPoints[i];
-          mctx.lineTo(p.x, p.y);
-        }
-        mctx.closePath();
-        mctx.fill();
-      } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
-        mctx.fill(selectionState.magicClipPath);
-      } else {
-        mctx.fillRect(0, 0, width, height);
+        
+        // ファイルからblob URLを作成
+        const arrayBuffer = await (window as any).app.vault.readBinary(imageFile);
+        const blob = new Blob([arrayBuffer], { type: 'image/png' });
+        const imageUrl = URL.createObjectURL(blob);
+        
+        // Base64データURLも作成（data属性用）
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const imageDataUrl = reader.result as string;
+          
+          // 既存の添付ファイルをクリア
+          clearAttachments();
+          
+          // 加工元画像を追加
+          addAttachment({
+            type: 'image',
+            url: imageUrl,
+            data: imageDataUrl
+          });
+          
+          // 2. 選択範囲があればそれをマスクとして作成
+          if (selectionState.mode !== 'none') {
+            const width = canvasSize.width;
+            const height = canvasSize.height;
+            const maskCanvas = document.createElement('canvas');
+            maskCanvas.width = width;
+            maskCanvas.height = height;
+            const mctx = maskCanvas.getContext('2d');
+            
+            if (mctx) {
+              mctx.fillStyle = 'black';
+              mctx.fillRect(0, 0, width, height);
+              mctx.fillStyle = 'white';
+              
+              if (selectionState.mode === 'rect' && selectionState.selectionRect) {
+                const r = selectionState.selectionRect;
+                mctx.fillRect(r.x, r.y, r.width, r.height);
+              } else if (selectionState.mode === 'lasso' && selectionState.lassoPoints.length > 2) {
+                mctx.beginPath();
+                mctx.moveTo(selectionState.lassoPoints[0].x, selectionState.lassoPoints[0].y);
+                for (let i = 1; i < selectionState.lassoPoints.length; i++) {
+                  const p = selectionState.lassoPoints[i];
+                  mctx.lineTo(p.x, p.y);
+                }
+                mctx.closePath();
+                mctx.fill();
+              } else if (selectionState.mode === 'magic' && selectionState.magicClipPath) {
+                mctx.fill(selectionState.magicClipPath);
+              }
+              
+              const maskDataUrl = maskCanvas.toDataURL('image/png');
+              const maskUrl = URL.createObjectURL(await dataURLToBlob(maskDataUrl));
+              
+              // マスクを添付
+              addAttachment({
+                type: 'mask',
+                url: maskUrl,
+                data: maskDataUrl
+              });
+            }
+          }
+          
+          // 選択状態をリセット
+          selectionState.reset();
+          setMenuMode('global');
+          
+          alert('画像とマスクをチャットボックスに送信しました。プロンプトを入力してAI生成を実行してください。');
+        };
+        
+        reader.readAsDataURL(blob);
+        
+      } catch (error) {
+        console.error('AI塗りつぶし処理でエラーが発生しました:', error);
+        alert('画像の処理中にエラーが発生しました');
       }
-      const maskDataUrl = maskCanvas.toDataURL('image/png');
-
-      await toolRegistry.executeTool('generative_fill', {
-        prompt,
-        apiKey,
-        provider,
-        app: (window as any).app,
-        image: imageDataUrl,
-        mask: maskDataUrl,
-        width,
-        height
-      });
     },
     edit: startEdit,
     cancel: cancelSelection

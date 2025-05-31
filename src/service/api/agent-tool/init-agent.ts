@@ -12,7 +12,6 @@ export interface ChatMessage {
 
 export interface AgentOptions {
   apiKey: string;
-  provider: 'fal' | 'replicate';
   instructions?: string;
   model?: string;
   tools?: Tool[];
@@ -20,7 +19,6 @@ export interface AgentOptions {
 
 export interface Agent {
   apiKey: string;
-  provider: 'fal' | 'replicate';
   instructions: string;
   model: string;
   tools: Tool[];
@@ -30,7 +28,6 @@ export interface Agent {
 export function initAgent(options: AgentOptions): Agent {
   return {
     apiKey: options.apiKey,
-    provider: options.provider,
     instructions: options.instructions ?? 'You are a helpful assistant.',
     model: options.model ?? 'gpt-4o',
     tools: options.tools ?? [],

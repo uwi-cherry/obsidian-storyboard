@@ -1,13 +1,9 @@
 export interface PluginSettings {
-  provider: 'fal' | 'replicate';
   falApiKey: string;
-  replicateApiKey: string;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  provider: 'fal',
   falApiKey: '',
-  replicateApiKey: '',
 };
 
 export async function loadSettings(plugin: import('obsidian').Plugin): Promise<PluginSettings> {

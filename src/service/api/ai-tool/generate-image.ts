@@ -5,7 +5,6 @@ namespace Internal {
   export interface GenerateImageInput {
     prompt: string;
     apiKey: string;
-    provider: 'fal' | 'replicate';
     app: App;
     fileName?: string;
   }
@@ -23,34 +22,31 @@ namespace Internal {
       properties: {
         prompt: { type: 'string', description: 'Prompt text' },
         apiKey: { type: 'string', description: 'API key' },
-        provider: { type: 'string', description: 'Service provider' },
         app: { type: 'object', description: 'Obsidian app instance' },
         fileName: { type: 'string', description: 'File name', nullable: true }
       },
-      required: ['prompt', 'apiKey', 'provider', 'app']
+      required: ['prompt', 'apiKey', 'app']
     }
   } as const;
 
   export async function executeGenerateImage(args: GenerateImageInput): Promise<string> {
-    const { prompt, apiKey, provider, app, fileName } = args;
-    const endpoint = provider === 'fal'
-      ? 'https://api.fal.ai/v1/predictions'
-      : 'https://api.replicate.com/v1/predictions';
+    const { prompt, apiKey, app, fileName } = args;
+    const endpoint = 'https://api.fal.ai/v1/predictions';
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: provider === 'fal' ? `Bearer ${apiKey}` : `Token ${apiKey}`
+        Authorization: `Bearer ${apiKey}`
       },
       body: JSON.stringify({ version: 'stable-diffusion', input: { prompt } })
     });
-    if (!res.ok) throw new Error(`${provider} API エラー: ${res.status} ${await res.text()}`);
+    if (!res.ok) throw new Error(`fal.ai API エラー: ${res.status} ${await res.text()}`);
     const prediction = await res.json();
 
     let output: string | undefined;
     for (;;) {
       const check = await fetch(`${endpoint}/${prediction.id}`, {
-        headers: { Authorization: provider === 'fal' ? `Bearer ${apiKey}` : `Token ${apiKey}` }
+        headers: { Authorization: `Bearer ${apiKey}` }
       });
       const status = await check.json();
       if (status.status === 'succeeded') {

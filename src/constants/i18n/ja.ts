@@ -58,7 +58,7 @@ const ja: I18nStrings = {
   BGM_PROMPT_PLACEHOLDER: 'BGM生成プロンプト(任意)',
   CHAT_INPUT_PLACEHOLDER: 'メッセージを入力...',
   NO_LAYERS: 'レイヤーがありません',
-  ATTACH_IMAGE: '画像',
+  ATTACH_IMAGE: '加工元画像',
   ATTACH_MASK: 'マスク',
   ATTACH_REFERENCE: '参考',
   SEND: '送信',

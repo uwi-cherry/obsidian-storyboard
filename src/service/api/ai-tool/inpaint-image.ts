@@ -14,7 +14,6 @@ namespace Internal {
   export interface InpaintImageInput {
     prompt: string;
     apiKey: string;
-    provider: 'fal' | 'replicate';
     app: App;
     fileName?: string;
     image?: string;
@@ -35,19 +34,18 @@ namespace Internal {
       properties: {
         prompt: { type: 'string', description: 'Prompt text' },
         apiKey: { type: 'string', description: 'API key' },
-        provider: { type: 'string', description: 'Service provider' },
         app: { type: 'object', description: 'Obsidian app instance' },
         fileName: { type: 'string', description: 'File name', nullable: true },
         image: { type: 'string', description: 'Base64 image', nullable: true },
         mask: { type: 'string', description: 'Base64 mask', nullable: true },
         reference: { type: 'string', description: 'Reference image', nullable: true }
       },
-      required: ['prompt', 'apiKey', 'provider', 'app']
+      required: ['prompt', 'apiKey', 'app']
     }
   } as const;
 
   export async function executeInpaintImage(args: InpaintImageInput): Promise<string> {
-    const { prompt, apiKey, provider, app, fileName, image, mask, reference } = args;
+    const { prompt, apiKey, app, fileName, image, mask, reference } = args;
     const form = new FormData();
     form.append('prompt', prompt);
     form.append('n', '1');
@@ -57,15 +55,13 @@ namespace Internal {
     if (mask) form.append('mask', b64ToFile(mask, 'mask.png'));
     if (reference) form.append('reference_image', b64ToFile(reference, 'ref.png'));
 
-    const endpoint = provider === 'fal'
-      ? 'https://api.fal.ai/v1/predictions'
-      : 'https://api.replicate.com/v1/predictions';
+    const endpoint = 'https://api.fal.ai/v1/predictions';
     const res = await fetch(endpoint, {
       method: 'POST',
-      headers: { Authorization: provider === 'fal' ? `Bearer ${apiKey}` : `Token ${apiKey}` },
+      headers: { Authorization: `Bearer ${apiKey}` },
       body: form
     });
-    if (!res.ok) throw new Error(`${provider} API エラー: ${res.status} ${await res.text()}`);
+    if (!res.ok) throw new Error(`fal.ai API エラー: ${res.status} ${await res.text()}`);
     const data = await res.json();
     const b64 = data?.output?.[0] as string | undefined;
     if (!b64) throw new Error('画像データが取得できませんでした');

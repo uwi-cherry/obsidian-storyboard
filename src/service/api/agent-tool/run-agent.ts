@@ -1,5 +1,4 @@
 import { falChatCompletions } from '../gateway/fal-ai';
-import { replicateChatCompletions } from '../gateway/replicate';
 import { Agent, ChatMessage, Attachment } from './init-agent';
 
 function buildApiMessages(messages: ChatMessage[]): Array<{ role: string; content?: any; name?: string }> {
@@ -44,9 +43,7 @@ export async function runAgent(agent: Agent, userMessage: string, attachments: A
     Object.assign(payload, { functions: buildFunctions(agent), function_call: 'auto' });
   }
 
-  const data = agent.provider === 'fal'
-    ? await falChatCompletions(agent.apiKey, payload)
-    : await replicateChatCompletions(agent.apiKey, payload);
+  const data = await falChatCompletions(agent.apiKey, payload);
 
   const msg = data.choices?.[0]?.message as ChatMessage | undefined;
   if (msg) {

@@ -4,6 +4,7 @@ import type { Plugin } from 'obsidian';
 import { t } from '../../../constants/obsidian-i18n';
 import { ADD_ICON_SVG, TABLE_ICONS } from '../../../constants/icons';
 import type { Attachment } from '../../../types/ui';
+import { useChatAttachmentsStore } from '../../../store/chat-attachments-store';
 
 interface ChatBoxProps {
   plugin?: Plugin;
@@ -21,11 +22,12 @@ export default function ChatBox() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [showMenu, setShowMenu] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const pendingTypeRef = useRef<'image' | 'mask' | 'reference' | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  
+  const { attachments, addAttachment, removeAttachment, clearAttachments } = useChatAttachmentsStore();
 
   const handleFileSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -37,7 +39,7 @@ export default function ChatBox() {
     
     reader.onload = () => {
       const data = reader.result as string;
-      setAttachments(prev => [...prev, { url, data, type }]);
+      addAttachment({ url, data, type });
     };
     
     reader.readAsDataURL(file);
@@ -51,14 +53,6 @@ export default function ChatBox() {
     setShowMenu(false);
   };
 
-  const removeAttachment = (idx: number) => {
-    setAttachments(prev => {
-      const updated = [...prev];
-      const [removed] = updated.splice(idx, 1);
-      if (removed) URL.revokeObjectURL(removed.url);
-      return updated;
-    });
-  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,7 +73,7 @@ export default function ChatBox() {
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
     
     setInput('');
-    setAttachments([]);
+    clearAttachments();
     setLoading(true);
     
     try {
@@ -243,4 +237,4 @@ export default function ChatBox() {
       </form>
     </div>
   );
-} 
+}

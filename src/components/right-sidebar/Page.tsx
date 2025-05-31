@@ -20,7 +20,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
   const selectedFrame = useSelectedFrameStore((state) => state.selectedFrame);
   const currentPsdFile = useLayersStore((state) => state.currentPsdFile);
   const layers = useLayersStore((state) => state.layers);
-  const [currentFile, setCurrentFile] = useState<TFile | null>(null);
 
   useEffect(() => {
     if (!view?.app) return;
@@ -40,11 +39,8 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
     if (!currentPsdFile) {
       useLayersStore.getState().clearLayers();
       useCurrentLayerIndexStore.getState().setCurrentLayerIndex(0);
-      setCurrentFile(null);
       return;
     }
-
-    setCurrentFile(currentPsdFile);
     
     // PSDファイルを読み込んでレイヤーストアに設定
     const loadPsdFile = async () => {
