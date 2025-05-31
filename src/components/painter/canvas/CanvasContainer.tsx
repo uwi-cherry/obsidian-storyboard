@@ -42,6 +42,7 @@ export default function CanvasContainer({
   const [maintainAspectRatio, setMaintainAspectRatio] = useState(false);
   const [resizeMode, setResizeMode] = useState<'canvas-only' | 'resize-content'>('canvas-only');
   const [actualZoom, setActualZoom] = useState<number>(zoom);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   // Helper function to convert data URL to Blob
   const dataURLToBlob = async (dataURL: string): Promise<Blob> => {
@@ -159,6 +160,36 @@ export default function CanvasContainer({
   const finishEdit = () => {
     setEditRect(null);
     setMenuMode('global');
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    if (e.dataTransfer.files.length === 0) return;
+
+    for (const file of Array.from(e.dataTransfer.files)) {
+      try {
+        await toolRegistry.executeTool('add_layer', {
+          name: file.name,
+          fileData: file,
+          width: canvasSize.width,
+          height: canvasSize.height
+        });
+      } catch (error) {
+        console.error(error);
+      }
+    }
   };
 
   const actionHandlers = {
@@ -417,7 +448,13 @@ export default function CanvasContainer({
         />
       </div>
       
-      <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative" ref={containerRef}>
+      <div
+        className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative"
+        ref={containerRef}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <Canvas
           pointer={pointer}
           view={view}
@@ -431,7 +468,13 @@ export default function CanvasContainer({
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}
         />
-        
+
+        {isDragOver && (
+          <div className="absolute inset-0 flex items-center justify-center bg-accent bg-opacity-10 border-2 border-dashed border-accent pointer-events-none z-50">
+            <span className="text-accent font-semibold">画像をドロップしてレイヤー追加</span>
+          </div>
+        )}
+
         {menuMode === 'selection' && (
           <ActionProperties
             handlers={actionHandlers}
