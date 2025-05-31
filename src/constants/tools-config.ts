@@ -32,10 +32,10 @@ export const TOOL_NAMES = {
   RENAME_LAYER: 'rename_layer',
   TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility',
   GENERATE_TEXT: 'generate_text',
-  GENERATE_IMAGE: 'generate_image',
   GENERATE_VIDEO: 'generate_video',
   INPAINT_IMAGE: 'inpaint_image',
-  GENERATIVE_FILL: 'generative_fill'
+  GENERATIVE_FILL: 'generative_fill',
+  FLUX_MULTI_LAYER: 'flux_multi_layer'
 } as const;
 
 export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
@@ -268,14 +268,6 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       category: TOOL_CATEGORIES.MARKDOWN
     },
     {
-      name: TOOL_NAMES.GENERATE_IMAGE,
-      modulePath: "../api/ai-tool/generate-image",
-      exportName: "generateImageTool",
-      ai_enabled: false,
-      description: "Generate image via AI",
-      category: TOOL_CATEGORIES.PAINTER
-    },
-    {
       name: TOOL_NAMES.GENERATE_VIDEO,
       modulePath: "../api/ai-tool/generate-video",
       exportName: "generateVideoTool",
@@ -297,6 +289,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "generativeFillTool",
       ai_enabled: false,
       description: "Generative fill via AI",
+      category: TOOL_CATEGORIES.PAINTER
+    },
+    {
+      name: TOOL_NAMES.FLUX_MULTI_LAYER,
+      modulePath: "../api/ai-tool/flux-multi-layer",
+      exportName: "fluxMultiLayerTool",
+      ai_enabled: false,
+      description: "Generate image via FLUX and add as layer",
       category: TOOL_CATEGORIES.PAINTER
     }
   ],
