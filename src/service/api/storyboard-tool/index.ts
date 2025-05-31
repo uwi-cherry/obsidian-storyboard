@@ -4,3 +4,6 @@ export { toggleStoryboardViewTool } from './toggle-storyboard-view';
 export { loadStoryboardDataTool } from './load-storyboard-data';
 export { saveStoryboardDataTool } from './save-storyboard-data';
 export { exportStoryboardJsonTool } from './export-storyboard-json';
+export { addStoryboardRowTool } from './add-row';
+export { addStoryboardRowsBulkTool } from './add-rows-bulk';
+export { runStoryboardAiAgentTool } from './ai-storyboard-agent';
