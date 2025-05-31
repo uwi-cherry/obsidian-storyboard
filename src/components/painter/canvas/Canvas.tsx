@@ -201,14 +201,18 @@ export default function Canvas({
       });
     }
 
-    if (selectionState.hasSelection()) {
+    // 選択領域の描画（既存選択 + 編集中の選択）
+    const hasExistingSelection = selectionState.hasSelection();
+    const hasActiveSelection = selectionState.tempRect || selectionState.tempLassoPoints.length > 0;
+    
+    if (hasExistingSelection || hasActiveSelection) {
       ctx.save();
       ctx.setLineDash([6]);
       ctx.lineDashOffset = -dashOffsetRef.current;
       ctx.strokeStyle = '#000';
       ctx.lineWidth = 1;
       
-      // 統一された選択領域の描画
+      // 既存の統一された選択領域の描画
       if (selectionState.selectionOutline) {
         ctx.stroke(selectionState.selectionOutline);
       }
@@ -230,7 +234,7 @@ export default function Canvas({
       
       ctx.restore();
     }
-  }, [layers, currentLayerIndex, selectionState, animationTick, canvasSize]);
+  }, [layers, currentLayerIndex, selectionState, selectionState.version, animationTick, canvasSize]);
 
   const getPointerPos = (e: PointerEvent | React.PointerEvent) => {
     const canvas = canvasRef.current;

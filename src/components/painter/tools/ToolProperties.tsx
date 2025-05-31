@@ -253,24 +253,43 @@ export default function ToolProperties({
       )}
 
       {tool === 'selection' && (
-        <div className="flex flex-col gap-1">
-          <div className="text-text-muted text-xs">{t('SELECTION_TYPE')}:</div>
-          <select
-            className="w-full text-xs"
-            value={selectionMode}
-            onChange={e =>
-              setSelectionMode(
-                e.currentTarget.value as
-                  'rect' | 'lasso' | 'magic' | 'select-pen' | 'select-eraser'
-              )
-            }
-          >
-            <option value="rect">{t('SELECT_RECT')}</option>
-            <option value="lasso">{t('SELECT_LASSO')}</option>
-            <option value="magic">{t('SELECT_MAGIC')}</option>
-            <option value="select-pen">{t('SELECT_PEN')}</option>
-            <option value="select-eraser">{t('SELECT_ERASER')}</option>
-          </select>
+        <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-1">
+            <div className="text-text-muted text-xs">{t('SELECTION_TYPE')}:</div>
+            <select
+              className="w-full text-xs"
+              value={selectionMode}
+              onChange={e =>
+                setSelectionMode(
+                  e.currentTarget.value as
+                    'rect' | 'lasso' | 'magic' | 'select-pen' | 'select-eraser'
+                )
+              }
+            >
+              <option value="rect">{t('SELECT_RECT')}</option>
+              <option value="lasso">{t('SELECT_LASSO')}</option>
+              <option value="magic">{t('SELECT_MAGIC')}</option>
+              <option value="select-pen">{t('SELECT_PEN')}</option>
+              <option value="select-eraser">{t('SELECT_ERASER')}</option>
+            </select>
+          </div>
+          
+          {(selectionMode === 'select-pen' || selectionMode === 'select-eraser') && (
+            <div className="flex flex-col gap-1">
+              <div className="text-text-muted text-xs">{t('BRUSH_SIZE')}: {lineWidth}px</div>
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={Math.log10(lineWidth) * 33.33}
+                onChange={e => {
+                  const logValue = parseInt(e.currentTarget.value, 10) / 33.33;
+                  const actualValue = Math.round(Math.pow(10, logValue));
+                  setLineWidth(Math.max(1, Math.min(1000, actualValue)));
+                }}
+              />
+            </div>
+          )}
         </div>
       )}
 

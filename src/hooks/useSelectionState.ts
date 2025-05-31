@@ -12,6 +12,7 @@ export type SelectionMode =
 
 export interface SelectionState {
   mode: SelectionMode;
+  version: number; // 強制再レンダリング用
   
   // 統一された選択領域表現（マスクベース）
   selectionMask?: HTMLCanvasElement;
@@ -27,6 +28,7 @@ export interface SelectionState {
   hasSelection: () => boolean;
   getBoundingRect: () => SelectionRect | undefined;
   setMode: (newMode: SelectionMode) => void;
+  forceUpdate: () => void;
 }
 
 export default function useSelectionState(): SelectionState {
@@ -35,6 +37,7 @@ export default function useSelectionState(): SelectionState {
   if (!stateRef.current) {
     const state: SelectionState = {
       mode: 'rect',
+      version: 0,
       
       // 統一された選択領域
       selectionMask: undefined,
@@ -62,9 +65,13 @@ export default function useSelectionState(): SelectionState {
       },
       setMode(newMode: SelectionMode): void {
         state.mode = newMode;
-        // モード変更時は作業用データのみクリア、選択領域は保持
+        // 作業用データのみクリア、既存選択は保持
         state.tempRect = undefined;
         state.tempLassoPoints = [];
+        state.version++;
+      },
+      forceUpdate(): void {
+        state.version++;
       }
     };
     stateRef.current = state;
