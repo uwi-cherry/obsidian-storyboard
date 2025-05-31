@@ -1,0 +1,136 @@
+name: Build and Release to Main
+
+on:
+  push:
+    branches:
+      - 'release/**'  # release/v1.0.0 などにプッシュされたとき
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 全履歴を取得
+          token: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build plugin
+        run: npm run build
+        
+      - name: Configure git
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          
+      - name: Backup built files
+        run: |
+          # ビルド済みファイルを一時的にバックアップ
+          mkdir -p /tmp/release-files
+          cp main.js /tmp/release-files/
+          cp manifest.json /tmp/release-files/
+          cp styles.css /tmp/release-files/
+          
+      - name: Create clean master branch
+        run: |
+          # 新しいorphanブランチを作成（履歴なし）
+          git checkout --orphan temp-master
+          
+          # ① tracked ファイルを削除
+          git rm -rf . || true
+          # ② untracked ファイル（node_modules, distなど）も全削除
+          git clean -fdx
+          
+          # バックアップからファイルを復元
+          cp /tmp/release-files/main.js .
+          cp /tmp/release-files/manifest.json .
+          cp /tmp/release-files/styles.css .
+          
+      - name: Create user-friendly README for master
+        run: |
+          cat > README.md << 'EOF'
+          # Obsidian Storyboard Plugin
+          
+          AI 支援で **絵コンテ作成** と **ペイント操作** と **動画編集** を行える Obsidian 用プラグインです。ノートと並行してビジュアル・ストーリーボードを素早く構築できます。
+          
+          ---
+          
+          ## インストール手順
+          
+          1. GitHub のリポジトリページで **Code → Download ZIP** をクリックし、プラグインの ZIP アーカイブをダウンロード。
+          2. ダウンロードした `obsidian-storyboard.zip` を解凍。
+          3. 展開してできたフォルダを **あなたの Vault フォルダ** 内の `/.obsidian/plugins/` に配置します。
+          
+             ```text
+             MyVault/.obsidian/plugins/好きな名前
+             ```
+          4. Obsidian の **設定 → コミュニティプラグイン** を開き、一覧に表示される **Obsidian Storyboard** を有効化。
+          
+          ---
+          
+          ## AI 機能を使う（任意）
+          
+          1. [https://fal.ai](https://fal.ai) にサインアップし、**API キー** を取得。
+          2. Obsidian の **設定 → Obsidian Storyboard → fal.ai API Key** にキーを貼り付け。
+          
+          > キーは Vault 内に安全に保存されます。
+          
+          EOF
+          
+      - name: Commit and force push to master
+        run: |
+          git add .
+          git commit -m "🚧 Development Build: ${{ github.ref_name }}"
+          # masterブランチを完全に置き換え（force push）
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git push origin temp-master:master --force
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Extract version from branch name
+        id: version
+        run: |
+          VERSION=$(echo "${{ github.ref_name }}" | sed 's/release\///')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/heads/release/')
+        with:
+          tag_name: ${{ steps.version.outputs.version }}
+          name: Release ${{ steps.version.outputs.version }}
+          body: |
+            ## 🚧 開発版 ${{ github.ref_name }}
+            
+            **注意: これは開発版です。機能が不安定な場合があります。**
+            
+            ### インストール方法
+            ```bash
+            cd "[あなたのVaultフォルダ]/.obsidian/plugins/"
+            git clone https://github.com/${{ github.repository }}.git obsidian-storyboard
+            ```
+            
+            ### 変更点
+            - 開発中のビルド済みファイル
+            - 次回更新時に上書きされる可能性があります
+            
+          files: |
+            main.js
+            manifest.json
+            styles.css
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
