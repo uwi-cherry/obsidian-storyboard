@@ -1,6 +1,5 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
-import { fal } from '@fal-ai/client';
 
 namespace Internal {
   export interface GenerateImageInput {

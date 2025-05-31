@@ -3,10 +3,12 @@ import { Root } from 'react-dom/client';
 import { t } from '../../constants/obsidian-i18n';
 import { toolRegistry } from '../../service/core/tool-registry';
 import { setDisplayText } from '../utils/view-title-updater';
+import type { PainterData } from 'src/types/painter-types';
 
 export class PainterView extends FileView {
   public reactRoot: Root | null = null;
   public renderReact: () => void;
+  public _painterData?: PainterData;
   private actionsAdded = false;
 
   constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
