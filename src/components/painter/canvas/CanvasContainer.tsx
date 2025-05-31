@@ -129,12 +129,21 @@ export default function CanvasContainer({
 
   const handleSelectionEnd = () => {
     const rect = selectionState.getBoundingRect();
-    if (rect) {
-      setMenuPos({ x: rect.x, y: rect.y - 28 });
-      setMenuMode('selection');
-    } else {
-      setMenuMode('global');
+    if (rect && containerRef.current) {
+      const canvasEl = containerRef.current.querySelector('canvas');
+      if (canvasEl) {
+        const canvasRect = canvasEl.getBoundingClientRect();
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const scaleX = canvasRect.width / canvasEl.width;
+        const scaleY = canvasRect.height / canvasEl.height;
+        const x = rect.x * scaleX + (canvasRect.left - containerRect.left);
+        const y = rect.y * scaleY + (canvasRect.top - containerRect.top) - 28;
+        setMenuPos({ x, y });
+        setMenuMode('selection');
+        return;
+      }
     }
+    setMenuMode('global');
   };
 
   const cancelSelection = () => {
