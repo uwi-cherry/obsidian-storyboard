@@ -283,20 +283,6 @@ export default function CanvasContainer({
           ctx.fillStyle = pointer.color;
           ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
         }
-      } else if (
-        ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
-        selectionState.selectionClipPath
-      ) {
-        const clipPath = selectionState.selectionClipPath;
-        if (clipPath) {
-          ctx.clip(clipPath);
-
-          const boundingRect = selectionState.selectionBounding;
-          if (boundingRect) {
-            ctx.fillStyle = pointer.color;
-            ctx.fillRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
-          }
-        }
       } else {
         ctx.fillStyle = pointer.color;
         ctx.fillRect(0, 0, layer.canvas.width, layer.canvas.height);
@@ -328,19 +314,6 @@ export default function CanvasContainer({
         const boundingRect = selectionState.getBoundingRect();
         if (boundingRect) {
           ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
-        }
-      } else if (
-        ['magic', 'select-pen', 'select-eraser'].includes(selectionState.mode) &&
-        selectionState.selectionClipPath
-      ) {
-        const clipPath = selectionState.selectionClipPath;
-        if (clipPath) {
-          ctx.clip(clipPath);
-
-          const boundingRect = selectionState.selectionBounding;
-          if (boundingRect) {
-            ctx.clearRect(boundingRect.x, boundingRect.y, boundingRect.width, boundingRect.height);
-          }
         }
       } else {
         ctx.clearRect(0, 0, layer.canvas.width, layer.canvas.height);

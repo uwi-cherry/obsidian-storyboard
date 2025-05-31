@@ -1,4 +1,3 @@
-import etro from "etro";
 import { useRef, useState, useEffect } from "react";
 import { PainterPointer } from "src/hooks/usePainterPointer";
 import { SelectionState } from "src/hooks/useSelectionState";
@@ -53,7 +52,6 @@ export default function Canvas({
   const dashOffsetRef = useRef(0);
   const animIdRef = useRef<number>();
   const [animationTick, setAnimationTick] = useState(0);
-  const TOLERANCE = 32;
 
   const startAnimation = () => {
     if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
@@ -602,223 +600,7 @@ export default function Canvas({
 
   // 色関連のユーティリティはuseSpectralColorから利用
 
-  const computeMagicSelection = (px: number, py: number) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    const width = canvas.width;
-    const height = canvas.height;
-    if (px < 0 || py < 0 || px >= width || py >= height) return;
 
-    const img = ctx.getImageData(0, 0, width, height);
-    const data = img.data;
-    const mask = new Uint8Array(width * height);
-
-    const toIndex = (x: number, y: number) => y * width + x;
-    const toDataIndex = (x: number, y: number) => (y * width + x) * 4;
-
-    const sx = Math.round(px);
-    const sy = Math.round(py);
-    const baseI = toDataIndex(sx, sy);
-    const br = data[baseI];
-    const bg = data[baseI + 1];
-    const bb = data[baseI + 2];
-
-    const stack: number[] = [sx, sy];
-    while (stack.length) {
-      const y = stack.pop();
-      const x = stack.pop();
-      if (x === undefined || y === undefined) break;
-      const idx = toIndex(x, y);
-      if (mask[idx]) continue;
-      const di = idx * 4;
-      const r = data[di];
-      const g = data[di + 1];
-      const b = data[di + 2];
-      if (Math.abs(r - br) > TOLERANCE || Math.abs(g - bg) > TOLERANCE || Math.abs(b - bb) > TOLERANCE) continue;
-      mask[idx] = 1;
-      if (x > 0) stack.push(x - 1, y);
-      if (x < width - 1) stack.push(x + 1, y);
-      if (y > 0) stack.push(x, y - 1);
-      if (y < height - 1) stack.push(x, y + 1);
-    }
-
-    const clipPath = new Path2D();
-    const outlinePath = new Path2D();
-    let minX = width, minY = height, maxX = 0, maxY = 0;
-    let hasSelection = false;
-
-    const isEdge = (x: number, y: number) => {
-      if (x < 0 || y < 0 || x >= width || y >= height) return false;
-      const idx = toIndex(x, y);
-      if (!mask[idx]) return false;
-      return (
-        (x === 0 || !mask[toIndex(x - 1, y)]) ||
-        (x === width - 1 || !mask[toIndex(x + 1, y)]) ||
-        (y === 0 || !mask[toIndex(x, y - 1)]) ||
-        (y === height - 1 || !mask[toIndex(x, y + 1)])
-      );
-    };
-
-    for (let y = 0; y < height; y++) {
-      let segmentStart = -1;
-      for (let x = 0; x < width; x++) {
-        const idx = toIndex(x, y);
-        if (mask[idx]) {
-          hasSelection = true;
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-          clipPath.rect(x, y, 1, 1);
-          const edge = isEdge(x, y);
-          if (edge) {
-            if (segmentStart === -1) segmentStart = x;
-          } else {
-            if (segmentStart !== -1) {
-              outlinePath.moveTo(segmentStart + 0.5, y + 0.5);
-              outlinePath.lineTo(x + 0.5, y + 0.5);
-              segmentStart = -1;
-            }
-          }
-        } else {
-          if (segmentStart !== -1) {
-            outlinePath.moveTo(segmentStart + 0.5, y + 0.5);
-            outlinePath.lineTo(x + 0.5, y + 0.5);
-            segmentStart = -1;
-          }
-        }
-      }
-      if (segmentStart !== -1) {
-        outlinePath.moveTo(segmentStart + 0.5, y + 0.5);
-        outlinePath.lineTo(width + 0.5, y + 0.5);
-      }
-    }
-
-    if (!hasSelection || minX > maxX || minY > maxY) {
-      selectionState.selectionClipPath = undefined;
-      selectionState.selectionOutline = undefined;
-      selectionState.selectionBounding = undefined;
-      return;
-    }
-
-    selectionState.selectionClipPath = clipPath;
-    selectionState.selectionOutline = outlinePath;
-    selectionState.selectionBounding = {
-      x: minX,
-      y: minY,
-      width: maxX - minX + 1,
-      height: maxY - minY + 1,
-    };
-  };
-
-  const updateMaskSelection = (
-    from: { x: number; y: number },
-    to: { x: number; y: number },
-    mode: 'select-pen' | 'select-eraser'
-  ) => {
-    if (!selectionState.selectionMask) {
-      selectionState.selectionMask = document.createElement('canvas');
-      selectionState.selectionMask.width = canvasSize.width;
-      selectionState.selectionMask.height = canvasSize.height;
-      
-      // 既存の統一選択があれば、それをマスクに描画
-      if (selectionState.selectionClipPath) {
-        const mctx = selectionState.selectionMask.getContext('2d');
-        if (mctx) {
-          mctx.fillStyle = 'white';
-          mctx.fill(selectionState.selectionClipPath);
-        }
-      }
-    }
-
-    const mctx = selectionState.selectionMask.getContext('2d');
-    if (!mctx) return;
-
-    mctx.lineCap = 'round';
-    mctx.lineJoin = 'round';
-    mctx.lineWidth = pointer.lineWidth;
-
-    if (mode === 'select-eraser') {
-      mctx.globalCompositeOperation = 'destination-out';
-      mctx.strokeStyle = 'rgba(0,0,0,1)';
-    } else {
-      mctx.globalCompositeOperation = 'source-over';
-      mctx.strokeStyle = 'rgba(255,255,255,1)';
-    }
-
-    mctx.beginPath();
-    mctx.moveTo(from.x, from.y);
-    mctx.lineTo(to.x, to.y);
-    mctx.stroke();
-
-    mctx.globalCompositeOperation = 'source-over';
-
-    const { width, height } = selectionState.selectionMask;
-    const data = mctx.getImageData(0, 0, width, height).data;
-    const clipPath = new Path2D();
-    const outlinePath = new Path2D();
-    let minX = width,
-      minY = height,
-      maxX = 0,
-      maxY = 0;
-    let has = false;
-
-    const idx = (x: number, y: number) => (y * width + x) * 4 + 3;
-
-    for (let y = 0; y < height; y++) {
-      let segment = -1;
-      for (let x = 0; x < width; x++) {
-        const alpha = data[idx(x, y)];
-        if (alpha > 0) {
-          has = true;
-          if (x < minX) minX = x;
-          if (x > maxX) maxX = x;
-          if (y < minY) minY = y;
-          if (y > maxY) maxY = y;
-          clipPath.rect(x, y, 1, 1);
-
-          const left = x === 0 ? 0 : data[idx(x - 1, y)];
-          const right = x === width - 1 ? 0 : data[idx(x + 1, y)];
-          const up = y === 0 ? 0 : data[idx(x, y - 1)];
-          const down = y === height - 1 ? 0 : data[idx(x, y + 1)];
-          const edge = !(left && right && up && down);
-          if (edge) {
-            if (segment === -1) segment = x;
-          } else if (segment !== -1) {
-            outlinePath.moveTo(segment + 0.5, y + 0.5);
-            outlinePath.lineTo(x + 0.5, y + 0.5);
-            segment = -1;
-          }
-        } else if (segment !== -1) {
-          outlinePath.moveTo(segment + 0.5, y + 0.5);
-          outlinePath.lineTo(x + 0.5, y + 0.5);
-          segment = -1;
-        }
-      }
-      if (segment !== -1) {
-        outlinePath.moveTo(segment + 0.5, y + 0.5);
-        outlinePath.lineTo(width + 0.5, y + 0.5);
-      }
-    }
-
-    if (!has) {
-      selectionState.selectionClipPath = undefined;
-      selectionState.selectionOutline = undefined;
-      selectionState.selectionBounding = undefined;
-      return;
-    }
-
-    selectionState.selectionClipPath = clipPath;
-    selectionState.selectionOutline = outlinePath;
-    selectionState.selectionBounding = {
-      x: minX,
-      y: minY,
-      width: maxX - minX + 1,
-      height: maxY - minY + 1,
-    };
-  };
 
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const { x, y } = getPointerPos(e);
@@ -835,7 +617,9 @@ export default function Canvas({
       
       if (pointer.selectionMode === 'magic') {
         selectionState.reset();
-        computeMagicSelection(x, y);
+        if (canvasRef.current) {
+          selectionState.computeMagicSelection(canvasRef.current, x, y);
+        }
         onSelectionUpdate?.();
         onSelectionEnd?.();
         startAnimation();
@@ -846,7 +630,13 @@ export default function Canvas({
       ) {
         selectingRef.current = true;
         lastPosRef.current = { x, y };
-        updateMaskSelection({ x, y }, { x, y }, pointer.selectionMode);
+        selectionState.updateMaskSelection(
+          canvasSize,
+          { x, y },
+          { x, y },
+          pointer.selectionMode,
+          pointer.lineWidth
+        );
         onSelectionUpdate?.();
         onSelectionStart?.();
         startAnimation();
@@ -896,7 +686,13 @@ export default function Canvas({
         (selectionState.mode === 'select-pen' || selectionState.mode === 'select-eraser') &&
         lastPosRef.current
       ) {
-        updateMaskSelection(lastPosRef.current, { x, y }, selectionState.mode);
+        selectionState.updateMaskSelection(
+          canvasSize,
+          lastPosRef.current,
+          { x, y },
+          selectionState.mode,
+          pointer.lineWidth
+        );
         lastPosRef.current = { x, y };
       }
       onSelectionUpdate?.();
@@ -927,7 +723,13 @@ export default function Canvas({
       selectingRef.current = false;
       if (selectionState.mode === 'select-pen' || selectionState.mode === 'select-eraser') {
         if (lastPosRef.current) {
-          updateMaskSelection(lastPosRef.current, { x, y }, selectionState.mode);
+          selectionState.updateMaskSelection(
+            canvasSize,
+            lastPosRef.current,
+            { x, y },
+            selectionState.mode,
+            pointer.lineWidth
+          );
           lastPosRef.current = null;
         }
         onSelectionEnd?.();
