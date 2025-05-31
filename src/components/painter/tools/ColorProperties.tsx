@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { LayoutDirection } from '../../../../utils/storage/painter-layout-store';
+import { LayoutDirection } from '../../../storage/painter-layout-store';
 import ColorWheel from '../../utils/color/ColorWheel';
 import { hexToHsl, hslToHex } from '../../utils/color/color';
 
