@@ -1,13 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { PainterPointer } from "src/hooks/usePainterPointer";
 import { SelectionState } from "src/hooks/useSelectionState";
-import {
-  mixSpectralColors,
-  mixColorsNormal,
-  isColorDifferent,
-  blendMultipleColors,
-  averageColors
-} from "src/hooks/useSpectralColor";
+import useColorMixing from "src/hooks/useSpectralColor";
 import { useLayersStore } from "src/storage/layers-store";
 import { useCurrentLayerIndexStore } from "src/store/current-layer-index-store";
 import { usePainterHistoryStore } from "src/store/painter-history-store";
@@ -41,6 +35,13 @@ export default function Canvas({
   onSelectionUpdate,
   onSelectionEnd
 }: CanvasProps) {
+  const {
+    mixSpectralColors,
+    mixColorsNormal,
+    isColorDifferent,
+    blendMultipleColors,
+    averageColors
+  } = useColorMixing();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [panOffset, setPanOffset] = useState({ x: 0, y: 0 });
