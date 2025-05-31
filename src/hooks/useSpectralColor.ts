@@ -3,7 +3,7 @@ import * as spectral from 'spectral.js';
 /**
  * HEXからRGBに変換
  */
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+export function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result ? {
     r: parseInt(result[1], 16),
@@ -15,7 +15,7 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 /**
  * RGBからHEXに変換
  */
-function rgbToHex(r: number, g: number, b: number): string {
+export function rgbToHex(r: number, g: number, b: number): string {
   return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
@@ -65,11 +65,62 @@ export function mixSpectralColors(color1: string, color2: string, ratio: number)
 }
 
 /**
+ * 2色が十分に異なるか判定
+ */
+export function isColorDifferent(color1: string, color2: string): boolean {
+  const rgb1 = hexToRgb(color1);
+  const rgb2 = hexToRgb(color2);
+  if (!rgb1 || !rgb2) return false;
+  const threshold = 30;
+  return (
+    Math.abs(rgb1.r - rgb2.r) > threshold ||
+    Math.abs(rgb1.g - rgb2.g) > threshold ||
+    Math.abs(rgb1.b - rgb2.b) > threshold
+  );
+}
+
+/**
+ * 複数色を均等に混色
+ */
+export function blendMultipleColors(colors: string[], mode: 'normal' | 'spectral'): string {
+  if (colors.length === 0) return '#000000';
+  if (colors.length === 1) return colors[0];
+
+  let result = colors[0];
+  for (let i = 1; i < colors.length; i++) {
+    const ratio = 1 / (i + 1);
+    result = mode === 'spectral'
+      ? mixSpectralColors(result, colors[i], ratio)
+      : mixColorsNormal(result, colors[i], ratio);
+  }
+  return result;
+}
+
+/**
+ * 複数色の平均色を求める
+ */
+export function averageColors(colors: string[], mode: 'normal' | 'spectral'): string {
+  if (colors.length === 0) return '#000000';
+  if (colors.length === 1) return colors[0];
+
+  let result = colors[0];
+  for (let i = 1; i < colors.length; i++) {
+    result = mode === 'spectral'
+      ? mixSpectralColors(result, colors[i], 0.5)
+      : mixColorsNormal(result, colors[i], 0.5);
+  }
+  return result;
+}
+
+/**
  * 色混合のhook
  */
 export default function useColorMixing() {
   return {
     mixColorsNormal,
-    mixSpectralColors
+    mixSpectralColors,
+    isColorDifferent,
+    blendMultipleColors,
+    averageColors
   };
 }
