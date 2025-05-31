@@ -3,8 +3,6 @@ import { StoryboardFactory } from "src/app/storyboard/storyboard-factory";
 import { t } from "src/constants/obsidian-i18n";
 import { toggleStoryboardViewTool } from "src/service/api/storyboard-tool/toggle-storyboard-view";
 import { toolRegistry } from "src/service/core/tool-registry";
-import { useSelectedFrameStore } from "src/store/selected-frame-store";
-import { useSelectedRowIndexStore } from "src/store/selected-row-index-store";
 
 
 interface NavigationControlsProps {
@@ -13,7 +11,6 @@ interface NavigationControlsProps {
   onBackToStoryboard: () => void;
   onOpenPsdPainter: () => void;
   app: App;
-  onImageUrlChange: (newUrl: string | null) => void;
 }
 
 export function NavigationControls({
@@ -22,7 +19,6 @@ export function NavigationControls({
   onBackToStoryboard,
   onOpenPsdPainter,
   app,
-  onImageUrlChange,
 }: NavigationControlsProps) {
   const handleConvertToBoard = async () => {
     const activeFile = app.workspace.getActiveFile();

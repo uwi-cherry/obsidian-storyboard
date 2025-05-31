@@ -175,7 +175,6 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         onBackToStoryboard={handleBackToStoryboard}
         onOpenPsdPainter={handleOpenPsdPainter}
         app={app || ({} as App)}
-        onImageUrlChange={handleImageChange}
       />
       {layers && layers.length > 0 && <LayerControls />}
       <ChatBox />

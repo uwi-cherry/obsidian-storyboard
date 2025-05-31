@@ -30,7 +30,7 @@ export default function useStoryboardPageData(app: App, file: TFile | null) {
   );
 
   const hookData = useStoryboardData(initialData, handleDataChange);
-  const { setStoryboard, ...restHookData } = hookData;
+  const { setStoryboard } = hookData;
 
   const addRow = useCallback(
     async (chapterIndex: number, initialText = '') => {
@@ -74,5 +74,5 @@ export default function useStoryboardPageData(app: App, file: TFile | null) {
     loadData();
   }, [app, file]);
 
-  return { isLoading, handleDataChange, addRow, ...restHookData };
+  return { isLoading, handleDataChange, addRow, ...hookData };
 }
