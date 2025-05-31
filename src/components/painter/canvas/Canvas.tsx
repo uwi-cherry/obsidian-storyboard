@@ -767,6 +767,15 @@ export default function Canvas({
       selectionState.selectionMask = document.createElement('canvas');
       selectionState.selectionMask.width = canvasSize.width;
       selectionState.selectionMask.height = canvasSize.height;
+      
+      // 既存の統一選択があれば、それをマスクに描画
+      if (selectionState.selectionClipPath) {
+        const mctx = selectionState.selectionMask.getContext('2d');
+        if (mctx) {
+          mctx.fillStyle = 'white';
+          mctx.fill(selectionState.selectionClipPath);
+        }
+      }
     }
 
     const mctx = selectionState.selectionMask.getContext('2d');
