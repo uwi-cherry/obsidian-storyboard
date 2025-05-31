@@ -177,7 +177,7 @@ export default function RightSidebarReactView({ view, app }: RightSidebarReactVi
         app={app || ({} as App)}
       />
       {layers && layers.length > 0 && <LayerControls />}
-      <ChatBox />
+      <ChatBox app={app || ({} as App)} />
     </div>
   );
 }

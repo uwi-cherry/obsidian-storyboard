@@ -1,6 +1,7 @@
 import { Tool } from '../../core/tool';
 import { initAgent, AgentOptions, ChatMessage, Attachment } from '../agent-tool/init-agent';
 import { runAgent } from '../agent-tool/run-agent';
+import { toolRegistry } from '../../core/tool-registry';
 
 namespace Internal {
   export interface GenerateTextInput extends AgentOptions {
@@ -34,8 +35,9 @@ namespace Internal {
   } as const;
 
   export async function executeGenerateText(args: GenerateTextInput): Promise<string> {
-    const { message, history = [], attachments = [], ...agentOpts } = args;
-    const agent = initAgent(agentOpts);
+    const { message, history = [], attachments = [], tools, ...agentOpts } = args;
+    const agentTools = tools ?? toolRegistry.getAiEnabledTools();
+    const agent = initAgent({ ...agentOpts, tools: agentTools });
     agent.history = history;
     const result = await runAgent(agent, message, attachments);
     const out: GenerateTextOutput = { text: result.finalOutput, history: result.history };

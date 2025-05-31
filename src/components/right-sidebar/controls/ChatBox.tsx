@@ -1,10 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
-import type { Plugin } from 'obsidian';
+import type { App } from 'obsidian';
 import { t } from '../../../constants/obsidian-i18n';
 import { ADD_ICON_SVG, TABLE_ICONS } from '../../../constants/icons';
 import type { Attachment } from '../../../types/ui';
 import { useChatAttachmentsStore } from '../../../store/chat-attachments-store';
+import { toolRegistry } from '../../../service/core/tool-registry';
+import { TOOL_NAMES } from '../../../constants/tools-config';
+import { useCurrentLayerIndexStore } from '../../../store/current-layer-index-store';
 
 interface Message {
   role: 'user' | 'assistant';
@@ -12,8 +15,11 @@ interface Message {
   attachments?: Attachment[];
 }
 
+interface ChatBoxProps {
+  app: App;
+}
 
-export default function ChatBox() {
+export default function ChatBox({ app }: ChatBoxProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -57,15 +63,15 @@ export default function ChatBox() {
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (!input.trim()) return;
-    
-    const userMessage = input;
+
+    const userMessage = input.trim();
     setMessages(prev => [
       ...prev,
       { role: 'user', content: userMessage, attachments },
     ]);
-    
+
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
     
     setInput('');
@@ -73,11 +79,42 @@ export default function ChatBox() {
     setLoading(true);
     
     try {
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const response = `AI応答（開発中）: ${userMessage}`;
-      
+      let response = '';
+
+      if (userMessage.startsWith('/layer')) {
+        const parts = userMessage.split(/\s+/);
+        const action = parts[1];
+        if (action === 'add') {
+          const name = parts.slice(2).join(' ');
+          await toolRegistry.executeTool(TOOL_NAMES.ADD_LAYER, { name });
+          response = 'レイヤーを追加しました';
+        } else if (action === 'remove') {
+          const index = useCurrentLayerIndexStore.getState().currentLayerIndex;
+          await toolRegistry.executeTool(TOOL_NAMES.REMOVE_LAYER, { index });
+          response = 'レイヤーを削除しました';
+        } else if (action === 'rename') {
+          const name = parts.slice(2).join(' ');
+          const index = useCurrentLayerIndexStore.getState().currentLayerIndex;
+          await toolRegistry.executeTool(TOOL_NAMES.RENAME_LAYER, { index, name });
+          response = 'レイヤー名を変更しました';
+        } else {
+          response = '不明なレイヤー操作です';
+        }
+      } else {
+        const file = app.workspace.getActiveFile();
+        if (!file || file.extension !== 'board') {
+          throw new Error('ストーリーボードファイルが見つかりません');
+        }
+        const result = await toolRegistry.executeTool(TOOL_NAMES.RUN_STORYBOARD_AI_AGENT, {
+          app,
+          file,
+          prompt: userMessage,
+          chapterIndex: 0
+        });
+        const parsed = JSON.parse(result) as { message: string };
+        response = parsed.message;
+      }
+
       setMessages(prev => {
         const updated = [...prev];
         const last = updated[updated.length - 1];
