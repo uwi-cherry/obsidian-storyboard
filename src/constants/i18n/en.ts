@@ -98,7 +98,8 @@ const en: I18nStrings = {
   CLIPPING_MASK: 'Clipping Mask',
   EDIT_MENU: 'Edit',
   FILE_MENU: 'File',
-  EXPORT_MERGED_IMAGE: 'Export flattened image'
+  EXPORT_MERGED_IMAGE: 'Export flattened image',
+  TOOL_SETTINGS: 'Settings'
 };
 
 export default en;

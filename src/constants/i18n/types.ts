@@ -99,4 +99,5 @@ export interface I18nStrings {
   EDIT_MENU: string;
   FILE_MENU: string;
   EXPORT_MERGED_IMAGE: string;
+  TOOL_SETTINGS: string;
 }

@@ -98,7 +98,8 @@ const ja: I18nStrings = {
   CLIPPING_MASK: 'クリッピングマスク',
   EDIT_MENU: '編集',
   FILE_MENU: 'ファイル',
-  EXPORT_MERGED_IMAGE: '画像を統合して書き出し'
+  EXPORT_MERGED_IMAGE: '画像を統合して書き出し',
+  TOOL_SETTINGS: '設定'
 };
 
 export default ja;
