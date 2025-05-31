@@ -2,7 +2,13 @@ import etro from "etro";
 import { useRef, useState, useEffect } from "react";
 import { PainterPointer } from "src/hooks/usePainterPointer";
 import { SelectionState } from "src/hooks/useSelectionState";
-import { mixSpectralColors, mixColorsNormal } from "src/hooks/useSpectralColor";
+import {
+  mixSpectralColors,
+  mixColorsNormal,
+  isColorDifferent,
+  blendMultipleColors,
+  averageColors
+} from "src/hooks/useSpectralColor";
 import { useLayersStore } from "src/storage/layers-store";
 import { useCurrentLayerIndexStore } from "src/store/current-layer-index-store";
 import { usePainterHistoryStore } from "src/store/painter-history-store";
@@ -594,58 +600,7 @@ export default function Canvas({
     }
   };
 
-  // 色が十分に異なるかどうかを判定
-  const isColorDifferent = (color1: string, color2: string): boolean => {
-    const rgb1 = hexToRgb(color1);
-    const rgb2 = hexToRgb(color2);
-    
-    if (!rgb1 || !rgb2) return false;
-    
-    // RGB値の差が一定以上なら異なる色とみなす
-    const threshold = 30;
-    return Math.abs(rgb1.r - rgb2.r) > threshold ||
-           Math.abs(rgb1.g - rgb2.g) > threshold ||
-           Math.abs(rgb1.b - rgb2.b) > threshold;
-  };
-
-  // HEXからRGBに変換（ローカル関数）
-  const hexToRgb = (hex: string): { r: number; g: number; b: number } | null => {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-      r: parseInt(result[1], 16),
-      g: parseInt(result[2], 16),
-      b: parseInt(result[3], 16)
-    } : null;
-  };
-
-  // 複数色の混色
-  const blendMultipleColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
-    if (colors.length === 0) return '#000000';
-    if (colors.length === 1) return colors[0];
-    
-    let result = colors[0];
-    for (let i = 1; i < colors.length; i++) {
-      const ratio = 1 / (i + 1); // 均等に混色
-      result = mode === 'spectral' 
-        ? mixSpectralColors(result, colors[i], ratio)
-        : mixColorsNormal(result, colors[i], ratio);
-    }
-    return result;
-  };
-
-  // 色の平均を計算
-  const averageColors = (colors: string[], mode: 'normal' | 'spectral'): string => {
-    if (colors.length === 0) return '#000000';
-    if (colors.length === 1) return colors[0];
-    
-    let result = colors[0];
-    for (let i = 1; i < colors.length; i++) {
-      result = mode === 'spectral' 
-        ? mixSpectralColors(result, colors[i], 0.5)
-        : mixColorsNormal(result, colors[i], 0.5);
-    }
-    return result;
-  };
+  // 色関連のユーティリティはuseSpectralColorから利用
 
   const computeMagicSelection = (px: number, py: number) => {
     const canvas = canvasRef.current;
