@@ -1,5 +1,6 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
+import { fal } from '@fal-ai/client';
 
 namespace Internal {
   export interface GenerateImageInput {
@@ -31,35 +32,20 @@ namespace Internal {
 
   export async function executeGenerateImage(args: GenerateImageInput): Promise<string> {
     const { prompt, apiKey, app, fileName } = args;
-    const endpoint = 'https://api.fal.ai/v1/predictions';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({ version: 'stable-diffusion', input: { prompt } })
-    });
-    if (!res.ok) throw new Error(`fal.ai API エラー: ${res.status} ${await res.text()}`);
-    const prediction = await res.json();
-
-    let output: string | undefined;
-    for (;;) {
-      const check = await fetch(`${endpoint}/${prediction.id}`, {
-        headers: { Authorization: `Bearer ${apiKey}` }
-      });
-      const status = await check.json();
-      if (status.status === 'succeeded') {
-        output = status.output[0];
-        break;
-      } else if (status.status === 'failed') {
-        throw new Error('画像生成に失敗しました');
+    fal.config({ credentials: apiKey });
+    const result = await fal.subscribe('fal-ai/flux-pro/kontext/max/multi', {
+      input: {
+        prompt,
+        sync_mode: true,
+        num_images: 1,
+        output_format: 'png'
       }
-      await new Promise(r => setTimeout(r, 1000));
-    }
-    const b64 = output as string | undefined;
-    if (!b64) throw new Error('画像データが取得できませんでした');
-    const bin = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+    });
+    const imageInfo = result?.data?.images?.[0];
+    if (!imageInfo?.url) throw new Error('画像データが取得できませんでした');
+    const res = await fetch(imageInfo.url);
+    if (!res.ok) throw new Error('画像の取得に失敗しました');
+    const bin = new Uint8Array(await res.arrayBuffer());
 
     const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
     const folder = normalizePath(`${activeDir}/assets`);
