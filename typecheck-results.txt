@@ -1,5 +1,4 @@
-src/app/painter/painter-view.ts(81,17): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
-src/app/painter/painter-view.ts(85,24): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
 src/components/painter/tools/ColorProperties.tsx(2,33): error TS2307: Cannot find module '../../../../utils/storage/painter-layout-store' or its corresponding type declarations.
 src/components/storyboard/Page.tsx(134,11): error TS2322: Type '{ imageUrl: string | undefined; imagePrompt: string | undefined; onImageUrlChange: (newUrl: string | null) => void; onImagePromptChange: (newImagePrompt: string) => void; app: App; ... 4 more ...; refCallback: (el: HTMLTextAreaElement | null) => void; }' is not assignable to type 'IntrinsicAttributes & ImageInputCellProps'.
   Property 'generateThumbnail' does not exist on type 'IntrinsicAttributes & ImageInputCellProps'.
