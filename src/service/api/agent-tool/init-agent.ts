@@ -29,7 +29,7 @@ export function initAgent(options: AgentOptions): Agent {
   return {
     apiKey: options.apiKey,
     instructions: options.instructions ?? 'You are a helpful assistant.',
-    model: options.model ?? 'gpt-4o',
+    model: options.model ?? 'openai/gpt-4o',
     tools: options.tools ?? [],
     history: []
   };

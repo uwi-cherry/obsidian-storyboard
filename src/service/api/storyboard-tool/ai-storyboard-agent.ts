@@ -27,6 +27,7 @@ namespace Internal {
     const gen = await toolRegistry.executeTool(TOOL_NAMES.GENERATE_TEXT, {
       apiKey,
       provider: 'fal',
+      model: 'openai/gpt-4o',
       instructions,
       message,
       history: []
