@@ -4,14 +4,15 @@ import { TFile } from "obsidian";
 import { toolRegistry } from "src/service/core/tool-registry";
 import { subscribeWithSelector } from "zustand/middleware";
 import { AdaptiveDebouncer } from "./adaptive-debouncer";
+import type { Layer } from 'src/types/painter-types';
 
 
 interface LayersState {
-  layers: import('src/types/painter-types').Layer[];
+  layers: Layer[];
   currentPsdFile: TFile | null;
-  updateLayers: (layers: import('src/types/painter-types').Layer[]) => void;
-  initializeLayers: (layers: import('src/types/painter-types').Layer[]) => void;
-  addLayer: (layer: import('src/types/painter-types').Layer) => void;
+  updateLayers: (layers: Layer[]) => void;
+  initializeLayers: (layers: Layer[]) => void;
+  addLayer: (layer: Layer) => void;
   removeLayer: (index: number) => void;
   toggleLayerVisibility: (index: number) => void;
   setLayerOpacity: (index: number, opacity: number) => void;
