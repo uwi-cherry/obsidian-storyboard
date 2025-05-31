@@ -19,7 +19,7 @@ namespace Internal {
 
   export async function executeRunStoryboardAiAgent(args: RunStoryboardAiAgentInput): Promise<string> {
     const { app, file, prompt, chapterIndex } = args;
-    const dataStr = await toolRegistry.executeTool<string, string>(TOOL_NAMES.LOAD_STORYBOARD_DATA, { app, file });
+    const dataStr = await toolRegistry.executeTool(TOOL_NAMES.LOAD_STORYBOARD_DATA, { app, file });
     const settings = getPluginSettings();
     const instructions = getStyleInstructions();
     const apiKey = settings?.falApiKey ?? '';
