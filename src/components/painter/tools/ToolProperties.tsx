@@ -5,7 +5,7 @@ interface ToolProps {
   tool: string;
   drawingMode: 'normal' | 'spectral' | 'erase-soft';
   lineWidth: number;
-  selectionMode: 'rect' | 'lasso' | 'magic';
+  selectionMode: 'rect' | 'lasso' | 'magic' | 'select-pen' | 'select-eraser';
   brushHasColor: boolean;
   brushOpacity: number;
   blendStrength: number;
@@ -19,7 +19,7 @@ interface ToolProps {
   resizeMode: 'canvas-only' | 'resize-content';
   setDrawingMode: (m: 'normal' | 'spectral' | 'erase-soft') => void;
   setLineWidth: (w: number) => void;
-  setSelectionMode: (m: 'rect' | 'lasso' | 'magic') => void;
+  setSelectionMode: (m: 'rect' | 'lasso' | 'magic' | 'select-pen' | 'select-eraser') => void;
   setBrushHasColor: (hasColor: boolean) => void;
   setBrushOpacity: (opacity: number) => void;
   setBlendStrength: (strength: number) => void;
@@ -259,12 +259,17 @@ export default function ToolProperties({
             className="w-full text-xs"
             value={selectionMode}
             onChange={e =>
-              setSelectionMode(e.currentTarget.value as 'rect' | 'lasso' | 'magic')
+              setSelectionMode(
+                e.currentTarget.value as
+                  'rect' | 'lasso' | 'magic' | 'select-pen' | 'select-eraser'
+              )
             }
           >
             <option value="rect">{t('SELECT_RECT')}</option>
             <option value="lasso">{t('SELECT_LASSO')}</option>
             <option value="magic">{t('SELECT_MAGIC')}</option>
+            <option value="select-pen">{t('SELECT_PEN')}</option>
+            <option value="select-eraser">{t('SELECT_ERASER')}</option>
           </select>
         </div>
       )}
