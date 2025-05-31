@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react';
+import type { DragEvent } from 'react';
 import type { SelectionRect } from '../../../types/ui';
 import { PainterPointer } from 'src/hooks/usePainterPointer';
 import useSelectionState from 'src/hooks/useSelectionState';
@@ -53,6 +54,7 @@ export default function CanvasContainer({
   const { currentLayerIndex } = useCurrentLayerIndexStore();
   const { saveHistory } = usePainterHistoryStore();
   const { addAttachment, clearAttachments } = useChatAttachmentsStore();
+  const [isDragOver, setIsDragOver] = useState(false);
 
   const resizeLayerCanvas = (layer: any, oldWidth: number, oldHeight: number, newWidth: number, newHeight: number, mode: 'canvas-only' | 'resize-content') => {
     if (!layer.canvas) return layer;
@@ -159,6 +161,35 @@ export default function CanvasContainer({
   const finishEdit = () => {
     setEditRect(null);
     setMenuMode('global');
+  };
+
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = async (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      for (const file of Array.from(e.dataTransfer.files)) {
+        try {
+          const arrayBuffer = await file.arrayBuffer();
+          await toolRegistry.executeTool('add_layer', {
+            name: file.name,
+            fileData: arrayBuffer
+          });
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    }
   };
 
   const actionHandlers = {
@@ -417,7 +448,13 @@ export default function CanvasContainer({
         />
       </div>
       
-      <div className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative" ref={containerRef}>
+      <div
+        className="flex flex-1 w-full h-full items-center justify-center overflow-auto bg-secondary relative"
+        ref={containerRef}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         <Canvas
           pointer={pointer}
           view={view}
@@ -431,6 +468,12 @@ export default function CanvasContainer({
           onSelectionUpdate={handleSelectionUpdate}
           onSelectionEnd={handleSelectionEnd}
         />
+
+        {isDragOver && (
+          <div className="absolute inset-0 flex items-center justify-center bg-accent bg-opacity-10 border-2 border-dashed border-accent z-20 pointer-events-none">
+            <span className="text-accent font-semibold">画像をドロップしてレイヤー追加</span>
+          </div>
+        )}
         
         {menuMode === 'selection' && (
           <ActionProperties
