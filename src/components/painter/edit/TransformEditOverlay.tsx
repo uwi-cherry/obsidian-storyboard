@@ -9,16 +9,20 @@ interface TransformEditOverlayProps {
   rect: SelectionRect;
   layers: Layer[];
   currentLayerIndex: number;
+  containerRef: React.RefObject<HTMLDivElement>;
   onFinish: () => void;
 }
 
-export default function TransformEditOverlay({ rect, layers, currentLayerIndex, onFinish }: TransformEditOverlayProps) {
+export default function TransformEditOverlay({ rect, layers, currentLayerIndex, containerRef, onFinish }: TransformEditOverlayProps) {
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
   const backupCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [scale, setScale] = useState(1);
   const [rotation, setRotation] = useState(0);
+
+  const [styleRect, setStyleRect] = useState({ left: rect.x, top: rect.y, width: rect.width, height: rect.height });
+  const zoomScaleRef = useRef(1);
 
   const draggingRef = useRef(false);
   const dragStartRef = useRef({ x: 0, y: 0 });
@@ -29,6 +33,23 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
   const startAngleRef = useRef(0);
   const startScaleRef = useRef(1);
   const startRotationRef = useRef(0);
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const canvas = container.querySelector('canvas');
+    if (!(canvas instanceof HTMLCanvasElement)) return;
+    const canvasRect = canvas.getBoundingClientRect();
+    const containerRect = container.getBoundingClientRect();
+    const scaleX = canvasRect.width / canvas.width;
+    const scaleY = canvasRect.height / canvas.height;
+    const left = rect.x * scaleX + (canvasRect.left - containerRect.left);
+    const top = rect.y * scaleY + (canvasRect.top - containerRect.top);
+    const width = rect.width * scaleX;
+    const height = rect.height * scaleY;
+    zoomScaleRef.current = scaleX;
+    setStyleRect({ left, top, width, height });
+  }, [rect, containerRef]);
 
   useEffect(() => {
     const layer = layers[currentLayerIndex];
@@ -77,7 +98,8 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
   useEffect(() => {
     const canvas = overlayCanvasRef.current;
     if (canvas) {
-      canvas.style.transform = `translate(${offset.x}px, ${offset.y}px) scale(${scale}) rotate(${rotation}rad)`;
+      const z = zoomScaleRef.current;
+      canvas.style.transform = `translate(${offset.x * z}px, ${offset.y * z}px) scale(${scale}) rotate(${rotation}rad)`;
     }
   }, [offset, scale, rotation]);
 
@@ -85,8 +107,9 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
     const move = (e: PointerEvent) => {
       if (!draggingRef.current) return;
       setOffset(prev => {
-        const nx = prev.x + e.clientX - dragStartRef.current.x;
-        const ny = prev.y + e.clientY - dragStartRef.current.y;
+        const z = zoomScaleRef.current;
+        const nx = prev.x + (e.clientX - dragStartRef.current.x) / z;
+        const ny = prev.y + (e.clientY - dragStartRef.current.y) / z;
         dragStartRef.current = { x: e.clientX, y: e.clientY };
         return { x: nx, y: ny };
       });
@@ -180,12 +203,12 @@ export default function TransformEditOverlay({ rect, layers, currentLayerIndex, 
   return (
     <div
       className="absolute z-50"
-      style={{ left: rect.x, top: rect.y }}
+      style={{ left: styleRect.left, top: styleRect.top, width: styleRect.width, height: styleRect.height }}
       onPointerDown={onPointerDown}
     >
       <canvas
         ref={overlayCanvasRef}
-        style={{ pointerEvents: 'none', border: '1px dashed var(--color-accent)' }}
+        style={{ width: styleRect.width, height: styleRect.height, pointerEvents: 'none', border: '1px dashed var(--color-accent)' }}
       />
       <div className="absolute left-0 -top-7 flex gap-1 bg-secondary border border-modifier-border p-1 rounded">
         <button className="px-2 py-1 text-xs" onClick={confirm}>確定</button>
