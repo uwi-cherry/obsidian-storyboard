@@ -176,18 +176,58 @@ export default function CanvasContainer({
     e.preventDefault();
     setIsDragOver(false);
 
-    if (e.dataTransfer.files.length === 0) return;
+    // 外部ファイルからのドラッグ&ドロップ
+    if (e.dataTransfer.files.length > 0) {
+      for (const file of Array.from(e.dataTransfer.files)) {
+        try {
+          await toolRegistry.executeTool('add_layer', {
+            name: file.name,
+            fileData: file,
+            width: canvasSize.width,
+            height: canvasSize.height
+          });
+        } catch (error) {
+          console.error('External file drop error:', error);
+        }
+      }
+      return;
+    }
 
-    for (const file of Array.from(e.dataTransfer.files)) {
+    // Obsidianファイルツリーからのドラッグ&ドロップ
+    const filePath = e.dataTransfer.getData('text/plain');
+    if (filePath) {
       try {
+        const app = (window as any).app;
+        if (!app) {
+          console.error('Obsidian app not found');
+          return;
+        }
+
+        const file = app.vault.getAbstractFileByPath(filePath);
+        if (!file || !(file instanceof (window as any).TFile)) {
+          console.error('File not found or not a TFile:', filePath);
+          return;
+        }
+
+        // 画像ファイルかチェック
+        const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'bmp', 'svg'];
+        const extension = file.extension.toLowerCase();
+        if (!imageExtensions.includes(extension)) {
+          console.warn('Not an image file:', filePath);
+          return;
+        }
+
         await toolRegistry.executeTool('add_layer', {
           name: file.name,
-          fileData: file,
+          imageFile: file,
           width: canvasSize.width,
-          height: canvasSize.height
+          height: canvasSize.height,
+          app: app
         });
+        
+        console.log('Successfully added layer from Obsidian file:', filePath);
       } catch (error) {
-        console.error(error);
+        console.error('Obsidian file drop error:', error);
       }
     }
   };

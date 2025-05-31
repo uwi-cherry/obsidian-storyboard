@@ -1,6 +1,5 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
-import { fal } from '@fal-ai/client';
 
 namespace Internal {
   export interface GenerateImageInput {
@@ -80,9 +79,6 @@ namespace Internal {
     } = args;
 
     try {
-      // Configure fal.ai client
-      fal.config({ credentials: apiKey });
-
       // Prepare input for FLUX Kontext Max Multi
       const input: any = {
         prompt,
@@ -102,11 +98,25 @@ namespace Internal {
         input.seed = seed;
       }
 
-      // Generate image using FLUX Kontext Max Multi
-      const result = await fal.subscribe("fal-ai/flux-pro/kontext/max/multi", {
-        input,
-        logs: false
+      // Call FLUX Kontext Max Multi API directly
+      const response = await fetch("https://api.fal.ai/v1/subscribe/fal-ai/flux-pro/kontext/max/multi", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          input,
+          logs: false
+        })
       });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`FLUX API error: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
 
       if (!result.data?.images?.[0]?.url) {
         throw new Error('画像生成に失敗しました: 結果にURLが含まれていません');
@@ -116,12 +126,12 @@ namespace Internal {
       const generatedSeed = result.data.seed;
 
       // Download the generated image
-      const response = await fetch(imageUrl);
-      if (!response.ok) {
-        throw new Error(`画像のダウンロードに失敗しました: ${response.status}`);
+      const imageResponse = await fetch(imageUrl);
+      if (!imageResponse.ok) {
+        throw new Error(`画像のダウンロードに失敗しました: ${imageResponse.status}`);
       }
       
-      const arrayBuffer = await response.arrayBuffer();
+      const arrayBuffer = await imageResponse.arrayBuffer();
       const uint8Array = new Uint8Array(arrayBuffer);
 
       // Prepare file path
