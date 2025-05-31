@@ -1,6 +1,5 @@
 npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
-src/app/painter/painter-view.ts(81,17): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
-src/app/painter/painter-view.ts(85,24): error TS2339: Property '_painterData' does not exist on type 'PainterView'.
+
 src/components/painter/tools/ColorProperties.tsx(2,33): error TS2307: Cannot find module '../../../../utils/storage/painter-layout-store' or its corresponding type declarations.
 src/components/storyboard/Page.tsx(343,45): error TS7006: Parameter 'ch' implicitly has an 'any' type.
 src/components/storyboard/Page.tsx(349,33): error TS7006: Parameter 'chapter' implicitly has an 'any' type.
