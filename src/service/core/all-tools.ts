@@ -44,10 +44,10 @@ import {
 
 import {
   generateTextTool,
-  generateImageTool,
   generateVideoTool,
   inpaintImageTool,
-  generativeFillTool
+  generativeFillTool,
+  fluxMultiLayerTool
 } from '../api/ai-tool';
 
 export const ALL_TOOLS: Tool<any, any>[] = [
@@ -81,8 +81,8 @@ export const ALL_TOOLS: Tool<any, any>[] = [
   renameLayerTool,
   toggleLayerVisibilityTool,
   generateTextTool,
-  generateImageTool,
   generateVideoTool,
   inpaintImageTool,
-  generativeFillTool
+  generativeFillTool,
+  fluxMultiLayerTool
 ];
