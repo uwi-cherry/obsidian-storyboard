@@ -131,8 +131,6 @@ const StoryboardReactView: FC<StoryboardReactViewProps> = ({ app, file }) => {
           onImageUrlChange={(newUrl: string | null) => onCellChangeForRow('imageUrl', newUrl || '')}
           onImagePromptChange={(newImagePrompt: string) => onCellChangeForRow('imagePrompt', newImagePrompt)}
           app={app}
-          generateThumbnail={generateThumbnail}
-          createPsd={createPsd}
           focusPrevCellPrompt={() => {
             if (promptRefs.current[rowIndex - 1]) {
               promptRefs.current[rowIndex - 1]?.focus();
