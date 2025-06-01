@@ -112,3 +112,16 @@ export default function usePainterPointer() {
     setMixRatio,
   };
 }
+
+export function getPointerPos(
+  canvas: HTMLCanvasElement | null,
+  e: PointerEvent | React.PointerEvent
+): { x: number; y: number } {
+  if (!canvas) return { x: 0, y: 0 };
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = canvas.width / rect.width;
+  const scaleY = canvas.height / rect.height;
+  const x = (e.clientX - rect.left) * scaleX;
+  const y = (e.clientY - rect.top) * scaleY;
+  return { x, y };
+}
