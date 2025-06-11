@@ -1,0 +1,1 @@
+export { generateImageTool } from './generate-image';

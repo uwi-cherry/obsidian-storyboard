@@ -1,94 +1,91 @@
-# Obsidian Sample Plugin
+# Obsidian Storyboard Plugin
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+ObsidianでAI支援の絵コンテ作成とペイント機能を提供するプラグインです。
+動画や映像制作、イラスト作成、ストーリーボード制作に最適化されています。
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## 主な機能
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+### 🎬 ストーリーボード機能
+- 絵コンテの作成・編集
+- キャラクター情報管理
+- 台詞・効果音の管理
+- AI画像生成による自動イラスト作成
 
-## First time developing plugins?
+### 🎨 ペイント機能
+- レイヤー対応の高機能ペイントツール
+- ブラシ、消しゴム、選択ツール等の豊富なツール
+- 色混合、ブレンドモード対応
+- AI塗りつぶし機能（選択範囲の自動生成）
 
-Quick starting guide for new plugin devs:
+### 🤖 AI機能
+- fal.ai APIを使用した画像生成
+- チャットベースでのAI操作
+- 加工元画像とマスクの自動送信
+- プロンプト入力による柔軟な生成
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### 🎥 タイムライン機能
+- 動画プレビュー
+- タイムライン編集
+- フレーム管理
 
-## Releasing new releases
+## インストール方法
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+### 🚀 一般ユーザー向け（推奨）
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+**masterブランチ（リリース版）**をクローンしてください：
 
-## Adding your plugin to the community plugin list
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint .\src\`
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+```bash
+cd "[あなたのVaultフォルダ]/.obsidian/plugins/"
+git clone https://github.com/[リポジトリのURL] obsidian-storyboard
 ```
 
-If you have multiple URLs, you can also do:
+Obsidianを再起動して、設定 → コミュニティプラグイン → 「**Obsidian Storyboard**」を有効化
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+**それだけです！** ビルド済みファイルが含まれているので、追加の作業は必要ありません。
+
+### ⚙️ AI機能の設定（オプション）
+
+AI機能を使用する場合：
+
+1. [fal.ai](https://fal.ai)でアカウントを作成してAPIキーを取得
+2. Obsidianの設定で「**Obsidian Storyboard**」セクションを開く
+3. 「**fal.ai API Key**」にAPIキーを入力
+
+---
+
+## 開発者向け情報
+
+開発に参加したい場合は、`develop`ブランチをご利用ください：
+
+```bash
+git clone -b develop https://github.com/[リポジトリのURL]
+cd obsidian-storyboard
+npm install
+npm run dev
 ```
 
-## API Documentation
+## 使い方
 
-See https://github.com/obsidianmd/obsidian-api
+### ストーリーボードの作成
+
+1. 新しいMarkdownファイルを作成
+2. ファイル内で右クリック → 「**Toggle Storyboard View**」を選択
+3. 絵コンテビューが表示されます
+4. 「**+**」ボタンでコマ（フレーム）を追加
+5. 各コマに画像、台詞、効果音を設定
+
+### ペイント機能の使用
+
+1. ストーリーボードで「**PSDペインターを新規作成**」をクリック
+2. ペイントビューが開きます
+3. 左側のツールパレットでブラシや色を選択
+4. キャンバス上で描画開始
+5. 右側でレイヤー管理が可能
+
+### AI塗りつぶしの使用
+
+1. ペイント画面で範囲選択ツールを選択
+2. 塗りつぶしたい範囲を選択
+3. 「**生成塗り**」ボタンをクリック
+4. 右サイドバーのチャットに画像とマスクが自動送信されます
+5. チャットでプロンプトを入力してAI生成を実行

@@ -20,3 +20,11 @@ data.json
 
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
+
+# Build output
+dist/
+
+# 直下の styles.css を無視する
+/styles.css
+
+/docs
