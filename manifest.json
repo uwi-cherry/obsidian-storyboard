@@ -1,0 +1,12 @@
+{
+	"id": "obsidian-painter",
+	"name": "ペインター",
+	"version": "1.0.0",
+	"minAppVersion": "0.15.0",
+	"description": "Obsidian用のペイントツール with AIチャット機能",
+	"author": "Cascade",
+	"authorUrl": "https://obsidian.md",
+	"fundingUrl": "https://obsidian.md/pricing",
+	"isDesktopOnly": false,
+	"css": "styles.css"
+}
