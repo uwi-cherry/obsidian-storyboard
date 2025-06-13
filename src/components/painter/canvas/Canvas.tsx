@@ -54,7 +54,11 @@ export default function Canvas({
   const startAnimation = () => {
     if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
     const animate = () => {
-      if (selectionState.hasSelection()) {
+      if (
+        selectionState.hasSelection() ||
+        selectionState.tempRect ||
+        selectionState.tempLassoPoints.length > 0
+      ) {
         dashOffsetRef.current = (dashOffsetRef.current + 0.5) % 12;
         setAnimationTick(t => t + 1);
         animIdRef.current = requestAnimationFrame(animate);
@@ -490,6 +494,15 @@ export default function Canvas({
     }
   };
 
+  const handleDoubleClick = () => {
+    if (pointer.tool === 'selection') {
+      selectionState.reset();
+      stopAnimation();
+      onSelectionUpdate?.();
+      onSelectionEnd?.();
+    }
+  };
+
   return (
     <div className="flex flex-1 w-full h-full bg-background overflow-hidden relative">
       <div className="flex items-center justify-center w-full h-full">
@@ -505,6 +518,7 @@ export default function Canvas({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
+          onDoubleClick={handleDoubleClick}
         />
       </div>
     </div>
