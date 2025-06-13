@@ -44,14 +44,17 @@ namespace Internal {
         loadImage(maskData)
       ]);
 
-      // Canvasで合成処理
+      // 画像とマスクのサイズを統一
+      const width = image.width;
+      const height = image.height;
+
       const canvas = document.createElement('canvas');
-      canvas.width = image.width;
-      canvas.height = image.height;
+      canvas.width = width;
+      canvas.height = height;
       const ctx = canvas.getContext('2d')!;
 
-      // 画像を描画
-      ctx.drawImage(image, 0, 0);
+      // 画像をリサイズして描画
+      ctx.drawImage(image, 0, 0, width, height);
 
       // 画像データを取得
       const imageDataObj = ctx.getImageData(0, 0, canvas.width, canvas.height);
@@ -59,11 +62,11 @@ namespace Internal {
 
       // マスク用のcanvasを作成
       const maskCanvas = document.createElement('canvas');
-      maskCanvas.width = mask.width;
-      maskCanvas.height = mask.height;
+      maskCanvas.width = width;
+      maskCanvas.height = height;
       const maskCtx = maskCanvas.getContext('2d')!;
-      maskCtx.drawImage(mask, 0, 0);
-      const maskDataObj = maskCtx.getImageData(0, 0, maskCanvas.width, maskCanvas.height);
+      maskCtx.drawImage(mask, 0, 0, width, height);
+      const maskDataObj = maskCtx.getImageData(0, 0, width, height);
       const maskPixels = maskDataObj.data;
 
       // インペイント用：マスクの白い部分（255）を透明に、黒い部分（0）を不透明にする

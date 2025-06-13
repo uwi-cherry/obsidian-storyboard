@@ -93,7 +93,7 @@ namespace Internal {
     }
     
     const ext = 'png';
-    let baseName = `merged-${Date.now()}.${ext}`;
+    const baseName = `merged-${Date.now()}.${ext}`;
     let fullPath = normalizePath(`${folder}/${baseName}`);
     let i = 1;
     while (app.vault.getAbstractFileByPath(fullPath)) {
