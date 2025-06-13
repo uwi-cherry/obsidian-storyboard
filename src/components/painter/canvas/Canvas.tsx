@@ -414,6 +414,7 @@ export default function Canvas({
           );
           lastPosRef.current = null;
         }
+        onSelectionUpdate?.();
         onSelectionEnd?.();
       } else {
         let valid = false;
@@ -480,6 +481,7 @@ export default function Canvas({
           onSelectionUpdate?.();
           onSelectionEnd?.();
         } else {
+          onSelectionUpdate?.();
           onSelectionEnd?.();
         }
       }
