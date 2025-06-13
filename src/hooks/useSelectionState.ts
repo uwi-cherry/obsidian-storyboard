@@ -1,4 +1,3 @@
-import { useRef } from 'react';
 import type { SelectionRect } from '../types/ui';
 
 export type SelectionMode =
@@ -43,10 +42,10 @@ export interface SelectionState {
   ) => void;
 }
 
-export default function useSelectionState(): SelectionState {
-  const stateRef = useRef<SelectionState | null>(null);
+let globalState: SelectionState | null = null;
 
-  if (!stateRef.current) {
+export default function useSelectionState(): SelectionState {
+  if (!globalState) {
     const state: SelectionState = {
       mode: 'rect',
       version: 0,
@@ -305,8 +304,8 @@ export default function useSelectionState(): SelectionState {
         state.version++;
       }
     };
-    stateRef.current = state;
+    globalState = state;
   }
 
-  return stateRef.current;
+  return globalState;
 }
