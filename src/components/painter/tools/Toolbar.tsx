@@ -1,8 +1,6 @@
-import type { CSSProperties } from 'react';
 import { TOOL_ICONS } from '../../../constants/icons';
 import { t } from '../../../constants/obsidian-i18n';
 import { usePainterLayoutStore } from 'src/storage/painter-layout-store';
-import IconButtonGroup from '../../utils/IconButtonGroup';
 
 interface ToolbarProps {
   tool: string;
@@ -34,49 +32,69 @@ export default function Toolbar({ tool, onChange }: ToolbarProps) {
     ? "flex flex-col gap-1 items-center"
     : "flex flex-row gap-1 items-center";
 
-  const getButtonStyle = (btnId: string) => {
-    return tool === btnId ? {
-      backgroundColor: '#3b82f6',
-      color: '#ffffff',
-      borderWidth: '2px',
-      borderColor: '#2563eb',
-    } as CSSProperties : {};
-  };
-
-  const getButtonClass = (btnId: string) => {
-    return `w-10 h-10 border-none rounded cursor-pointer flex items-center justify-center transition-all duration-200 ${
-      tool === btnId 
-        ? 'shadow-lg scale-110 ring-2 ring-opacity-50' 
-        : 'bg-primary text-text-normal hover:bg-modifier-hover hover:scale-105'
-    }`;
-  };
 
   return (
     <div className={containerClass}>
       <div className={toolContainerClass}>
-        <IconButtonGroup
-          buttons={NAVIGATION_TOOLS.map(btn => ({
-            icon: btn.icon,
-            title: btn.title,
-            className: getButtonClass(btn.id),
-            style: getButtonStyle(btn.id),
-            onClick: () => onChange(btn.id)
-          }))}
-          direction={layoutDirection === 'horizontal' ? 'vertical' : 'horizontal'}
-          gap="gap-1"
-        />
+        {NAVIGATION_TOOLS.map(btn => {
+          const isActive = tool === btn.id;
+          return (
+            <label
+              key={btn.id}
+              className="w-10 h-10 p-1 rounded cursor-pointer flex items-center justify-center transition-all duration-200 border"
+              style={isActive ? {
+                backgroundColor: 'var(--background-modifier-hover)',
+                color: 'var(--text-normal)',
+                borderColor: 'var(--background-modifier-border-hover)'
+              } : {
+                backgroundColor: 'var(--background-primary)',
+                borderColor: 'var(--background-modifier-border)',
+                color: 'var(--text-normal)'
+              }}
+              title={btn.title}
+            >
+              <input
+                type="radio"
+                name="navigation-tool"
+                value={btn.id}
+                checked={isActive}
+                onChange={() => onChange(btn.id)}
+                className="hidden"
+              />
+              <span dangerouslySetInnerHTML={{ __html: btn.icon }} />
+            </label>
+          );
+        })}
         <div className={layoutDirection === 'horizontal' ? 'w-8 h-px bg-modifier-border my-1' : 'h-full w-px bg-modifier-border mx-1'} />
-        <IconButtonGroup
-          buttons={DRAWING_TOOLS.map(btn => ({
-            icon: btn.icon,
-            title: btn.title,
-            className: getButtonClass(btn.id),
-            style: getButtonStyle(btn.id),
-            onClick: () => onChange(btn.id)
-          }))}
-          direction={layoutDirection === 'horizontal' ? 'vertical' : 'horizontal'}
-          gap="gap-1"
-        />
+        {DRAWING_TOOLS.map(btn => {
+          const isActive = tool === btn.id;
+          return (
+            <label
+              key={btn.id}
+              className="w-10 h-10 p-1 rounded cursor-pointer flex items-center justify-center transition-all duration-200 border"
+              style={isActive ? {
+                backgroundColor: 'var(--background-modifier-hover)',
+                color: 'var(--text-normal)',
+                borderColor: 'var(--background-modifier-border-hover)'
+              } : {
+                backgroundColor: 'var(--background-primary)',
+                borderColor: 'var(--background-modifier-border)',
+                color: 'var(--text-normal)'
+              }}
+              title={btn.title}
+            >
+              <input
+                type="radio"
+                name="drawing-tool"
+                value={btn.id}
+                checked={isActive}
+                onChange={() => onChange(btn.id)}
+                className="hidden"
+              />
+              <span dangerouslySetInnerHTML={{ __html: btn.icon }} />
+            </label>
+          );
+        })}
       </div>
     </div>
   );
