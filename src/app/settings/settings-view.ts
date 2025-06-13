@@ -1,7 +1,10 @@
 import { App, Plugin, PluginSettingTab, Setting } from 'obsidian';
-import { PluginSettings, saveSettings } from './settings-data';
+import { PluginSettings, saveSettings } from '../../storage/plugin-settings';
+import { WorkflowInjector } from '../../service/comfy/workflow-injector';
+import { getModelNameFromWorkflow } from '../../service/comfy/workflow-utils';
+import { t } from '../../constants/obsidian-i18n';
 
-export class StoryboardSettingTab extends PluginSettingTab {
+export class AIPainterSettingTab extends PluginSettingTab {
   plugin: Plugin;
   settings: PluginSettings;
 
@@ -11,46 +14,15 @@ export class StoryboardSettingTab extends PluginSettingTab {
     this.settings = settings;
   }
 
-  display(): void {
+  async display(): Promise<void> {
     const { containerEl } = this;
     containerEl.empty();
     
-    containerEl.createEl('h2', { text: 'AI Settings' });
+    containerEl.createEl('h2', { text: t('AI_SETTINGS') });
 
     new Setting(containerEl)
-      .setName('AI Provider')
-      .setDesc('Select AI image generation provider')
-      .addDropdown(dropdown =>
-        dropdown
-          .addOption('fal.ai', 'fal.ai')
-          .addOption('comfy', 'ComfyUI')
-          .setValue(this.settings.aiProvider)
-          .onChange(async (value: 'fal.ai' | 'comfy') => {
-            this.settings.aiProvider = value;
-            await saveSettings(this.plugin, this.settings);
-            this.display(); // Re-render to show/hide relevant settings
-          })
-      );
-
-    if (this.settings.aiProvider === 'fal.ai') {
-      new Setting(containerEl)
-        .setName('fal.ai API Key')
-        .setDesc('API key for fal.ai service')
-        .addText(text =>
-          text
-            .setPlaceholder('fal-...')
-            .setValue(this.settings.falApiKey || '')
-            .onChange(async (value) => {
-              this.settings.falApiKey = value;
-              await saveSettings(this.plugin, this.settings);
-            })
-        );
-    }
-
-    if (this.settings.aiProvider === 'comfy') {
-      new Setting(containerEl)
-        .setName('ComfyUI API URL')
-        .setDesc('URL for ComfyUI server (e.g., http://localhost:8188)')
+        .setName(t('COMFYUI_API_URL'))
+        .setDesc(t('COMFYUI_API_DESC'))
         .addText(text =>
           text
             .setPlaceholder('http://localhost:8188')
@@ -59,23 +31,408 @@ export class StoryboardSettingTab extends PluginSettingTab {
               this.settings.comfyApiUrl = value;
               await saveSettings(this.plugin, this.settings);
             })
+        )
+        .addButton(button =>
+          button
+            .setIcon('network')
+            .setTooltip(t('CONNECTION_TEST'))
+            .onClick(async () => {
+              button.setIcon('loader');
+              button.setTooltip(t('TESTING'));
+              button.setDisabled(true);
+              
+              try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                
+                const response = await fetch(`${this.settings.comfyApiUrl}/`, {
+                  method: 'GET',
+                  signal: controller.signal
+                });
+                
+                clearTimeout(timeoutId);
+                
+                if (response.ok) {
+                  button.setIcon('check');
+                  button.setTooltip(t('CONNECTION_SUCCESS'));
+                  setTimeout(() => {
+                    button.setIcon('network');
+                    button.setTooltip(t('CONNECTION_TEST'));
+                    button.setDisabled(false);
+                  }, 2000);
+                } else {
+                  throw new Error(`HTTP ${response.status}`);
+                }
+              } catch (error) {
+                button.setIcon('x');
+                button.setTooltip(t('CONNECTION_FAILED'));
+                console.error('ComfyUI connection test failed:', error);
+                setTimeout(() => {
+                  button.setIcon('network');
+                  button.setTooltip(t('CONNECTION_TEST'));
+                  button.setDisabled(false);
+                }, 2000);
+              }
+            })
         );
 
-      // ComfyUI setup instructions
-      const setupDiv = containerEl.createDiv();
-      setupDiv.createEl('h3', { text: 'ComfyUI Setup' });
-      setupDiv.createEl('p', { text: 'To use ComfyUI, you need to install and run it locally:' });
-      
-      const setupList = setupDiv.createEl('ol');
-      setupList.createEl('li', { text: 'Download ComfyUI from: ' }).createEl('a', {
-        text: 'https://github.com/comfyanonymous/ComfyUI',
-        href: 'https://github.com/comfyanonymous/ComfyUI'
+    // Workflow JSON file uploads
+    containerEl.createEl('h3', { text: t('WORKFLOW_SETTINGS') });
+
+    // Get default model name
+    let defaultModelName = 'v1-5-pruned-emaonly-fp16';
+    try {
+      const t2iWorkflow = await import('../../service/comfy/t2i.json');
+      defaultModelName = getModelNameFromWorkflow(t2iWorkflow);
+    } catch (e) {
+      console.error('Failed to load default workflow:', e);
+    }
+
+    // Text to Image Workflow
+    new Setting(containerEl)
+      .setName(t('TEXT_TO_IMAGE_WORKFLOW'))
+      .setDesc(t('TEXT_TO_IMAGE_WORKFLOW_DESC'))
+      .addDropdown(dropdown => {
+        // Build options
+        const options: Record<string, string> = {};
+        options['default'] = defaultModelName;
+        options['custom'] = 'カスタム（JSONアップロード）';
+        
+        dropdown
+          .addOptions(options)
+          .setValue(this.settings.textToImageWorkflowType || 'default')
+          .onChange(async (value) => {
+            this.settings.textToImageWorkflowType = value;
+            
+            if (value === 'custom') {
+              // Show file picker immediately
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = '.json';
+              input.onchange = async (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  try {
+                    const text = await file.text();
+                    const json = JSON.parse(text);
+                    
+                    // Validate workflow
+                    const validation = WorkflowInjector.validate(json);
+                    if (!validation.isValid) {
+                      alert(`${t('INVALID_WORKFLOW')}: ${validation.errors.join(', ')}`);
+                      // Reset to default
+                      this.settings.textToImageWorkflowType = 'default';
+                      dropdown.setValue('default');
+                      return;
+                    }
+                    
+                    if (validation.warnings.length > 0) {
+                      const proceed = confirm(`${t('WARNINGS')}: ${validation.warnings.join(', ')}\n\n${t('PROCEED_ANYWAY')}?`);
+                      if (!proceed) {
+                        // Reset to default
+                        this.settings.textToImageWorkflowType = 'default';
+                        dropdown.setValue('default');
+                        return;
+                      }
+                    }
+                    
+                    this.settings.textToImageWorkflow = json;
+                    this.settings.textToImageWorkflowName = file.name;
+                    await saveSettings(this.plugin, this.settings);
+                    
+                    // Update dropdown option text with model name
+                    const modelName = getModelNameFromWorkflow(json);
+                    dropdown.selectEl.options[dropdown.selectEl.selectedIndex].text = `カスタム: ${modelName}`;
+                  } catch (error) {
+                    alert(t('INVALID_JSON_FILE'));
+                    console.error('Invalid JSON file:', error);
+                    // Reset to default
+                    this.settings.textToImageWorkflowType = 'default';
+                    dropdown.setValue('default');
+                  }
+                } else {
+                  // User cancelled, reset to default
+                  this.settings.textToImageWorkflowType = 'default';
+                  dropdown.setValue('default');
+                }
+              };
+              input.click();
+            } else {
+              // Using default workflow
+              delete this.settings.textToImageWorkflow;
+              delete this.settings.textToImageWorkflowName;
+              await saveSettings(this.plugin, this.settings);
+            }
+          });
+        
+        // If custom workflow is loaded, show its model name
+        if (this.settings.textToImageWorkflowType === 'custom' && this.settings.textToImageWorkflow) {
+          const modelName = getModelNameFromWorkflow(this.settings.textToImageWorkflow);
+          dropdown.selectEl.options[dropdown.selectEl.selectedIndex].text = `カスタム: ${modelName}`;
+        }
       });
-      setupList.createEl('li', { text: 'Install required models in ComfyUI/models/checkpoints/ (e.g., sd_xl_base_1.0.safetensors)' });
-      setupList.createEl('li', { text: 'Start ComfyUI server: python main.py --listen' });
-      setupList.createEl('li', { text: 'Verify server is running at http://localhost:8188' });
+
+    // Get default i2i model name
+    let defaultI2IModelName = 'v1-5-pruned-emaonly-fp16';
+    try {
+      const i2iWorkflow = await import('../../service/comfy/i2i.json');
+      defaultI2IModelName = getModelNameFromWorkflow(i2iWorkflow);
+    } catch (e) {
+      console.error('Failed to load default i2i workflow:', e);
+    }
+
+    // Image to Image Workflow
+    new Setting(containerEl)
+      .setName(t('IMAGE_TO_IMAGE_WORKFLOW'))
+      .setDesc(t('IMAGE_TO_IMAGE_WORKFLOW_DESC'))
+      .addDropdown(dropdown => {
+        // Build options
+        const options: Record<string, string> = {};
+        options['default'] = defaultI2IModelName;
+        options['custom'] = 'カスタム（JSONアップロード）';
+        
+        dropdown
+          .addOptions(options)
+          .setValue(this.settings.imageToImageWorkflowType || 'default')
+          .onChange(async (value) => {
+            this.settings.imageToImageWorkflowType = value;
+            
+            if (value === 'custom') {
+              // Show file picker immediately
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = '.json';
+              input.onchange = async (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  try {
+                    const text = await file.text();
+                    const json = JSON.parse(text);
+                    
+                    // Validate workflow
+                    const validation = WorkflowInjector.validate(json);
+                    if (!validation.isValid) {
+                      alert(`${t('INVALID_WORKFLOW')}: ${validation.errors.join(', ')}`);
+                      // Reset to default
+                      this.settings.imageToImageWorkflowType = 'default';
+                      dropdown.setValue('default');
+                      return;
+                    }
+                    
+                    if (validation.warnings.length > 0) {
+                      const proceed = confirm(`${t('WARNINGS')}: ${validation.warnings.join(', ')}\n\n${t('PROCEED_ANYWAY')}?`);
+                      if (!proceed) {
+                        // Reset to default
+                        this.settings.imageToImageWorkflowType = 'default';
+                        dropdown.setValue('default');
+                        return;
+                      }
+                    }
+                    
+                    this.settings.imageToImageWorkflow = json;
+                    this.settings.imageToImageWorkflowName = file.name;
+                    await saveSettings(this.plugin, this.settings);
+                    
+                    // Update dropdown option text with model name
+                    const modelName = getModelNameFromWorkflow(json);
+                    dropdown.selectEl.options[dropdown.selectEl.selectedIndex].text = `カスタム: ${modelName}`;
+                  } catch (error) {
+                    alert(t('INVALID_JSON_FILE'));
+                    console.error('Invalid JSON file:', error);
+                    // Reset to default
+                    this.settings.imageToImageWorkflowType = 'default';
+                    dropdown.setValue('default');
+                  }
+                } else {
+                  // User cancelled, reset to default
+                  this.settings.imageToImageWorkflowType = 'default';
+                  dropdown.setValue('default');
+                }
+              };
+              input.click();
+            } else {
+              // Using default workflow
+              delete this.settings.imageToImageWorkflow;
+              delete this.settings.imageToImageWorkflowName;
+              await saveSettings(this.plugin, this.settings);
+            }
+          });
+        
+        // If custom workflow is loaded, show its model name
+        if (this.settings.imageToImageWorkflowType === 'custom' && this.settings.imageToImageWorkflow) {
+          const modelName = getModelNameFromWorkflow(this.settings.imageToImageWorkflow);
+          dropdown.selectEl.options[dropdown.selectEl.selectedIndex].text = `カスタム: ${modelName}`;
+        }
+      });
+
+    // Get default inpaint model name
+    let defaultInpaintModelName = '512-inpainting-ema';
+    try {
+      const inpaintWorkflow = await import('../../service/comfy/inpaint.json');
+      defaultInpaintModelName = getModelNameFromWorkflow(inpaintWorkflow);
+    } catch (e) {
+      console.error('Failed to load default inpaint workflow:', e);
+    }
+
+    // Inpainting Workflow
+    new Setting(containerEl)
+      .setName(t('INPAINTING_WORKFLOW'))
+      .setDesc(t('INPAINTING_WORKFLOW_DESC'))
+      .addDropdown(dropdown => {
+        // Build options
+        const options: Record<string, string> = {};
+        options['default'] = defaultInpaintModelName;
+        options['custom'] = 'カスタム（JSONアップロード）';
+        
+        dropdown
+          .addOptions(options)
+          .setValue(this.settings.inpaintingWorkflowType || 'default')
+          .onChange(async (value) => {
+            this.settings.inpaintingWorkflowType = value;
+            
+            if (value === 'custom') {
+              // Show file picker immediately
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = '.json';
+              input.onchange = async (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (file) {
+                  try {
+                    const text = await file.text();
+                    const json = JSON.parse(text);
+                    
+                    // Validate workflow
+                    const validation = WorkflowInjector.validate(json);
+                    if (!validation.isValid) {
+                      alert(`${t('INVALID_WORKFLOW')}: ${validation.errors.join(', ')}`);
+                      // Reset to default
+                      this.settings.inpaintingWorkflowType = 'default';
+                      dropdown.setValue('default');
+                      return;
+                    }
+                    
+                    if (validation.warnings.length > 0) {
+                      const proceed = confirm(`${t('WARNINGS')}: ${validation.warnings.join(', ')}\n\n${t('PROCEED_ANYWAY')}?`);
+                      if (!proceed) {
+                        // Reset to default
+                        this.settings.inpaintingWorkflowType = 'default';
+                        dropdown.setValue('default');
+                        return;
+                      }
+                    }
+                    
+                    this.settings.inpaintingWorkflow = json;
+                    this.settings.inpaintingWorkflowName = file.name;
+                    await saveSettings(this.plugin, this.settings);
+                    
+                    // Update dropdown option text with model name
+                    const modelName = getModelNameFromWorkflow(json);
+                    dropdown.selectEl.options[dropdown.selectEl.selectedIndex].text = `カスタム: ${modelName}`;
+                  } catch (error) {
+                    alert(t('INVALID_JSON_FILE'));
+                    console.error('Invalid JSON file:', error);
+                    // Reset to default
+                    this.settings.inpaintingWorkflowType = 'default';
+                    dropdown.setValue('default');
+                  }
+                } else {
+                  // User cancelled, reset to default
+                  this.settings.inpaintingWorkflowType = 'default';
+                  dropdown.setValue('default');
+                }
+              };
+              input.click();
+            } else {
+              // Using default workflow
+              delete this.settings.inpaintingWorkflow;
+              delete this.settings.inpaintingWorkflowName;
+              await saveSettings(this.plugin, this.settings);
+            }
+          });
+        
+        // If custom workflow is loaded, show its model name
+        if (this.settings.inpaintingWorkflowType === 'custom' && this.settings.inpaintingWorkflow) {
+          const modelName = getModelNameFromWorkflow(this.settings.inpaintingWorkflow);
+          dropdown.selectEl.options[dropdown.selectEl.selectedIndex].text = `カスタム: ${modelName}`;
+        }
+      });
+  }
+
+  async testWorkflow(workflowType: 'textToImage' | 'imageToImage' | 'inpainting', button: any): Promise<void> {
+    button.setButtonText(t('TESTING'));
+    button.setDisabled(true);
+    
+    try {
+      // For text-to-image, perform actual generation test
+      if (workflowType === 'textToImage') {
+        const { ComfyUIWebSocketClient } = await import('../../service/comfy/comfyui-websocket');
+        const { WorkflowInjector } = await import('../../service/comfy/workflow-injector');
+        const wsClient = new ComfyUIWebSocketClient(this.settings.comfyApiUrl);
+        
+        // Connect WebSocket
+        await wsClient.connect();
+        
+        try {
+          // Prepare test workflow
+          const workflow = JSON.parse(JSON.stringify(this.settings.textToImageWorkflow));
+          
+          // Inject test prompt
+          WorkflowInjector.inject({
+            workflow,
+            positivePrompt: "Test image generation",
+            negativePrompt: "bad quality"
+          });
+          
+          // Queue workflow
+          const promptId = await wsClient.queueWorkflow(workflow);
+          console.log(`Test workflow queued with ID: ${promptId}`);
+          
+          // Wait for completion with timeout
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Workflow execution timeout')), 30000)
+          );
+          
+          await Promise.race([
+            wsClient.waitForCompletion(promptId),
+            timeoutPromise
+          ]);
+          
+          button.setButtonText(t('CONNECTION_SUCCESS'));
+        } finally {
+          wsClient.disconnect();
+        }
+      } else {
+        // For i2i and inpainting, just test connection
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(`${this.settings.comfyApiUrl}/`, {
+          method: 'GET',
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+        
+        button.setButtonText(t('CONNECTION_SUCCESS'));
+      }
       
-      setupDiv.createEl('p', { text: 'Supported workflows: Text-to-Image, Image-to-Image, Inpainting' });
+      setTimeout(() => {
+        button.setButtonText(t('CONNECTION_TEST'));
+        button.setDisabled(false);
+      }, 2000);
+      
+    } catch (error) {
+      button.setButtonText(t('CONNECTION_FAILED'));
+      console.error(`${workflowType} workflow test failed:`, error);
+      setTimeout(() => {
+        button.setButtonText(t('CONNECTION_TEST'));
+        button.setDisabled(false);
+      }, 2000);
     }
   }
 }

@@ -39,7 +39,7 @@ export default function ChatBox({ app }: ChatBoxProps) {
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!input.trim()) return;
+    // プロンプトが空でもアタッチメントがあれば生成可能
 
     const prompt = input.trim();
     setInput('');
@@ -47,12 +47,40 @@ export default function ChatBox({ app }: ChatBoxProps) {
     setLoading(true);
     
     try {
-      // AI画像生成してレイヤーに追加
-      await toolRegistry.executeTool(TOOL_NAMES.GENERATE_IMAGE, { 
+      // AI画像生成
+      console.log('🎨 画像生成開始:', { prompt, attachments });
+      const result = await toolRegistry.executeTool(TOOL_NAMES.GENERATE_IMAGE, { 
         prompt,
         app,
         attachments 
       });
+      console.log('✅ 画像生成完了:', result);
+      
+      // 結果から画像データを取得してレイヤーに追加
+      const resultData = JSON.parse(result);
+      console.log('📊 結果データ:', resultData);
+      
+      if (resultData.blobUrl) {
+        console.log('🔄 レイヤー追加開始');
+        
+        try {
+          // Blob URLから画像データを取得
+          const response = await fetch(resultData.blobUrl);
+          const arrayBuffer = await response.arrayBuffer();
+          
+          const layerResult = await toolRegistry.executeTool(TOOL_NAMES.ADD_LAYER, {
+            name: prompt.substring(0, 30) || 'Generated Image',
+            fileData: arrayBuffer,
+            app
+          });
+          console.log('✅ レイヤー追加完了:', layerResult);
+        } finally {
+          // メモリリークを防ぐためにBlobURLを解放
+          URL.revokeObjectURL(resultData.blobUrl);
+        }
+      } else {
+        console.warn('⚠️ blobUrlが見つかりません:', resultData);
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '画像生成に失敗しました';
       console.error('❌ 画像生成エラー:', errorMessage);
@@ -219,7 +247,7 @@ export default function ChatBox({ app }: ChatBoxProps) {
           <button
             type="submit"
             className="flex-1 p-2 bg-accent text-on-accent rounded cursor-pointer hover:bg-accent-hover disabled:opacity-50"
-            disabled={loading || !input.trim()}
+            disabled={loading}
           >
             {activeTab === 'generation' ? '生成' : '確定'}
           </button>

@@ -1,6 +1,7 @@
 import { Tool } from '../../core/tool';
 import { App, normalizePath, TFile } from 'obsidian';
 import { Layer } from '../../../types/painter-types';
+import { useExportSettingsStore } from '../../../store/export-settings-store';
 
 function ensureCanvas(layer: Layer, width: number, height: number): HTMLCanvasElement {
   if (typeof HTMLCanvasElement !== 'undefined' && layer.canvas instanceof HTMLCanvasElement) {
@@ -50,7 +51,8 @@ namespace Internal {
   export interface ExportMergedImageInput {
     app: App;
     layers: Layer[];
-    fileName?: string;
+    customFolderPath: string;
+    previewCanvas: HTMLCanvasElement;
   }
 
   export interface ExportMergedImageOutput {
@@ -78,57 +80,27 @@ namespace Internal {
   }
 
   export async function executeExportMergedImage(args: ExportMergedImageInput): Promise<string> {
-    const { app, layers, fileName } = args;
-    if (!layers || layers.length === 0) throw new Error('no layers');
+    const { app, customFolderPath, previewCanvas } = args;
 
-    const first = ensureCanvas(layers[0], layers[0].canvas?.width || 800, layers[0].canvas?.height || 600);
-    const width = first.width;
-    const height = first.height;
-
-    const composite = document.createElement('canvas');
-    composite.width = width;
-    composite.height = height;
-    const ctx = composite.getContext('2d', { willReadFrequently: true });
-    if (!ctx) throw new Error('2Dコンテキストの取得に失敗しました');
-
-    ctx.clearRect(0, 0, width, height);
-
-    for (const layer of layers) {
-      if (layer.visible && layer.canvas) {
-        try {
-          ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
-          const blend = layer.blendMode === 'normal' ? 'source-over' : layer.blendMode;
-          ctx.globalCompositeOperation = blend as GlobalCompositeOperation;
-
-          const canvas = ensureCanvas(layer, width, height);
-          if (canvas instanceof HTMLCanvasElement) {
-            ctx.drawImage(canvas, 0, 0);
-          }
-        } catch (error) {
-          console.error(error);
-        }
-      }
-    }
-
-    const dataUrl = composite.toDataURL('image/png');
+    const dataUrl = previewCanvas.toDataURL('image/png');
     const bin = dataUrlToUint8Array(dataUrl);
 
-    const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
-    const folder = normalizePath(`${activeDir}/assets`);
+    const folder = normalizePath(customFolderPath);
     try {
       if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
     } catch {
       /* ignore */
     }
+    
     const ext = 'png';
-    let baseName = fileName ?? `merged-${Date.now()}.${ext}`;
-    if (!baseName.endsWith(`.${ext}`)) baseName += `.${ext}`;
+    let baseName = `merged-${Date.now()}.${ext}`;
     let fullPath = normalizePath(`${folder}/${baseName}`);
     let i = 1;
     while (app.vault.getAbstractFileByPath(fullPath)) {
-      fullPath = `${folder}/${Date.now()}_${i}.${ext}`;
+      fullPath = `${folder}/merged-${Date.now()}_${i}.${ext}`;
       i++;
     }
+    
     const imageFile: TFile = await app.vault.createBinary(fullPath, bin);
     const result: ExportMergedImageOutput = {
       filePath: imageFile.path,

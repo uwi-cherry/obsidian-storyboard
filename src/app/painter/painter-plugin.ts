@@ -10,7 +10,7 @@ export class PainterPlugin {
 
   constructor(plugin: Plugin) {
     this.plugin = plugin;
-    this.factory = new PainterFactory();
+    this.factory = new PainterFactory(plugin);
   }
 
   initialize(): void {

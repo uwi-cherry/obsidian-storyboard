@@ -1,8 +1,14 @@
 import { Tool } from '../../core/tool';
 import { App, TFile, normalizePath } from 'obsidian';
 import { getPluginSettings } from '../../../constants/plugin-settings';
-import { ComfyUIWebSocketClient } from '../gateway/comfyui-websocket';
-import { createTextToImageWorkflow, createImageToImageWorkflow, createInpaintingWorkflow, WorkflowParams } from '../gateway/comfyui-workflows';
+import { ComfyUIWebSocketClient } from '../../comfy/comfyui-websocket';
+import { WorkflowInjector } from '../../comfy/workflow-injector';
+import { loadSettings } from '../../../storage/plugin-settings';
+import { toolRegistry } from '../../core/tool-registry';
+import { TOOL_NAMES } from '../../../constants/tools-config';
+import t2iWorkflow from '../../comfy/t2i.json';
+import i2iWorkflow from '../../comfy/i2i.json';
+import inpaintWorkflow from '../../comfy/inpaint.json';
 
 namespace Internal {
   export interface GenerateImageInput {
@@ -18,14 +24,14 @@ namespace Internal {
   }
 
   export interface GenerateImageOutput {
-    filePath: string;
+    blobUrl: string; // Blob URL
     message: string;
     seed?: number;
   }
 
   export const GENERATE_IMAGE_METADATA = {
     name: 'generate_image',
-    description: 'Generate image via FLUX.1 Kontext Max Multi and save to assets',
+    description: 'Generate image via FLUX.1 Kontext Max Multi and return image data',
     parameters: {
       type: 'object',
       properties: {
@@ -67,33 +73,6 @@ namespace Internal {
     }
   } as const;
 
-  async function generateViafAlAI(prompt: string, apiKey: string): Promise<string> {
-    const endpoint = 'https://fal.run/fal-ai/flux/schnell';
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Key ${apiKey}`
-      },
-      body: JSON.stringify({
-        prompt,
-        image_size: 'square_hd',
-        num_inference_steps: 4,
-        num_images: 1
-      })
-    });
-    
-    if (!res.ok) {
-      throw new Error(`fal.ai API エラー: ${res.status} ${await res.text()}`);
-    }
-    
-    const result = await res.json();
-    if (!result.images || !result.images[0] || !result.images[0].url) {
-      throw new Error('fal.aiから画像URLが返されませんでした');
-    }
-    
-    return result.images[0].url;
-  }
 
   async function generateViaComfyUI(prompt: string, comfyUrl: string, attachments?: any[]): Promise<string> {
     const client = new ComfyUIWebSocketClient(comfyUrl);
@@ -107,39 +86,62 @@ namespace Internal {
       const i2iImage = enabledAttachments.find(att => att.type === 'image');
       const maskImage = enabledAttachments.find(att => att.type === 'mask');
       
-      let uploadedI2IName: string | undefined;
-      let uploadedMaskName: string | undefined;
+      let uploadedImageName: string | undefined;
       
-      // 画像アップロード
-      if (i2iImage) {
+      // inpaint時はcombine-image-maskツールを使って合成
+      if (i2iImage && maskImage) {
+        // combine-image-maskツールを使って画像とマスクを合成
+        const combineResult = await toolRegistry.executeTool('combine_image_mask', {
+          imageData: i2iImage.data,
+          maskData: maskImage.data
+        });
+        const combinedOutput = JSON.parse(combineResult);
+        
+        // 合成された画像をアップロード
+        const combinedBlob = await dataURLToBlob(combinedOutput.combinedImageData);
+        uploadedImageName = await client.uploadImage(combinedBlob, 'inpaint_image.png');
+      } else if (i2iImage) {
+        // i2i時は画像のみアップロード
         const i2iBlob = await dataURLToBlob(i2iImage.data);
-        uploadedI2IName = await client.uploadImage(i2iBlob, 'i2i_image.png');
+        uploadedImageName = await client.uploadImage(i2iBlob, 'i2i_image.png');
       }
       
-      if (maskImage) {
-        const maskBlob = await dataURLToBlob(maskImage.data);
-        uploadedMaskName = await client.uploadImage(maskBlob, 'mask_image.png');
-      }
-      
-      // ワークフローパラメータ
-      const workflowParams: WorkflowParams = {
-        prompt,
-        i2iImageName: uploadedI2IName,
-        maskImageName: uploadedMaskName
-      };
+      // 設定からカスタムワークフローを取得
+      const plugin = (globalThis as any).__obsidianPlugin;
+      const settings = plugin ? await loadSettings(plugin) : null;
       
       // 適切なワークフローを選択
       let workflow: any;
-      if (uploadedI2IName && uploadedMaskName) {
-        // Inpainting
-        workflow = createInpaintingWorkflow(workflowParams);
-      } else if (uploadedI2IName) {
-        // Image-to-Image
-        workflow = createImageToImageWorkflow(workflowParams);
+      if (i2iImage && maskImage) {
+        // Inpainting - カスタムワークフローがあれば使用
+        if (settings?.inpaintingWorkflow) {
+          workflow = JSON.parse(JSON.stringify(settings.inpaintingWorkflow));
+        } else {
+          workflow = JSON.parse(JSON.stringify(inpaintWorkflow));
+        }
+      } else if (i2iImage) {
+        // Image-to-Image - カスタムワークフローがあれば使用
+        if (settings?.imageToImageWorkflow) {
+          workflow = JSON.parse(JSON.stringify(settings.imageToImageWorkflow));
+        } else {
+          workflow = JSON.parse(JSON.stringify(i2iWorkflow));
+        }
       } else {
-        // Text-to-Image
-        workflow = createTextToImageWorkflow(workflowParams);
+        // Text-to-Image - カスタムワークフローがあれば使用
+        if (settings?.textToImageWorkflow) {
+          workflow = JSON.parse(JSON.stringify(settings.textToImageWorkflow));
+        } else {
+          workflow = JSON.parse(JSON.stringify(t2iWorkflow));
+        }
       }
+      
+      // WorkflowInjectorを使用してプロンプトと画像を設定
+      WorkflowInjector.inject({
+        workflow,
+        positivePrompt: prompt,
+        negativePrompt: "bad quality, blurry, low resolution",
+        imageName: uploadedImageName
+      });
       
       // ワークフローをキューに追加
       const promptId = await client.queueWorkflow(workflow);
@@ -178,61 +180,36 @@ namespace Internal {
     const response = await fetch(dataURL);
     return response.blob();
   }
-
+  
   export async function executeGenerateImage(args: GenerateImageInput): Promise<string> {
-    const { prompt, app, fileName } = args;
+    const { prompt } = args;
     const settings = getPluginSettings();
     
     if (!settings) {
       throw new Error('プラグイン設定が見つかりません');
     }
 
-    let imageUrl: string;
-    
-    if (settings.aiProvider === 'fal.ai') {
-      if (!settings.falApiKey) {
-        throw new Error('fal.ai API キーが設定されていません');
-      }
-      imageUrl = await generateViafAlAI(prompt, settings.falApiKey);
-    } else {
-      if (!settings.comfyApiUrl) {
-        throw new Error('ComfyUI URL が設定されていません');
-      }
-      imageUrl = await generateViaComfyUI(prompt, settings.comfyApiUrl, args.attachments);
+    if (!settings.comfyApiUrl) {
+      throw new Error('ComfyUI URL が設定されていません');
     }
+    
+    const imageUrl = await generateViaComfyUI(prompt, settings.comfyApiUrl, args.attachments);
 
-    // 画像をダウンロードして保存
+    // 画像をダウンロード
     const imageRes = await fetch(imageUrl);
     if (!imageRes.ok) {
       throw new Error(`画像ダウンロードエラー: ${imageRes.status}`);
     }
     
     const arrayBuffer = await imageRes.arrayBuffer();
-    const bin = new Uint8Array(arrayBuffer);
-
-    const activeDir = app.workspace.getActiveFile()?.parent?.path || '';
-    const folder = normalizePath(`${activeDir}/assets`);
-    const ext = 'png';
-    let baseName = fileName ?? `generated-${Date.now()}.${ext}`;
-    if (!baseName.endsWith(`.${ext}`)) baseName += `.${ext}`;
-    let fullPath = `${folder}/${baseName}`;
     
-    try {
-      if (!app.vault.getAbstractFileByPath(folder)) await app.vault.createFolder(folder);
-    } catch {
-      /* ignore */
-    }
+    // ArrayBufferからBlobを作成してURLを生成
+    const blob = new Blob([arrayBuffer], { type: 'image/png' });
+    const blobUrl = URL.createObjectURL(blob);
     
-    let i = 1;
-    while (app.vault.getAbstractFileByPath(fullPath)) {
-      fullPath = `${folder}/${Date.now()}_${i}.${ext}`;
-      i++;
-    }
-    
-    const imageFile: TFile = await app.vault.createBinary(fullPath, bin);
     const result: GenerateImageOutput = {
-      filePath: imageFile.path,
-      message: `画像を生成しました (${settings.aiProvider}): ${imageFile.path}`
+      blobUrl: blobUrl,
+      message: `画像を生成しました (ComfyUI)`
     };
     return JSON.stringify(result);
   }
@@ -240,7 +217,7 @@ namespace Internal {
 
 export const generateImageTool: Tool<Internal.GenerateImageInput> = {
   name: 'generate_image',
-  description: 'Generate image via FLUX.1 Kontext Max Multi and save to assets',
+  description: 'Generate image via FLUX.1 Kontext Max Multi and return image data',
   parameters: Internal.GENERATE_IMAGE_METADATA.parameters,
   execute: Internal.executeGenerateImage
 };

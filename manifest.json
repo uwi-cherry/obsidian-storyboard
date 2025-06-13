@@ -1,9 +1,9 @@
 {
-	"id": "obsidian-painter",
-	"name": "ペインター",
+	"id": "ai-painter",
+	"name": "AI Painter",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Obsidian用のペイントツール with AIチャット機能",
+	"description": "AI-powered painting tool for Obsidian with ComfyUI integration",
 	"author": "Cascade",
 	"authorUrl": "https://obsidian.md",
 	"fundingUrl": "https://obsidian.md/pricing",

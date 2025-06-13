@@ -3,6 +3,7 @@ import { Root } from 'react-dom/client';
 import { t } from '../../constants/obsidian-i18n';
 import { toolRegistry } from '../../service/core/tool-registry';
 import { setDisplayText } from '../utils/view-title-updater';
+import { ExportModal } from './export-modal';
 import type { PainterData } from 'src/types/painter-types';
 
 export class PainterView extends FileView {
@@ -10,10 +11,12 @@ export class PainterView extends FileView {
   public renderReact: () => void;
   public _painterData?: PainterData;
   private actionsAdded = false;
+  private plugin: any;
 
-  constructor(leaf: WorkspaceLeaf, renderReact: () => void) {
+  constructor(leaf: WorkspaceLeaf, renderReact: () => void, plugin: any) {
     super(leaf);
     this.renderReact = renderReact;
+    this.plugin = plugin;
   }
 
   getViewType(): string {
@@ -79,20 +82,27 @@ export class PainterView extends FileView {
     editBtn.querySelector('svg')?.remove();
     editBtn.textContent = t('EDIT_MENU');
 
-    const fileBtn = this.addAction('', t('EXPORT_MERGED_IMAGE'), async () => {
+    const fileBtn = this.addAction('', t('EXPORT_MERGED_IMAGE'), () => {
       if (!this._painterData) return;
-      try {
-        await toolRegistry.executeTool('export_merged_image', {
-          app: this.app,
-          layers: this._painterData.layers,
-          fileName: `${this.file?.basename || 'merged'}.png`
-        });
-      } catch (error) {
-        console.error(error);
-      }
+      this.showExportModal();
     }) as HTMLElement;
     fileBtn.querySelector('svg')?.remove();
     fileBtn.textContent = t('EXPORT_MERGED_IMAGE');
+  }
+
+  private showExportModal(): void {
+    if (!this._painterData) return;
+
+    const handleExport = async (folderPath: string, previewCanvas: HTMLCanvasElement) => {
+      await toolRegistry.executeTool('export_merged_image', {
+        app: this.app,
+        customFolderPath: folderPath,
+        previewCanvas: previewCanvas
+      });
+    };
+
+    const modal = new ExportModal(this.app, this.plugin, this._painterData.layers, handleExport);
+    modal.open();
   }
 
   async setState(state: { file: string | null }) {

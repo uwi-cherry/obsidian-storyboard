@@ -1,32 +1,23 @@
-# Obsidian Storyboard Plugin
+# Obsidian Painter Plugin
 
-ObsidianでAI支援の絵コンテ作成とペイント機能を提供するプラグインです。
-動画や映像制作、イラスト作成、ストーリーボード制作に最適化されています。
+ObsidianでAI支援のペイント機能を提供するプラグインです。
+レイヤー対応の本格的なペイントツールと、ComfyUIによるAI画像生成機能を搭載しています。
 
 ## 主な機能
-
-### 🎬 ストーリーボード機能
-- 絵コンテの作成・編集
-- キャラクター情報管理
-- 台詞・効果音の管理
-- AI画像生成による自動イラスト作成
 
 ### 🎨 ペイント機能
 - レイヤー対応の高機能ペイントツール
 - ブラシ、消しゴム、選択ツール等の豊富なツール
 - 色混合、ブレンドモード対応
-- AI塗りつぶし機能（選択範囲の自動生成）
+- PSDファイルの読み込み・保存
+- 画像の自動アップロード・転送機能
 
 ### 🤖 AI機能
-- fal.ai APIを使用した画像生成
+- **ComfyUI** を使用した画像生成
 - チャットベースでのAI操作
-- 加工元画像とマスクの自動送信
-- プロンプト入力による柔軟な生成
-
-### 🎥 タイムライン機能
-- 動画プレビュー
-- タイムライン編集
-- フレーム管理
+- **キャンバス→AI画像転送**: 現在のレイヤーを自動でAI生成に送信
+- **選択範囲→マスク転送**: 選択範囲を自動でマスクとして送信
+- Text-to-Image, Image-to-Image, Inpainting対応
 
 ## インストール方法
 
@@ -36,20 +27,28 @@ ObsidianでAI支援の絵コンテ作成とペイント機能を提供するプ�
 
 ```bash
 cd "[あなたのVaultフォルダ]/.obsidian/plugins/"
-git clone https://github.com/[リポジトリのURL] obsidian-storyboard
+git clone https://github.com/uwi-cherry/obsidian-painter.git obsidian-painter
 ```
 
-Obsidianを再起動して、設定 → コミュニティプラグイン → 「**Obsidian Storyboard**」を有効化
+Obsidianを再起動して、設定 → コミュニティプラグイン → 「**Obsidian Painter**」を有効化
 
 **それだけです！** ビルド済みファイルが含まれているので、追加の作業は必要ありません。
 
-### ⚙️ AI機能の設定（オプション）
+### ⚙️ AI機能の設定
 
-AI機能を使用する場合：
+AI機能を使用するには、ComfyUIデスクトップ版の設定が必要です：
 
-1. [fal.ai](https://fal.ai)でアカウントを作成してAPIキーを取得
-2. Obsidianの設定で「**Obsidian Storyboard**」セクションを開く
-3. 「**fal.ai API Key**」にAPIキーを入力
+1. [ComfyUI Desktop](https://github.com/comfyanonymous/ComfyUI)をダウンロード・インストール
+2. ComfyUIを起動
+3. 設定 → サーバー設定を開く
+4. ネットワーク欄で以下を設定：
+   - **ポート**: 8188（お好みの値）
+   - **CORSヘッダーを有効にする**: `*` を入力
+5. ComfyUIを再起動
+6. Obsidianの設定で「**Obsidian Painter**」セクションを開く
+7. AI Provider で「**ComfyUI**」を選択
+8. 「**ComfyUI API URL**」に `http://localhost:8188` を入力（ポートは手順4で設定した値）
+9. 「接続テスト」ボタンで接続を確認
 
 ---
 
@@ -58,34 +57,37 @@ AI機能を使用する場合：
 開発に参加したい場合は、`develop`ブランチをご利用ください：
 
 ```bash
-git clone -b develop https://github.com/[リポジトリのURL]
-cd obsidian-storyboard
+git clone -b develop https://github.com/uwi-cherry/obsidian-painter.git
+cd obsidian-painter
 npm install
 npm run dev
 ```
 
 ## 使い方
 
-### ストーリーボードの作成
-
-1. 新しいMarkdownファイルを作成
-2. ファイル内で右クリック → 「**Toggle Storyboard View**」を選択
-3. 絵コンテビューが表示されます
-4. 「**+**」ボタンでコマ（フレーム）を追加
-5. 各コマに画像、台詞、効果音を設定
-
 ### ペイント機能の使用
 
-1. ストーリーボードで「**PSDペインターを新規作成**」をクリック
+1. リボンの「**新規PSDファイルを作成**」ボタンをクリック
 2. ペイントビューが開きます
 3. 左側のツールパレットでブラシや色を選択
 4. キャンバス上で描画開始
-5. 右側でレイヤー管理が可能
+5. 右側でレイヤー管理とAIチャットが可能
 
-### AI塗りつぶしの使用
+### AI画像生成の使用
 
-1. ペイント画面で範囲選択ツールを選択
-2. 塗りつぶしたい範囲を選択
-3. 「**生成塗り**」ボタンをクリック
-4. 右サイドバーのチャットに画像とマスクが自動送信されます
-5. チャットでプロンプトを入力してAI生成を実行
+1. **Text-to-Image**: 右サイドバーのAI画像生成タブでプロンプトを入力
+2. **Image-to-Image**: キャンバスで描画後、i2i画像転送を有効にしてAI生成
+3. **Inpainting**: 選択ツールで範囲を選択後、マスク転送を有効にしてAI生成
+
+### 自動転送機能
+
+- **i2i画像転送**: キャンバスの変更を自動でAI生成の参照画像として送信
+- **マスク転送**: 選択範囲を自動でマスクとして送信
+- **手動参照**: サムネイル右下の「+」ボタンで手動参照も可能
+
+## サポート
+
+- Text-to-Image（テキストから画像生成）
+- Image-to-Image（画像から画像生成）
+- Inpainting（マスクを使った部分編集）
+- ComfyUIのWebSocket接続によるリアルタイム進捗表示

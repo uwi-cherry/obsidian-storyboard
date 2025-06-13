@@ -17,7 +17,8 @@ export const TOOL_NAMES = {
   RENAME_LAYER: 'rename_layer',
   TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility',
   
-  GENERATE_IMAGE: 'generate_image'
+  GENERATE_IMAGE: 'generate_image',
+  COMBINE_IMAGE_MASK: 'combine_image_mask'
 } as const;
 
 export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
@@ -149,6 +150,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "generateImageTool",
       ai_enabled: false,
       description: "Generate image via AI",
+      category: TOOL_CATEGORIES.AI
+    },
+    {
+      name: TOOL_NAMES.COMBINE_IMAGE_MASK,
+      modulePath: "../api/ai-tool/combine-image-mask",
+      exportName: "combineImageMaskTool",
+      ai_enabled: false,
+      description: "Combine image and mask with alpha channel",
       category: TOOL_CATEGORIES.AI
     }
   ],

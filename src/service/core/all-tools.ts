@@ -22,7 +22,8 @@ import {
 } from '../api/layer-tool';
 
 import {
-  generateImageTool
+  generateImageTool,
+  combineImageMaskTool
 } from '../api/ai-tool';
 
 export const ALL_TOOLS: Tool<any, any>[] = [
@@ -40,5 +41,6 @@ export const ALL_TOOLS: Tool<any, any>[] = [
   setLayerClippingTool,
   renameLayerTool,
   toggleLayerVisibilityTool,
-  generateImageTool
+  generateImageTool,
+  combineImageMaskTool
 ];
