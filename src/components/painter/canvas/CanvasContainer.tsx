@@ -50,11 +50,9 @@ export default function CanvasContainer({
 
   // Auto-transfer functions
   const transferImageFromCanvas = () => {
-    const layersStore = useLayersStore.getState();
-    const currentLayerIndexStore = useCurrentLayerIndexStore.getState();
-    const currentLayer = layersStore.layers[currentLayerIndexStore.currentLayerIndex];
+    const { mergedCanvas } = useLayersStore.getState();
     
-    if (!currentLayer || !currentLayer.canvas) return;
+    if (!mergedCanvas) return;
     
     // Remove existing i2i image attachment
     const existingI2iIndex = attachments.findIndex(att => att.type === 'image');
@@ -63,7 +61,7 @@ export default function CanvasContainer({
     }
     
     // Create new i2i image attachment
-    const dataUrl = currentLayer.canvas.toDataURL();
+    const dataUrl = mergedCanvas.toDataURL();
     addAttachment({ 
       url: dataUrl, 
       data: dataUrl, 

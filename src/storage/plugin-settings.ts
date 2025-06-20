@@ -1,13 +1,21 @@
 export interface PluginSettings {
-  falApiKey: string;
   comfyApiUrl: string;
-  aiProvider: 'fal.ai' | 'comfy';
+  textToImageWorkflow?: any;
+  imageToImageWorkflow?: any;
+  inpaintingWorkflow?: any;
+  streamingWorkflow?: any;
+  textToImageWorkflowName?: string;
+  imageToImageWorkflowName?: string;
+  inpaintingWorkflowName?: string;
+  streamingWorkflowName?: string;
+  textToImageWorkflowType?: string;
+  imageToImageWorkflowType?: string;
+  inpaintingWorkflowType?: string;
+  streamingWorkflowType?: string;
 }
 
 export const DEFAULT_SETTINGS: PluginSettings = {
-  falApiKey: '',
   comfyApiUrl: 'http://localhost:8188',
-  aiProvider: 'fal.ai',
 };
 
 export async function loadSettings(plugin: import('obsidian').Plugin): Promise<PluginSettings> {

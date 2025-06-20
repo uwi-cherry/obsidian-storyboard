@@ -9,6 +9,7 @@ import type { Layer } from 'src/types/painter-types';
 interface LayersState {
   layers: Layer[];
   currentPsdFile: TFile | null;
+  mergedCanvas: HTMLCanvasElement | null;
   updateLayers: (layers: Layer[]) => void;
   initializeLayers: (layers: Layer[]) => void;
   addLayer: (layer: Layer) => void;
@@ -23,6 +24,7 @@ interface LayersState {
   clearCurrentPsdFile: () => void;
   getCurrentSaveDelay: () => number;
   triggerAutoSave: () => void;
+  generateMergedCanvas: (width: number, height: number) => HTMLCanvasElement | null;
 }
 
 // 自動保存機能
@@ -54,6 +56,7 @@ export const useLayersStore = create<LayersState>()(
   subscribeWithSelector((set, get) => ({
     layers: [],
     currentPsdFile: null,
+    mergedCanvas: null,
 
     updateLayers: (layers) => {
       set({ layers });
@@ -153,6 +156,69 @@ export const useLayersStore = create<LayersState>()(
       if (state.layers.length > 0) {
         autoSave.execute(state.layers, state.currentPsdFile);
       }
+    },
+
+    generateMergedCanvas: (width: number, height: number) => {
+      const { layers } = get();
+      
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (layers && layers.length > 0) {
+        layers.forEach((layer: Layer, index: number) => {
+          if (layer.visible && layer.canvas) {
+            const originalAlpha = ctx.globalAlpha;
+            ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
+
+            const originalCompositeOperation = ctx.globalCompositeOperation;
+            if (layer.blendMode && layer.blendMode !== 'normal') {
+              try {
+                ctx.globalCompositeOperation = layer.blendMode as GlobalCompositeOperation;
+              } catch (e) {
+                console.error(e);
+              }
+            }
+
+            try {
+              if (layer.clippingMask && index > 0) {
+                // クリッピングマスク: 現在のレイヤーを直下のレイヤーの形でクリップ
+                const baseLayer = layers[index - 1];
+                if (baseLayer && baseLayer.canvas && baseLayer.visible) {
+                  const temp = document.createElement('canvas');
+                  temp.width = layer.canvas.width;
+                  temp.height = layer.canvas.height;
+                  const tctx = temp.getContext('2d');
+                  if (tctx) {
+                    // まず直下のレイヤーを描画（マスクとして使用）
+                    tctx.drawImage(baseLayer.canvas, 0, 0);
+                    // 現在のレイヤーをマスク内に描画
+                    tctx.globalCompositeOperation = 'source-in';
+                    tctx.drawImage(layer.canvas, 0, 0);
+                    ctx.drawImage(temp, 0, 0);
+                  }
+                } else {
+                  ctx.drawImage(layer.canvas, 0, 0);
+                }
+              } else {
+                ctx.drawImage(layer.canvas, 0, 0);
+              }
+            } catch (error) {
+              console.error(error);
+            }
+
+            ctx.globalAlpha = originalAlpha;
+            ctx.globalCompositeOperation = originalCompositeOperation;
+          }
+        });
+      }
+
+      set({ mergedCanvas: canvas });
+      return canvas;
     },
   }))
 );

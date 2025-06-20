@@ -5,9 +5,14 @@ import PainterPage from '../../components/painter/Page';
 import type { WorkspaceLeaf } from 'obsidian';
 
 export class PainterFactory {
+  private plugin: any;
+
+  constructor(plugin: any) {
+    this.plugin = plugin;
+  }
   
   createPainterView(leaf: WorkspaceLeaf): PainterView {
-    const view = new PainterView(leaf, () => this.renderReactComponent(view));
+    const view = new PainterView(leaf, () => this.renderReactComponent(view), this.plugin);
     return view;
   }
 

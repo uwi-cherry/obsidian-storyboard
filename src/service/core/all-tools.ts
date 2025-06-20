@@ -4,8 +4,7 @@ import {
   createPainterFileTool,
   loadPainterFileTool,
   savePainterFileTool,
-  generateThumbnailTool,
-  exportMergedImageTool,
+  createImageFileTool,
   undoPainterTool,
   redoPainterTool
 } from '../api/painter-tool';
@@ -22,15 +21,15 @@ import {
 } from '../api/layer-tool';
 
 import {
-  generateImageTool
+  generateImageTool,
+  combineImageMaskTool
 } from '../api/ai-tool';
 
 export const ALL_TOOLS: Tool<any, any>[] = [
   createPainterFileTool,
   loadPainterFileTool,
   savePainterFileTool,
-  generateThumbnailTool,
-  exportMergedImageTool,
+  createImageFileTool,
   undoPainterTool,
   redoPainterTool,
   addLayerTool,
@@ -40,5 +39,6 @@ export const ALL_TOOLS: Tool<any, any>[] = [
   setLayerClippingTool,
   renameLayerTool,
   toggleLayerVisibilityTool,
-  generateImageTool
+  generateImageTool,
+  combineImageMaskTool
 ];

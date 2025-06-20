@@ -4,8 +4,7 @@ export const TOOL_NAMES = {
   CREATE_PAINTER_FILE: 'create_painter_file',
   LOAD_PAINTER_FILE: 'load_painter_file',
   SAVE_PAINTER_FILE: 'save_painter_file',
-  GENERATE_THUMBNAIL: 'generate_thumbnail',
-  EXPORT_MERGED_IMAGE: 'export_merged_image',
+  CREATE_IMAGE_FILE: 'create_image_file',
   UNDO_PAINTER: 'undo_painter',
   REDO_PAINTER: 'redo_painter',
   
@@ -17,7 +16,8 @@ export const TOOL_NAMES = {
   RENAME_LAYER: 'rename_layer',
   TOGGLE_LAYER_VISIBILITY: 'toggle_layer_visibility',
   
-  GENERATE_IMAGE: 'generate_image'
+  GENERATE_IMAGE: 'generate_image',
+  COMBINE_IMAGE_MASK: 'combine_image_mask'
 } as const;
 
 export type ToolName = typeof TOOL_NAMES[keyof typeof TOOL_NAMES];
@@ -56,19 +56,11 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       category: TOOL_CATEGORIES.PAINTER
     },
     {
-      name: TOOL_NAMES.EXPORT_MERGED_IMAGE,
-      modulePath: "../api/painter-tool/export-merged-image",
-      exportName: "exportMergedImageTool",
+      name: TOOL_NAMES.CREATE_IMAGE_FILE,
+      modulePath: "../api/painter-tool/create-image-file",
+      exportName: "createImageFileTool",
       ai_enabled: false,
-      description: "Export merged image as PNG",
-      category: TOOL_CATEGORIES.PAINTER
-    },
-    {
-      name: TOOL_NAMES.GENERATE_THUMBNAIL,
-      modulePath: "../api/painter-tool/generate-thumbnail",
-      exportName: "generateThumbnailTool",
-      ai_enabled: false,
-      description: "Generate thumbnail from PSD file",
+      description: "Create image file from merged canvas",
       category: TOOL_CATEGORIES.PAINTER
     },
     {
@@ -149,6 +141,14 @@ export const TOOLS_CONFIG: ToolsConfiguration = {
       exportName: "generateImageTool",
       ai_enabled: false,
       description: "Generate image via AI",
+      category: TOOL_CATEGORIES.AI
+    },
+    {
+      name: TOOL_NAMES.COMBINE_IMAGE_MASK,
+      modulePath: "../api/ai-tool/combine-image-mask",
+      exportName: "combineImageMaskTool",
+      ai_enabled: false,
+      description: "Combine image and mask with alpha channel",
       category: TOOL_CATEGORIES.AI
     }
   ],

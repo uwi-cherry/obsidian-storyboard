@@ -45,7 +45,7 @@ export default function Canvas({
 
   const layers = useLayersStore((state) => state.layers);
   const currentLayerIndex = useCurrentLayerIndexStore((state) => state.currentLayerIndex);
-  const { updateLayers: setLayers } = useLayersStore();
+  const { updateLayers: setLayers, generateMergedCanvas, mergedCanvas } = useLayersStore();
 
   const dashOffsetRef = useRef(0);
   const animIdRef = useRef<number>();
@@ -54,7 +54,11 @@ export default function Canvas({
   const startAnimation = () => {
     if (animIdRef.current) cancelAnimationFrame(animIdRef.current);
     const animate = () => {
-      if (selectionState.hasSelection()) {
+      if (
+        selectionState.hasSelection() ||
+        selectionState.tempRect ||
+        selectionState.tempLassoPoints.length > 0
+      ) {
         dashOffsetRef.current = (dashOffsetRef.current + 0.5) % 12;
         setAnimationTick(t => t + 1);
         animIdRef.current = requestAnimationFrame(animate);
@@ -152,6 +156,7 @@ export default function Canvas({
 
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    // チェック柄背景を描画
     const checkSize = 10;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -163,44 +168,10 @@ export default function Canvas({
       }
     }
 
-    if (layers && layers.length > 0) {
-      layers.forEach((layer: import('src/types/painter-types').Layer, index: number) => {
-        if (layer.visible && layer.canvas) {
-          const originalAlpha = ctx.globalAlpha;
-          ctx.globalAlpha = layer.opacity !== undefined ? layer.opacity : 1;
-
-          const originalCompositeOperation = ctx.globalCompositeOperation;
-          if (layer.blendMode && layer.blendMode !== 'normal') {
-            try {
-              ctx.globalCompositeOperation = layer.blendMode as GlobalCompositeOperation;
-            } catch (e) {
-              console.error(e);
-            }
-          }
-
-          try {
-            if (layer.clippingMask && index > 0) {
-              const temp = document.createElement('canvas');
-              temp.width = layer.canvas.width;
-              temp.height = layer.canvas.height;
-              const tctx = temp.getContext('2d');
-              if (tctx) {
-                tctx.drawImage(layer.canvas, 0, 0);
-                tctx.globalCompositeOperation = 'destination-in';
-                tctx.drawImage(layers[index - 1].canvas, 0, 0);
-                ctx.drawImage(temp, 0, 0);
-              }
-            } else {
-              ctx.drawImage(layer.canvas, 0, 0);
-            }
-          } catch (error) {
-            console.error(error);
-          }
-
-          ctx.globalAlpha = originalAlpha;
-          ctx.globalCompositeOperation = originalCompositeOperation;
-        }
-      });
+    // layers-store でマージキャンバスを生成し、stateに保存
+    const merged = generateMergedCanvas(canvas.width, canvas.height);
+    if (merged) {
+      ctx.drawImage(merged, 0, 0);
     }
 
     // 選択領域の描画（既存選択 + 編集中の選択）
@@ -410,6 +381,7 @@ export default function Canvas({
           );
           lastPosRef.current = null;
         }
+        onSelectionUpdate?.();
         onSelectionEnd?.();
       } else {
         let valid = false;
@@ -476,6 +448,7 @@ export default function Canvas({
           onSelectionUpdate?.();
           onSelectionEnd?.();
         } else {
+          onSelectionUpdate?.();
           onSelectionEnd?.();
         }
       }
@@ -487,6 +460,15 @@ export default function Canvas({
       if (canvasRef.current) {
         canvasRef.current.style.cursor = 'grab';
       }
+    }
+  };
+
+  const handleDoubleClick = () => {
+    if (pointer.tool === 'selection') {
+      selectionState.reset();
+      stopAnimation();
+      onSelectionUpdate?.();
+      onSelectionEnd?.();
     }
   };
 
@@ -505,6 +487,7 @@ export default function Canvas({
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
+          onDoubleClick={handleDoubleClick}
         />
       </div>
     </div>

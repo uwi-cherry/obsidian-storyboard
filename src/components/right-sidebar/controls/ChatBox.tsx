@@ -1,10 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import type { ChangeEvent, FormEvent } from 'react';
 import type { App } from 'obsidian';
 import { TABLE_ICONS } from '../../../constants/icons';
 import { useChatAttachmentsStore } from '../../../store/chat-attachments-store';
 import { toolRegistry } from '../../../service/core/tool-registry';
 import { TOOL_NAMES } from '../../../constants/tools-config';
+import { useLayersStore } from '../../../storage/layers-store';
+import { useCurrentLayerIndexStore } from '../../../store/current-layer-index-store';
+import { StreamingGenerator } from '../../../service/api/ai-tool/streaming-generate';
+import { getPluginSettings } from '../../../constants/plugin-settings';
 
 interface ChatBoxProps {
   app: App;
@@ -14,9 +18,70 @@ export default function ChatBox({ app }: ChatBoxProps) {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'generation' | 'streaming'>('generation');
+  const [isStreaming, setIsStreaming] = useState(false);
+  const [streamingImage, setStreamingImage] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const streamingGeneratorRef = useRef<StreamingGenerator | null>(null);
   
-  const { attachments, addAttachment, removeAttachment, toggleAttachment, clearAttachments } = useChatAttachmentsStore();
+  const { attachments, addAttachment, removeAttachment, clearAttachments } = useChatAttachmentsStore();
+
+  // クリーンアップ: コンポーネントのアンマウント時にストリーミングを停止
+  useEffect(() => {
+    return () => {
+      streamingGeneratorRef.current?.stop();
+    };
+  }, []);
+
+  // プロンプト変更時にストリーミング生成のプロンプトを更新
+  useEffect(() => {
+    if (isStreaming && streamingGeneratorRef.current) {
+      streamingGeneratorRef.current.updatePrompt(input || 'beautiful landscape');
+    }
+  }, [input, isStreaming]);
+
+  // 画像添付変更時にストリーミング生成の画像を更新
+  useEffect(() => {
+    if (isStreaming && streamingGeneratorRef.current) {
+      const i2iAttachment = attachments.find(att => att.type === 'image' && att.enabled !== false);
+      streamingGeneratorRef.current.updateImage(i2iAttachment?.data);
+    }
+  }, [attachments, isStreaming]);
+
+
+  const generateMergedLayersImage = (): string => {
+    const { mergedCanvas } = useLayersStore.getState();
+    if (!mergedCanvas) {
+      console.log('mergedCanvas is null');
+      return '';
+    }
+    return mergedCanvas.toDataURL();
+  };
+
+  const toggleI2iMode = (index: number) => {
+    const attachment = attachments[index];
+    if (!attachment || attachment.type !== 'image') return;
+    
+    const newEnabled = !attachment.enabled;
+    let newData = '';
+    let newUrl = '';
+    
+    if (newEnabled) {
+      newData = generateMergedLayersImage();
+      newUrl = newData;
+    }
+    
+    // Update attachment
+    const newAttachments = [...attachments];
+    newAttachments[index] = {
+      ...attachment,
+      url: newUrl || attachment.url,
+      data: newData || attachment.data,
+      enabled: newEnabled
+    };
+    
+    // Replace all attachments to trigger re-render
+    useChatAttachmentsStore.setState({ attachments: newAttachments });
+  };
 
   const handleReferenceSelect = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -39,20 +104,104 @@ export default function ChatBox({ app }: ChatBoxProps) {
   const handleSend = async (e: FormEvent) => {
     e.preventDefault();
 
-    if (!input.trim()) return;
+    if (activeTab === 'streaming') {
+      // ストリーミングモードのトグル処理
+      if (isStreaming) {
+        // 停止前に最後の画像をレイヤーに追加
+        if (streamingImage) {
+          try {
+            console.log('Adding streaming result to layer:', streamingImage);
+            
+            // 画像をダウンロード
+            const response = await fetch(streamingImage);
+            const arrayBuffer = await response.arrayBuffer();
+            
+            // レイヤーに追加
+            const layerResult = await toolRegistry.executeTool(TOOL_NAMES.ADD_LAYER, {
+              name: `Streaming: ${input.substring(0, 30) || 'Generated'}`,
+              fileData: arrayBuffer,
+              app
+            });
+            console.log('Layer added:', layerResult);
+          } catch (error) {
+            console.error('Failed to add streaming result to layer:', error);
+          }
+        }
+        
+        // 停止
+        await streamingGeneratorRef.current?.stop();
+        streamingGeneratorRef.current = null;
+        setIsStreaming(false);
+      } else {
+        // 開始
+        const settings = getPluginSettings();
+        if (!settings?.comfyApiUrl) {
+          console.error('ComfyUI URL not configured');
+          return;
+        }
+        
+        const prompt = input.trim() || 'beautiful landscape';
+        streamingGeneratorRef.current = new StreamingGenerator(settings.comfyApiUrl);
+        
+        try {
+          // i2i画像を探して渡す
+          const i2iAttachment = attachments.find(att => att.type === 'image' && att.enabled !== false);
+          
+          await streamingGeneratorRef.current.start(prompt, (imageUrl) => {
+            setStreamingImage(imageUrl);
+          }, i2iAttachment?.data);
+          setIsStreaming(true);
+        } catch (error) {
+          console.error('Failed to start streaming:', error);
+          streamingGeneratorRef.current = null;
+          setIsStreaming(false);
+          alert('ストリーミング生成の開始に失敗しました。ComfyUIが起動しているか確認してください。');
+        }
+      }
+      return;
+    }
 
+    // 通常の生成処理
     const prompt = input.trim();
     setInput('');
     clearAttachments();
     setLoading(true);
     
     try {
-      // AI画像生成してレイヤーに追加
-      await toolRegistry.executeTool(TOOL_NAMES.GENERATE_IMAGE, { 
+      // AI画像生成
+      console.log('🎨 画像生成開始:', { prompt, attachments });
+      const result = await toolRegistry.executeTool(TOOL_NAMES.GENERATE_IMAGE, { 
         prompt,
         app,
         attachments 
       });
+      console.log('✅ 画像生成完了:', result);
+      
+      // 結果から画像データを取得してレイヤーに追加
+      const resultData = JSON.parse(result);
+      console.log('📊 結果データ:', resultData);
+      
+      if (resultData.blobUrl) {
+        console.log('🔄 レイヤー追加開始');
+        
+        try {
+          // Blob URLから画像データを取得
+          const response = await fetch(resultData.blobUrl);
+          const arrayBuffer = await response.arrayBuffer();
+          
+          const layerResult = await toolRegistry.executeTool(TOOL_NAMES.ADD_LAYER, {
+            name: prompt.substring(0, 30) || 'Generated Image',
+            fileData: arrayBuffer,
+            app
+          });
+          console.log('✅ レイヤー追加完了:', layerResult);
+        } finally {
+          // メモリリークを防ぐためにBlobURLを解放
+          URL.revokeObjectURL(resultData.blobUrl);
+        }
+      } else {
+        console.warn('⚠️ blobUrlが見つかりません:', resultData);
+      }
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : '画像生成に失敗しました';
       console.error('❌ 画像生成エラー:', errorMessage);
@@ -124,10 +273,16 @@ export default function ChatBox({ app }: ChatBoxProps) {
         {activeTab === 'streaming' && (
           <div className="mb-3">
             <div className="w-full h-48 border-2 border-dashed border-modifier-border rounded-lg flex items-center justify-center bg-secondary relative overflow-hidden">
-              {loading ? (
+              {isStreaming && streamingImage ? (
+                <img 
+                  src={streamingImage} 
+                  alt="Streaming preview" 
+                  className="w-full h-full object-contain"
+                />
+              ) : isStreaming ? (
                 <div className="flex flex-col items-center gap-2">
                   <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-xs text-text-muted">リアルタイム生成中...</span>
+                  <span className="text-xs text-text-muted">接続中...</span>
                 </div>
               ) : (
                 <div className="flex flex-col items-center gap-2 text-text-muted">
@@ -136,14 +291,9 @@ export default function ChatBox({ app }: ChatBoxProps) {
                     <path d="M8.5 14L12 10.5L15.5 14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                   <span className="text-sm">ストリーミング生成プレビュー</span>
-                  <span className="text-xs opacity-70">プロンプト入力後にリアルタイム生成が開始されます</span>
+                  <span className="text-xs opacity-70">開始ボタンを押してリアルタイム生成を開始</span>
                 </div>
               )}
-              
-              {/* プレビュー画像表示エリア（将来の実装用） */}
-              <div className="absolute inset-0 bg-transparent pointer-events-none">
-                {/* ここに将来的にストリーミング画像を表示 */}
-              </div>
             </div>
           </div>
         )}
@@ -162,20 +312,20 @@ export default function ChatBox({ app }: ChatBoxProps) {
                 <img
                   src={att.url}
                   alt={`${att.type} attachment`}
-                  className={`w-12 h-12 object-cover rounded border-2 ${border} ${(att as any).enabled === false ? 'opacity-50' : ''}`}
+                  className={`w-12 h-12 object-cover rounded border-2 ${border} ${att.type === 'image' && !att.enabled ? 'opacity-50' : ''}`}
                 />
                 
                 {/* 右上のコントロールボタン */}
                 <div className="absolute -top-1 -right-1">
-                  {/* 有効・無効切り替えボタン（i2i画像のみ） */}
+                  {/* i2i画像ON/OFFボタン */}
                   {att.type === 'image' && (
                     <button
                       type="button"
-                      className="bg-secondary rounded-full p-1 text-xs"
-                      onClick={() => toggleAttachment(idx)}
-                      title={(att as any).enabled === false ? '有効にする' : '無効にする'}
+                      className={`rounded-full p-1 text-xs hover:bg-modifier-hover ${att.enabled ? 'bg-accent text-accent-foreground' : 'bg-secondary'}`}
+                      onClick={() => toggleI2iMode(idx)}
+                      title={att.enabled ? 'i2i有効' : 'i2i無効'}
                     >
-                      {(att as any).enabled === false ? '🚫' : '👁'}
+                      {att.enabled ? '👁' : '🚫'}
                     </button>
                   )}
                   
@@ -209,8 +359,8 @@ export default function ChatBox({ app }: ChatBoxProps) {
             type="text"
             value={input}
             onChange={e => setInput(e.target.value)}
-            placeholder="プロンプトを入力"
-            className="flex-1 p-1 border border-modifier-border rounded bg-primary text-text-normal"
+            placeholder={activeTab === 'streaming' ? "リアルタイム生成のプロンプト" : "プロンプトを入力"}
+            className="flex-1 p-2 border border-modifier-border rounded bg-primary text-text-normal"
             disabled={loading}
           />
         </div>
@@ -219,9 +369,9 @@ export default function ChatBox({ app }: ChatBoxProps) {
           <button
             type="submit"
             className="flex-1 p-2 bg-accent text-on-accent rounded cursor-pointer hover:bg-accent-hover disabled:opacity-50"
-            disabled={loading || !input.trim()}
+            disabled={loading}
           >
-            {activeTab === 'generation' ? '生成' : '確定'}
+            {activeTab === 'generation' ? '生成' : isStreaming ? '停止' : '開始'}
           </button>
         </div>
         

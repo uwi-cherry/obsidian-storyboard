@@ -1,4 +1,4 @@
-import type { PluginSettings } from '../app/settings/settings-data';
+import type { PluginSettings } from '../storage/plugin-settings';
 
 let settings: PluginSettings | null = null;
 

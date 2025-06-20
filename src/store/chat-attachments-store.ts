@@ -6,6 +6,7 @@ interface ChatAttachmentsState {
   addAttachment: (attachment: Attachment) => void;
   removeAttachment: (index: number) => void;
   toggleAttachment: (index: number) => void;
+  setI2iMode: (index: number, mode: 'current-layer' | 'merged-layers' | 'disabled') => void;
   clearAttachments: () => void;
 }
 
@@ -42,6 +43,20 @@ export const useChatAttachmentsStore = create<ChatAttachmentsState>((set, get) =
     });
   },
   
+  setI2iMode: (index: number, mode: 'current-layer' | 'merged-layers' | 'disabled') => {
+    set((state) => {
+      const newAttachments = [...state.attachments];
+      if (newAttachments[index]) {
+        newAttachments[index] = {
+          ...newAttachments[index],
+          i2iMode: mode,
+          enabled: mode !== 'disabled'
+        };
+      }
+      return { attachments: newAttachments };
+    });
+  },
+
   clearAttachments: () => {
     set((state) => {
       state.attachments.forEach(att => URL.revokeObjectURL(att.url));
